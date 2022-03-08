@@ -84,9 +84,24 @@
                     android:background="@color/white"
                     android:gravity="center|start"
                     android:hint="Select Date"
+                    android:minHeight="@dimen/_40sdp"
+                    android:layout_marginLeft="@dimen/_5sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_marginRight="@dimen/_5sdp"
                     android:textColor="@color/black"
                     android:textColorHint="@color/black_50"
                     android:textSize="@dimen/_12sdp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*"
+                    android:gravity="center"
+                    android:layout_gravity="end"
+                    android:textColor="@color/red"
+                    android:textSize="@dimen/_16sdp"
+                    android:layout_marginRight="@dimen/_6sdp"/>
+
 
             </LinearLayout>
 
@@ -187,6 +202,7 @@
                 <EditText
                     android:id="@+id/et_dialog_add_acti_cus_dtls"
                     android:layout_width="match_parent"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/_5sdp"
                     android:layout_marginTop="@dimen/_5sdp"
@@ -198,6 +214,17 @@
                     android:textColor="@color/black"
                     android:textColorHint="@color/black_50"
                     android:textSize="@dimen/_12sdp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*"
+                    android:gravity="center"
+                    android:layout_gravity="end"
+                    android:textColor="@color/red"
+                    android:textSize="@dimen/_16sdp"
+                    android:layout_marginRight="@dimen/_7sdp"/>
+
 
 
             </LinearLayout>
@@ -251,6 +278,8 @@
                     android:textColor="@color/black"
                     android:textColorHint="@color/black_50"
                     android:textSize="@dimen/_12sdp" />
+
+
 
             </LinearLayout>
 
@@ -306,9 +335,21 @@
                     android:hint="Select Activity Status"
                     android:minHeight="@dimen/_40sdp"
                     android:padding="@dimen/_5sdp"
+                    android:layout_weight="1"
                     android:textColor="@color/black"
                     android:textColorHint="@color/black_50"
                     android:textSize="@dimen/_12sdp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*"
+                    android:gravity="center"
+                    android:layout_gravity="end"
+                    android:textColor="@color/red"
+                    android:textSize="@dimen/_16sdp"
+                    android:layout_marginRight="@dimen/_7sdp"/>
+
 
             </LinearLayout>
 

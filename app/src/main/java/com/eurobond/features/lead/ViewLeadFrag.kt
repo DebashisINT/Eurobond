@@ -327,7 +327,9 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
         myCalendar.set(Calendar.MONTH, monthOfYear)
         myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-        tv_date_dialog.text=  AppUtils.getFormatedDateNew(AppUtils.getBillingDateFromCorrectDate(AppUtils.getFormattedDateForApi(myCalendar.time)),"dd-mm-yyyy","yyyy-mm-dd")
+//        tv_date_dialog.text=  AppUtils.getFormatedDateNew(AppUtils.getBillingDateFromCorrectDate(AppUtils.getFormattedDateForApi(myCalendar.time)),"dd-mm-yyyy","yyyy-mm-dd")
+
+        tv_date_dialog.text=  AppUtils.getBillingDateFromCorrectDate(AppUtils.getFormattedDateForApi(myCalendar.time))
     }
 
     private fun getActivityDropdownList() {
@@ -397,6 +399,9 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
                 return
             }
+            var formatDate = AppUtils.getFormatedDateNew(addActivityReq.activity_date,"dd-mm-yyyy","yyyy-mm-dd")
+            addActivityReq.activity_date=formatDate
+
             BaseActivity.isApiInitiated = true
             progress_wheel.spin()
             val repository = GetLeadRegProvider.provideList()
@@ -451,7 +456,7 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
 
         //data set
         tv_date_dialog.text=obj.activity_date
-        tv_date_dialog.isEnabled=false
+//        tv_date_dialog.isEnabled=false
         tv_time.text=obj.activity_time
         tv_time.isEnabled=false
         et_dtls.setText(obj.activity_details)
@@ -513,7 +518,8 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
                 et_dtls.requestFocus()
                 et_dtls.setError("Enter details")
                 validating=false
-            }else if(activityStatus.text.toString().equals("")){
+            }
+            else if(activityStatus.text.toString().equals("")){
                 activityStatus.requestFocus()
                 activityStatus.setError("Select Status")
                 validating=false
@@ -572,6 +578,10 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
                 return
             }
+
+            var formatDate = AppUtils.getFormatedDateNew(editActivityReq.activity_date,"dd-mm-yyyy","yyyy-mm-dd")
+            editActivityReq.activity_date=formatDate
+
             BaseActivity.isApiInitiated = true
             progress_wheel.spin()
             val repository = GetLeadRegProvider.provideList()
