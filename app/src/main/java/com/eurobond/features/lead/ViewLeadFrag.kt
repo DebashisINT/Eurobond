@@ -176,8 +176,14 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
 
     private fun setAdapter(list: ArrayList<activity_dtls_list>){
         viewActivityAdapter=ViewActivityAdapter(mContext,list,object: ViewActivityAdapter.OnViewActiClickListener{
-            override fun onEditClick(obj: activity_dtls_list) {
-                onEdit(obj)
+            override fun onEditClick(obj: activity_dtls_list,adapterPos:Int) {
+                var isLast:Boolean=false
+                if((list.size-1) == adapterPos){
+                    isLast=true
+                }else{
+                    isLast=false
+                }
+                onEdit(obj,isLast)
             }
         })
         rv_list.adapter=viewActivityAdapter
@@ -434,7 +440,7 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
         }
     }
 
-    private fun onEdit(obj: activity_dtls_list){
+    private fun onEdit(obj: activity_dtls_list,isLast:Boolean){
         simpleDialog = Dialog(mContext)
         simpleDialog.setCancelable(false)
         simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -456,7 +462,11 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
 
         //data set
         tv_date_dialog.text=obj.activity_date
-//        tv_date_dialog.isEnabled=false
+        if(isLast){
+            tv_date_dialog.isEnabled=true
+        }else{
+            tv_date_dialog.isEnabled=false
+        }
         tv_time.text=obj.activity_time
         tv_time.isEnabled=false
         et_dtls.setText(obj.activity_details)
