@@ -41,7 +41,6 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginLeft="@dimen/_5sdp"
             android:layout_marginTop="@dimen/_1sdp"
-            android:layout_marginRight="@dimen/_5sdp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -100,7 +99,7 @@
                     android:layout_gravity="end"
                     android:textColor="@color/red"
                     android:textSize="@dimen/_16sdp"
-                    android:layout_marginRight="@dimen/_6sdp"/>
+                    android:layout_marginRight="@dimen/_7sdp"/>
 
 
             </LinearLayout>
