@@ -300,7 +300,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
         val time = System.currentTimeMillis()
         //val fileName = "QUTO_" +  "_" + time
         var fileName = addQuotEditResult.quotation_number!!.toUpperCase() +  "_" + time
-        fileName=fileName.replace("/","_")
+        fileName=fileName.replace("/", "_")
         val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+"/QUTO/"
 
         val dir = File(path)
@@ -336,7 +336,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             //var quotDate = AppUtils.getFormatedDateNew(addQuotEditResult.quotation_date_selection!!.replace("12:00:00 AM",""),"mm-dd-yyyy","dd-mm-yyyy")
 
-            val dateLine = Paragraph("DATE: " +addQuotEditResult.quotation_date_selection!! +
+            val dateLine = Paragraph("DATE: " + addQuotEditResult.quotation_date_selection!! +
                     "                                                              " + addQuotEditResult.quotation_number, font)
             dateLine.alignment = Element.ALIGN_LEFT
             dateLine.spacingAfter = 5f
@@ -353,7 +353,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             cusName.spacingAfter = 5f
             document.add(cusName)
 
-            val cusAddress = Paragraph( addQuotEditResult.shop_addr, font)
+            val cusAddress = Paragraph(addQuotEditResult.shop_addr, font)
             cusAddress.alignment = Element.ALIGN_LEFT
             cusAddress.spacingAfter = 5f
             document.add(cusAddress)
@@ -362,14 +362,20 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 //            cusemail.alignment = Element.ALIGN_LEFT
 //            cusemail.spacingAfter = 5f
 //            document.add(cusemail)
-           // val cusemail = Chunk("Email : " +  addQuotEditResult.shop_email, font)
-            val cusemail = Paragraph("Email : " +  addQuotEditResult.shop_email, font)
-            //cusemail.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
-            cusemail.spacingAfter = 5f
+            var table: PdfPTable = PdfPTable(2)
+            val phrase = Phrase()
+            phrase.add("Email : ")
+            val cusemail = Chunk(addQuotEditResult.shop_email, font)
+//            val cusemail = Paragraph("Email : " +  addQuotEditResult.shop_email, font)
+            cusemail.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
+//            cusemail.spacingAfter = 5f
+            cusemail.setAnchor(addQuotEditResult.shop_email)
+            phrase.add(cusemail)
+            table.addCell(phrase)
             document.add(cusemail)
 
             //val cusowner = Paragraph("Kind Attn. " + addQuotEditResult.shop_owner_name +"  "+ "(Mob.No.  " + addQuotEditResult.shop_phone_no +  ")", font)
-            val cusowner = Chunk("Kind Attn. " + addQuotEditResult.shop_owner_name +"  "+ "(Mob.No.  " + addQuotEditResult.shop_phone_no +  ")", font)
+            val cusowner = Chunk("Kind Attn. " + addQuotEditResult.shop_owner_name + "  " + "(Mob.No.  " + addQuotEditResult.shop_phone_no + ")", font)
             cusowner.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
             //cusowner.alignment = Element.ALIGN_LEFT
             //cusowner.spacingAfter = 5f
@@ -577,8 +583,8 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             //p.add(Chunk(img2, 0f, 0f, true))
             p.add(companydel)
             cell.addElement(p)
-            cell.backgroundColor= BaseColor(0, 0, 0,0)
-            cell.borderColor=BaseColor(0, 0, 0,0)
+            cell.backgroundColor= BaseColor(0, 0, 0, 0)
+            cell.borderColor=BaseColor(0, 0, 0, 0)
 
             cell.setHorizontalAlignment(PdfPCell.ALIGN_LEFT)
             tablee.addCell(cell)
@@ -623,7 +629,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
         }catch (ex: Exception){
             ex.printStackTrace()
-            Toaster.msgShort(mContext,ex.message.toString())
+            Toaster.msgShort(mContext, ex.message.toString())
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
         }
 
