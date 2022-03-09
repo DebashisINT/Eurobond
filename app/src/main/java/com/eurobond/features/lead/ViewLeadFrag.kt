@@ -468,7 +468,7 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
             tv_date_dialog.isEnabled=false
         }
         tv_time.text=obj.activity_time
-        tv_time.isEnabled=false
+        //tv_time.isEnabled=false
         et_dtls.setText(obj.activity_details)
         et_remarks.setText(obj.other_remarks)
         activityStatus.text=obj.activity_status
