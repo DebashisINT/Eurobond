@@ -327,6 +327,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             try {
                 img = Image.getInstance(byteArray)
                 img.scaleToFit(155f,90f)
+                img.scalePercent(70f)
                 img.alignment=Image.ALIGN_RIGHT
             } catch (e: BadElementException) {
                 e.printStackTrace()
