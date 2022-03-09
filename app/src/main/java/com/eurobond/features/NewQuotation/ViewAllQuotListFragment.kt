@@ -431,9 +431,10 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
 
 
-            val terms = Paragraph("\nTerms & Conditions:                                                                                                  ", font)
-            terms.alignment = Element.ALIGN_LEFT
-            terms.spacingAfter = 5f
+            val terms = Chunk("\nTerms & Conditions", font)
+//            terms.alignment = Element.ALIGN_LEFT
+//            terms.spacingAfter = 5f
+            terms.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
             document.add(terms)
 
 
@@ -519,7 +520,6 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             val euroHead = Paragraph("\nEURO PANEL PRODUCTS PVT. LTD.", font)
             euroHead.alignment = Element.ALIGN_LEFT
-            euroHead.spacingAfter = 5f
             document.add(euroHead)
 
             //strip_line//bar//ics
