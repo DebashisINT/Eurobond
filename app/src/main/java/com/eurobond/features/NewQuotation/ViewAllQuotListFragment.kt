@@ -353,7 +353,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             cusName.spacingAfter = 5f
             document.add(cusName)
 
-            val cusAddress = Paragraph("customer Address:" + addQuotEditResult.shop_addr, font)
+            val cusAddress = Paragraph( addQuotEditResult.shop_addr, font)
             cusAddress.alignment = Element.ALIGN_LEFT
             cusAddress.spacingAfter = 5f
             document.add(cusAddress)
@@ -362,17 +362,32 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 //            cusemail.alignment = Element.ALIGN_LEFT
 //            cusemail.spacingAfter = 5f
 //            document.add(cusemail)
-            val cusemail = Chunk("Email : " +  addQuotEditResult.shop_email, font)
-            cusemail.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
+           // val cusemail = Chunk("Email : " +  addQuotEditResult.shop_email, font)
+            val cusemail = Paragraph("Email : " +  addQuotEditResult.shop_email, font)
+            //cusemail.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
+            cusemail.spacingAfter = 5f
             document.add(cusemail)
-            val cusowner = Paragraph("Kind Attn. " + addQuotEditResult.shop_owner_name +"  "+ "(Mob.No.  " + addQuotEditResult.shop_phone_no +  ")", font)
-            cusowner.alignment = Element.ALIGN_LEFT
-            cusowner.spacingAfter = 5f
+
+            //val cusowner = Paragraph("Kind Attn. " + addQuotEditResult.shop_owner_name +"  "+ "(Mob.No.  " + addQuotEditResult.shop_phone_no +  ")", font)
+            val cusowner = Chunk("Kind Attn. " + addQuotEditResult.shop_owner_name +"  "+ "(Mob.No.  " + addQuotEditResult.shop_phone_no +  ")", font)
+            cusowner.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
+            //cusowner.alignment = Element.ALIGN_LEFT
+            //cusowner.spacingAfter = 5f
             document.add(cusowner)
 
-            val sub = Paragraph("Sub :-Quotation For Eurobond-ALUMINIUM COMPOSITE PANEL", font)
-            sub.alignment = Element.ALIGN_LEFT
-            sub.spacingAfter = 10f
+
+
+            val x = Paragraph("", font)
+            //cusemail.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
+            x.spacingAfter = 5f
+            document.add(x)
+
+
+            //val sub = Paragraph("Sub :-Quotation For Eurobond-ALUMINIUM COMPOSITE PANEL", font)
+            val sub = Chunk("Sub :-Quotation For Eurobond-ALUMINIUM COMPOSITE PANEL", font)
+            sub.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
+            //sub.alignment = Element.ALIGN_LEFT
+            //sub.spacingAfter = 10f
             document.add(sub)
 
             val body = Paragraph("\nSir,\n" +
