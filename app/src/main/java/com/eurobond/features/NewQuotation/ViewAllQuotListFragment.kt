@@ -423,7 +423,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
 
 
-            val taxs = Paragraph("Taxs                                    :     " + addQuotEditResult.taxes, font1)
+            val taxs = Paragraph("Taxes                                    :     " + addQuotEditResult.taxes, font1)
             taxs.alignment = Element.ALIGN_LEFT
             taxs.spacingAfter = 5f
             document.add(taxs)
