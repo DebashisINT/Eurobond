@@ -317,6 +317,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             var font1: Font = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL)
             val grayFront = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL, BaseColor.GRAY)
 
+
             //image add
             val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo_pdf_print)
             val bitmap = Bitmap.createScaledBitmap(bm, 150, 50, true);
@@ -631,7 +632,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             cell.setHorizontalAlignment(PdfPCell.ALIGN_LEFT)
             tablee.addCell(cell)
             document.add(tablee)
-            
+
 
             val bm3: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.strip_line)
             val bitmap3 = Bitmap.createScaledBitmap(bm3, 520, 20, true)
