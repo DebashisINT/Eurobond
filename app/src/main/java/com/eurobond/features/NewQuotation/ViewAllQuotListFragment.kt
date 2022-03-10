@@ -48,6 +48,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.zip.GZIPOutputStream
 
 
 class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
@@ -161,6 +162,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                                 progress_wheel.stopSpinning()
                                 if (addQuotResult!!.status == NetworkConstant.SUCCESS) {
                                     if (addQuotResult!!.shop_wise_quotation_list!!.size > 0) {
+                                        quot_list_rv.visibility = View.VISIBLE
                                         no_quot_tv.visibility = View.GONE
                                         addedQuotList.clear()
                                         addedQuotList.addAll(addQuotResult!!.shop_wise_quotation_list!!)
@@ -168,6 +170,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                                     }
 
                                 } else {
+                                    quot_list_rv.visibility = View.GONE
                                     no_quot_tv.visibility = View.VISIBLE
 //                                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                                 }
@@ -319,7 +322,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
 
             //image add
-            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo_pdf_print)
+            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo)
             val bitmap = Bitmap.createScaledBitmap(bm, 150, 50, true);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)

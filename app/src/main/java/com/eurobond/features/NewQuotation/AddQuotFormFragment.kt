@@ -298,7 +298,6 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
                                                 if (list_color != null && list_color.isNotEmpty()) {
                                                     AppDatabase.getDBInstance()?.newOrderColorDao()?.insertAll(list_color)
                                                     AppDatabase.getDBInstance()?.newOrderColorDao()?.updateColorNametoUpperCase()
-
                                                 }
                                                 if (list_size != null && list_size.isNotEmpty()) {
                                                     AppDatabase.getDBInstance()?.newOrderSizeDao()?.insertAll(list_size)
@@ -313,7 +312,17 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
                                                 }
                                             }
                                         }
-                                        else {
+                                        else if(list_product != null && list_product.isNotEmpty()){
+
+                                            if (list_product != null && list_product.isNotEmpty()) {
+                                                AppDatabase.getDBInstance()?.newOrderProductDao()?.insertAll(list_product)
+                                                AppDatabase.getDBInstance()?.newOrderProductDao()?.updateProducttoUpperCase()
+                                            }
+                                            if (list_color != null && list_color.isNotEmpty()) {
+                                                AppDatabase.getDBInstance()?.newOrderColorDao()?.insertAll(list_color)
+                                                AppDatabase.getDBInstance()?.newOrderColorDao()?.updateColorNametoUpperCase()
+                                            }
+
                                             progress_wheel.stopSpinning()
                                             product_list= AppDatabase.getDBInstance()?.newOrderProductDao()?.getAllProduct()!!
                                             //gotoHomeActivity()
