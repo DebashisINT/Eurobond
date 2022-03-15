@@ -246,7 +246,7 @@ class LeadInProcessFrag : BaseFragment(),  DatePickerDialog.OnDateSetListener,Vi
                                         setAdapter(addShopResult.customer_dtls_list)
                                     }
                                 } else if(addShopResult.status == NetworkConstant.NO_DATA) {
-                                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_date_found))
+                                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_found))
                                     tv_no_data.visibility=View.VISIBLE
                                     rv_list.visibility=View.GONE
                                     leadSearch.visibility=View.GONE
