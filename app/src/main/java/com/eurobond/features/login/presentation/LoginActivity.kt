@@ -3595,7 +3595,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                             } else {
                                 progress_wheel.stopSpinning()
-                                openDialogPopup(newSettings.message!!
+                                openDialogPopup(newSettings.message!!)
                                 login_TV.isEnabled = true
                             }
                             isApiInitiated = false
