@@ -20,6 +20,7 @@ import com.github.clans.fab.FloatingActionMenu
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
 import com.eurobond.app.Pref
+import com.eurobond.app.SearchListener
 import com.eurobond.app.domain.AddShopDBModelEntity
 import com.eurobond.app.types.FragType
 import com.eurobond.app.uiaction.IntentActionable
@@ -66,6 +67,19 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
         super.onCreateView(inflater, container, savedInstanceState)
         val view = inflater.inflate(R.layout.fragment_nearby_shops, container, false)
         initView(view)
+
+        (mContext as DashboardActivity).setSearchListener(object : SearchListener {
+            override fun onSearchQueryListener(query: String) {
+                if (query.isBlank()) {
+                    (list as ArrayList<AddShopDBModelEntity>)?.let {
+                        localShopsListAdapter?.refreshList(it)
+                        //tv_cust_no.text = "Total customer(s): " + it.size
+                    }
+                } else {
+                    localShopsListAdapter?.filter?.filter(query)
+                }
+            }
+        })
         return view
     }
 
@@ -262,6 +276,8 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
                         }
                     }
 
+                },{
+                    it
                 })
 
                 (mContext as DashboardActivity).nearbyShopList = list
@@ -425,7 +441,8 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
 
                     var mRadious:Int = NEARBY_RADIUS
                     if(Pref.IsRestrictNearbyGeofence){
-                        mRadious=9999000
+                        mRadious = Pref.GeofencingRelaxationinMeter
+//                        mRadious=9999000
                     }
                     //val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(location, shopLocation, NEARBY_RADIUS)
                     val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(location, shopLocation, mRadious)

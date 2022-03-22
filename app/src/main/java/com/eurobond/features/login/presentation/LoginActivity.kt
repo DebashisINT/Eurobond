@@ -5392,6 +5392,17 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                 }
                                             }
 
+                                            else if (response.getconfigure?.get(i)?.Key.equals("GeofencingRelaxationinMeter", ignoreCase = true)) {
+                                                try{
+                                                    Pref.GeofencingRelaxationinMeter = response.getconfigure!![i].Value!!.toInt()
+                                                    if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                        Pref.GeofencingRelaxationinMeter = response.getconfigure!![i].Value!!.toInt()
+                                                    }
+                                                }catch(ex:Exception){
+                                                    Pref.GeofencingRelaxationinMeter = 100
+                                                }
+                                            }
+
 
                                             /*else if (response.getconfigure?.get(i)?.Key.equals("isFingerPrintMandatoryForAttendance", ignoreCase = true)) {
                                                 if (!TextUtilsDash.isEmpty(response.getconfigure?.get(i)?.Value)) {

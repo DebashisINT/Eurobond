@@ -385,5 +385,6 @@ object Pref : PreferenceHolder() {
     var NewQuotationShowTermsAndCondition: Boolean by bindToPreferenceField(false, "NewQuotationShowTermsAndCondition")
 
     var ShowUserwiseLeadMenu: Boolean by bindToPreferenceField(false, "ShowUserwiseLeadMenu")
+    var GeofencingRelaxationinMeter: Int by bindToPreferenceField(100, "GeofencingRelaxationinMeter")
 
 }

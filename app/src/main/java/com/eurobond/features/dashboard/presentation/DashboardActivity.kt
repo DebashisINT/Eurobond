@@ -3849,7 +3849,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mFragment = LocalShopListFragment()
                 }
 
-                setTopBarTitle("Nearby Located Party" + /*Pref.shopText +*/ " List")
+//                setTopBarTitle("Nearby Located Party" + /*Pref.shopText +*/ " List")
+                  setTopBarTitle("Nearby Parties")
 
                 /*if (Pref.isReplaceShopText)
                     setTopBarTitle(getString(R.string.nearby_customer))
@@ -5248,7 +5249,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             }
             TopBarConfig.LOCALSHOP -> {
                 iv_home_icon.visibility = View.VISIBLE
-                iv_search_icon.visibility = View.GONE
+                iv_search_icon.visibility = View.VISIBLE
                 iv_sync_icon.visibility = View.GONE
                 rl_cart.visibility = View.GONE
                 iv_filter_icon.visibility = View.GONE

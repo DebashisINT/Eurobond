@@ -76,7 +76,8 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
 
         var mRadious:Float = Pref.gpsAccuracy.toFloat()
         if(Pref.IsRestrictNearbyGeofence){
-            mRadious=9999000.99F
+            mRadious = Pref.GeofencingRelaxationinMeter.toFloat()
+//            mRadious=9999000.99F
         }
 
 
