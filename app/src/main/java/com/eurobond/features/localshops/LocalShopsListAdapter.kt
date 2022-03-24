@@ -378,7 +378,11 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
             val results = FilterResults()
             filterList?.clear()
             tempList?.indices!!
-                    .filter { tempList?.get(it)?.shopName?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
+                    .filter { tempList?.get(it)?.shopName?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!! ||
+                        tempList?.get(it)?.pinCode?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
+                                tempList?.get(it)?.ownerName?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
+                                tempList?.get(it)?.ownerContactNumber?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!! ||
+                                AppDatabase.getDBInstance()!!.shopTypeDao().getShopNameById(tempList?.get(it)?.type!!).toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
                             tempList?.get(it)?.address?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!}
                     .forEach { filterList?.add(tempList?.get(it)!!) }
 

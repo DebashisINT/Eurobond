@@ -57,6 +57,8 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
     private lateinit var getFloatingVal: ArrayList<String>
     private val preid: Int = 100
     private var isGetLocation = -1
+    private lateinit var geofenceTv: AppCompatTextView
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -100,6 +102,16 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
         nearByShopsList = view.findViewById(R.id.near_by_shops_RCV)
         noShopAvailable = view.findViewById(R.id.no_shop_tv)
         shop_list_parent_rl = view.findViewById(R.id.shop_list_parent_rl)
+
+        geofenceTv = view.findViewById(R.id.tv_geofence_relax)
+
+        if(Pref.IsRestrictNearbyGeofence){
+            geofenceTv.visibility = View.VISIBLE
+            geofenceTv.text ="Geofence Relaxed :  " + Pref.GeofencingRelaxationinMeter + " mtr"
+        }
+        else{
+            geofenceTv.visibility = View.GONE
+        }
 
         shop_list_parent_rl.setOnClickListener { view ->
             floating_fab.close(true)
