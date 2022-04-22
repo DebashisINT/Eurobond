@@ -3363,7 +3363,16 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.IsAutoLeadActivityDateTime = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
-
+                                            else if (response.getconfigure?.get(i)?.Key.equals("GeofencingRelaxationinMeter", ignoreCase = true)) {
+                                                try{
+                                                    Pref.GeofencingRelaxationinMeter = response.getconfigure!![i].Value!!.toInt()
+                                                    if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                        Pref.GeofencingRelaxationinMeter = response.getconfigure!![i].Value!!.toInt()
+                                                    }
+                                                }catch(ex:Exception){
+                                                    Pref.GeofencingRelaxationinMeter = 100
+                                                }
+                                            }
 
                                         }
                                     }

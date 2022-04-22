@@ -44,7 +44,6 @@ import kotlinx.android.synthetic.main.inflate_nearby_shops.view.tv_shop_contact_
 /**
  * Created by riddhi on 2/1/18.
  */
-
 class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, val listener: LocalShopListClickListener,private val getSize: (Int) -> Unit) :
         RecyclerView.Adapter<LocalShopsListAdapter.MyViewHolder>(), Filterable {
     private val layoutInflater: LayoutInflater
@@ -53,8 +52,6 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
 
     private var tempList: ArrayList<AddShopDBModelEntity>? = null
     private var filterList: ArrayList<AddShopDBModelEntity>? = null
-
-
 
     init {
         layoutInflater = LayoutInflater.from(context)
@@ -409,8 +406,7 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
                             //tempList?.get(it)?.landline_number?.toLowerCase()?.contains(land)!! ||
                             //AppDatabase.getDBInstance()!!.shopTypeDao().getShopNameById(tempList?.get(it)?.type!!).toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
                             tempList?.get(it)?.address?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!
-                    }
-                    .forEach { filterList?.add(tempList?.get(it)!!) }
+                    }.forEach { filterList?.add(tempList?.get(it)!!) }
 
 
             results.values = filterList
@@ -456,10 +452,5 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
 
         notifyDataSetChanged()
     }
-
-
-
-
-
 
 }

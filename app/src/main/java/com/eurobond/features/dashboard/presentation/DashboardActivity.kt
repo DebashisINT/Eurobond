@@ -3849,7 +3849,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }
 
 //                setTopBarTitle("Nearby Located Party" + /*Pref.shopText +*/ " List")
+
                 setTopBarTitle("Nearby Parties")
+
                 /*if (Pref.isReplaceShopText)
                     setTopBarTitle(getString(R.string.nearby_customer))
                 else

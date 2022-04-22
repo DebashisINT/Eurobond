@@ -112,6 +112,16 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
             geofenceTv.visibility = View.GONE
         }
 
+        geofenceTv = view.findViewById(R.id.tv_geofence_relax)
+
+        if(Pref.IsRestrictNearbyGeofence){
+            geofenceTv.visibility = View.VISIBLE
+            geofenceTv.text ="Geofence Relaxed :  " + Pref.GeofencingRelaxationinMeter + " mtr"
+        }
+        else{
+            geofenceTv.visibility = View.GONE
+        }
+
         shop_list_parent_rl.setOnClickListener { view ->
             floating_fab.close(true)
         }
@@ -293,6 +303,7 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
                 }, {
                     it
                 })
+
 
                 (mContext as DashboardActivity).nearbyShopList = list
 

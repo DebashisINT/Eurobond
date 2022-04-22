@@ -388,6 +388,7 @@ object Pref : PreferenceHolder() {
     var GeofencingRelaxationinMeter: Int by bindToPreferenceField(100, "GeofencingRelaxationinMeter")
 
 
+
     var user_login_ID: String by bindToPreferenceField("", "user_login_ID")
 
     var IsFeedbackHistoryActivated: Boolean by bindToPreferenceField(false, "IsFeedbackHistoryActivated")
