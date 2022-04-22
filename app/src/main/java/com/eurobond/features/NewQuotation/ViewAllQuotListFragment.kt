@@ -1,5 +1,6 @@
 package com.eurobond.features.NewQuotation
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -48,7 +49,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.zip.GZIPOutputStream
 
 
 class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
@@ -298,6 +298,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
     }
 
+    @SuppressLint("UseRequireInsteadOfGet")
     private fun saveDataAsPdf(addQuotEditResult: ViewDetailsQuotResponse) {
         var document: Document = Document()
         val time = System.currentTimeMillis()
@@ -576,7 +577,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             //document.add(euroHead)
 
             //strip_line//bar//ics
-            val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.ics_image)
+            val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_logo)
             val bitmap1 = Bitmap.createScaledBitmap(bm1, 850, 120, true)
             val stream1 = ByteArrayOutputStream()
             bitmap1.compress(Bitmap.CompressFormat.PNG, 100, stream1)
@@ -620,7 +621,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             //document.add(companydel)
 
 
-           val tablee = PdfPTable(1)
+            val tablee = PdfPTable(1)
             tablee.widthPercentage = 100f
             var cell = PdfPCell()
             var p = Paragraph()

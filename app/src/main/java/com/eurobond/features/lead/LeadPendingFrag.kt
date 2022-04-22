@@ -159,6 +159,7 @@ class LeadPendingFrag : BaseFragment(), DatePickerDialog.OnDateSetListener, View
                 List.add("Website")
                 List.add("Direct Call")
                 List.add("Exhibition")
+                List.add("Twak")
                 EnqListDialog.newInstance(List,"Select Enquiry"){
                     enquiryTypeSelectSpinner.text=it
                 }.show((mContext as DashboardActivity).supportFragmentManager, "")

@@ -12,10 +12,10 @@
         <!--MRP-->
         <RelativeLayout
             android:id="@+id/rl_mrp"
-            android:layout_width="@dimen/_50sdp"
-            android:layout_height="@dimen/_34sdp"
+            android:layout_width="@dimen/_56sdp"
+            android:layout_height="@dimen/_54sdp"
             android:layout_marginRight="@dimen/_2sdp"
-            android:background="@drawable/shape_custom_border_blue_button"
+            android:background="@color/report_blue"
             android:gravity="center_vertical"
             android:visibility="gone"
             android:layout_toLeftOf="@+id/time_RL"
@@ -54,10 +54,10 @@
 
         <RelativeLayout
             android:id="@+id/time_RL"
-            android:layout_width="@dimen/_52sdp"
-            android:layout_height="@dimen/_34sdp"
+            android:layout_width="@dimen/_56sdp"
+            android:layout_height="@dimen/_54sdp"
             android:layout_toLeftOf="@+id/rl_qty"
-            android:background="@drawable/shape_custom_border_blue_button"
+            android:background="@color/report_blue"
             android:gravity="center_vertical"
             android:visibility="visible">
 
@@ -132,10 +132,10 @@
         <RelativeLayout
             android:id="@+id/rl_qty"
             android:layout_width="@dimen/_50sdp"
-            android:layout_height="@dimen/_34sdp"
+            android:layout_height="@dimen/_54sdp"
             android:layout_alignParentEnd="true"
             android:layout_marginRight="@dimen/_5sdp"
-            android:background="@drawable/shape_custom_border_blue_button"
+            android:background="@color/colorPrimaryDark"
             android:gravity="center_vertical"
             android:visibility="visible"
             android:layout_marginLeft="@dimen/_1sdp">

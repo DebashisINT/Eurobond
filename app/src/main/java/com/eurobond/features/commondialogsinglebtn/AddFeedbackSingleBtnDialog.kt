@@ -212,7 +212,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 //                return
 //            }
 //            else{
-                var shopActivityListToProsId = AppDatabase.getDBInstance()!!.shopActivityDao().getProsId(mShopID) as String
+                var shopActivityListToProsId = AppDatabase.getDBInstance()!!.shopActivityDao().getProsId(mShopID).toString()
                 var prosNameByID=""
                 if(shopActivityListToProsId!=null || !shopActivityListToProsId.equals("")){
                     prosNameByID = AppDatabase.getDBInstance()!!.prosDao().getProsNameByProsId(shopActivityListToProsId)

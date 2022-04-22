@@ -1,12 +1,14 @@
 package com.eurobond.features.device_info.presentation
 
 import android.content.Context
+import android.hardware.Camera
 import android.os.Bundle
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
 import com.eurobond.app.NetworkConstant
@@ -39,6 +41,7 @@ class DeviceInfoListFragment : BaseFragment() {
     private lateinit var tv_no_data_available: AppCustomTextView
     private lateinit var progress_wheel: ProgressWheel
     private lateinit var tv_pick_date: AppCustomTextView
+    private lateinit var backcamera: TextView
 
     private var selectedDate = ""
 
@@ -69,11 +72,13 @@ class DeviceInfoListFragment : BaseFragment() {
 
     private fun initView(view: View) {
         view.apply {
+            backcamera = findViewById(R.id.backcamera)
             rv_device_info_list = findViewById(R.id.rv_device_info_list)
             tv_no_data_available = findViewById(R.id.tv_no_data_available)
             progress_wheel = findViewById(R.id.progress_wheel)
             tv_pick_date = findViewById(R.id.tv_pick_date)
         }
+//        backcamera.text = getBackCameraResolutionInMp().toString()
 
         tv_pick_date.text = AppUtils.getFormattedDate(myCalendar.time)
         progress_wheel.stopSpinning()
@@ -88,8 +93,34 @@ class DeviceInfoListFragment : BaseFragment() {
             cal.add(Calendar.DATE, -10)
             datePicker.datePicker.minDate = cal.timeInMillis
             datePicker.show()
+            datePicker.show()
         }
     }
+
+    fun getBackCameraResolutionInMp(): Float {
+        val noOfCameras: Int = Camera.getNumberOfCameras()
+        var maxResolution = -1f
+        var pixelCount: Long = -1
+        for (i in 0 until noOfCameras) {
+            val cameraInfo: Camera.CameraInfo = Camera.CameraInfo()
+            Camera.getCameraInfo(i, cameraInfo)
+            if (cameraInfo.facing === Camera.CameraInfo.CAMERA_FACING_BACK) {
+                val camera: Camera = Camera.open(i)
+                val cameraParams: Camera.Parameters = camera.getParameters()
+                for (j in 0 until cameraParams.getSupportedPictureSizes().size) {
+                    val pixelCountTemp: Int = cameraParams.getSupportedPictureSizes().get(j).width * cameraParams.getSupportedPictureSizes().get(j).height // Just changed i to j in this loop
+                    if (pixelCountTemp > pixelCount) {
+                        pixelCount = pixelCountTemp.toLong()
+                        maxResolution = pixelCountTemp.toFloat() / 1024000.0f
+
+                    }
+                }
+                camera.release()
+            }
+        }
+        return maxResolution
+    }
+
 
     val date = android.app.DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
         // TODO Auto-generated method stub
@@ -157,8 +188,7 @@ class DeviceInfoListFragment : BaseFragment() {
                                         initAdapter()
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 progress_wheel.stopSpinning()
                                 (mContext as DashboardActivity).showSnackMessage(response.message!!)
                             }

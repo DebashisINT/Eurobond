@@ -385,5 +385,12 @@ object Pref : PreferenceHolder() {
     var NewQuotationShowTermsAndCondition: Boolean by bindToPreferenceField(false, "NewQuotationShowTermsAndCondition")
 
     var ShowUserwiseLeadMenu: Boolean by bindToPreferenceField(false, "ShowUserwiseLeadMenu")
+    var GeofencingRelaxationinMeter: Int by bindToPreferenceField(100, "GeofencingRelaxationinMeter")
+
+
+    var user_login_ID: String by bindToPreferenceField("", "user_login_ID")
+
+    var IsFeedbackHistoryActivated: Boolean by bindToPreferenceField(false, "IsFeedbackHistoryActivated")
+    var IsAutoLeadActivityDateTime: Boolean by bindToPreferenceField(false, "IsAutoLeadActivityDateTime")
 
 }

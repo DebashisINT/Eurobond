@@ -47,11 +47,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
+                        android:layout_toLeftOf="@+id/iv_job"
                         android:contentDescription="@null"
                         android:padding="@dimen/_5sdp"
-                        android:layout_toLeftOf="@+id/iv_job"
-                        app:tint="@color/default_gray"
-                        app:srcCompat="@drawable/ic_applyleave"/>
+                        app:srcCompat="@drawable/ic_applyleave"
+                        app:tint="@color/default_gray" />
 
 
                     <androidx.appcompat.widget.AppCompatImageView

@@ -10,11 +10,11 @@ import android.content.Context
 
 import com.eurobond.app.AppConstant.DBNAME
 import com.eurobond.app.domain.*
+import com.eurobond.features.lead.model.LeadActivityDao
+import com.eurobond.features.lead.model.LeadActivityEntity
 import com.eurobond.features.location.UserLocationDataDao
 import com.eurobond.features.location.UserLocationDataEntity
-import com.eurobond.features.login.UserAttendanceDataDao
-import com.eurobond.features.login.UserLoginDataEntity
-
+import com.eurobond.features.login.*
 
 
 /*
@@ -34,30 +34,31 @@ import com.eurobond.features.login.UserLoginDataEntity
  */
 
 @Database(entities = arrayOf(AddShopDBModelEntity::class, UserLocationDataEntity::class, UserLoginDataEntity::class, ShopActivityEntity::class,
-        StateListEntity::class, CityListEntity::class, MarketingDetailEntity::class, MarketingDetailImageEntity::class, MarketingCategoryMasterEntity::class,
-        TaListDBModelEntity::class, AssignToPPEntity::class, AssignToDDEntity::class, WorkTypeEntity::class, OrderListEntity::class,
-        OrderDetailsListEntity::class, ShopVisitImageModelEntity::class, UpdateStockEntity::class, PerformanceEntity::class,
-        GpsStatusEntity::class, CollectionDetailsEntity::class, InaccurateLocationDataEntity::class, LeaveTypeEntity::class, RouteEntity::class,
-        ProductListEntity::class, OrderProductListEntity::class, StockListEntity::class, RouteShopListEntity::class, SelectedWorkTypeEntity::class,
-        SelectedRouteEntity::class, SelectedRouteShopListEntity::class, OutstandingListEntity::class/*, LocationEntity::class*/,
-        IdleLocEntity::class, BillingEntity::class, StockDetailsListEntity::class, StockProductListEntity::class, BillingProductListEntity::class,
-        MeetingEntity::class, MeetingTypeEntity::class, ProductRateEntity::class, AreaListEntity::class, PjpListEntity::class,
-        ShopTypeEntity::class, ModelEntity::class, PrimaryAppEntity::class, SecondaryAppEntity::class, LeadTypeEntity::class,
-        StageEntity::class, FunnelStageEntity::class, BSListEntity::class, QuotationEntity::class, TypeListEntity::class,
-        MemberEntity::class, MemberShopEntity::class, TeamAreaEntity::class, TimesheetListEntity::class, ClientListEntity::class,
-        ProjectListEntity::class, ActivityListEntity::class, TimesheetProductListEntity::class, ShopVisitAudioEntity::class,
-        TaskEntity::class, BatteryNetStatusEntity::class, ActivityDropDownEntity::class, TypeEntity::class,
-        PriorityListEntity::class, ActivityEntity::class, AddDoctorProductListEntity::class, AddDoctorEntity::class,
-        AddChemistProductListEntity::class, AddChemistEntity::class, DocumentypeEntity::class, DocumentListEntity::class, PaymentModeEntity::class,
-        EntityTypeEntity::class, PartyStatusEntity::class, RetailerEntity::class, DealerEntity::class, BeatEntity::class, AssignToShopEntity::class,
-        VisitRemarksEntity::class,ShopVisitCompetetorModelEntity::class,
-        OrderStatusRemarksModelEntity::class,CurrentStockEntryModelEntity::class,CurrentStockEntryProductModelEntity::class,
-           CcompetetorStockEntryModelEntity::class,CompetetorStockEntryProductModelEntity::class,
-        ShopTypeStockViewStatus::class,
-        NewOrderGenderEntity::class,NewOrderProductEntity::class,NewOrderColorEntity::class,NewOrderSizeEntity::class,NewOrderScrOrderEntity::class,ProspectEntity::class,
-        QuestionEntity::class,QuestionSubmitEntity::class,AddShopSecondaryImgEntity::class,ReturnDetailsEntity::class
-        ,ReturnProductListEntity::class,UserWiseLeaveListEntity::class),
-        version = 1, exportSchema = false)
+    StateListEntity::class, CityListEntity::class, MarketingDetailEntity::class, MarketingDetailImageEntity::class, MarketingCategoryMasterEntity::class,
+    TaListDBModelEntity::class, AssignToPPEntity::class, AssignToDDEntity::class, WorkTypeEntity::class, OrderListEntity::class,
+    OrderDetailsListEntity::class, ShopVisitImageModelEntity::class, UpdateStockEntity::class, PerformanceEntity::class,
+    GpsStatusEntity::class, CollectionDetailsEntity::class, InaccurateLocationDataEntity::class, LeaveTypeEntity::class, RouteEntity::class,
+    ProductListEntity::class, OrderProductListEntity::class, StockListEntity::class, RouteShopListEntity::class, SelectedWorkTypeEntity::class,
+    SelectedRouteEntity::class, SelectedRouteShopListEntity::class, OutstandingListEntity::class/*, LocationEntity::class*/,
+    IdleLocEntity::class, BillingEntity::class, StockDetailsListEntity::class, StockProductListEntity::class, BillingProductListEntity::class,
+    MeetingEntity::class, MeetingTypeEntity::class, ProductRateEntity::class, AreaListEntity::class, PjpListEntity::class,
+    ShopTypeEntity::class, ModelEntity::class, PrimaryAppEntity::class, SecondaryAppEntity::class, LeadTypeEntity::class,
+    StageEntity::class, FunnelStageEntity::class, BSListEntity::class, QuotationEntity::class, TypeListEntity::class,
+    MemberEntity::class, MemberShopEntity::class, TeamAreaEntity::class, TimesheetListEntity::class, ClientListEntity::class,
+    ProjectListEntity::class, ActivityListEntity::class, TimesheetProductListEntity::class, ShopVisitAudioEntity::class,
+    TaskEntity::class, BatteryNetStatusEntity::class, ActivityDropDownEntity::class, TypeEntity::class,
+    PriorityListEntity::class, ActivityEntity::class, AddDoctorProductListEntity::class, AddDoctorEntity::class,
+    AddChemistProductListEntity::class, AddChemistEntity::class, DocumentypeEntity::class, DocumentListEntity::class, PaymentModeEntity::class,
+    EntityTypeEntity::class, PartyStatusEntity::class, RetailerEntity::class, DealerEntity::class, BeatEntity::class, AssignToShopEntity::class,
+    VisitRemarksEntity::class,ShopVisitCompetetorModelEntity::class,
+    OrderStatusRemarksModelEntity::class,CurrentStockEntryModelEntity::class,CurrentStockEntryProductModelEntity::class,
+    CcompetetorStockEntryModelEntity::class,CompetetorStockEntryProductModelEntity::class,
+    ShopTypeStockViewStatus::class,
+    NewOrderGenderEntity::class,NewOrderProductEntity::class,NewOrderColorEntity::class,NewOrderSizeEntity::class,NewOrderScrOrderEntity::class,ProspectEntity::class,
+    QuestionEntity::class,QuestionSubmitEntity::class,AddShopSecondaryImgEntity::class,ReturnDetailsEntity::class
+    ,ReturnProductListEntity::class,UserWiseLeaveListEntity::class,
+    LeadActivityEntity::class,ShopFeedbackEntity::class,ShopFeedbackTempEntity::class),
+    version = 2, exportSchema = false)
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun addShopEntryDao(): AddShopDao
@@ -177,6 +178,10 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userWiseLeaveListDao(): UserWiseLeaveListDao
 
+    abstract fun shopFeedbackDao(): ShopFeedbackDao
+    abstract fun shopFeedbackTempDao() : ShopFeedbackTepDao
+    abstract fun leadActivityDao() : LeadActivityDao
+
 
     companion object {
         var INSTANCE: AppDatabase? = null
@@ -184,18 +189,29 @@ abstract class AppDatabase : RoomDatabase() {
         fun initAppDatabase(context: Context) {
             if (INSTANCE == null) {
                 INSTANCE = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DBNAME)
-                        // allow queries on the main thread.
-                        // Don't do this on a real app! See PersistenceBasicSample for an example.
-                        .allowMainThreadQueries()
-                        .addMigrations()
+                    // allow queries on the main thread.
+                    // Don't do this on a real app! See PersistenceBasicSample for an example.
+                    .allowMainThreadQueries()
+                    .addMigrations(MIGRATION_1_2)
 //                        .fallbackToDestructiveMigration()
-                        .build()
+                    .build()
             }
         }
 
         fun getDBInstance(): AppDatabase? {
 
             return INSTANCE
+        }
+
+        val MIGRATION_1_2: Migration = object : Migration(1, 2){
+            override fun migrate(database: SupportSQLiteDatabase) {
+                /*New create table*/
+                database.execSQL("CREATE TABLE tbl_shop_deefback (id INTEGER NOT NULL PRIMARY KEY , shop_id  TEXT , feedback TEXT , date_time TEXT ) ")
+                database.execSQL("CREATE TABLE tbl_shop_deefback_temp (id INTEGER NOT NULL PRIMARY KEY , shop_id  TEXT , feedback TEXT , date_time TEXT ) ")
+                database.execSQL("CREATE TABLE tbl_lead_activity (id INTEGER NOT NULL PRIMARY KEY , crm_id  TEXT , customer_name TEXT , mobile_no TEXT ," +
+                       " activity_date  TEXT , activity_time TEXT , activity_type_name TEXT ,  activity_status  TEXT , activity_details TEXT , other_remarks TEXT , activity_next_date TEXT ) ")
+
+            }
         }
 
         fun destroyInstance() {

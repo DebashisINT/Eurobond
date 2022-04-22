@@ -2,6 +2,7 @@ package com.eurobond.features.orderList.api.neworderlistapi
 
 import com.eurobond.app.NetworkConstant
 import com.eurobond.base.BaseResponse
+import com.eurobond.features.login.model.ShopFeedbackResponseModel
 import com.eurobond.features.orderList.model.NewOrderListResponseModel
 import com.eurobond.features.orderList.model.ReturnListResponseModel
 import io.reactivex.Observable
@@ -26,6 +27,12 @@ interface NewOrderListApi {
     @POST("RubyFoodLead/OrderReturnDetailsList")
     fun getReturnList(@Field("session_token") session_token: String, @Field("user_id") user_id: String, @Field("date") date: String):
             Observable<ReturnListResponseModel>
+
+    @FormUrlEncoded
+    @POST("Shoplist/ShopActivityFeedbackList")
+    fun getShopFeedbackApi(@Field("user_id") user_id: String,@Field("from_date") from_date: String
+    ,@Field("to_date") to_date: String,@Field("date_span") date_span: String):
+            Observable<ShopFeedbackResponseModel>
 
     @FormUrlEncoded
     @POST("Order/OrderShopMail")

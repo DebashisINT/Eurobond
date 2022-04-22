@@ -2,12 +2,20 @@ package com.eurobond.features.shopdetail.presentation.api
 
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.text.TextUtils
+import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.eurobond.app.FileUtils
+import com.eurobond.app.Pref
+import com.eurobond.base.BaseResponse
+import com.eurobond.features.addshop.model.AddLogReqData
 import com.eurobond.features.addshop.model.AddShopRequestData
 import com.eurobond.features.addshop.model.AddShopResponse
+import com.eurobond.features.addshop.model.LogFileResponse
 import com.eurobond.features.dashboard.presentation.DashboardActivity
+import com.eurobond.features.document.model.AddEditDocumentInputParams
+import com.eurobond.features.document.model.DocumentAttachmentModel
 import com.google.gson.Gson
 import io.reactivex.Observable
 import okhttp3.MediaType
@@ -121,4 +129,56 @@ class EditShopRepo(val apiService: EditShopApi) {
             apiService.editShopWithImage(jsonInString, profile_img_data)
         // return apiService.getAddShopWithoutImage(jsonInString)
     }
+
+
+
+    fun addLogfile(user_id: AddLogReqData, shop_image: String, context: Context): Observable<LogFileResponse> {
+       /* var log_attachments:MultipartBody.Part? = null
+        if (!TextUtils.isEmpty(shop_image)) {
+            val profile_img_file = FileUtils.getFile(context, Uri.parse(shop_image))
+            if (profile_img_file != null && profile_img_file.exists()) {
+                val profileImgBody = RequestBody.create(MediaType.parse("multipart/form-data"), profile_img_file)
+                log_attachments = MultipartBody.Part.createFormData("attachments", profile_img_file.name, profileImgBody)
+            }
+        }
+
+        val imageName = Pref.user_id + "~" + shop_image+ "~"
+        //val fileName = imageName + "_" + System.currentTimeMillis() + "." + fileExt
+        val fileName = imageName + "_" + System.currentTimeMillis() + ".txt"
+
+        Log.e("Document Image", "File Name=========> $fileName")
+        //var shopObject: RequestBody? = null
+        var jsonInString = ""
+        try {
+            jsonInString = Gson().toJson(user_id)
+            //  shopObject = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonInString)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+
+
+        return  apiService.logshareFile(jsonInString, log_attachments)
+        // return apiService.getAddShopWithoutImage(jsonInString)*/
+
+
+
+        //////
+        var log_attachments_new:MultipartBody.Part? = null
+        var log_attachments_file: File? = null
+        log_attachments_file = File(shop_image)
+        val profileImgBody = RequestBody.create(MediaType.parse("multipart/form-data"), log_attachments_file)
+        var jsonInString = ""
+        try {
+            jsonInString = ObjectMapper().writeValueAsString(user_id)
+            //  shopObject = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonInString)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+        log_attachments_new = MultipartBody.Part.createFormData("attachments", Pref.user_id, profileImgBody)
+        return  apiService.logshareFile(jsonInString, log_attachments_new)
+    }
+
+
+
+
 }

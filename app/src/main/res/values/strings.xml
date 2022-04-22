@@ -12,7 +12,7 @@
 
     <!--Map Key-->
     <!--<string name="MAP_ProjectAPIKey">AIzaSyBRrqsLZFqThqM8uxw_k94pZMbv3-3h0dM</string>-->
-    <string name="MAP_ProjectAPIKey" translatable="false">AIzaSyAM2Z_RxRoVGNOkFkSA6zMhQeTcEq3A9u8</string>
+    <string name="MAP_ProjectAPIKey" translatable="false">AIzaSyCbYMZjnt8T6yivYfIa4_R9oy-L3SIYyrQ</string>
 
     <!--Login-->
     <string name="username_new" translatable="false">Username</string>
@@ -1550,6 +1550,9 @@
     <string name="uom" translatable="false">UOM                        :\u0020</string>
     <string name="enquiry_dtls" translatable="false">Enquiry details   :\u0020</string>
     <string name="statuss" translatable="false">Status                 :\u0020</string>
+    <string name="camera_back" translatable="false">Back Camera :\u0020 </string>
+    <string name="camera_front" translatable="false">Front Camera :\u0020 </string>
+    <string name="historys" translatable="false">Historys</string>
 
-
+    <string name="firebase_key" translatable="false">key=AAAAZj4rINg:APA91bHmnhpJuY6068fHwK3RFHPdWAEWOcksGpMbZJFEwQ39jf8xzSm2IFDMwifn9e_A6AY8EYWmnP5IVFyJVyFmgvDNVzguemofko53fYEcJUsbpMYMxinjnzcTdOHQwfSfbenM_tzr</string>
 </resources>

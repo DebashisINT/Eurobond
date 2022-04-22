@@ -14,6 +14,7 @@ import android.widget.RelativeLayout
 import com.eurobond.R
 import com.eurobond.app.NetworkConstant
 import com.eurobond.app.Pref
+import com.eurobond.app.types.FragType
 import com.eurobond.app.utils.AppUtils
 import com.eurobond.base.presentation.BaseActivity
 import com.eurobond.base.presentation.BaseFragment
@@ -128,6 +129,13 @@ class NotificationFragment : BaseFragment() {
 
         rv_order_list.adapter = NotificationAdapter(mContext, notification_list, object : NotificationAdapter.OnClickListener {
             override fun onNotificationClick(adapterPosition: Int) {
+                if(notification_list?.get(adapterPosition)!!.notificationmessage!!.contains("Please take action on it")){
+                    if (!Pref.isAddAttendence)
+                        (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+                    else
+                        (mContext as DashboardActivity).loadFragment(FragType.LeadFrag, false, "")
+                }
+
             }
         })
     }

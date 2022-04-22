@@ -23,4 +23,6 @@ interface NearByShopsListClickListener {
     fun onUpdateBankDetailsClick(position: Int)
     fun onQuestionnarieClick(shopId:String)
     fun onReturnClick(position: Int)
+
+    fun onHistoryClick(shop: Any)
 }

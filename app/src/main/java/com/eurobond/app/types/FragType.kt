@@ -37,5 +37,5 @@ enum class FragType {
     NewOrderScrActiFragment,NeworderScrCartFragment,NewOrderScrOrderDetailsFragment,NewOdrScrListFragment,
     PhotoAttendanceFragment,TeamAttendanceFragment,ViewAllReturnListFragment,ReturnTypeListFragment,ViewCartReturnFragment,NewReturnListFragment,CartReturnFragment,
     LeaveHome,ApprovalPendFrag,LeaveStatusFrag,OpenFileWebViewFragment,ViewAllQuotListFragment,AddQuotFormFragment,ViewDetailsQuotFragment,
-    LeadFrag,LeadPendingFrag,LeadInProcessFrag,ViewLeadFrag
+    LeadFrag,LeadPendingFrag,LeadInProcessFrag,ViewLeadFrag,ShopFeedbackHisFrag
 }

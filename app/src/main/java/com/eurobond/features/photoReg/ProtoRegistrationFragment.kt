@@ -1,6 +1,7 @@
 package com.eurobond.features.photoReg
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.Dialog
@@ -45,15 +46,20 @@ import com.eurobond.app.utils.*
 import com.eurobond.base.BaseResponse
 import com.eurobond.base.presentation.BaseActivity
 import com.eurobond.base.presentation.BaseFragment
+import com.eurobond.features.addshop.model.AddLogReqData
 import com.eurobond.features.addshop.presentation.AddShopFragment
 import com.eurobond.features.dashboard.presentation.DashboardActivity
+import com.eurobond.features.login.ShopFeedbackEntity
+import com.eurobond.features.login.model.ShopFeedbackResponseModel
 import com.eurobond.features.myjobs.model.WIPImageSubmit
+import com.eurobond.features.orderList.api.neworderlistapi.NewOrderListRepoProvider
 import com.eurobond.features.photoReg.adapter.AdapterUserList
 import com.eurobond.features.photoReg.adapter.PhotoRegUserListner
 import com.eurobond.features.photoReg.api.GetUserListPhotoRegProvider
 import com.eurobond.features.photoReg.model.*
 import com.eurobond.features.reimbursement.presentation.FullImageDialog
 import com.eurobond.features.shopdetail.presentation.ShopDetailFragment
+import com.eurobond.features.shopdetail.presentation.api.EditShopRepoProvider
 import com.eurobond.mappackage.SendBrod
 import com.eurobond.widgets.AppCustomEditText
 import com.eurobond.widgets.AppCustomTextView
@@ -138,6 +144,7 @@ class ProtoRegistrationFragment:BaseFragment(),View.OnClickListener {
         return view
     }
 
+    @SuppressLint("UseRequireInsteadOfGet")
     private fun initView(view: View) {
         et_attachment = view!!.findViewById(R.id.et_attachment)
         et_photo = view!!.findViewById(R.id.et_photo)
@@ -155,6 +162,8 @@ class ProtoRegistrationFragment:BaseFragment(),View.OnClickListener {
         }, 300)
 
     }
+
+
 
     private var permissionUtils: PermissionUtils? = null
     private fun initPermissionCheck() {

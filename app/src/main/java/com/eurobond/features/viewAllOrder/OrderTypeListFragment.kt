@@ -699,7 +699,6 @@ class OrderTypeListFragment : BaseFragment(), View.OnClickListener {
                     if (!Pref.isRateNotEditable) {
                         (mContext as DashboardActivity).rateList.add("0.00")
                         (mContext as DashboardActivity).schemarateList.add("0.00")
-
                     }
                     else {
                         if (Pref.isRateOnline) {

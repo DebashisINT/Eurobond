@@ -20,6 +20,7 @@ import com.github.clans.fab.FloatingActionMenu
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
 import com.eurobond.app.Pref
+import com.eurobond.app.SearchListener
 import com.eurobond.app.domain.AddShopDBModelEntity
 import com.eurobond.app.types.FragType
 import com.eurobond.app.uiaction.IntentActionable
@@ -33,6 +34,7 @@ import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.location.LocationWizard.Companion.NEARBY_RADIUS
 import com.eurobond.features.location.SingleShotLocationProvider
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Created by riddhi on 2/1/18.
@@ -40,7 +42,7 @@ import java.util.*
 class LocalShopListFragment : BaseFragment(), View.OnClickListener {
 
 
-    private lateinit var localShopsListAdapter: LocalShopsListAdapter
+    private var localShopsListAdapter: LocalShopsListAdapter?= null
     private lateinit var nearByShopsList: RecyclerView
     private lateinit var mContext: Context
     private lateinit var layoutManager: RecyclerView.LayoutManager
@@ -56,6 +58,7 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
     private lateinit var getFloatingVal: ArrayList<String>
     private val preid: Int = 100
     private var isGetLocation = -1
+    private lateinit var geofenceTv: AppCompatTextView
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -66,6 +69,19 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
         super.onCreateView(inflater, container, savedInstanceState)
         val view = inflater.inflate(R.layout.fragment_nearby_shops, container, false)
         initView(view)
+
+        (mContext as DashboardActivity).setSearchListener(object : SearchListener {
+            override fun onSearchQueryListener(query: String) {
+                if (query.isBlank()) {
+                    (list as ArrayList<AddShopDBModelEntity>)?.let {
+                        localShopsListAdapter?.refreshList(it)
+                        //tv_cust_no.text = "Total customer(s): " + it.size
+                    }
+                } else {
+                    localShopsListAdapter?.filter?.filter(query)
+                }
+            }
+        })
         return view
     }
 
@@ -86,6 +102,15 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
         nearByShopsList = view.findViewById(R.id.near_by_shops_RCV)
         noShopAvailable = view.findViewById(R.id.no_shop_tv)
         shop_list_parent_rl = view.findViewById(R.id.shop_list_parent_rl)
+        geofenceTv = view.findViewById(R.id.tv_geofence_relax)
+
+        if(Pref.IsRestrictNearbyGeofence){
+            geofenceTv.visibility = View.VISIBLE
+            geofenceTv.text ="Geofence Relaxed :  " + Pref.GeofencingRelaxationinMeter + " mtr"
+        }
+        else{
+            geofenceTv.visibility = View.GONE
+        }
 
         shop_list_parent_rl.setOnClickListener { view ->
             floating_fab.close(true)
@@ -262,6 +287,11 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
                         }
                     }
 
+                    override fun onHistoryClick(shop: Any) {
+                        (mContext as DashboardActivity).loadFragment(FragType.ShopFeedbackHisFrag, true, shop)
+                    }
+                }, {
+                    it
                 })
 
                 (mContext as DashboardActivity).nearbyShopList = list
@@ -425,7 +455,8 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
 
                     var mRadious:Int = NEARBY_RADIUS
                     if(Pref.IsRestrictNearbyGeofence){
-                        mRadious=9999000
+                        mRadious = Pref.GeofencingRelaxationinMeter
+//                        mRadious=9999000
                     }
                     //val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(location, shopLocation, NEARBY_RADIUS)
                     val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(location, shopLocation, mRadious)

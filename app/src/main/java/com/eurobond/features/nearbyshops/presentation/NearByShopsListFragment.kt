@@ -939,7 +939,6 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
             }
 
-
             /*10-12-2021*/
             override fun onQuestionnarieClick(shopId: String) {
                 dialogOpenQa(shopId)
@@ -1216,6 +1215,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
             }
 
 
+            override fun onHistoryClick(shop: Any) {
+                (mContext as DashboardActivity).loadFragment(FragType.ShopFeedbackHisFrag, true, shop)
+            }
         })
 
         sortAlphabatically()

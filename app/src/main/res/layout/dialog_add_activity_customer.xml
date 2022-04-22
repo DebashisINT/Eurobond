@@ -14,7 +14,9 @@
         android:layout_width="@dimen/_270sdp"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corner_white_bg"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:focusable="true"
+        android:clickable="true">
 
         <ImageView
             android:id="@+id/iv_dialog_add_acti_cus_cross"
@@ -53,6 +55,7 @@
                     android:layout_width="@dimen/_20sdp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/_3sdp"
                     android:background="@drawable/ic_date_icon"
                     android:backgroundTint="@color/color_blue_light_dark" />
 
@@ -100,7 +103,6 @@
                     android:textColor="@color/red"
                     android:textSize="@dimen/_16sdp"
                     android:layout_marginRight="@dimen/_7sdp"/>
-
 
             </LinearLayout>
 
@@ -213,7 +215,6 @@
                     android:textColor="@color/black"
                     android:textColorHint="@color/black_50"
                     android:textSize="@dimen/_12sdp" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -223,7 +224,6 @@
                     android:textColor="@color/red"
                     android:textSize="@dimen/_16sdp"
                     android:layout_marginRight="@dimen/_7sdp"/>
-
 
 
             </LinearLayout>
@@ -277,8 +277,6 @@
                     android:textColor="@color/black"
                     android:textColorHint="@color/black_50"
                     android:textSize="@dimen/_12sdp" />
-
-
 
             </LinearLayout>
 
@@ -349,7 +347,6 @@
                     android:textSize="@dimen/_16sdp"
                     android:layout_marginRight="@dimen/_7sdp"/>
 
-
             </LinearLayout>
 
             <View
@@ -400,6 +397,65 @@
                     android:drawablePadding="@dimen/_25sdp"
                     android:gravity="center|start"
                     android:hint="Select Activity Type"
+                    android:minHeight="@dimen/_40sdp"
+                    android:padding="@dimen/_5sdp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/black_50"
+                    android:textSize="@dimen/_12sdp" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="@dimen/_5sdp"
+                android:layout_marginRight="@dimen/_5sdp"
+                android:background="@color/gray_50" />
+
+        </LinearLayout>
+
+
+
+        <!--Next Activity Date new field-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Space
+                    android:layout_width="@dimen/_5sdp"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/_3sdp"
+                    android:background="@drawable/ic_date_icon"
+                    android:backgroundTint="@color/color_blue_light_dark" />
+
+                <Space
+                    android:layout_width="@dimen/_5sdp"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@+id/dialog_add_activity_next_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|start"
+                    android:layout_marginLeft="@dimen/_5sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_marginRight="@dimen/_5sdp"
+                    android:background="@color/white"
+                    android:drawablePadding="@dimen/_25sdp"
+                    android:gravity="center|start"
+                    android:hint="Select Next Activity Date"
                     android:minHeight="@dimen/_40sdp"
                     android:padding="@dimen/_5sdp"
                     android:textColor="@color/black"

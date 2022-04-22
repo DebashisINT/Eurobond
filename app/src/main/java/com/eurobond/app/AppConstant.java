@@ -131,4 +131,8 @@ public interface AppConstant {
 
     String TBL_USER_WISE_LEAVE_LIST = "tbl_user_wise_leave_list";
 
+    String TBL_SHOP_FEEDBACK = "tbl_shop_deefback";
+    String TBL_SHOP_FEEDBACK_TEMP = "tbl_shop_deefback_temp";
+    String TBL_LEAD_ACTIVITY = "tbl_lead_activity";
+
 }

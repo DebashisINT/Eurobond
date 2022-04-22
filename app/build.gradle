@@ -25,8 +25,8 @@ android {
         applicationId "com.eurobond"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 83
-        versionName "3.9.7"
+        versionCode 84
+        versionName "3.9.8"
         //versionName "2.3.0"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -103,6 +103,7 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.0.0'
     implementation 'androidx.room:room-rxjava2:2.0.0'
     implementation 'androidx.wear:wear:1.1.0'
+    implementation 'androidx.room:room-common:2.4.2'
     compileOnly 'com.google.android.wearable:wearable:2.8.1'
     kapt 'androidx.lifecycle:lifecycle-compiler:2.0.0'
     kapt 'androidx.room:room-compiler:2.0.0'
@@ -174,7 +175,7 @@ dependencies {
         transitive = true
     }
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
-    implementation 'com.elvishew:xlog:1.6.1'
+    implementation 'com.elvishew:xlog:1.10.1'
 
     /*search view*/
 

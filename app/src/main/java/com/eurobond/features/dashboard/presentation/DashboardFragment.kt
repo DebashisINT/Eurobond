@@ -683,83 +683,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
 //        fab.setBackgroundDrawable(getResources().getDrawable(R.drawable.custom_toolbar_back))
 
-       /* start_TV.setOnClickListener({ view ->
-
-            if(false){
-                isCameraDayStart = true
-                initPermissionCheck()
-            }else{
-                if (!AppUtils.isOnline(mContext)) {
-                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
-                }
-                else {
-                    if (!Pref.isAddAttendence) {
-                        // 27-08-21 For ITC
-                        val simpleDialog = Dialog(mContext)
-                        simpleDialog.setCancelable(false)
-                        simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                        simpleDialog.setContentView(R.layout.dialog_message)
-                        val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
-                        val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
-                        dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()+"!"
-                        dialogHeader.text = "Please mark your attendance"
-                        val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
-                        dialogYes.setOnClickListener({ view ->
-                            simpleDialog.cancel()
-                        })
-                        simpleDialog.show()
-//                    (mContext as DashboardActivity).showSnackMessage("Please mark your attendance")
-                    } else {
-                        if (!Pref.DayStartMarked) {
-                            val simpleDialog = Dialog(mContext)
-                            simpleDialog.setCancelable(false)
-                            simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                            simpleDialog.setContentView(R.layout.dialog_yes_no)
-                            val dialogHeader = simpleDialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
-                            val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_yes_no_headerTV) as AppCustomTextView
-                            dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()+"!"
-                            dialogHeader.text = "Are you sure ?"
-                            val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
-                            val dialogNo = simpleDialog.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
-                            dialogYes.setOnClickListener({ view ->
-                                simpleDialog.cancel()
-                                //if(Pref.IsshowDayStartSelfie){
-                                //isCameraDayStart=true
-                                //initPermissionCheck()
-                                //}else{
-                                getLocforStart()
-                                //}
-                            })
-                            dialogNo.setOnClickListener({ view ->
-                                simpleDialog.cancel()
-                            })
-                            simpleDialog.show()
-                        } else {
-                            // 27-08-21 For ITC
-                            val simpleDialog = Dialog(mContext)
-                            simpleDialog.setCancelable(false)
-                            simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                            simpleDialog.setContentView(R.layout.dialog_message)
-                            val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
-                            val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
-                            dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()+"!"
-                            dialogHeader.text = "Your Day started already"
-                            val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
-                            dialogYes.setOnClickListener({ view ->
-                                simpleDialog.cancel()
-                            })
-                            simpleDialog.show()
-//                        (mContext as DashboardActivity).showSnackMessage("Day started already")
-                        }
-                    }
-                }
-            }
-
-
-
-
-        })*/
-
         start_TV.setOnClickListener({ view ->
 
             CustomStatic.FaceDetectionAccuracyLower=Pref.FaceDetectionAccuracyLower
@@ -783,107 +706,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                 }
             }else{
                 startTvClick()
-               /* if (!AppUtils.isOnline(mContext)) {
-                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
-
-                }
-                else if(isStartCall==false && Pref.DayStartMarked == false && Pref.isAddAttendence){
-
-                    val simpleDialog = Dialog(mContext)
-                    simpleDialog.setCancelable(false)
-                    simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                    simpleDialog.setContentView(R.layout.dialog_yes_no)
-                    val dialogHeader = simpleDialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
-                    val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_yes_no_headerTV) as AppCustomTextView
-                    //dialog_yes_no_headerTV.text = "Hi "+Pref.user_name?.substring(0, Pref.user_name?.indexOf(" ")!!)+"!"
-                    dialog_yes_no_headerTV.text = "Hi "+Pref.user_name!!+"!"
-                    dialogHeader.text = "Are you sure ?"
-                    val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
-                    val dialogNo = simpleDialog.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
-                    dialogYes.setOnClickListener({ view ->
-                        simpleDialog.cancel()
-                        //if(Pref.IsshowDayStartSelfie){
-                        //isCameraDayStart=true
-                        //initPermissionCheck()
-                        //}else{
-                        progress_wheel.spin()
-                        isCalledFromStart=true
-                        getPicUrl()
-                        //}
-                    })
-                    dialogNo.setOnClickListener({ view ->
-                        simpleDialog.cancel()
-                    })
-                    simpleDialog.show()
-                }
-                else{
-                    println("reg_face - start_tv"+AppUtils.getCurrentDateTime());
-                    if (!AppUtils.isOnline(mContext)) {
-                        (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
-                    }
-                    else {
-                        if (!Pref.isAddAttendence) {
-                            // 27-08-21 For ITC
-                            val simpleDialog = Dialog(mContext)
-                            simpleDialog.setCancelable(false)
-                            simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                            simpleDialog.setContentView(R.layout.dialog_message)
-                            val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
-                            val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
-                            //dialog_yes_no_headerTV.text = "Hi "+Pref.user_name?.substring(0, Pref.user_name?.indexOf(" ")!!)+"!"
-                            dialog_yes_no_headerTV.text = "Hi "+Pref.user_name!!+"!"
-                            dialogHeader.text = "Please mark your attendance."
-                            val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
-                            dialogYes.setOnClickListener({ view ->
-                                simpleDialog.cancel()
-                            })
-                            simpleDialog.show()
-//                    (mContext as DashboardActivity).showSnackMessage("Please mark your attendance")
-                        } else {
-                            if (!Pref.DayStartMarked) {
-
-                                getLocforStart()
-
-                                *//*val simpleDialog = Dialog(mContext)
-                                simpleDialog.setCancelable(false)
-                                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                                simpleDialog.setContentView(R.layout.dialog_yes_no)
-                                val dialogHeader = simpleDialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
-                                val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_yes_no_headerTV) as AppCustomTextView
-                                dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()
-                                dialogHeader.text = "Are you sure ?"
-                                val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
-                                val dialogNo = simpleDialog.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
-                                dialogYes.setOnClickListener({ view ->
-                                    simpleDialog.cancel()
-                                    getLocforStart()
-                                })
-                                dialogNo.setOnClickListener({ view ->
-                                    simpleDialog.cancel()
-                                })
-                                simpleDialog.show()*//*
-
-                            } else {
-                                // 27-08-21 For ITC
-                                val simpleDialog = Dialog(mContext)
-                                simpleDialog.setCancelable(false)
-                                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                                simpleDialog.setContentView(R.layout.dialog_message)
-                                val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
-                                val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
-                                //dialog_yes_no_headerTV.text = "Hi "+Pref.user_name?.substring(0, Pref.user_name?.indexOf(" ")!!)+"!"
-                                dialog_yes_no_headerTV.text = "Hi "+Pref.user_name!!+"!"
-                                dialogHeader.text = "Your Day started already."
-                                val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
-                                dialogYes.setOnClickListener({ view ->
-                                    simpleDialog.cancel()
-                                })
-                                simpleDialog.show()
-//                        (mContext as DashboardActivity).showSnackMessage("Day started already")
-                            }
-                        }
-                    }
-                }*/
             }
 
 
@@ -891,95 +713,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
         })
 
-       /* end_TV.setOnClickListener({ view ->
-            if (!AppUtils.isOnline(mContext)) {
-                (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
-            } else {
-                if (Pref.DayEndMarked) {
-                    // 27-08-21 For ITC
-                    val simpleDialog = Dialog(mContext)
-                    simpleDialog.setCancelable(false)
-                    simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                    simpleDialog.setContentView(R.layout.dialog_message)
-                    val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
-                    val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
-                    dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()+"!"
-                    dialogHeader.text = "Your Day already ended..."
-                    val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
-                    dialogYes.setOnClickListener({ view ->
-                        simpleDialog.cancel()
-                    })
-                    simpleDialog.show()
-//                    (mContext as DashboardActivity).showSnackMessage("Day already ended")
-                } else {
-                    //Pref.IsDDvistedOnceByDay=true
-                    if (Pref.DayStartMarked) {
-                        if (Pref.IsDDvistedOnceByDay) {
-                            val simpleDialog = Dialog(mContext)
-                            simpleDialog.setCancelable(false)
-                            simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                            simpleDialog.setContentView(R.layout.dialog_yes_no)
-                            val dialogHeader = simpleDialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
-                            val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_yes_no_headerTV) as AppCustomTextView
-                            dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()+"!"
-                            dialogHeader.text = "Are you sure to Exit for the Day?"
-                            val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
-                            val dialogNo = simpleDialog.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
-                            dialogYes.setOnClickListener({ view ->
-                                simpleDialog.cancel()
-                                //if(Pref.IsshowDayEndSelfie){
-                                //isCameraDayStart=false
-                                //initPermissionCheck()
-                                //}else{
-                                getLocforEnd()
-                                //}
-                                //check is it end day flag
-                                //launchCamera()
-
-
-                            })
-                            dialogNo.setOnClickListener({ view ->
-                                simpleDialog.cancel()
-                            })
-                            simpleDialog.show()
-                        } else {
-                            // 27-08-21 For ITC
-                            val simpleDialog = Dialog(mContext)
-                            simpleDialog.setCancelable(false)
-                            simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                            simpleDialog.setContentView(R.layout.dialog_message)
-                            val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
-                            val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
-                            dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()+"!"
-                            dialogHeader.text = "Please visit Distributor at once..."
-                            val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
-                            dialogYes.setOnClickListener({ view ->
-                                simpleDialog.cancel()
-                            })
-                            simpleDialog.show()
-//                            (mContext as DashboardActivity).showSnackMessage("Please visit Distributor at once...")
-                        }
-
-                    } else {
-                        // 27-08-21 For ITC
-                        val simpleDialog = Dialog(mContext)
-                        simpleDialog.setCancelable(false)
-                        simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                        simpleDialog.setContentView(R.layout.dialog_message)
-                        val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
-                        val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
-                        dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()+"!"
-                        dialogHeader.text = "Please start your day..."
-                        val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
-                        dialogYes.setOnClickListener({ view ->
-                            simpleDialog.cancel()
-                        })
-                        simpleDialog.show()
-//                        (mContext as DashboardActivity).showSnackMessage("Please start your day")
-                    }
-                }
-            }
-        })*/
 
         end_TV.setOnClickListener({ view ->
 
@@ -3441,15 +3174,12 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsShowMarkDistVisitOnDshbrd = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-                                            else if (response.getconfigure?.get(i)?.Key.equals("IsActivateNewOrderScreenwithSize", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsActivateNewOrderScreenwithSize", ignoreCase = true)) {
                                                 Pref.IsActivateNewOrderScreenwithSize = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsActivateNewOrderScreenwithSize = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-
-                                            else if (response.getconfigure?.get(i)?.Key.equals("IsPhotoDeleteShow", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsPhotoDeleteShow", ignoreCase = true)) {
                                                 Pref.IsPhotoDeleteShow = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsPhotoDeleteShow = response.getconfigure?.get(i)?.Value == "1"
@@ -3462,20 +3192,18 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.RevisitRemarksMandatory = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-                                            else if (response.getconfigure?.get(i)?.Key.equals("GPSAlert", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("GPSAlert", ignoreCase = true)) {
                                                 Pref.GPSAlert = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.GPSAlert = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-                                            else if (response.getconfigure?.get(i)?.Key.equals("GPSAlertwithSound", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("GPSAlertwithSound", ignoreCase = true)) {
                                                 Pref.GPSAlertwithSound = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.GPSAlertwithSound = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
-                                            
+
                                             /*29-10-2021 Team Attendance*/
                                             else if (response.getconfigure?.get(i)?.Key.equals("IsTeamAttendance", ignoreCase = true)) {
                                                 Pref.IsTeamAttendance = response.getconfigure!![i].Value == "1"
@@ -3490,23 +3218,20 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.FaceDetectionAccuracyUpper = response.getconfigure?.get(i)?.Value!!
                                                 }
-                                                CustomStatic.FaceDetectionAccuracyUpper=Pref.FaceDetectionAccuracyUpper
-                                            }
-                                            else if (response.getconfigure?.get(i)?.Key.equals("FaceDetectionAccuracyLower", ignoreCase = true)) {
+                                                CustomStatic.FaceDetectionAccuracyUpper = Pref.FaceDetectionAccuracyUpper
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("FaceDetectionAccuracyLower", ignoreCase = true)) {
                                                 Pref.FaceDetectionAccuracyLower = response.getconfigure!![i].Value!!
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.FaceDetectionAccuracyLower = response.getconfigure?.get(i)?.Value!!
                                                 }
-                                                CustomStatic.FaceDetectionAccuracyLower=Pref.FaceDetectionAccuracyLower
-                                            }
-
-                                            else if (response.getconfigure?.get(i)?.Key.equals("DistributorGPSAccuracy", ignoreCase = true)) {
+                                                CustomStatic.FaceDetectionAccuracyLower = Pref.FaceDetectionAccuracyLower
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("DistributorGPSAccuracy", ignoreCase = true)) {
                                                 Pref.DistributorGPSAccuracy = response.getconfigure!![i].Value!!
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.DistributorGPSAccuracy = response.getconfigure?.get(i)?.Value!!
                                                 }
-                                                if(Pref.DistributorGPSAccuracy.length==0 || Pref.DistributorGPSAccuracy.equals("")){
-                                                    Pref.DistributorGPSAccuracy="500"
+                                                if (Pref.DistributorGPSAccuracy.length == 0 || Pref.DistributorGPSAccuracy.equals("")) {
+                                                    Pref.DistributorGPSAccuracy = "500"
                                                 }
                                                 XLog.d("DistributorGPSAccuracy " + Pref.DistributorGPSAccuracy)
                                             }
@@ -3517,9 +3242,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.BatterySetting = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-
-                                            else if (response.getconfigure?.get(i)?.Key.equals("PowerSaverSetting", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("PowerSaverSetting", ignoreCase = true)) {
                                                 Pref.PowerSaverSetting = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.PowerSaverSetting = response.getconfigure?.get(i)?.Value == "1"
@@ -3540,8 +3263,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.MRPInOrder = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-                                            else if (response.getconfigure?.get(i)?.Key.equals("FaceRegistrationFrontCamera", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("FaceRegistrationFrontCamera", ignoreCase = true)) {
                                                 Pref.FaceRegistrationFrontCamera = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.FaceRegistrationFrontCamera = response.getconfigure?.get(i)?.Value == "1"
@@ -3554,31 +3276,22 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IslandlineforCustomer = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-
-                                            else if (response.getconfigure?.get(i)?.Key.equals("IsprojectforCustomer", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsprojectforCustomer", ignoreCase = true)) {
                                                 Pref.IsprojectforCustomer = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsprojectforCustomer = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-
-
-
-                                            else if (response.getconfigure?.get(i)?.Key.equals("Leaveapprovalfromsupervisor", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("Leaveapprovalfromsupervisor", ignoreCase = true)) {
                                                 Pref.Leaveapprovalfromsupervisor = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.Leaveapprovalfromsupervisor = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-
-                                            else if (response.getconfigure?.get(i)?.Key.equals("Leaveapprovalfromsupervisorinteam", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("Leaveapprovalfromsupervisorinteam", ignoreCase = true)) {
                                                 Pref.Leaveapprovalfromsupervisorinteam = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.Leaveapprovalfromsupervisorinteam = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-                                            else if (response.getconfigure?.get(i)?.Key.equals("IsRestrictNearbyGeofence", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsRestrictNearbyGeofence", ignoreCase = true)) {
                                                 Pref.IsRestrictNearbyGeofence = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsRestrictNearbyGeofence = response.getconfigure?.get(i)?.Value == "1"
@@ -3598,8 +3311,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsAlternateNoForCustomer = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-                                            else if (response.getconfigure?.get(i)?.Key.equals("IsWhatsappNoForCustomer", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsWhatsappNoForCustomer", ignoreCase = true)) {
                                                 Pref.IsWhatsappNoForCustomer = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsWhatsappNoForCustomer = response.getconfigure?.get(i)?.Value == "1"
@@ -3612,26 +3324,46 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsNewQuotationNumberManual = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowQuantityNewQuotation", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("ShowQuantityNewQuotation", ignoreCase = true)) {
                                                 Pref.ShowQuantityNewQuotation = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.ShowQuantityNewQuotation = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowAmountNewQuotation", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("ShowAmountNewQuotation", ignoreCase = true)) {
                                                 Pref.ShowAmountNewQuotation = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.ShowQuantityNewQuotation = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }
-
-                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowUserwiseLeadMenu", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("ShowUserwiseLeadMenu", ignoreCase = true)) {
                                                 Pref.ShowUserwiseLeadMenu = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.ShowUserwiseLeadMenu = response.getconfigure?.get(i)?.Value == "1"
                                                 }
+
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("GeofencingRelaxationinMeter", ignoreCase = true)) {
+
+                                                try{
+                                                    Pref.GeofencingRelaxationinMeter = response.getconfigure!![i].Value!!.toInt()
+                                                    if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                        Pref.GeofencingRelaxationinMeter = response.getconfigure!![i].Value!!.toInt()
+                                                    }
+                                                }catch(ex:Exception){
+                                                    Pref.GeofencingRelaxationinMeter = 100
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsFeedbackHistoryActivated", ignoreCase = true)) {
+                                                Pref.IsFeedbackHistoryActivated = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsFeedbackHistoryActivated = response.getconfigure?.get(i)?.Value == "1"
+                                                }
                                             }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsAutoLeadActivityDateTime", ignoreCase = true)) {
+                                                Pref.IsAutoLeadActivityDateTime = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsAutoLeadActivityDateTime = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
 
                                         }
                                     }
@@ -6729,25 +6461,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
                         getLocforStart()
 
-                        /*val simpleDialog = Dialog(mContext)
-                        simpleDialog.setCancelable(false)
-                        simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                        simpleDialog.setContentView(R.layout.dialog_yes_no)
-                        val dialogHeader = simpleDialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
-                        val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_yes_no_headerTV) as AppCustomTextView
-                        dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()
-                        dialogHeader.text = "Are you sure ?"
-                        val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
-                        val dialogNo = simpleDialog.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
-                        dialogYes.setOnClickListener({ view ->
-                            simpleDialog.cancel()
-                            getLocforStart()
-                        })
-                        dialogNo.setOnClickListener({ view ->
-                            simpleDialog.cancel()
-                        })
-                        simpleDialog.show()*/
-
                     } else {
                         // 27-08-21 For ITC
                         val simpleDialog = Dialog(mContext)
@@ -6826,52 +6539,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                 if (Pref.DayStartMarked) {
 
                     getLocforEnd()
-
-//                        if (Pref.IsDDvistedOnceByDay) {// 01-09-2021  end date time , point visit not checking
-                    /*val simpleDialog = Dialog(mContext)
-                    simpleDialog.setCancelable(false)
-                    simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                    simpleDialog.setContentView(R.layout.dialog_yes_no)
-                    val dialogHeader = simpleDialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
-                    val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_yes_no_headerTV) as AppCustomTextView
-                    dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()
-                    dialogHeader.text = "Are you sure to Exit for the Day?"
-                    val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
-                    val dialogNo = simpleDialog.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
-                    dialogYes.setOnClickListener({ view ->
-                        simpleDialog.cancel()
-
-                        getLocforEnd()
-
-
-
-                    })
-                    dialogNo.setOnClickListener({ view ->
-                        simpleDialog.cancel()
-                    })
-                    simpleDialog.show()*/
-
-
-
-
-
-//                        }
-                    /* else {
-                         // 27-08-21 For ITC
-                         val simpleDialog = Dialog(mContext)
-                         simpleDialog.setCancelable(false)
-                         simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                         simpleDialog.setContentView(R.layout.dialog_message)
-                         val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
-                         val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
-                         dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()
-                         dialogHeader.text = "Please visit Point at once..."
-                         val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
-                         dialogYes.setOnClickListener({ view ->
-                             simpleDialog.cancel()
-                         })
-                         simpleDialog.show()
-                     }*/
 
                 } else {
                     // 27-08-21 For ITC

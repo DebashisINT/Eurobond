@@ -16,8 +16,22 @@ import static com.eurobond.app.AppConstant.SHOP_TABLE;
 @Dao
 public interface AddShopDao {
 
+//    @Query("SELECT COUNT(*) AS row_count FROM "  + SHOP_TABLE + " WHERE landline_number = :landlineNumber")
+//    int getLandNumber(String landlineNumber);
+
+
+
+    //@Query("SELECT landline_number FROM "  + SHOP_TABLE + " WHERE  landline_number = :landline_number IS NOT NULL and landline_number = :landline_number > 0")
+//    @Query("SELECT landline_number FROM "  + SHOP_TABLE + " WHERE  landline_number LIKE '%' || :landline_number || '%'  limit 1 ")
+//    String getLandNumber(String landline_number);
+
+
     @Query("SELECT * FROM " + SHOP_TABLE)
     List<AddShopDBModelEntity> getAll();
+
+
+    @Query("select  * from shop_detail where shopid < 10")
+    List<AddShopDBModelEntity> getTop10();
 
     @Query("SELECT COUNT(*) from " + SHOP_TABLE)
     int countUsers();
@@ -203,6 +217,9 @@ public interface AddShopDao {
 
     @Query("Select shop_name from shop_detail where shop_id=:shopId")
     String getshopDetailsShopName(String shopId);
+
+    @Query("select * FROM " + SHOP_TABLE +" where shop_id=:shop_id")
+    List<AddShopDBModelEntity> getShopIdFromDtls(String shop_id);
 
 
 //    @Query("INSERT OR REPLACE INTO SHOP_TABLE (shopId,shopName,address,pinCode,ownerName,isVisited) VALUES (:id, :title, :url, COALESCE((SELECT isSubscribed FROM articles WHERE id = :id), 0));")

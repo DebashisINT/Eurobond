@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import com.eurobond.CustomStatic
 import com.elvishew.xlog.XLog
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.eurobond.R
@@ -18,6 +19,7 @@ import com.eurobond.app.AppDatabase
 import com.eurobond.app.NetworkConstant
 import com.eurobond.app.Pref
 import com.eurobond.app.SearchListener
+import com.eurobond.app.domain.AddShopDBModelEntity
 import com.eurobond.app.domain.MemberShopEntity
 import com.eurobond.app.types.FragType
 import com.eurobond.app.utils.AppUtils
@@ -267,7 +269,18 @@ class MemberAllShopListFragment : BaseFragment() {
             else if(Pref.IsNewQuotationfeatureOn) {
                 (mContext as DashboardActivity).loadFragment(FragType.ViewAllQuotListFragment, true, teamShop)
         }
-        })
+
+        },{
+                if(Pref.IsFeedbackHistoryActivated){
+                    if (!AppUtils.isOnline(mContext)) {
+                        (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
+                    }
+                    else{
+                            var tt=CustomStatic.ShopFeedBachHisUserId
+                        (mContext as DashboardActivity).loadFragment(FragType.ShopFeedbackHisFrag, true, it)
+                    }
+                }
+            })
 
         rv_team_shop_list.adapter = adapter
     }

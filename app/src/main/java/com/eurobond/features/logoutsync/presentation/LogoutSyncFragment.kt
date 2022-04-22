@@ -4,10 +4,8 @@ import android.app.ActivityManager
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.net.Uri
+import android.os.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatImageView
 import android.text.TextUtils
@@ -19,6 +17,7 @@ import android.view.animation.AnimationUtils
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.FileProvider
 import com.eurobond.CustomConstants
 import com.elvishew.xlog.XLog
 
@@ -90,6 +89,8 @@ import com.eurobond.widgets.AppCustomTextView
 import com.eurobond.MonitorService
 import com.eurobond.features.addshop.model.*
 import com.eurobond.features.addshop.model.assigntopplist.AddShopUploadImg
+import com.eurobond.features.login.api.LoginRepositoryProvider
+import com.eurobond.features.login.model.GetConcurrentUserResponse
 import com.eurobond.features.returnsOrder.ReturnProductList
 import com.eurobond.features.returnsOrder.ReturnRequest
 import com.eurobond.features.viewAllOrder.model.NewOrderSaveApiModel
@@ -97,8 +98,10 @@ import com.eurobond.features.viewAllOrder.orderNew.NewOrderScrActiFragment
 import com.eurobond.features.viewAllOrder.orderNew.NeworderScrCartFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_login_new.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -6781,6 +6784,8 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
         )
     }
 
+
+
     private fun animateSyncImage(icon: AppCompatImageView) {
         icon.animation = AnimationUtils.loadAnimation(mContext, R.anim.rotation_sync)
         icon.startAnimation(icon.animation)
@@ -6847,21 +6852,106 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         XLog.d("Return : ERROR " + error.localizedMessage)
                                         error.printStackTrace()
                                     }
-                                    checkToCallActivity()
+//                                    checkToCallActivity()
+                                    callLogshareApi()
                                 })
                 )
 
             }else{
-                checkToCallActivity()
+//                checkToCallActivity()
+                callLogshareApi()
             }
         }catch (ex:Exception){
-            checkToCallActivity()
+//            checkToCallActivity()
+            callLogshareApi()
 
         }
     }
 
 
 
+  /*25-03-2022*/
+  private fun callLogshareApi(){
+      val addReqData = AddLogReqData()
+      addReqData.user_id = Pref.user_id
+      val fileUrl = Uri.parse(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "xeurobondlogsample/log").path);
+      val file = File(fileUrl.path)
+      if (!file.exists()) {
+          checkToCallActivity()
+      }
+      val uri: Uri = FileProvider.getUriForFile(mContext, mContext!!.applicationContext.packageName.toString() + ".provider", file)
+      try{
+          val repository = EditShopRepoProvider.provideEditShopRepository()
+          BaseActivity.compositeDisposable.add(
+              repository.addLogfile(addReqData,file.toString(),mContext)
+                  .observeOn(AndroidSchedulers.mainThread())
+                  .subscribeOn(Schedulers.io())
+                  .subscribe({ result ->
+                      XLog.d("Logshare : RESPONSE " + result.status)
+                      if (result.status == NetworkConstant.SUCCESS){
+                          //XLog.d("Return : RESPONSE URL " + result.file_url +  " " +Pref.user_name)
+                      }
+                      checkToCallActivity()
+                  },{error ->
+                      if (error == null) {
+                          XLog.d("Logshare : ERROR " + "UNEXPECTED ERROR IN Log share API")
+                      } else {
+                          XLog.d("Logshare : ERROR " + error.localizedMessage)
+                          error.printStackTrace()
+                      }
+                      checkToCallActivity()
+                  })
+          )
 
+      }
+      catch (ex:Exception){
+          ex.printStackTrace()
+          checkToCallActivity()
+      }
+  }
+
+/* private fun callLogshareApi(){
+     checkToCallActivity()
+     *//*val addReqData = AddLogReqData()
+      addReqData.user_id = Pref.user_id
+      val fileUrl = Uri.parse(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "xeurobondlogsample/log").path);
+      val file = File(fileUrl.path)
+      if (!file.exists()) {
+          return
+      }
+      val uri: Uri = FileProvider.getUriForFile(mContext, mContext!!.applicationContext.packageName.toString() + ".provider", file)
+      try{
+          val repository = EditShopRepoProvider.provideEditShopRepository()
+          BaseActivity.compositeDisposable.add(
+                  repository.addLogfile(addReqData,fileUrl.toString(),mContext)
+                              .observeOn(AndroidSchedulers.mainThread())
+                              .subscribeOn(Schedulers.io())
+                              .subscribe({ result ->
+                                  XLog.d("Return : RESPONSE " + result.status)
+                                  if (result.status == NetworkConstant.SUCCESS){
+                                      XLog.d("Return : RESPONSE URL " + result.file_url +   Pref.user_name)
+                                      checkToCallActivity()
+                                  }
+                                  else if(result.status == NetworkConstant.SESSION_MISMATCH) {
+                                      XLog.d("Return : RESPONSE Message " + result.message)
+                                      checkToCallActivity()
+                                  }
+                              },{error ->
+                                  if (error == null) {
+                                      XLog.d("Logshare : ERROR " + "UNEXPECTED ERROR IN Log share API")
+                                  } else {
+                                      XLog.d("Logshare : ERROR " + error.localizedMessage)
+                                      error.printStackTrace()
+                                  }
+                                  checkToCallActivity()
+                              })
+              )
+
+          }
+        catch (ex:Exception){
+          checkToCallActivity()
+
+      }*//*
+  }*/
 
 }

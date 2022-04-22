@@ -80,7 +80,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        println("MyFirebaseMessagingService onMessageReceived");
+        println("Refreshed token onMessageReceived");
         XLog.e("FirebaseMessageService : ============Push has come============")
 
         if (TextUtils.isEmpty(Pref.user_id)) {

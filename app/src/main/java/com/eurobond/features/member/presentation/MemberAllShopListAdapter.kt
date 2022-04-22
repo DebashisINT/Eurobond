@@ -13,6 +13,7 @@ import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
 import com.eurobond.app.Pref
+import com.eurobond.app.domain.AddShopDBModelEntity
 import com.eurobond.app.utils.AppUtils
 import com.eurobond.features.member.model.TeamShopListDataModel
 import kotlinx.android.synthetic.main.inflate_member_shop_list.view.*
@@ -22,7 +23,8 @@ import kotlinx.android.synthetic.main.inflate_member_shop_list.view.*
  */
 class MemberAllShopListAdapter(private val context: Context, private val teamShopList: ArrayList<TeamShopListDataModel>,
                                private val listener: (TeamShopListDataModel) -> Unit, private val onUpdateLocClick: (TeamShopListDataModel) -> Unit,
-                               private val getListSize: (Int) -> Unit,private val onQuotClick: (TeamShopListDataModel) -> Unit) : RecyclerView.Adapter<MemberAllShopListAdapter.MyViewHolder>(),
+                               private val getListSize: (Int) -> Unit,private val onQuotClick: (TeamShopListDataModel) -> Unit,private val onHistoryClick: (AddShopDBModelEntity) -> Unit
+) : RecyclerView.Adapter<MemberAllShopListAdapter.MyViewHolder>(),
         Filterable {
 
     private val layoutInflater: LayoutInflater by lazy {
@@ -48,7 +50,7 @@ class MemberAllShopListAdapter(private val context: Context, private val teamSho
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bindItems(context, shopList!!, listener, onUpdateLocClick,onQuotClick)
+        holder.bindItems(context, shopList!!, listener, onUpdateLocClick,onQuotClick,onHistoryClick)
     }
 
     override fun getItemCount(): Int {
@@ -58,7 +60,8 @@ class MemberAllShopListAdapter(private val context: Context, private val teamSho
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bindItems(context: Context, teamShopList: ArrayList<TeamShopListDataModel>, listener: (TeamShopListDataModel) -> Unit,
-                      onUpdateLocClick: (TeamShopListDataModel) -> Unit,onQuotClick: (TeamShopListDataModel) -> Unit) {
+                      onUpdateLocClick: (TeamShopListDataModel) -> Unit,onQuotClick: (TeamShopListDataModel) -> Unit,
+                      onHistoryClick: (AddShopDBModelEntity) -> Unit) {
             itemView.apply {
                 myshop_name_TV.text = teamShopList[adapterPosition].shop_name
                 myshop_address_TV.text = teamShopList[adapterPosition].shop_address
@@ -188,16 +191,52 @@ class MemberAllShopListAdapter(private val context: Context, private val teamSho
                     add_order_ll.visibility = View.GONE
                     add_quot_ll.visibility = View.VISIBLE
                     order_view.visibility = View.GONE
+                    history_vvview.visibility = View.VISIBLE
                 }
                 else{
                     iconWrapper_rl.visibility = View.GONE
                     add_order_ll.visibility = View.GONE
                     add_quot_ll.visibility = View.GONE
                     order_view.visibility = View.GONE
+                    history_vvview.visibility = View.GONE
                 }
                 add_quot_ll.setOnClickListener {
                     onQuotClick(teamShopList[adapterPosition])
                 }
+
+                if(Pref.IsFeedbackHistoryActivated){
+                    iconWrapper_rl.visibility = View.VISIBLE
+                    history_llll.visibility = View.VISIBLE
+                }
+                else{
+                    iconWrapper_rl.visibility = View.GONE
+                    history_llll.visibility = View.GONE
+                }
+
+                history_llll.setOnClickListener {
+                    var obj: AddShopDBModelEntity = AddShopDBModelEntity()
+                    obj.apply {
+                        shop_id=teamShopList[adapterPosition].shop_id
+                        shopName=teamShopList[adapterPosition].shop_name
+                        address=teamShopList[adapterPosition].shop_address
+                        pinCode=teamShopList[adapterPosition].shop_pincode
+                        shopLat=teamShopList[adapterPosition].shop_lat!!.toDouble()
+                        shopLong=teamShopList[adapterPosition].shop_long!!.toDouble()
+                        ownerContactNumber=teamShopList[adapterPosition].shop_contact
+                        totalVisitCount=teamShopList[adapterPosition].total_visited
+                        lastVisitedDate = teamShopList[adapterPosition].last_visit_date
+                        type = teamShopList[adapterPosition].shop_type
+                        assigned_to_dd_id = teamShopList[adapterPosition].assign_to_dd_id
+                        assigned_to_pp_id = teamShopList[adapterPosition].assign_to_pp_id
+                        entity_code = teamShopList[adapterPosition].entity_code
+                    }
+                    onHistoryClick(obj)
+                }
+
+                if(Pref.IsNewQuotationfeatureOn || Pref.IsFeedbackHistoryActivated){
+                    iconWrapper_rl.visibility = View.VISIBLE
+                }
+
             }
 
         }

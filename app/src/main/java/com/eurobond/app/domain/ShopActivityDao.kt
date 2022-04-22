@@ -187,4 +187,7 @@ interface ShopActivityDao {
     @Query("update shop_activity set next_visit_date=:next_visit_date where shopid=:shopid  and shopActivityId=:shopActivityId")
     fun trash1(next_visit_date: String, shopid: String, shopActivityId: String)
 
+    @Query("update shop_activity set next_visit_date=:next_visit_date where shopid=:shopid  and shopActivityId=:shopActivityId")
+    fun trash2(next_visit_date: String, shopid: String, shopActivityId: String)
+
 }

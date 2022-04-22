@@ -37,7 +37,9 @@ class ViewActivityAdapter(var mContext:Context,var list:ArrayList<activity_dtls_
             holder.iv_edit.visibility=View.GONE
         }
 
-        holder.iv_edit.setOnClickListener { listener.onEditClick(list.get(holder.adapterPosition),holder.adapterPosition) }
+        holder.iv_edit.setOnClickListener {
+            listener.onEditClick(list.get(holder.adapterPosition),holder.adapterPosition)
+        }
     }
 
     inner class ViewActivityViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){

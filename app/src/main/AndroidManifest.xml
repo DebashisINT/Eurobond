@@ -85,37 +85,11 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
-        <activity
-            android:name=".features.document.OpenFileWebViewFragment"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="portrait" />
 
-
-        <activity
-            android:name=".Customdialog.CustomDialog"
-            android:label="@string/title_activity_custom_dialog"
-            android:screenOrientation="portrait"/>
-
-
-        <activity android:name=".features.viewAllOrder.orderNew.NewOrderScrOrderDetailsFragment" />
         <activity
             android:name=".CustomCameraActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".features.returnsOrder.ReturnTypeListFragment" />
-        <activity
-            android:name=".CustomCameraActivity"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".features.returnsOrder.ViewAllReturnListFragment" />
-        <activity
-            android:name=".CustomCameraActivity"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".features.returnsOrder.ViewCartReturnFragment" />
-        <activity
-            android:name=".CustomCameraActivity"
-            android:screenOrientation="portrait" />
 
         <uses-library
             android:name="org.apache.http.legacy"

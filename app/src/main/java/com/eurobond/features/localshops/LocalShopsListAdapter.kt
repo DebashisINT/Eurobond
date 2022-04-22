@@ -6,6 +6,8 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.amulyakhare.textdrawable.TextDrawable
@@ -19,7 +21,6 @@ import com.eurobond.app.utils.AppUtils
 import com.eurobond.app.utils.Toaster
 import com.eurobond.features.location.LocationWizard
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.*
 import kotlinx.android.synthetic.main.inflate_nearby_shops.view.*
 import kotlinx.android.synthetic.main.inflate_nearby_shops.view.add_order_ll
 import kotlinx.android.synthetic.main.inflate_nearby_shops.view.add_quot_ll
@@ -39,21 +40,34 @@ import kotlinx.android.synthetic.main.inflate_nearby_shops.view.total_v_TV
 import kotlinx.android.synthetic.main.inflate_nearby_shops.view.total_visited_value_TV
 import kotlinx.android.synthetic.main.inflate_nearby_shops.view.tv_shop_code
 import kotlinx.android.synthetic.main.inflate_nearby_shops.view.tv_shop_contact_no
-import kotlinx.android.synthetic.main.inflate_registered_shops.view.*
 
 /**
  * Created by riddhi on 2/1/18.
  */
-class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, val listener: LocalShopListClickListener) : RecyclerView.Adapter<LocalShopsListAdapter.MyViewHolder>() {
+
+class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, val listener: LocalShopListClickListener,private val getSize: (Int) -> Unit) :
+        RecyclerView.Adapter<LocalShopsListAdapter.MyViewHolder>(), Filterable {
     private val layoutInflater: LayoutInflater
     private var context: Context
-    private var mList: List<AddShopDBModelEntity>
+    private var mList: ArrayList<AddShopDBModelEntity>
+
+    private var tempList: ArrayList<AddShopDBModelEntity>? = null
+    private var filterList: ArrayList<AddShopDBModelEntity>? = null
+
 
 
     init {
         layoutInflater = LayoutInflater.from(context)
         this.context = context
-        mList = list
+
+        //mList = list as ArrayList<AddShopDBModelEntity>
+        tempList = ArrayList()
+        filterList = ArrayList()
+        mList = ArrayList()
+
+        tempList?.addAll(list)
+        mList?.addAll(list as ArrayList<AddShopDBModelEntity>)
+
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
@@ -203,7 +217,8 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
                 else if (!TextUtils.isEmpty(dd?.dd_name))
                     itemView.tv_pp_dd_value.text = dd?.dd_name
 
-            } else if (!TextUtils.isEmpty(list[adapterPosition].assigned_to_pp_id)) {
+            }
+            else if (!TextUtils.isEmpty(list[adapterPosition].assigned_to_pp_id)) {
                 itemView.rl_dd.visibility = View.VISIBLE
                 itemView.tv_pp_dd_header.text = context.getString(R.string.pp_super)
 
@@ -214,7 +229,8 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
                 else if (!TextUtils.isEmpty(pp?.pp_name))
                     itemView.tv_pp_dd_value.text = pp?.pp_name
 
-            } else {
+            }
+            else {
                 itemView.rl_dd.visibility = View.GONE
             }
 
@@ -310,14 +326,16 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
                     itemView.tv_shop_code.text = list[adapterPosition].entity_code
                 } else
                     itemView.ll_shop_code.visibility = View.GONE
-            } else
+            }
+            else
                 itemView.ll_shop_code.visibility = View.GONE
 
 
             if (Pref.isQuotationShow) {
                 itemView.add_quot_ll.visibility = View.VISIBLE
                 itemView.order_view.visibility = View.VISIBLE
-            } else {
+            }
+            else {
                 itemView.add_quot_ll.visibility = View.GONE
                 itemView.order_view.visibility = View.GONE
             }
@@ -349,13 +367,99 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
             }
             else
                 itemView.tv_party_value.text = "N.A."
+
+
+            if(Pref.IsFeedbackHistoryActivated){
+                itemView.history_llll.visibility=View.VISIBLE
+                itemView.history_vvview.visibility=View.VISIBLE
+            }else{
+                itemView.history_llll.visibility=View.GONE
+                itemView.history_vvview.visibility=View.GONE
+            }
+            itemView.history_llll.setOnClickListener {
+                listener.onHistoryClick(list[adapterPosition])
+            }
+
+
         }
     }
 
-    fun updateAdapter(mlist: List<AddShopDBModelEntity>) {
+    fun updateAdapter(mlist: ArrayList<AddShopDBModelEntity>) {
         this.mList = mlist
         notifyDataSetChanged()
     }
+
+    override fun getFilter(): Filter {
+        return SearchFilter()
+    }
+
+    inner class SearchFilter : Filter() {
+        override fun performFiltering(p0: CharSequence?): FilterResults {
+
+            //var land=AppDatabase.getDBInstance()!!.addShopEntryDao().getLandNumber(p0?.toString())
+
+            val results = FilterResults()
+            filterList?.clear()
+            tempList?.indices!!
+                    .filter { tempList?.get(it)?.shopName?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
+                            tempList?.get(it)?.pinCode?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
+                            tempList?.get(it)?.ownerName?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
+                            tempList?.get(it)?.ownerContactNumber?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
+                            //AppDatabase.getDBInstance()!!.addShopEntryDao().getLandNumber(tempList?.get(it)?.landline_number!!).toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
+                            //tempList?.get(it)?.landline_number?.toLowerCase()?.contains(land)!! ||
+                            //AppDatabase.getDBInstance()!!.shopTypeDao().getShopNameById(tempList?.get(it)?.type!!).toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!  ||
+                            tempList?.get(it)?.address?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!
+                    }
+                    .forEach { filterList?.add(tempList?.get(it)!!) }
+
+
+            results.values = filterList
+            results.count = filterList?.size!!
+
+            return results
+        }
+
+        override fun publishResults(p0: CharSequence?, results: FilterResults?) {
+
+            try {
+                filterList = results?.values as ArrayList<AddShopDBModelEntity>?
+                mList?.clear()
+                val hashSet = HashSet<String>()
+                if (filterList != null) {
+
+                    filterList?.indices!!
+                            .filter { hashSet.add(filterList?.get(it)?.shopName!!) }
+                            .forEach { mList?.add(filterList?.get(it)!!) }
+
+                    getSize(mList?.size!!)
+
+                    notifyDataSetChanged()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    fun refreshList(list: ArrayList<AddShopDBModelEntity>) {
+
+        mList?.clear()
+        mList?.addAll(list)
+
+        tempList?.clear()
+        tempList?.addAll(list)
+
+        if (filterList == null)
+            filterList = ArrayList()
+        filterList?.clear()
+
+        notifyDataSetChanged()
+    }
+
+
+
+
 
 
 }

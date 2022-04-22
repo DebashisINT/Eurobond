@@ -72,6 +72,7 @@ import com.eurobond.features.location.UserLocationDataEntity
 import com.eurobond.features.location.model.ShopDurationRequest
 import com.eurobond.features.location.model.ShopDurationRequestData
 import com.eurobond.features.location.shopdurationapi.ShopDurationRepositoryProvider
+import com.eurobond.features.login.ShopFeedbackEntity
 import com.eurobond.features.login.model.GetQtsAnsSubmitDtlsResponseModel
 import com.eurobond.features.login.model.productlistmodel.ModelListResponse
 import com.eurobond.features.login.presentation.LoginActivity
@@ -2622,6 +2623,15 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         shopActivityEntity.updated_on= AppUtils.getCurrentDateForShopActi()
 
         AppDatabase.getDBInstance()!!.shopActivityDao().insertAll(shopActivityEntity)
+
+        // shop feedback work
+        var feedObj: ShopFeedbackEntity = ShopFeedbackEntity()
+        feedObj.shop_id=shopActivityEntity.shopid
+        feedObj.feedback=shopActivityEntity.feedback
+        feedObj.date_time=AppUtils.getCurrentDateTime()
+        if(feedObj.feedback.equals("") || shopActivityEntity.feedback==null)
+            feedObj.feedback="N/A"
+        AppDatabase.getDBInstance()?.shopFeedbackDao()?.insert(feedObj)
 
 //        AppUtils.isShopVisited = true
 

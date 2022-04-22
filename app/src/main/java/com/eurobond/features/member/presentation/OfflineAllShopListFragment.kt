@@ -16,7 +16,9 @@ import com.eurobond.app.AppDatabase
 import com.eurobond.app.NetworkConstant
 import com.eurobond.app.Pref
 import com.eurobond.app.SearchListener
+import com.eurobond.app.domain.AddShopDBModelEntity
 import com.eurobond.app.domain.MemberShopEntity
+import com.eurobond.app.types.FragType
 import com.eurobond.app.utils.AppUtils
 import com.eurobond.base.presentation.BaseActivity
 import com.eurobond.base.presentation.BaseFragment

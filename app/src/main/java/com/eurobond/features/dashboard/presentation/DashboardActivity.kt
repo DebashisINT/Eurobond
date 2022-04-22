@@ -137,14 +137,13 @@ import com.eurobond.features.homelocation.presentation.HomeLocationFragment
 import com.eurobond.features.homelocation.presentation.HomeLocationMapFragment
 import com.eurobond.features.know_your_state.KnowYourStateFragment
 import com.eurobond.features.lead.LeadFrag
-import com.eurobond.features.lead.LeadInProcessFrag
-import com.eurobond.features.lead.LeadPendingFrag
 import com.eurobond.features.lead.ViewLeadFrag
 import com.eurobond.features.leaveapplynew.LeaveHome
 import com.eurobond.features.localshops.LocalShopListFragment
 import com.eurobond.features.localshops.LocalShopListMapFragment
 import com.eurobond.features.localshops.NearByShopsMapFragment
 import com.eurobond.features.location.*
+import com.eurobond.features.login.ShopFeedbackEntity
 import com.eurobond.features.login.model.alarmconfigmodel.AlarmConfigDataModel
 import com.eurobond.features.login.presentation.LoginActivity
 import com.eurobond.features.logout.presentation.api.LogoutRepositoryProvider
@@ -198,6 +197,7 @@ import com.eurobond.features.reimbursement.presentation.ReimbursementListFragmen
 import com.eurobond.features.report.presentation.*
 import com.eurobond.features.returnsOrder.*
 import com.eurobond.features.settings.presentation.SettingsFragment
+import com.eurobond.features.shopFeedbackHistory.ShopFeedbackHisFrag
 import com.eurobond.features.shopdetail.presentation.*
 import com.eurobond.features.shopdetail.presentation.api.EditShopRepoProvider
 import com.eurobond.features.stock.StockDetailsFragment
@@ -254,6 +254,7 @@ import java.io.*
 import java.util.*
 import kotlin.collections.ArrayList
 
+
 /*
  * Created by rp : 26-10-2017:17:59
  */
@@ -305,13 +306,17 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
             // Get new FCM registration token
             val token = task.result
-            println("fcm_token "+token.toString());
+            println("fcm_token " + token.toString());
             //check(token)
+            XLog.d("token : " + token.toString())
         })
 
-       //AppDatabase.getDBInstance()!!.shopActivityDao().trash("1")
 
-        println("load frag "+mFragType.toString() + "     "+AppUtils.minAccuracy.toString() +" "+Pref.SqMtrRateCalculationforQuotEuro );
+
+        //AppDatabase.getDBInstance()?.shopActivityDao()?.trash2("2022-03-30","11984_1648452492858","12")
+
+       //AppDatabase.getDBInstance()!!.shopActivityDao().trash("1")
+        println("load frag " + mFragType.toString() + "     " + AppUtils.minAccuracy.toString() + " " + Pref.user_id);
         if (addToStack) {
             mTransaction.add(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
             mTransaction.addToBackStack(mFragType.toString()).commitAllowingStateLoss()
@@ -321,7 +326,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         }
     }
 
-    private fun checkByU(token:String) {
+    private fun checkByU(token: String) {
         var fbToken = "fRL4OYJgTNCLFcMPKOcPhH:APA91bHZHlJf56uD_TqnD-Pq0Rvl0ao9x1ZZhtZvu2MpbAJ5FJD_1TrrTnRhfx0ABzfj2WKaX_ji8mjx1W_eawbZs5KUOD8OM0GpTK2m8IV9863_jIvNaFVknSlnAH1T5I3X4iJBERCF"
         if (fbToken != "") {
             try {
@@ -330,7 +335,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 notificationBody.put("title", "titleeeeee")
                 notificationBody.put("body", "bodyyyyy")
                 notificationBody.put("flag_status", "flag_status")
-                notificationBody.put(    "applied_user_id",Pref.user_id)
+                notificationBody.put("applied_user_id", Pref.user_id)
                 notificationBody.put("act", "1")
                 jsonObject.put("data", notificationBody)
                 val jsonArray = JSONArray()
@@ -343,7 +348,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         }
     }
 
-    private fun check(token:String) {
+    private fun check(token: String) {
         var fbToken = "einJt0q5QnmA2YH09qrhD2:APA91bHV8S0T937dZcLqh0tpDTukvZea6Ue3rVh4hl59jDDCom2xKoCSgbmK6JTjTi5jw3iZykqhpwiX0nQcI8f-ng0xdFZZZ9LIagSWBdTzjqig8U4zZwgnJWYRPZ99xBWsBmECPkH-"
         if (fbToken != "") {
             try {
@@ -352,7 +357,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 notificationBody.put("title", "titleeeeee")
                 notificationBody.put("body", "bodyyyyy")
                 notificationBody.put("flag", "flag")
-                notificationBody.put(    "applied_user_id",Pref.user_id)
+                notificationBody.put("applied_user_id", Pref.user_id)
                 notificationBody.put("act", "1")
                 jsonObject.put("data", notificationBody)
                 val jsonArray = JSONArray()
@@ -379,7 +384,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             @Throws(AuthFailureError::class)
             override fun getHeaders(): Map<String, String> {
                 val params: MutableMap<String, String> = HashMap()
-                params["Authorization"] = "key=AAAAIoWfCpc:APA91bEMOPyfjsyziPC1WYJiPHjzdmTQJmAOKP0fM24iXI9BgrmyhH4uLY6Jd-6Lpjp8mvSdpSp-zm20ApTOYQ3Ean4m6LicJ5CoECS_v5u2PUAwA8E6FLsu2ZC6_WxuSYnTTLzlUi4E"
+                params["Authorization"] = getString(R.string.firebase_key)
                 params["Content-Type"] = "application/json"
                 return params
             }
@@ -743,6 +748,15 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                 notification.sendLocNotification(this, body)
                             }
                         }
+
+                    }
+
+                    val leadActivityList=AppDatabase.getDBInstance()!!.leadActivityDao().getAll(AppUtils.getCurrentDateForShopActi())
+                    leadActivityList?.forEach {
+                        val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                        //val shop = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(it.shopid)
+                        val body = "${AppUtils.hiFirstNameText()}!, your activity to " + it.customer_name + " whose contact no. is: " + it?.mobile_no +" due today as per next activity date. Thanks."
+                        notification.sendLeadActivityNotification(this, body)
                     }
 
                     val taskList = AppDatabase.getDBInstance()?.taskDao()?.getTaskDateWise(AppUtils.getCurrentDateForShopActi())
@@ -882,8 +896,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         try {
                             fl_net_status.background = getDrawable(R.drawable.green_round)
                             netStatus = "Online"
-                        }
-                        catch (e: java.lang.Exception) {
+                        } catch (e: java.lang.Exception) {
                             e.printStackTrace()
                         }
                     }
@@ -892,8 +905,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         try {
                             fl_net_status.background = getDrawable(R.drawable.red_round)
                             netStatus = "Offline"
-                        }
-                        catch (e: java.lang.Exception) {
+                        } catch (e: java.lang.Exception) {
                             e.printStackTrace()
                         }
                     }
@@ -905,14 +917,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
             val networkRequest = builder.build()
             connectivityManager?.registerNetworkCallback(networkRequest,
-                    object : ConnectivityManager.NetworkCallback () {
+                    object : ConnectivityManager.NetworkCallback() {
                         override fun onAvailable(network: Network) {
                             super.onAvailable(network)
                             try {
                                 fl_net_status.background = getDrawable(R.drawable.green_round)
                                 netStatus = "Online"
-                            }
-                            catch (e: java.lang.Exception) {
+                            } catch (e: java.lang.Exception) {
                                 e.printStackTrace()
                             }
                         }
@@ -922,8 +933,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                             try {
                                 fl_net_status.background = getDrawable(R.drawable.red_round)
                                 netStatus = "Offline"
-                            }
-                            catch (e: java.lang.Exception) {
+                            } catch (e: java.lang.Exception) {
                                 e.printStackTrace()
                             }
                         }
@@ -1111,11 +1121,15 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         }
                     } else {
                         if (intent.hasExtra("TYPE")) {
+                            Toaster.msgShort(this,intent.getStringExtra("TYPE").toString())
                             if (intent.getStringExtra("TYPE").equals("PUSH", ignoreCase = true))
                                 pushStatus = 0
                             else if (intent.getStringExtra("TYPE").equals("DUE", ignoreCase = true)) {
                                 if (getFragment() != null && getFragment() !is NearByShopsListFragment)
                                     loadFragment(FragType.NearByShopsListFragment, false, "")
+                            }else if (intent.getStringExtra("TYPE").equals("ACTIVITYDUE", ignoreCase = true)) {
+                                if (getFragment() != null && getFragment() !is LeadFrag)
+                                    loadFragment(FragType.LeadFrag, false, "")
                             }
                             else if (intent.getStringExtra("TYPE").equals("TASK", ignoreCase = true)) {
                                 if (getFragment() != null && getFragment() !is TaskListFragment)
@@ -1174,7 +1188,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
                                 Handler().postDelayed(Runnable {
                                     if (getFragment() != null && getFragment() !is LeaveHome)
-                                        //loadFragment(FragType.LeaveHome, false, usrID)
+                                    //loadFragment(FragType.LeaveHome, false, usrID)
                                         loadFragment(FragType.LeaveListFragment, false, "")
                                 }, 700)
                             }
@@ -1438,7 +1452,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
 
         if (dialog == null || !dialog?.isVisible!!) {
-            dialog = CommonDialog.getInstance(AppUtils.hiFirstNameText()+"!", getString(R.string.attendance_msg_bdy), /*getString(R.string.cancel),
+            dialog = CommonDialog.getInstance(AppUtils.hiFirstNameText() + "!", getString(R.string.attendance_msg_bdy), /*getString(R.string.cancel),
                     getString(R.string.ok),*/ true, object : CommonDialogClickListener {
                 override fun onLeftClick() {
                 }
@@ -1489,12 +1503,12 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                         .subscribeOn(Schedulers.io())
                                         .subscribe({ result ->
                                             val attendanceList = result as AttendanceResponse
-                                            if (attendanceList.status == "205"){
+                                            if (attendanceList.status == "205") {
                                                 progress_wheel.stopSpinning()
                                                 loadFragment(FragType.AddAttendanceFragment, true, "")
-                                            }else if(attendanceList.status == NetworkConstant.SUCCESS){
+                                            } else if (attendanceList.status == NetworkConstant.SUCCESS) {
                                                 progress_wheel.stopSpinning()
-                                                Pref.isAddAttendence=true
+                                                Pref.isAddAttendence = true
                                                 (mContext as DashboardActivity).showSnackMessage("${AppUtils.hiFirstNameText()}. Attendance already marked for the day.")
                                             }
 
@@ -1657,6 +1671,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             } else if (intent.getStringExtra("TYPE").equals("DUE", ignoreCase = true)) {
                 if (getFragment() != null && getFragment() !is NearByShopsListFragment)
                     loadFragment(FragType.NearByShopsListFragment, false, "")
+            }else if (intent.getStringExtra("TYPE").equals("ACTIVITYDUE", ignoreCase = true)) {
+                if (getFragment() != null && getFragment() !is LeadFrag)
+                    loadFragment(FragType.LeadFrag, false, "")
             }
             else if (intent.getStringExtra("TYPE").equals("TASK", ignoreCase = true)) {
                 if (getFragment() != null && getFragment() !is TaskListFragment)
@@ -1695,7 +1712,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             else if(intent.getStringExtra("TYPE").equals("LEAVE_APPLY", ignoreCase = true)) {
                 var usrID=intent.getStringExtra("USER_ID")!!
                 Handler().postDelayed(Runnable {
-                        loadFragment(FragType.LeaveHome, false, usrID)
+                    loadFragment(FragType.LeaveHome, false, usrID)
                 }, 300)
                 //loadFragment(FragType.LeaveHome, false, intent.getStringExtra("USER_ID")!!)
             }
@@ -2498,8 +2515,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     override fun onClick(p0: View?) {
         when (p0!!.id) {
 
-            R.id.activity_dashboard_lnr_lyt_slide_view ->{
-                Toast.makeText(this,"asdasf",Toast.LENGTH_LONG).show()
+            R.id.activity_dashboard_lnr_lyt_slide_view -> {
+                Toast.makeText(this, "asdasf", Toast.LENGTH_LONG).show()
             }
 
             R.id.home_RL -> {
@@ -2549,8 +2566,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         loadFragment(FragType.NearByShopsListFragment, false, "")
                     else
                         loadFragment(FragType.CustomerListFragment, false, "")
-                }
-                else
+                } else
                     loadFragment(FragType.BeatListFragment, false, "")
             }
 
@@ -2624,12 +2640,12 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                     .subscribeOn(Schedulers.io())
                                     .subscribe({ result ->
                                         val attendanceList = result as AttendanceResponse
-                                        if (attendanceList.status == "205"){
+                                        if (attendanceList.status == "205") {
                                             progress_wheel.stopSpinning()
                                             loadFragment(FragType.AddAttendanceFragment, true, "")
-                                        }else if(attendanceList.status == NetworkConstant.SUCCESS){
+                                        } else if (attendanceList.status == NetworkConstant.SUCCESS) {
                                             progress_wheel.stopSpinning()
-                                            Pref.isAddAttendence=true
+                                            Pref.isAddAttendence = true
                                             (mContext as DashboardActivity).showSnackMessage("${AppUtils.hiFirstNameText()}. Attendance already marked for the day.")
                                         }
 
@@ -2670,27 +2686,26 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 //showSnackMessage(getString(R.string.functionality_disabled))
                 //09-09-2021
                 isOrderFromChatBot = false
-                if(Pref.IsActivateNewOrderScreenwithSize){
-                    CustomStatic.IsOrderFromTotalOrder=false
+                if (Pref.IsActivateNewOrderScreenwithSize) {
+                    CustomStatic.IsOrderFromTotalOrder = false
                     loadFragment(FragType.NewOdrScrListFragment, false, "")
-                }else{
+                } else {
                     loadFragment(FragType.NewOrderListFragment, false, "")
                 }
 
             }
 
             R.id.return_TV -> {
-                    loadFragment(FragType.NewReturnListFragment, false, "")
+                loadFragment(FragType.NewReturnListFragment, false, "")
             }
             R.id.state_report_TV -> {
                 loadFragment(FragType.KnowYourStateFragment, false, "")
             }
             R.id.logout_TV -> {
                 //performLogout()
-                if(Pref.DayEndMarked == false && Pref.IsShowDayEnd==true && Pref.DayStartMarked){
+                if (Pref.DayEndMarked == false && Pref.IsShowDayEnd == true && Pref.DayStartMarked) {
                     showSnackMessage("Please mark Day End before logout. Thanks.")
-                }
-                else{
+                } else {
                     if (Pref.isAttendanceFeatureOnly)
                         performLogout()
                     else {
@@ -2726,8 +2741,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 //showSnackMessage("Under Development")
             }
             R.id.iv_home_icon -> {
-                if(getFragment() != null && (getFragment() is ViewAllOrderListFragment || getFragment() is NotificationFragment) && (ShopDetailFragment.isOrderEntryPressed || AddShopFragment.isOrderEntryPressed)
-                        && AppUtils.getSharedPreferenceslogOrderStatusRequired(this)){
+                if (getFragment() != null && (getFragment() is ViewAllOrderListFragment || getFragment() is NotificationFragment) && (ShopDetailFragment.isOrderEntryPressed || AddShopFragment.isOrderEntryPressed)
+                        && AppUtils.getSharedPreferenceslogOrderStatusRequired(this)) {
 
 
                     val simpleDialog = Dialog(mContext)
@@ -2737,7 +2752,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
                     val dialogNo = simpleDialog.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
 
-                    dialogYes.setOnClickListener( { view ->
+                    dialogYes.setOnClickListener({ view ->
                         simpleDialog.cancel()
                         val dialog = Dialog(mContext)
                         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -2745,42 +2760,42 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         dialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         dialog.setContentView(R.layout.dialog_cancel_order_status)
 
-                        val user_name=dialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
+                        val user_name = dialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
                         val order_status = dialog.findViewById(R.id.tv_cancel_order_status) as AppCustomTextView
                         val cancel_remarks = dialog.findViewById(R.id.et_cancel_order_remarks) as AppCustomEditText
                         val submitRemarks = dialog.findViewById(R.id.tv_cancel_order_submit_remarks) as AppCustomTextView
 
-                        order_status.text="Failure"
-                        user_name.text="Hi"+Pref.user_name+"!"
+                        order_status.text = "Failure"
+                        user_name.text = "Hi" + Pref.user_name + "!"
 
                         submitRemarks.setOnClickListener(View.OnClickListener { view ->
-                            if(!TextUtils.isEmpty(cancel_remarks.text.toString().trim())){
+                            if (!TextUtils.isEmpty(cancel_remarks.text.toString().trim())) {
                                 //Toast.makeText(mContext,cancel_remarks.text.toString(),Toast.LENGTH_SHORT).show()
-                                val obj=OrderStatusRemarksModelEntity()
+                                val obj = OrderStatusRemarksModelEntity()
                                 //obj.shop_id= mShopId
-                                obj.shop_id=ViewAllOrderListFragment.mSShopID_Str.toString()
-                                obj.user_id=Pref.user_id
-                                obj.order_status=order_status.text.toString()
-                                obj.order_remarks=cancel_remarks!!.text!!.toString()
-                                obj.visited_date_time=AppUtils.getCurrentDateTime()
-                                obj.visited_date=AppUtils.getCurrentDateForShopActi()
-                                obj.isUploaded=false
+                                obj.shop_id = ViewAllOrderListFragment.mSShopID_Str.toString()
+                                obj.user_id = Pref.user_id
+                                obj.order_status = order_status.text.toString()
+                                obj.order_remarks = cancel_remarks!!.text!!.toString()
+                                obj.visited_date_time = AppUtils.getCurrentDateTime()
+                                obj.visited_date = AppUtils.getCurrentDateForShopActi()
+                                obj.isUploaded = false
 
-                                var shopAll=AppDatabase.getDBInstance()!!.shopActivityDao().getShopActivityAll()
-                                if(shopAll.size == 1){
-                                    obj.shop_revisit_uniqKey=shopAll.get(0).shop_revisit_uniqKey
-                                }else if(shopAll.size!=0){
-                                    obj.shop_revisit_uniqKey=shopAll.get(shopAll.size-1).shop_revisit_uniqKey
+                                var shopAll = AppDatabase.getDBInstance()!!.shopActivityDao().getShopActivityAll()
+                                if (shopAll.size == 1) {
+                                    obj.shop_revisit_uniqKey = shopAll.get(0).shop_revisit_uniqKey
+                                } else if (shopAll.size != 0) {
+                                    obj.shop_revisit_uniqKey = shopAll.get(shopAll.size - 1).shop_revisit_uniqKey
                                 }
-                                if(shopAll.size!=0)
-                                AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.insert(obj)
+                                if (shopAll.size != 0)
+                                    AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.insert(obj)
                                 dialog.dismiss()
 
-                                if(ShopDetailFragment.isOrderEntryPressed){
-                                    ShopDetailFragment.isOrderEntryPressed=false
+                                if (ShopDetailFragment.isOrderEntryPressed) {
+                                    ShopDetailFragment.isOrderEntryPressed = false
                                 }
-                                if(AddShopFragment.isOrderEntryPressed){
-                                    AddShopFragment.isOrderEntryPressed=false
+                                if (AddShopFragment.isOrderEntryPressed) {
+                                    AddShopFragment.isOrderEntryPressed = false
                                 }
 
 
@@ -2790,7 +2805,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                     (getFragment() as DashboardFragment).updateItem()
                                 }, 500)
 
-                            }else{
+                            } else {
                                 submitRemarks.setError("Enter Remarks")
                                 submitRemarks.requestFocus()
                             }
@@ -2798,13 +2813,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         })
                         dialog.show()
                     })
-                    dialogNo.setOnClickListener( { view ->
+                    dialogNo.setOnClickListener({ view ->
                         simpleDialog.cancel()
                     })
                     simpleDialog.show()
 
 
-                }else{
+                } else {
                     loadFragment(FragType.DashboardFragment, false, "")
 
                     Handler().postDelayed(Runnable {
@@ -2814,22 +2829,21 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
             }
             //19-08-21 nearBy shop visit stop untill daystart
-            R.id.nearby_shop_TV ->{
+            R.id.nearby_shop_TV -> {
                 isChatBotLocalShop = false
-                if(Pref.IsShowDayStart){
+                if (Pref.IsShowDayStart) {
                     if (!Pref.isAddAttendence) {
                         (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
                         return
-                    }
-                    else{
-                        if(!Pref.DayStartMarked){
+                    } else {
+                        if (!Pref.DayStartMarked) {
                             val simpleDialog = Dialog(mContext)
                             simpleDialog.setCancelable(false)
                             simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                             simpleDialog.setContentView(R.layout.dialog_message)
                             val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
                             val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
-                            dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()+"!"
+                            dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText() + "!"
                             dialogHeader.text = "Please start your day..."
                             val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
                             dialogYes.setOnClickListener({ view ->
@@ -2837,17 +2851,15 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                             })
                             simpleDialog.show()
 //                            (mContext as DashboardActivity).showSnackMessage("Please start your day")
-                        }
-                        else{
+                        } else {
                             loadFragment(FragType.LocalShopListFragment, false, "")
                         }
                     }
-                }
-                else{
+                } else {
                     loadFragment(FragType.LocalShopListFragment, false, "")
                 }
             }
-            R.id.assigned_lead_TV->{
+            R.id.assigned_lead_TV -> {
 
                 if (!Pref.isAddAttendence)
                     (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
@@ -2868,7 +2880,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }else{
                     openShareIntents()
                 }*/
-               openShareIntents()
+                openShareIntents()
             }
             R.id.iv_search_icon -> {
                 searchView.openSearch()
@@ -2922,11 +2934,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }
                 if (getCurrentFragType() == FragType.CartReturnFragment) {
                     (getFragment() as CartReturnFragment).onConfirmClick()
-                }
-                else if (getCurrentFragType() == FragType.AddBillingFragment) {
+                } else if (getCurrentFragType() == FragType.AddBillingFragment) {
                     (getFragment() as AddBillingFragment).onConfirmClick()
-                }
-                else if (getCurrentFragType() == FragType.NeworderScrCartFragment) {
+                } else if (getCurrentFragType() == FragType.NeworderScrCartFragment) {
                     (getFragment() as NeworderScrCartFragment).showCheckAlert()
                 }
                 /*else if (getCurrentFragType() == FragType.DocumentListFragment) {
@@ -2996,8 +3006,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             R.id.iv_map -> {
                 if (getCurrentFragType() == FragType.WeatherFragment) {
                     loadFragment(FragType.SearchLocationFragment, true, "")
-                }
-                else if (getCurrentFragType() == FragType.LocalShopListFragment) {
+                } else if (getCurrentFragType() == FragType.LocalShopListFragment) {
                     if (nearbyShopList != null && nearbyShopList!!.size > 0)
                         loadFragment(FragType.LocalShopListMapFragment, true, nearbyShopList!!)
                     else
@@ -3010,8 +3019,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                             } ?: let {
                                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
                             }
-                        }
-                        else {
+                        } else {
                             activityLocationList?.takeIf { it.size > 0 }?.let {
                                 loadFragment(FragType.ActivityMapFragment, true, it)
                             } ?: let {
@@ -3122,10 +3130,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 //            }
 
             R.id.doc_TV -> {
-                if(Pref.IsFromPortal){
+                if (Pref.IsFromPortal) {
                     loadFragment(FragType.DocumentRepoFeatureNewFragment, false, "")
-                }
-                else{
+                } else {
                     CustomStatic.IsDocZero = false
                     loadFragment(FragType.DocumentTypeListFragment, false, "")
                 }
@@ -3136,17 +3143,17 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             }
 
             R.id.photo_registration -> {
-                if (AppUtils.isOnline(mContext)){
+                if (AppUtils.isOnline(mContext)) {
                     loadFragment(FragType.ProtoRegistrationFragment, false, "")
-                }else{
+                } else {
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
                 }
             }
 
             R.id.photo_team_attendance -> {
-                if (AppUtils.isOnline(mContext)){
+                if (AppUtils.isOnline(mContext)) {
                     loadFragment(FragType.PhotoAttendanceFragment, false, "")
-                }else{
+                } else {
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
                 }
 
@@ -3190,8 +3197,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             isCodeScan = true
                             initPermissionCheck()
-                        }
-                        else
+                        } else
                             loadFragment(FragType.CodeScannerFragment, true, "")
                     }
                 }
@@ -3222,8 +3228,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     isCodeScan = true
                     initPermissionCheck()
-                }
-                else
+                } else
                     loadFragment(FragType.CodeScannerFragment, true, "")
             }
 
@@ -3253,10 +3258,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
             R.id.anydesk_info_TV -> {
                 var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
-                if(launchIntent!=null){
+                if (launchIntent != null) {
                     drawerLayout.closeDrawers()
                     startActivity(launchIntent)
-                }else{
+                } else {
                     drawerLayout.closeDrawers()
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.anydesk.anydeskandroid"))
                     startActivity(intent)
@@ -3268,34 +3273,33 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 permissionUtils = PermissionUtils(this, object : PermissionUtils.OnPermissionListener {
                     override fun onPermissionGranted() {
 
-                        if(DashboardFragment.hbRecorder != null){
+                        if (DashboardFragment.hbRecorder != null) {
 
-                            if(DashboardFragment.hbRecorder!!.isBusyRecording && DashboardFragment.hbRecorder != null){
-                                Toast.makeText(this@DashboardActivity,"Please Stop Recording",Toast.LENGTH_SHORT).show()
-                            }else{
-                                if(DashboardFragment.isRecordRootVisible){
-                                    screen_record_info_TV.text="Screen Recorder"
-                                    DashboardFragment.ll_recorder_root.visibility=View.GONE
-                                    DashboardFragment.isRecordRootVisible=false
+                            if (DashboardFragment.hbRecorder!!.isBusyRecording && DashboardFragment.hbRecorder != null) {
+                                Toast.makeText(this@DashboardActivity, "Please Stop Recording", Toast.LENGTH_SHORT).show()
+                            } else {
+                                if (DashboardFragment.isRecordRootVisible) {
+                                    screen_record_info_TV.text = "Screen Recorder"
+                                    DashboardFragment.ll_recorder_root.visibility = View.GONE
+                                    DashboardFragment.isRecordRootVisible = false
                                     drawerLayout.closeDrawers()
-                                }else{
-                                    screen_record_info_TV.text="Stop Recording"
-                                    DashboardFragment.ll_recorder_root.visibility=View.VISIBLE
-                                    DashboardFragment.isRecordRootVisible=true
+                                } else {
+                                    screen_record_info_TV.text = "Stop Recording"
+                                    DashboardFragment.ll_recorder_root.visibility = View.VISIBLE
+                                    DashboardFragment.isRecordRootVisible = true
                                     drawerLayout.closeDrawers()
                                 }
                             }
-                        }
-                        else{
-                            if(DashboardFragment.isRecordRootVisible){
-                                screen_record_info_TV.text="Screen Recorder"
-                                DashboardFragment.ll_recorder_root.visibility=View.GONE
-                                DashboardFragment.isRecordRootVisible=false
+                        } else {
+                            if (DashboardFragment.isRecordRootVisible) {
+                                screen_record_info_TV.text = "Screen Recorder"
+                                DashboardFragment.ll_recorder_root.visibility = View.GONE
+                                DashboardFragment.isRecordRootVisible = false
                                 drawerLayout.closeDrawers()
-                            }else{
-                                screen_record_info_TV.text="Stop Recording"
-                                DashboardFragment.ll_recorder_root.visibility=View.VISIBLE
-                                DashboardFragment.isRecordRootVisible=true
+                            } else {
+                                screen_record_info_TV.text = "Stop Recording"
+                                DashboardFragment.ll_recorder_root.visibility = View.VISIBLE
+                                DashboardFragment.isRecordRootVisible = true
                                 drawerLayout.closeDrawers()
                             }
                         }
@@ -3306,14 +3310,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         (mContext as DashboardActivity).showSnackMessage(getString(R.string.accept_permission_storage))
                     }
 
-                }, arrayOf<String>( Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                }, arrayOf<String>(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
 
 
-
-
-
-
-              /*  if(DashboardFragment.hbRecorder ==null){
+                /*  if(DashboardFragment.hbRecorder ==null){
                     screen_record_info_TV.text="Start Screen Recorder"
                     DashboardFragment.ll_recorder_root.visibility=View.VISIBLE
                 }else{
@@ -3345,7 +3345,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
 
     fun showLanguageAlert(mIsChatFromDrawer: Boolean) {
-        SelectLanguageDialog.newInstance(object : SelectLanguageDialog.OnItemSelectedListener{
+        SelectLanguageDialog.newInstance(object : SelectLanguageDialog.OnItemSelectedListener {
             override fun onItemSelect(language: String) {
                 isChatFromDrawer = mIsChatFromDrawer
                 if (isChatFromDrawer)
@@ -3524,7 +3524,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }
 
 //                setTopBarTitle(Pref.shopText + " Details")
-                setTopBarTitle( "Details")
+                setTopBarTitle("Details")
 
                 /* if (Pref.isReplaceShopText)
                      setTopBarTitle(getString(R.string.customer_details))
@@ -3700,8 +3700,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 if (isChatBotAttendance) {
                     //isChatBotAttendance = false
                     setTopBarVisibility(TopBarConfig.ATTENDENCEBACKLIST)
-                }
-                else
+                } else
                     setTopBarVisibility(TopBarConfig.ATTENDENCELIST)
             }
 
@@ -3849,8 +3848,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mFragment = LocalShopListFragment()
                 }
 
-                setTopBarTitle("Nearby Located Party" + /*Pref.shopText +*/ " List")
-
+//                setTopBarTitle("Nearby Located Party" + /*Pref.shopText +*/ " List")
+                setTopBarTitle("Nearby Parties")
                 /*if (Pref.isReplaceShopText)
                     setTopBarTitle(getString(R.string.nearby_customer))
                 else
@@ -3878,6 +3877,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mFragment = ViewLeadFrag.getInstance(initializeObject)
                 }
                 setTopBarTitle("Activity Details")
+                setTopBarVisibility(TopBarConfig.BACK)
+            }
+            FragType.ShopFeedbackHisFrag -> {
+                if (enableFragGeneration) {
+                    mFragment = ShopFeedbackHisFrag.newInstance(initializeObject)
+                }
+                setTopBarTitle("History Details")
                 setTopBarVisibility(TopBarConfig.BACK)
             }
             FragType.NearByShopsMapFragment -> {
@@ -3946,8 +3952,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 if (AppUtils.stockStatus == 0) {
                     setTopBarTitle(getString(R.string.cart_details))
                     tv_confirm_btn.text = "Place Order"
-                }
-                else if (AppUtils.stockStatus == 1) {
+                } else if (AppUtils.stockStatus == 1) {
                     setTopBarTitle(getString(R.string.opening_stock))
                     tv_confirm_btn.text = "Place Stock"
                 }
@@ -3958,7 +3963,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 if (enableFragGeneration) {
                     mFragment = CartReturnFragment.newInstance(initializeObject)
                 }
-                if(AppUtils.stockStatus == 2) {
+                if (AppUtils.stockStatus == 2) {
                     setTopBarTitle(getString(R.string.cart_details))
                     tv_confirm_btn.text = "Place Return"
                 }
@@ -4399,7 +4404,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }
                 setTopBarTitle(getString(R.string.targ_achv_report))
 
-                if(isTargAchvFromDrawer)
+                if (isTargAchvFromDrawer)
                     setTopBarVisibility(TopBarConfig.HOME)
                 else
                     setTopBarVisibility(TopBarConfig.BACK)
@@ -4732,8 +4737,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     else
                         setTopBarTitle("Order Analysis ${Pref.shopText}wise")
                     setTopBarVisibility(TopBarConfig.CHATBOTSHOP)
-                }
-                catch (e: java.lang.Exception) {
+                } catch (e: java.lang.Exception) {
                     e.printStackTrace()
                 }
             }
@@ -4906,7 +4910,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 setTopBarVisibility(TopBarConfig.HOME)
                 setTopBarVisibility(TopBarConfig.NOTIFICATION)
             }
-            FragType.NewOrderScrActiFragment-> {
+            FragType.NewOrderScrActiFragment -> {
                 if (enableFragGeneration) {
                     mFragment = NewOrderScrActiFragment.getInstance(initializeObject)
                 }
@@ -4920,9 +4924,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }
 //                tv_confirm_btn.text = "Place Order"
                 setTopBarVisibility(TopBarConfig.NEWORDERSCRCART)
-                if(CustomStatic.IsFromViewNewOdrScr==true){
+                if (CustomStatic.IsFromViewNewOdrScr == true) {
                     setTopBarTitle("Order Details")
-                }else{
+                } else {
                     setTopBarTitle(getString(R.string.new_order_scr_cart))
                 }
 
@@ -4941,7 +4945,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mFragment = NewOdrScrListFragment()
                 }
                 setTopBarTitle(getString(R.string.orders))
-               // setTopBarVisibility(TopBarConfig.ORDERLIST)
+                // setTopBarVisibility(TopBarConfig.ORDERLIST)
                 setTopBarVisibility(TopBarConfig.HOME)
             }
 
@@ -5151,8 +5155,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mDrawerToggle.isDrawerIndicatorEnabled = true
                     toolbar.setNavigationIcon(R.drawable.ic_header_menu_icon)
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                }
-                else {
+                } else {
                     // Show back button
                     supportActionBar!!.setDisplayHomeAsUpEnabled(true)
                     mDrawerToggle.isDrawerIndicatorEnabled = false
@@ -5248,7 +5251,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             }
             TopBarConfig.LOCALSHOP -> {
                 iv_home_icon.visibility = View.VISIBLE
-                iv_search_icon.visibility = View.GONE
+                iv_search_icon.visibility = View.VISIBLE
                 iv_sync_icon.visibility = View.GONE
                 rl_cart.visibility = View.GONE
                 iv_filter_icon.visibility = View.GONE
@@ -5271,8 +5274,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mDrawerToggle.isDrawerIndicatorEnabled = true
                     toolbar.setNavigationIcon(R.drawable.ic_header_menu_icon)
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                }
-                else {
+                } else {
                     // Show back button
                     supportActionBar!!.setDisplayHomeAsUpEnabled(true)
                     mDrawerToggle.isDrawerIndicatorEnabled = false
@@ -5310,8 +5312,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mDrawerToggle.isDrawerIndicatorEnabled = false
                     mDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_header_back_arrow)
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                }
-                else {
+                } else {
                     supportActionBar!!.setDisplayHomeAsUpEnabled(false)
                     // Show hamburger
                     mDrawerToggle.isDrawerIndicatorEnabled = true
@@ -5382,8 +5383,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mDrawerToggle.isDrawerIndicatorEnabled = false
                     mDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_header_back_arrow)
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                }
-                else {
+                } else {
                     supportActionBar!!.setDisplayHomeAsUpEnabled(false)
                     // Show hamburger
                     mDrawerToggle.isDrawerIndicatorEnabled = true
@@ -5441,8 +5441,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mDrawerToggle.isDrawerIndicatorEnabled = true
                     toolbar.setNavigationIcon(R.drawable.ic_header_menu_icon)
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                }
-                else {
+                } else {
                     // Show back button
                     supportActionBar!!.setDisplayHomeAsUpEnabled(true)
                     mDrawerToggle.isDrawerIndicatorEnabled = false
@@ -5994,8 +5993,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     iv_view_text.visibility = View.VISIBLE
                     iv_home_icon.visibility = View.GONE
                     logo.visibility = View.GONE
-                }
-                else {
+                } else {
                     iv_scan.visibility = View.GONE
                     iv_view_text.visibility = View.GONE
                     iv_home_icon.visibility = View.VISIBLE
@@ -6028,8 +6026,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     iv_view_text.visibility = View.VISIBLE
                     iv_home_icon.visibility = View.GONE
                     logo.visibility = View.GONE
-                }
-                else {
+                } else {
                     iv_scan.visibility = View.GONE
                     iv_view_text.visibility = View.GONE
                     iv_home_icon.visibility = View.VISIBLE
@@ -6282,8 +6279,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mDrawerToggle.isDrawerIndicatorEnabled = true
                     toolbar.setNavigationIcon(R.drawable.ic_header_menu_icon)
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                }
-                else {
+                } else {
                     // Show back button
                     supportActionBar!!.setDisplayHomeAsUpEnabled(true)
                     mDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_header_back_arrow)
@@ -6402,7 +6398,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             }
 
             TopBarConfig.NEWORDERSCRCART -> {
-              /*  if(CustomStatic.IsFromViewNewOdrScr==false){
+                /*  if(CustomStatic.IsFromViewNewOdrScr==false){
                     rl_confirm_btn.visibility = View.VISIBLE
                 }
                 else{
@@ -6425,7 +6421,6 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 iv_scan.visibility = View.GONE
                 iv_view_text.visibility = View.GONE
                 fl_net_status.visibility = View.GONE
-
 
 
                 // Show back button
@@ -6515,7 +6510,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             else {
                 loadFragment(FragType.DashboardFragment, false, Any())
                 //Added Saheli 27-07-21
-                AppUtils.changeLanguage(this,"en")
+                AppUtils.changeLanguage(this, "en")
                 Handler().postDelayed(Runnable {
                     (getFragment() as DashboardFragment).updateItem()
                 }, 500)
@@ -6838,7 +6833,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     val userId = shopId.substring(0, shopId.indexOf("_"))
                     if (userId != Pref.user_id) {
                         //showSnackMessage("Scanned QR is not your ${Pref.shopText}. Revisit not possible. Thanks")
-                        CommonDialogSingleBtn.getInstance(AppUtils.hiFirstNameText()+"!", "Scanned QR is not your ${Pref.shopText}. Revisit not possible. Thanks",
+                        CommonDialogSingleBtn.getInstance(AppUtils.hiFirstNameText() + "!", "Scanned QR is not your ${Pref.shopText}. Revisit not possible. Thanks",
                                 "Ok", object : OnDialogClickListener {
                             override fun onOkClick() {
                             }
@@ -6852,7 +6847,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
                     if (distance * 1000 > Pref.gpsAccuracy.toDouble()) {
                         //showSnackMessage("Hi, you are not at the nearby location. Be there and try to scan for Revisit.")
-                        CommonDialogSingleBtn.getInstance(AppUtils.hiFirstNameText()+"!", "Hi, you are not at the nearby location. Please be there & scan QR to revisit for today.",
+                        CommonDialogSingleBtn.getInstance(AppUtils.hiFirstNameText() + "!", "Hi, you are not at the nearby location. Please be there & scan QR to revisit for today.",
                                 "Ok", object : OnDialogClickListener {
                             override fun onOkClick() {
                             }
@@ -6909,63 +6904,62 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
             val dialogNo = simpleDialog.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
 
-            dialogYes.setOnClickListener( { view ->
+            dialogYes.setOnClickListener({ view ->
                 simpleDialog.cancel()
-                if(true){
+                if (true) {
                     val dialog = Dialog(mContext)
                     //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
                     dialog.setCancelable(false)
                     dialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                     dialog.setContentView(R.layout.dialog_cancel_order_status)
 
-                    val user_name=dialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
+                    val user_name = dialog.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
                     val order_status = dialog.findViewById(R.id.tv_cancel_order_status) as AppCustomTextView
                     val cancel_remarks = dialog.findViewById(R.id.et_cancel_order_remarks) as AppCustomEditText
                     val submitRemarks = dialog.findViewById(R.id.tv_cancel_order_submit_remarks) as AppCustomTextView
 
-                    order_status.text="Failure"
-                    user_name.text="Hi "+Pref.user_name+"!"
+                    order_status.text = "Failure"
+                    user_name.text = "Hi " + Pref.user_name + "!"
 
                     submitRemarks.setOnClickListener(View.OnClickListener { view ->
-                        if(!TextUtils.isEmpty(cancel_remarks.text.toString().trim())){
-                            Toast.makeText(mContext,cancel_remarks.text.toString(),Toast.LENGTH_SHORT).show()
-                            val obj=OrderStatusRemarksModelEntity()
+                        if (!TextUtils.isEmpty(cancel_remarks.text.toString().trim())) {
+                            Toast.makeText(mContext, cancel_remarks.text.toString(), Toast.LENGTH_SHORT).show()
+                            val obj = OrderStatusRemarksModelEntity()
                             //obj.shop_id= mShopId
 
-                                obj.shop_id=ViewAllOrderListFragment.mSShopID_Str.toString()
-                                obj.user_id=Pref.user_id
-                                obj.order_status=order_status.text.toString()
-                                obj.order_remarks=cancel_remarks!!.text!!.toString()
-                                obj.visited_date_time=AppUtils.getCurrentDateTime()
-                                obj.visited_date=AppUtils.getCurrentDateForShopActi()
-                                obj.isUploaded=false
+                            obj.shop_id = ViewAllOrderListFragment.mSShopID_Str.toString()
+                            obj.user_id = Pref.user_id
+                            obj.order_status = order_status.text.toString()
+                            obj.order_remarks = cancel_remarks!!.text!!.toString()
+                            obj.visited_date_time = AppUtils.getCurrentDateTime()
+                            obj.visited_date = AppUtils.getCurrentDateForShopActi()
+                            obj.isUploaded = false
 
 
-
-                            var shopAll=AppDatabase.getDBInstance()!!.shopActivityDao().getShopActivityAll()
-                            if(shopAll.size == 1){
-                                obj.shop_revisit_uniqKey=shopAll.get(0).shop_revisit_uniqKey
-                            }else if(shopAll.size!=0){
-                                obj.shop_revisit_uniqKey=shopAll.get(shopAll.size-1).shop_revisit_uniqKey
+                            var shopAll = AppDatabase.getDBInstance()!!.shopActivityDao().getShopActivityAll()
+                            if (shopAll.size == 1) {
+                                obj.shop_revisit_uniqKey = shopAll.get(0).shop_revisit_uniqKey
+                            } else if (shopAll.size != 0) {
+                                obj.shop_revisit_uniqKey = shopAll.get(shopAll.size - 1).shop_revisit_uniqKey
                             }
 
-                            if(shopAll.size!=0)
-                            AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.insert(obj)
+                            if (shopAll.size != 0)
+                                AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.insert(obj)
                             dialog.dismiss()
 
-                            if(ShopDetailFragment.isOrderEntryPressed){
-                                ShopDetailFragment.isOrderEntryPressed=false
+                            if (ShopDetailFragment.isOrderEntryPressed) {
+                                ShopDetailFragment.isOrderEntryPressed = false
                             }
-                            if(AddShopFragment.isOrderEntryPressed){
-                                AddShopFragment.isOrderEntryPressed=false
+                            if (AddShopFragment.isOrderEntryPressed) {
+                                AddShopFragment.isOrderEntryPressed = false
                             }
 
 
                             super.onBackPressed()
-                            when{
+                            when {
                                 getFragment() is ShopDetailFragment -> (getFragment() as ShopDetailFragment).updateItem()
                             }
-                        }else{
+                        } else {
                             submitRemarks.setError("Enter Remarks")
                             submitRemarks.requestFocus()
                         }
@@ -6974,7 +6968,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     dialog.show()
                 }
             })
-            dialogNo.setOnClickListener( { view ->
+            dialogNo.setOnClickListener({ view ->
                 simpleDialog.cancel()
             })
             simpleDialog.show()
@@ -6997,7 +6991,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             val dialogNo = simpleDialog.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
             dialogYes.setOnClickListener({ view ->
                 simpleDialog.cancel()
-                CustomStatic.NewOrderTotalCartItem=0
+                CustomStatic.NewOrderTotalCartItem = 0
                 super.onBackPressed();
                 //(mContext as DashboardActivity).loadFragment(FragType.NewOrderScrOrderDetailsFragment, false, NewOrderScrOrderDetailsFragment.shop_id)
             })
@@ -7081,7 +7075,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             return
         }
 
-        CommonDialog.getInstance(AppUtils.hiFirstNameText()+"!", "Click Ok to clear the cart and back to the list to start again.", getString(R.string.cancel), getString(R.string.ok), object : CommonDialogClickListener {
+        CommonDialog.getInstance(AppUtils.hiFirstNameText() + "!", "Click Ok to clear the cart and back to the list to start again.", getString(R.string.cancel), getString(R.string.ok), object : CommonDialogClickListener {
             override fun onLeftClick() {
             }
 
@@ -7106,7 +7100,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     }
 
     private fun performLogout() {
-        CommonDialog.getInstance(AppUtils.hiFirstNameText()+"!", getString(R.string.confirm_logout), getString(R.string.cancel), getString(R.string.ok), object : CommonDialogClickListener {
+        CommonDialog.getInstance(AppUtils.hiFirstNameText() + "!", getString(R.string.confirm_logout), getString(R.string.cancel), getString(R.string.ok), object : CommonDialogClickListener {
             override fun onLeftClick() {
 
             }
@@ -7122,8 +7116,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                             showLogoutLocReasonDialog()
                         else
                             calllogoutApi(Pref.user_id!!, Pref.session_token!!)
-                    }
-                    else
+                    } else
                         calllogoutApi(Pref.user_id!!, Pref.session_token!!)
 
 
@@ -7156,7 +7149,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     private fun showLogoutLocReasonDialog() {
         reasonDialog = null
         val body = "You applicable out time is: ${Pref.approvedOutTime}!. You are doing early logout. Please write below the reason."
-        reasonDialog = ReasonDialog.getInstance(AppUtils.hiFirstNameText()+"!", body, reason) {
+        reasonDialog = ReasonDialog.getInstance(AppUtils.hiFirstNameText() + "!", body, reason) {
             if (!AppUtils.isOnline(this))
                 Toaster.msgShort(this, getString(R.string.no_internet))
             else {
@@ -7180,8 +7173,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                             if (response.status == NetworkConstant.SUCCESS) {
                                 reason = ""
                                 calllogoutApi(Pref.user_id!!, Pref.session_token!!)
-                            }
-                            else {
+                            } else {
                                 reason = mReason
                                 showLogoutLocReasonDialog()
                                 Toaster.msgShort(mContext, result.message!!)
@@ -7298,7 +7290,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
     }
         /*20-12-2021*/
-    fun openLocationMap(returnObj:ReturnDetailsEntity , isCurrentLocShow: Boolean) {
+    fun openLocationMap(returnObj: ReturnDetailsEntity, isCurrentLocShow: Boolean) {
         val mapIntent = Intent(this@DashboardActivity, MapActivityWithoutPath::class.java)
         val shop = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(returnObj.shop_id)
 
@@ -7469,7 +7461,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                             try {
                                 CropImage.activity(contentURI)
                                         .setCropShape(CropImageView.CropShape.RECTANGLE)
-                                        .setMinCropWindowSize(500,500)
+                                        .setMinCropWindowSize(500, 500)
                                         .setAspectRatio(1, 1)
                                         .setGuidelines(CropImageView.Guidelines.ON)
                                         .setOutputCompressQuality(100)
@@ -7996,7 +7988,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         try {
                             CropImage.activity(contentURI)
                                     .setCropShape(CropImageView.CropShape.RECTANGLE)
-                                    .setMinCropWindowSize(500,500)
+                                    .setMinCropWindowSize(500, 500)
                                     .setAspectRatio(1, 1)
                                     .setGuidelines(CropImageView.Guidelines.ON)
                                     .setOutputCompressQuality(100)
@@ -8051,7 +8043,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
                     if(feedBackDialogCompetetorImg){
                         val fileSize = AppUtils.getCompressOldImage(resultUri.toString(), this)
-                        feedbackDialog?.setImage(resultUri,fileSize/1024)
+                        feedbackDialog?.setImage(resultUri, fileSize / 1024)
                         feedBackDialogCompetetorImg=false
                         return
                     }
@@ -8085,7 +8077,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                     if(qlty<5){
                                         break
                                     }*/
-                                    fileSize = AppUtils.getCompressOldImagev1(resultUri.toString(), this,qlty)
+                                    fileSize = AppUtils.getCompressOldImagev1(resultUri.toString(), this, qlty)
                                 }
 
                                 getAddShopPic(fileSize, resultUri)
@@ -8122,7 +8114,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                     if(qlty<5){
                                         break
                                     }*/
-                                    fileSize = AppUtils.getCompressOldImagev1(resultUri.toString(), this,qlty)
+                                    fileSize = AppUtils.getCompressOldImagev1(resultUri.toString(), this, qlty)
                                 }
 
                                 editProfilePic(fileSize, resultUri)
@@ -8204,7 +8196,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     /*14-12-2021*/
                     if(Pref.IsnewleadtypeforRuby){
                         CropImage.activity(data.data)
-                                .setMinCropWindowSize(500,500)
+                                .setMinCropWindowSize(500, 500)
                                 .setAspectRatio(1, 1)
                                 .start(this)
                     }else{
@@ -8354,7 +8346,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }else if(getCurrentFragType() == FragType.RegisTerFaceFragment){
                     CropImage.activity(data?.data)
                             .setCropShape(CropImageView.CropShape.RECTANGLE)
-                            .setMinCropWindowSize(400,400)
+                            .setMinCropWindowSize(400, 400)
                             .setAspectRatio(1, 1)
                             .setGuidelines(CropImageView.Guidelines.ON)
                             .setAllowRotation(false)
@@ -8362,7 +8354,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                             .start(this)
                 }else if(getCurrentFragType() == FragType.ProtoRegistrationFragment){
                     // for gallary image
-                    getGalleryImage(this,data)
+                    getGalleryImage(this, data)
                     if (!TextUtils.isEmpty(filePath)) {
                         //val contentURI = FTStorageUtils.getImageContentUri(this@DashboardActivity, filePath)
                         //XLog.e("DashboardActivity :  ,  contentURI FilePath : $contentURI")
@@ -8518,7 +8510,11 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                     } else if (intent.getStringExtra("TYPE").equals("DUE", ignoreCase = true)) {
                                         if (getFragment() != null && getFragment() !is NearByShopsListFragment)
                                             loadFragment(FragType.NearByShopsListFragment, false, "")
-                                    } else if (intent.getStringExtra("TYPE").equals("TASK", ignoreCase = true)) {
+                                    }else if (intent.getStringExtra("TYPE").equals("ACTIVITYDUE", ignoreCase = true)) {
+                                        if (getFragment() != null && getFragment() !is LeadFrag)
+                                            loadFragment(FragType.LeadFrag, false, "")
+                                    }
+                                    else if (intent.getStringExtra("TYPE").equals("TASK", ignoreCase = true)) {
                                         if (getFragment() != null && getFragment() !is TaskListFragment)
                                             loadFragment(FragType.TaskListFragment, false, "")
                                     } else if (intent.getStringExtra("TYPE").equals("Msg", ignoreCase = true)) {
@@ -8552,7 +8548,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                         var usrID=intent.getStringExtra("USER_ID")!!
                                         Handler().postDelayed(Runnable {
 
-                                                loadFragment(FragType.LeaveHome, false, usrID)
+                                            loadFragment(FragType.LeaveHome, false, usrID)
                                         }, 300)
                                         //loadFragment(FragType.LeaveHome, false, intent.getStringExtra("USER_ID")!!)
                                     }
@@ -8866,7 +8862,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
             try{
                 mShopActivityEntity.agency_name=AppDatabase.getDBInstance()!!.shopActivityDao().getAgencyName(mShopActivityEntity.shopid!!)
-            }catch (ex:Exception){
+            }catch (ex: Exception){
                 mShopActivityEntity.agency_name=""
             }
             if(mShopActivityEntity.agency_name==null){
@@ -8887,6 +8883,16 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
 
             AppDatabase.getDBInstance()!!.shopActivityDao().insertAll(mShopActivityEntity)
+
+            // shop feedback work
+            var feedObj: ShopFeedbackEntity = ShopFeedbackEntity()
+            feedObj.shop_id=mShopActivityEntity.shopid
+            feedObj.feedback=mShopActivityEntity.feedback
+            feedObj.date_time=AppUtils.getCurrentDateTime()
+            if(feedObj.feedback.equals("") || mShopActivityEntity.feedback==null)
+                feedObj.feedback="N/A"
+            AppDatabase.getDBInstance()?.shopFeedbackDao()?.insert(feedObj)
+
         }
 
         AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdList(mShopId)!![0].visited = true
@@ -8915,13 +8921,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
         var shopTyByID = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopType(mShopId)!!.toString()
         if (Pref.IsnewleadtypeforRuby && shopTyByID.equals("2")){
-            println("addShopVisitPic shoptype2" );
+            println("addShopVisitPic shoptype2");
             val fileSize = AppUtils.getCompressOldImage(image, this)
             addShopVisitPic(fileSize, imageUpDateTime, shopName, image)
         }else if (Pref.IsnewleadtypeforRuby && !shopTyByID.equals("2")){
-            println("addShopVisitPic !shoptype2" );
+            println("addShopVisitPic !shoptype2");
         }else if (Pref.isRevisitCaptureImage) {
-            println("addShopVisitPic normal" );
+            println("addShopVisitPic normal");
             // Image compression
             //val fileSize = AppUtils.getCompressImage(image)
             val fileSize = AppUtils.getCompressOldImage(image, this)
@@ -9180,7 +9186,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                     NetworkConstant.SUCCESS -> {
                                         AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsEditUploaded(1, addShopReqData.shop_id)
                                         progress_wheel.stopSpinning()
-                        //                                (mContext as DashboardActivity).showSnackMessage("SUCCESS")
+                                        //                                (mContext as DashboardActivity).showSnackMessage("SUCCESS")
                                         (mContext as DashboardActivity).updateFence()
 
                                         showShopVerificationDialog()
@@ -9218,7 +9224,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                     NetworkConstant.SUCCESS -> {
                                         AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsEditUploaded(1, addShopReqData.shop_id)
                                         progress_wheel.stopSpinning()
-                        //                                (mContext as DashboardActivity).showSnackMessage("SUCCESS")
+                                        //                                (mContext as DashboardActivity).showSnackMessage("SUCCESS")
                                         (mContext as DashboardActivity).updateFence()
 
                                         showShopVerificationDialog()
@@ -10024,7 +10030,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         else
             "Revisit Shop"*/
 
-        CommonDialog.getInstance(AppUtils.hiFirstNameText()+"!", popupBody, "NO", "YES", object : CommonDialogClickListener {
+        CommonDialog.getInstance(AppUtils.hiFirstNameText() + "!", popupBody, "NO", "YES", object : CommonDialogClickListener {
             override fun onLeftClick() {
                 cancelNotification(shopId)
 
@@ -10100,46 +10106,41 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     private fun callFeedbackDialog(image: String) {
         revisitImage = image
 
-        feedbackDialog = AddFeedbackSingleBtnDialog.getInstance(shopName + "\n" + contactNumber, getString(R.string.confirm_revisit),mShopId, object : AddFeedbackSingleBtnDialog.OnOkClickListener {
+        feedbackDialog = AddFeedbackSingleBtnDialog.getInstance(shopName + "\n" + contactNumber, getString(R.string.confirm_revisit), mShopId, object : AddFeedbackSingleBtnDialog.OnOkClickListener {
             override fun onOkClick(mFeedback: String, mNextVisitDate: String, filePath: String, mapproxValue: String, mprosId: String) {
                 /*28-09-2021 For Gupta Power*/
-                if(Pref.RevisitRemarksMandatory && !TextUtils.isEmpty(mFeedback)) {
-                    if(mapproxValue!=null || !mapproxValue.equals("") &&(mprosId!=null || !mprosId.equals(""))){
+                if (Pref.RevisitRemarksMandatory && !TextUtils.isEmpty(mFeedback)) {
+                    if (mapproxValue != null || !mapproxValue.equals("") && (mprosId != null || !mprosId.equals(""))) {
                         feedback = mFeedback
                         nextVisitDate = mNextVisitDate
                         mFilePath = filePath
                         approxValue = mapproxValue
-                        prosId= mprosId
-                    }
-                    else{
+                        prosId = mprosId
+                    } else {
                         feedback = mFeedback
                         nextVisitDate = mNextVisitDate
                         mFilePath = filePath
                     }
 
                     if (Pref.isFingerPrintMandatoryForVisit) {
-                        if (isFingerPrintSupported){
+                        if (isFingerPrintSupported) {
                             showFingerprintPopup()
-                        }
-                        else{
+                        } else {
                             revisitShop(image)
                         }
-                    }
-                    else
+                    } else
                         revisitShop(image)
-                }
-                else{
+                } else {
                     if (!TextUtils.isEmpty(mFeedback))
                         feedback = mFeedback
 
-                    if(mapproxValue!=null || !mapproxValue.equals("") &&(mprosId!=null || !mprosId.equals(""))){
+                    if (mapproxValue != null || !mapproxValue.equals("") && (mprosId != null || !mprosId.equals(""))) {
                         feedback = mFeedback
                         nextVisitDate = mNextVisitDate
                         mFilePath = filePath
                         approxValue = mapproxValue
-                        prosId= mprosId
-                    }
-                    else {
+                        prosId = mprosId
+                    } else {
                         feedback = mFeedback
                         nextVisitDate = mNextVisitDate
                         mFilePath = filePath
@@ -10153,7 +10154,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     } else
                         revisitShop(image)
                 }
-               /* if (!TextUtils.isEmpty(mFeedback))
+                /* if (!TextUtils.isEmpty(mFeedback))
                     feedback = mFeedback
 
                 nextVisitDate = mNextVisitDate
@@ -10179,7 +10180,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             }
 
             override fun onClickCompetitorImg() {
-                feedBackDialogCompetetorImg=true
+                feedBackDialogCompetetorImg = true
             }
         })
         feedbackDialog?.show((mContext as DashboardActivity).supportFragmentManager, "AddFeedbackSingleBtnDialog")
@@ -10217,7 +10218,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             "Wish to Revisit the selected ${Pref.shopText} ${teamShop.shop_name}(${teamShop.shop_contact}) now?"
         }
 
-        CommonDialog.getInstance(AppUtils.hiFirstNameText()+"!", popupBody, "NO", "YES", object : CommonDialogClickListener {
+        CommonDialog.getInstance(AppUtils.hiFirstNameText() + "!", popupBody, "NO", "YES", object : CommonDialogClickListener {
             override fun onLeftClick() {
                 //cancelNotification(shopId)
             }
@@ -10346,7 +10347,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             "Wish to Revisit the selected ${Pref.shopText} ${teamShop.shop_name}(${teamShop.shop_contact}) now?"
         }
 
-        CommonDialog.getInstance(AppUtils.hiFirstNameText()+"!", popupBody, "NO", "YES", object : CommonDialogClickListener {
+        CommonDialog.getInstance(AppUtils.hiFirstNameText() + "!", popupBody, "NO", "YES", object : CommonDialogClickListener {
             override fun onLeftClick() {
                 //cancelNotification(shopId)
             }
@@ -10470,14 +10471,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
         }, arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
     }
-    private fun initPermissionCheckRubyCUstomi(shopNameByID:String) {
+    private fun initPermissionCheckRubyCUstomi(shopNameByID: String) {
         permissionUtils = PermissionUtils(mContext as Activity, object : PermissionUtils.OnPermissionListener {
             override fun onPermissionGranted() {
                 if (!isCodeScan)
-                    if(Pref.IsnewleadtypeforRuby && shopNameByID.equals("2")){
+                    if (Pref.IsnewleadtypeforRuby && shopNameByID.equals("2")) {
                         captureFrontImage()
-                    }
-                    else{
+                    } else {
                         captureImage()
                     }
                 else {
@@ -10931,11 +10931,55 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 //File(Environment.getExternalStorageDirectory(),
                 //27-09-2021
                 File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                System.currentTimeMillis().toString() + ".jpg")
+                        System.currentTimeMillis().toString() + ".jpg")
         val camera_image_path = destination?.absolutePath
         val fo: FileOutputStream
         try {
             destination?.createNewFile()
+            fo = FileOutputStream(destination)
+            fo.write(bytes.toByteArray())
+            fo.close()
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return destination
+    }
+
+    fun generateNoteOnSD(context: Context?, sFileName: String?, sBody: String?) {
+        try {
+            val root =  File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                    "xeurobondlogsample/log" + ".txt")
+            if (!root.exists()) {
+                root.mkdirs()
+            }
+            val gpxfile = File(root, sFileName)
+            val writer = FileWriter(gpxfile)
+            writer.append(sBody)
+            writer.flush()
+            writer.close()
+            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+
+    public fun getDummyFile(): File {
+//        var bm: Bitmap? = null
+//        if (bm == null) {
+//            val bitmap = (iv_shopImage.drawable as BitmapDrawable).bitmap
+//            bm = bitmap
+//        }
+        val bytes = ByteArrayOutputStream()
+//        bm!!.compress(Bitmap.CompressFormat.JPEG, 90, bytes)
+        var destination =
+                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                        "xeurobondlogsample/log")
+        val fo: FileOutputStream
+        val fo1:FileWriter
+        try {
             fo = FileOutputStream(destination)
             fo.write(bytes.toByteArray())
             fo.close()
@@ -11170,7 +11214,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     idealLocAlertDialog = null
                 }
 
-                idealLocAlertDialog = CommonDialogSingleBtn.getInstance(AppUtils.hiFirstNameText()+"!", "It seeems that you are at the same nearby locations from $startTime to $endTime. Thanks.", getString(R.string.ok), object : OnDialogClickListener {
+                idealLocAlertDialog = CommonDialogSingleBtn.getInstance(AppUtils.hiFirstNameText() + "!", "It seeems that you are at the same nearby locations from $startTime to $endTime. Thanks.", getString(R.string.ok), object : OnDialogClickListener {
                     override fun onOkClick() {
                         if (isOrderDialogShow)
                             showOrderCollectionAlert(isOrderAdded, isCollectionAdded)
@@ -11329,7 +11373,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
     private fun showHomeLocReasonDialog() {
         reasonDialog = null
-        reasonDialog = ReasonDialog.getInstance(AppUtils.hiFirstNameText()+"!", "You have been detected nearby home location", reason) {
+        reasonDialog = ReasonDialog.getInstance(AppUtils.hiFirstNameText() + "!", "You have been detected nearby home location", reason) {
             if (!AppUtils.isOnline(this))
                 Toaster.msgShort(this, getString(R.string.no_internet))
             else {
@@ -11353,7 +11397,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                             if (response.status == NetworkConstant.SUCCESS) {
                                 Pref.isShowHomeLocReason = false
                                 reason = ""
-                                AppUtils.changeLanguage(this,"en")
+                                AppUtils.changeLanguage(this, "en")
                                 Pref.homeLocEndTimeStamp = System.currentTimeMillis().toString()
 
                                 if (getFragment() != null && getFragment() is ChatBotFragment)
@@ -11399,7 +11443,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     forceLogoutDialog = null
                 }
 
-                forceLogoutDialog = CommonDialogSingleBtn.getInstance(AppUtils.hiFirstNameText()+"!", "Final logout time of the day is ${Pref.approvedOutTime}. Click on Ok to " +
+                forceLogoutDialog = CommonDialogSingleBtn.getInstance(AppUtils.hiFirstNameText() + "!", "Final logout time of the day is ${Pref.approvedOutTime}. Click on Ok to " +
                         "logout now & complete the automated data sync. Thanks.", getString(R.string.ok), object : OnDialogClickListener {
 
                     override fun onOkClick() {
@@ -11474,7 +11518,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
 
     fun updateScreenRecStatus() {
-        Log.e("xcv","updateScreenRecStatus")
+        Log.e("xcv", "updateScreenRecStatus")
         if(DashboardFragment.isRecordRootVisible){
             screen_record_info_TV.text="Stop Recording"
         }else{

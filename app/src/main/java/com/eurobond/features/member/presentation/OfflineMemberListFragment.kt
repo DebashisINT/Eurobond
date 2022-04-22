@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import com.eurobond.CustomStatic
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
 import com.eurobond.app.NetworkConstant
@@ -212,8 +213,10 @@ class OfflineMemberListFragment : BaseFragment() {
                         if (Pref.isShowPartyInAreaWiseTeam) {
                             (mContext as DashboardActivity).loadFragment(FragType.OfflineAreaListFragment, true, member.user_id!!)
                             (mContext as DashboardActivity).isAllMemberShop = true
-                        } else
+                        } else {
+                                CustomStatic.ShopFeedBachHisUserId = member.user_id!!
                             (mContext as DashboardActivity).loadFragment(FragType.OfflineAllShopListFragment, true, member.user_id!!)
+                        }
                     }
 
                     override fun onRightClick(editableData: String) {
@@ -222,8 +225,10 @@ class OfflineMemberListFragment : BaseFragment() {
                         if (Pref.isShowPartyInAreaWiseTeam) {
                             (mContext as DashboardActivity).loadFragment(FragType.OfflineAreaListFragment, true, member.user_id!!)
                             (mContext as DashboardActivity).isAllMemberShop = false
-                        } else
+                        } else {
+                            CustomStatic.ShopFeedBachHisUserId = member.user_id!!
                             (mContext as DashboardActivity).loadFragment(FragType.OfflineShopListFragment, true, member.user_id!!)
+                        }
                     }
 
                 }).show((mContext as DashboardActivity).supportFragmentManager, "")

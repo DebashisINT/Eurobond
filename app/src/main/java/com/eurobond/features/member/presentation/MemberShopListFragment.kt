@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import com.eurobond.CustomStatic
 import com.elvishew.xlog.XLog
 import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
@@ -529,6 +530,16 @@ class MemberShopListFragment : BaseFragment(), View.OnClickListener {
                 val addShopData = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(teamShop.shop_id)
                 (mContext as DashboardActivity).isBack = true
                 (mContext as DashboardActivity).loadFragment(FragType.QuotationListFragment, true, addShopData.shop_id)
+            }
+        },{
+            if(Pref.IsFeedbackHistoryActivated){
+                if (!AppUtils.isOnline(mContext)) {
+                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
+                }
+                else{
+                    var tt= CustomStatic.ShopFeedBachHisUserId
+                    (mContext as DashboardActivity).loadFragment(FragType.ShopFeedbackHisFrag, true, it)
+                }
             }
         })
 

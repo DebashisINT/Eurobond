@@ -60,6 +60,7 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
         XLog.d("populateandAddGeofences : " + " , " + " Circular radius : " + Pref.gpsAccuracy.toFloat())
 
         val list = AppDatabase.getDBInstance()!!.addShopEntryDao().all
+        //val list = AppDatabase.getDBInstance()!!.addShopEntryDao().getTop10()
 
         XLog.e("Geofence:== list size=====> " + list.size)
 
@@ -76,7 +77,8 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
 
         var mRadious:Float = Pref.gpsAccuracy.toFloat()
         if(Pref.IsRestrictNearbyGeofence){
-            mRadious=9999000.99F
+            mRadious = Pref.GeofencingRelaxationinMeter.toFloat()
+//            mRadious=9999000.99F
         }
 
 

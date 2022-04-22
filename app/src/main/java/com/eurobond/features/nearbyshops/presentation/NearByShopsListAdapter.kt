@@ -497,7 +497,8 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                             itemView.stock_view.visibility = View.GONE
                         }
                     }
-                } else {
+                }
+                else {
                     itemView.ll_stock.visibility = View.GONE
                     itemView.stock_view.visibility = View.GONE
                 }
@@ -585,7 +586,8 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                         itemView.add_quot_ll.visibility = View.GONE
                         itemView.order_view.visibility = View.GONE
                     }
-                } else {
+                }
+                else {
                     itemView.add_quot_ll.visibility = View.GONE
                     itemView.order_view.visibility = View.GONE
                     itemView.tv_funnel_stage_header.visibility = View.GONE
@@ -764,22 +766,29 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                     listener.onUpdateBankDetailsClick(adapterPosition)
                 }
 
+                if(Pref.IsFeedbackHistoryActivated){
+                    itemView.shop_history_ll.visibility = View.VISIBLE
+                    itemView.shop_history_view.visibility = View.VISIBLE
+                }else{
+                    itemView.shop_history_ll.visibility = View.GONE
+                    itemView.shop_history_view.visibility = View.GONE
+                }
 
 
-                //Hardcoded for EuroBobd
-                itemView.ll_last_visit_age.visibility=View.GONE
-                itemView.ll_average_visit_time.visibility=View.GONE
-                itemView.ll_distance.visibility=View.GONE
-                itemView.order_amount_tv.visibility=View.GONE
-                itemView.highest_order_amount_tv.visibility=View.GONE
-                itemView.avg_order_amount_tv.visibility=View.GONE
-                itemView.lowest_order_amount_tv.visibility=View.GONE
-                itemView.high_value_month_tv.visibility=View.GONE
-                itemView.low_value_month_tv.visibility=View.GONE
+                itemView.shop_history_ll.setOnClickListener {
+                    listener.onHistoryClick(list[adapterPosition])
+                }
 
-
-
-
+                //Hardcoded for EuroBond
+                //itemView.ll_last_visit_age.visibility=View.GONE
+                //itemView.ll_average_visit_time.visibility=View.GONE
+                //itemView.ll_distance.visibility=View.GONE
+                //itemView.order_amount_tv.visibility=View.GONE
+                //itemView.highest_order_amount_tv.visibility=View.GONE
+                //itemView.avg_order_amount_tv.visibility=View.GONE
+                //itemView.lowest_order_amount_tv.visibility=View.GONE
+                //itemView.high_value_month_tv.visibility=View.GONE
+                //itemView.low_value_month_tv.visibility=View.GONE
 
             } catch (e: Exception) {
                 e.printStackTrace()

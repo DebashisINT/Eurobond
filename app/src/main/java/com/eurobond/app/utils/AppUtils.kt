@@ -229,6 +229,10 @@ class AppUtils {
             val df = SimpleDateFormat("h:mm a", Locale.ENGLISH)
             return df.format(Date()).toString()
         }
+        fun getCurrentTimes(): String {
+            val df = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
+            return df.format(Date()).toString()
+        }
 
         fun getCurrentTimeWithMeredian(date: String): String {
 

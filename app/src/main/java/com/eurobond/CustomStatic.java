@@ -48,6 +48,7 @@ public class CustomStatic {
 
     public static Boolean IsViewLeadFromInProcess=false;
     public static Boolean IsViewLeadAddUpdate=false;
+    public static String ShopFeedBachHisUserId="";
 
 
 }

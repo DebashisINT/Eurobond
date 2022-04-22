@@ -78,6 +78,7 @@ import com.eurobond.features.location.api.LocationRepoProvider
 import com.eurobond.features.location.model.AppInfoResponseModel
 import com.eurobond.features.location.model.VisitRemarksResponseModel
 import com.eurobond.features.location.shopdurationapi.ShopDurationRepositoryProvider
+import com.eurobond.features.login.ShopFeedbackEntity
 import com.eurobond.features.login.UserLoginDataEntity
 import com.eurobond.features.login.api.LoginRepositoryProvider
 import com.eurobond.features.login.api.alarmconfigapi.AlarmConfigRepoProvider
@@ -105,9 +106,11 @@ import com.eurobond.features.newcollection.newcollectionlistapi.NewCollectionLis
 import com.eurobond.features.orderList.api.neworderlistapi.NewOrderListRepoProvider
 import com.eurobond.features.orderList.model.NewOrderListResponseModel
 import com.eurobond.features.orderList.model.ReturnListResponseModel
+import com.eurobond.features.photoReg.model.GetUserListResponse
 import com.eurobond.features.quotation.api.QuotationRepoProvider
 import com.eurobond.features.quotation.model.BSListResponseModel
 import com.eurobond.features.quotation.model.QuotationListResponseModel
+import com.eurobond.features.shopFeedbackHistory.ShopFeedbackHisFrag
 import com.eurobond.features.stock.api.StockRepositoryProvider
 import com.eurobond.features.stock.model.NewStockListResponseModel
 import com.eurobond.features.stockAddCurrentStock.api.ShopAddStockProvider
@@ -464,7 +467,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                     Pref.dailyPlanListHeaderText = configResponse.dailyPlanListHeaderText!!*/
                             }
                             isApiInitiated = false
-                            //gotoHomeActivity()
                             /*API_Optimization 02-03-2022*/
                             //checkToCallAlarmConfigApi()   // calling instead of checkToCallAlarmConfigApi()
                             isStartOrEndDay()
@@ -472,7 +474,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                         }, { error ->
                             isApiInitiated = false
                             error.printStackTrace()
-                            //gotoHomeActivity()
                             /*API_Optimization 02-03-2022*/
                             //checkToCallAlarmConfigApi()   // calling instead of checkToCallAlarmConfigApi()
                             isStartOrEndDay()
@@ -486,7 +487,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         if (Pref.willAlarmTrigger)
             callAlarmConfig()
         else {
-            //gotoHomeActivity()
             checkToCallBillListApi()
         }
     }
@@ -529,12 +529,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             }
 
                             isApiInitiated = false
-                            //gotoHomeActivity()
                             checkToCallBillListApi()
                         }, { error ->
                             isApiInitiated = false
                             error.printStackTrace()
-                            //gotoHomeActivity()
                             checkToCallBillListApi()
                             progress_wheel.stopSpinning()
                             XLog.d("AlarmConfigApiResponse ERROR: " + error.localizedMessage)
@@ -551,81 +549,88 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     }
 
     private fun getBillListApi() {
-        val repository = BillingListRepoProvider.provideBillListRepository()
-        progress_wheel.spin()
-        BaseActivity.compositeDisposable.add(
-                repository.getBillList(Pref.session_token!!, Pref.user_id!!, "")
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
-                            val response = result as BillingListResponseModel
-                            isApiInitiated = false
-                            if (response.status == NetworkConstant.SUCCESS) {
-                                val billing_list = response.billing_list
+        if (Pref.canAddBillingFromBillingList) {
+            XLog.d("API_Optimization GET getBillListApi Login : enable " + "Time: " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
+            val repository = BillingListRepoProvider.provideBillListRepository()
+            progress_wheel.spin()
+            BaseActivity.compositeDisposable.add(
+                    repository.getBillList(Pref.session_token!!, Pref.user_id!!, "")
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe({ result ->
+                                val response = result as BillingListResponseModel
+                                isApiInitiated = false
+                                if (response.status == NetworkConstant.SUCCESS) {
+                                    val billing_list = response.billing_list
 
-                                if (billing_list != null && billing_list.isNotEmpty()) {
+                                    if (billing_list != null && billing_list.isNotEmpty()) {
 
-                                    doAsync {
+                                        doAsync {
 
-                                        for (i in billing_list.indices) {
-                                            val billing = BillingEntity()
-                                            billing.bill_id = Pref.user_id + "_bill_" + System.currentTimeMillis()
-                                            billing.invoice_no = billing_list[i].invoice_no
-                                            billing.invoice_date = billing_list[i].invoice_date
-                                            billing.invoice_amount = billing_list[i].invoice_amount
-                                            billing.remarks = billing_list[i].remarks
-                                            billing.order_id = billing_list[i].order_id
-                                            billing.patient_no = billing_list[i].patient_no
-                                            billing.patient_name = billing_list[i].patient_name
-                                            billing.patient_address = billing_list[i].patient_address
-                                            billing.isUploaded = true
+                                            for (i in billing_list.indices) {
+                                                val billing = BillingEntity()
+                                                billing.bill_id = Pref.user_id + "_bill_" + System.currentTimeMillis()
+                                                billing.invoice_no = billing_list[i].invoice_no
+                                                billing.invoice_date = billing_list[i].invoice_date
+                                                billing.invoice_amount = billing_list[i].invoice_amount
+                                                billing.remarks = billing_list[i].remarks
+                                                billing.order_id = billing_list[i].order_id
+                                                billing.patient_no = billing_list[i].patient_no
+                                                billing.patient_name = billing_list[i].patient_name
+                                                billing.patient_address = billing_list[i].patient_address
+                                                billing.isUploaded = true
 
-                                            if (!TextUtils.isEmpty(billing_list[i].billing_image))
-                                                billing.attachment = billing_list[i].billing_image
+                                                if (!TextUtils.isEmpty(billing_list[i].billing_image))
+                                                    billing.attachment = billing_list[i].billing_image
 
-                                            AppDatabase.getDBInstance()!!.billingDao().insertAll(billing)
+                                                AppDatabase.getDBInstance()!!.billingDao().insertAll(billing)
 
-                                            for (j in billing_list[i].product_list?.indices!!) {
-                                                val billingProductEntity = BillingProductListEntity()
-                                                billingProductEntity.bill_id = billing.bill_id
-                                                billingProductEntity.order_id = billing.order_id
-                                                billingProductEntity.brand = billing_list[i].product_list?.get(j)?.brand
-                                                billingProductEntity.brand_id = billing_list[i].product_list?.get(j)?.brand_id
-                                                billingProductEntity.category = billing_list[i].product_list?.get(j)?.category
-                                                billingProductEntity.category_id = billing_list[i].product_list?.get(j)?.category_id
-                                                billingProductEntity.product_name = billing_list[i].product_list?.get(j)?.product_name
-                                                billingProductEntity.product_id = billing_list[i].product_list?.get(j)?.id
-                                                billingProductEntity.qty = billing_list[i].product_list?.get(j)?.qty
-                                                billingProductEntity.rate = billing_list[i].product_list?.get(j)?.rate
-                                                billingProductEntity.total_price = billing_list[i].product_list?.get(j)?.total_price
-                                                billingProductEntity.watt = billing_list[i].product_list?.get(j)?.watt
-                                                billingProductEntity.watt_id = billing_list[i].product_list?.get(j)?.watt_id
+                                                for (j in billing_list[i].product_list?.indices!!) {
+                                                    val billingProductEntity = BillingProductListEntity()
+                                                    billingProductEntity.bill_id = billing.bill_id
+                                                    billingProductEntity.order_id = billing.order_id
+                                                    billingProductEntity.brand = billing_list[i].product_list?.get(j)?.brand
+                                                    billingProductEntity.brand_id = billing_list[i].product_list?.get(j)?.brand_id
+                                                    billingProductEntity.category = billing_list[i].product_list?.get(j)?.category
+                                                    billingProductEntity.category_id = billing_list[i].product_list?.get(j)?.category_id
+                                                    billingProductEntity.product_name = billing_list[i].product_list?.get(j)?.product_name
+                                                    billingProductEntity.product_id = billing_list[i].product_list?.get(j)?.id
+                                                    billingProductEntity.qty = billing_list[i].product_list?.get(j)?.qty
+                                                    billingProductEntity.rate = billing_list[i].product_list?.get(j)?.rate
+                                                    billingProductEntity.total_price = billing_list[i].product_list?.get(j)?.total_price
+                                                    billingProductEntity.watt = billing_list[i].product_list?.get(j)?.watt
+                                                    billingProductEntity.watt_id = billing_list[i].product_list?.get(j)?.watt_id
 
-                                                AppDatabase.getDBInstance()!!.billProductDao().insert(billingProductEntity)
+                                                    AppDatabase.getDBInstance()!!.billProductDao().insert(billingProductEntity)
+                                                }
+                                            }
+
+                                            uiThread {
+                                                progress_wheel.stopSpinning()
+                                                checkToCallRateList()
                                             }
                                         }
-
-                                        uiThread {
-                                            progress_wheel.stopSpinning()
-                                            checkToCallRateList()
-                                        }
+                                    } else {
+                                        progress_wheel.stopSpinning()
+                                        checkToCallRateList()
                                     }
                                 } else {
                                     progress_wheel.stopSpinning()
                                     checkToCallRateList()
                                 }
-                            } else {
+
+                            }, { error ->
+                                error.printStackTrace()
+                                isApiInitiated = false
                                 progress_wheel.stopSpinning()
                                 checkToCallRateList()
-                            }
-
-                        }, { error ->
-                            error.printStackTrace()
-                            isApiInitiated = false
-                            progress_wheel.stopSpinning()
-                            checkToCallRateList()
-                        })
-        )
+                            })
+            )
+        }
+        else{
+            XLog.d("API_Optimization GET getBillListApi Login : disable " + "Time: " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
+            checkToCallRateList()
+        }
     }
 
     private fun checkToCallRateList() {
@@ -699,6 +704,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     }
 
     private fun getMeetingList() {
+        if (Pref.isMeetingAvailable) {
+            XLog.d("API_Optimization GET getMeetingList Login : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
         progress_wheel.spin()
         val repository = MeetingRepoProvider.meetingRepoProvider()
         BaseActivity.compositeDisposable.add(
@@ -750,6 +757,11 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             checkToCallProductRateList()
                         })
         )
+        }
+        else{
+            XLog.d("API_Optimization GET getMeetingList Login : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+            checkToCallProductRateList()
+        }
     }
 
     private fun checkToCallProductRateList() {
@@ -837,49 +849,56 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     }
 
     private fun getAreaListApi() {
-        val repository = AreaListRepoProvider.provideAreaListRepository()
-        progress_wheel.spin()
-        BaseActivity.compositeDisposable.add(
-                repository.areaList(Pref.profile_city, "")
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
-                            val response = result as AreaListResponseModel
-                            if (response.status == NetworkConstant.SUCCESS) {
-                                val list = response.area_list
+        if(Pref.isAreaVisible) {
+            XLog.d("API_Optimization getAreaListApi Login : enable " + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
+            val repository = AreaListRepoProvider.provideAreaListRepository()
+            progress_wheel.spin()
+            BaseActivity.compositeDisposable.add(
+                    repository.areaList(Pref.profile_city, "")
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe({ result ->
+                                val response = result as AreaListResponseModel
+                                if (response.status == NetworkConstant.SUCCESS) {
+                                    val list = response.area_list
 
-                                if (list != null && list.isNotEmpty()) {
+                                    if (list != null && list.isNotEmpty()) {
 
-                                    doAsync {
+                                        doAsync {
 
-                                        list.forEach {
-                                            val area = AreaListEntity()
-                                            AppDatabase.getDBInstance()?.areaListDao()?.insert(area.apply {
-                                                area_id = it.area_id
-                                                area_name = it.area_name
-                                            })
+                                            list.forEach {
+                                                val area = AreaListEntity()
+                                                AppDatabase.getDBInstance()?.areaListDao()?.insert(area.apply {
+                                                    area_id = it.area_id
+                                                    area_name = it.area_name
+                                                })
+                                            }
+
+                                            uiThread {
+                                                progress_wheel.stopSpinning()
+                                                checkToCallShopTypeApi()
+                                            }
                                         }
-
-                                        uiThread {
-                                            progress_wheel.stopSpinning()
-                                            checkToCallShopTypeApi()
-                                        }
+                                    } else {
+                                        progress_wheel.stopSpinning()
+                                        checkToCallShopTypeApi()
                                     }
                                 } else {
                                     progress_wheel.stopSpinning()
                                     checkToCallShopTypeApi()
                                 }
-                            } else {
-                                progress_wheel.stopSpinning()
-                                checkToCallShopTypeApi()
-                            }
 
-                        }, { error ->
-                            progress_wheel.stopSpinning()
-                            error.printStackTrace()
-                            checkToCallShopTypeApi()
-                        })
-        )
+                            }, { error ->
+                                progress_wheel.stopSpinning()
+                                error.printStackTrace()
+                                checkToCallShopTypeApi()
+                            })
+            )
+        }
+        else{
+            XLog.d("API_Optimization getAreaListApi Login : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+            checkToCallShopTypeApi()
+        }
     }
 
     private fun checkToCallShopTypeApi() {
@@ -1431,154 +1450,161 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     }
 
     private fun geQuotApi() {
-        progress_wheel.spin()
-        val repository = QuotationRepoProvider.provideBSListRepository()
-        BaseActivity.compositeDisposable.add(
-                repository.getQuotList()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
-                            val response = result as QuotationListResponseModel
-                            XLog.d("GET QUOT DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
-                            if (response.status == NetworkConstant.SUCCESS) {
+        if(Pref.isQuotationShow) {
+            XLog.d("API_Optimization geQuotApi Login : enable " + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
+            progress_wheel.spin()
+            val repository = QuotationRepoProvider.provideBSListRepository()
+            BaseActivity.compositeDisposable.add(
+                    repository.getQuotList()
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe({ result ->
+                                val response = result as QuotationListResponseModel
+                                XLog.d("GET QUOT DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                                if (response.status == NetworkConstant.SUCCESS) {
 
-                                if (response.quot_list != null && response.quot_list!!.isNotEmpty()) {
+                                    if (response.quot_list != null && response.quot_list!!.isNotEmpty()) {
 
-                                    doAsync {
+                                        doAsync {
 
-                                        response.quot_list?.forEach {
-                                            val quotEntity = QuotationEntity()
-                                            AppDatabase.getDBInstance()?.quotDao()?.insert(quotEntity.apply {
-                                                quo_id = it.quo_id
-                                                quo_no = it.quo_no
+                                            response.quot_list?.forEach {
+                                                val quotEntity = QuotationEntity()
+                                                AppDatabase.getDBInstance()?.quotDao()?.insert(quotEntity.apply {
+                                                    quo_id = it.quo_id
+                                                    quo_no = it.quo_no
 
-                                                date = it.date
+                                                    date = it.date
 
-                                                hypothecation = if (!TextUtils.isEmpty(it.hypothecation))
-                                                    it.hypothecation
-                                                else
-                                                    ""
-                                                account_no = if (!TextUtils.isEmpty(it.account_no))
-                                                    it.account_no
-                                                else
-                                                    ""
+                                                    hypothecation = if (!TextUtils.isEmpty(it.hypothecation))
+                                                        it.hypothecation
+                                                    else
+                                                        ""
+                                                    account_no = if (!TextUtils.isEmpty(it.account_no))
+                                                        it.account_no
+                                                    else
+                                                        ""
 
-                                                model_id = it.model_id
-                                                bs_id = it.bs_id
+                                                    model_id = it.model_id
+                                                    bs_id = it.bs_id
 
-                                                gearbox = if (!TextUtils.isEmpty(it.gearbox))
-                                                    it.gearbox
-                                                else
-                                                    ""
+                                                    gearbox = if (!TextUtils.isEmpty(it.gearbox))
+                                                        it.gearbox
+                                                    else
+                                                        ""
 
-                                                number1 = if (!TextUtils.isEmpty(it.number1))
-                                                    it.number1
-                                                else
-                                                    ""
+                                                    number1 = if (!TextUtils.isEmpty(it.number1))
+                                                        it.number1
+                                                    else
+                                                        ""
 
-                                                value1 = if (!TextUtils.isEmpty(it.value1))
-                                                    it.value1
-                                                else
-                                                    ""
+                                                    value1 = if (!TextUtils.isEmpty(it.value1))
+                                                        it.value1
+                                                    else
+                                                        ""
 
-                                                value2 = if (!TextUtils.isEmpty(it.value2))
-                                                    it.value2
-                                                else
-                                                    ""
+                                                    value2 = if (!TextUtils.isEmpty(it.value2))
+                                                        it.value2
+                                                    else
+                                                        ""
 
-                                                tyres1 = if (!TextUtils.isEmpty(it.tyres1))
-                                                    it.tyres1
-                                                else
-                                                    ""
+                                                    tyres1 = if (!TextUtils.isEmpty(it.tyres1))
+                                                        it.tyres1
+                                                    else
+                                                        ""
 
-                                                number2 = if (!TextUtils.isEmpty(it.number2))
-                                                    it.number2
-                                                else
-                                                    ""
+                                                    number2 = if (!TextUtils.isEmpty(it.number2))
+                                                        it.number2
+                                                    else
+                                                        ""
 
-                                                value3 = if (!TextUtils.isEmpty(it.value3))
-                                                    it.value3
-                                                else
-                                                    ""
+                                                    value3 = if (!TextUtils.isEmpty(it.value3))
+                                                        it.value3
+                                                    else
+                                                        ""
 
-                                                value4 = if (!TextUtils.isEmpty(it.value4))
-                                                    it.value4
-                                                else
-                                                    ""
+                                                    value4 = if (!TextUtils.isEmpty(it.value4))
+                                                        it.value4
+                                                    else
+                                                        ""
 
-                                                tyres2 = if (!TextUtils.isEmpty(it.tyres2))
-                                                    it.tyres2
-                                                else
-                                                    ""
+                                                    tyres2 = if (!TextUtils.isEmpty(it.tyres2))
+                                                        it.tyres2
+                                                    else
+                                                        ""
 
-                                                amount = if (!TextUtils.isEmpty(it.amount))
-                                                    it.amount
-                                                else
-                                                    ""
+                                                    amount = if (!TextUtils.isEmpty(it.amount))
+                                                        it.amount
+                                                    else
+                                                        ""
 
-                                                discount = if (!TextUtils.isEmpty(it.discount))
-                                                    it.discount
-                                                else
-                                                    ""
+                                                    discount = if (!TextUtils.isEmpty(it.discount))
+                                                        it.discount
+                                                    else
+                                                        ""
 
-                                                cgst = if (!TextUtils.isEmpty(it.cgst))
-                                                    it.cgst
-                                                else
-                                                    ""
+                                                    cgst = if (!TextUtils.isEmpty(it.cgst))
+                                                        it.cgst
+                                                    else
+                                                        ""
 
-                                                sgst = if (!TextUtils.isEmpty(it.sgst))
-                                                    it.sgst
-                                                else
-                                                    ""
+                                                    sgst = if (!TextUtils.isEmpty(it.sgst))
+                                                        it.sgst
+                                                    else
+                                                        ""
 
-                                                tcs = if (!TextUtils.isEmpty(it.tcs))
-                                                    it.tcs
-                                                else
-                                                    ""
+                                                    tcs = if (!TextUtils.isEmpty(it.tcs))
+                                                        it.tcs
+                                                    else
+                                                        ""
 
-                                                insurance = if (!TextUtils.isEmpty(it.insurance))
-                                                    it.insurance
-                                                else
-                                                    ""
+                                                    insurance = if (!TextUtils.isEmpty(it.insurance))
+                                                        it.insurance
+                                                    else
+                                                        ""
 
-                                                net_amount = if (!TextUtils.isEmpty(it.net_amount))
-                                                    it.net_amount
-                                                else
-                                                    ""
+                                                    net_amount = if (!TextUtils.isEmpty(it.net_amount))
+                                                        it.net_amount
+                                                    else
+                                                        ""
 
-                                                remarks = if (!TextUtils.isEmpty(it.remarks))
-                                                    it.remarks
-                                                else
-                                                    ""
+                                                    remarks = if (!TextUtils.isEmpty(it.remarks))
+                                                        it.remarks
+                                                    else
+                                                        ""
 
-                                                shop_id = it.shop_id
-                                                isUploaded = true
-                                            })
+                                                    shop_id = it.shop_id
+                                                    isUploaded = true
+                                                })
+                                            }
+
+                                            uiThread {
+                                                progress_wheel.stopSpinning()
+                                                checkToCallTypeApi()
+                                            }
                                         }
-
-                                        uiThread {
-                                            progress_wheel.stopSpinning()
-                                            checkToCallTypeApi()
-                                        }
+                                    } else {
+                                        progress_wheel.stopSpinning()
+                                        checkToCallTypeApi()
                                     }
+
+
                                 } else {
                                     progress_wheel.stopSpinning()
                                     checkToCallTypeApi()
                                 }
 
-
-                            } else {
+                            }, { error ->
                                 progress_wheel.stopSpinning()
+                                XLog.d("GET QUOT DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                                error.printStackTrace()
                                 checkToCallTypeApi()
-                            }
-
-                        }, { error ->
-                            progress_wheel.stopSpinning()
-                            XLog.d("GET QUOT DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
-                            error.printStackTrace()
-                            checkToCallTypeApi()
-                        })
-        )
+                            })
+            )
+        }
+        else{
+            XLog.d("API_Optimization geQuotApi Login : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+            checkToCallTypeApi()
+        }
     }
 
     private fun checkToCallTypeApi() {
@@ -2041,11 +2067,40 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     }
 
     private fun checkToCallChemistVisitApi() {
-        val list = AppDatabase.getDBInstance()!!.addChemistDao().getAll()
-        if (list != null && list.isNotEmpty())
-            checkToCallDoctorVisitApi()
-        else
-            getChemistVisitListApi()
+        var isChemistTypeAvailable:Boolean = false
+        var isDoctorTypeAvaliable:Boolean = false
+        doAsync {
+            val list = AppDatabase.getDBInstance()!!.shopTypeDao().getAll()
+            for (i in list.indices) {
+                if(list[i].shoptype_name!!.contains("Chemist",ignoreCase = true)){
+                    isChemistTypeAvailable = true
+                    break
+                }
+                else if(list[i].shoptype_name!!.contains("Doctor",ignoreCase = true)){
+                    isDoctorTypeAvaliable = true
+                    break
+                }
+            }
+            uiThread {
+                if(isChemistTypeAvailable){
+                    val list = AppDatabase.getDBInstance()!!.addChemistDao().getAll()
+                    if (list != null && list.isNotEmpty()){
+                        if(isDoctorTypeAvaliable)
+                            checkToCallDoctorVisitApi()
+                        else
+                            checkToCallStockListApi()
+                    } else
+                        getChemistVisitListApi()
+                }
+                else if(isDoctorTypeAvaliable){
+                    checkToCallDoctorVisitApi()
+                }
+                else{
+                    checkToCallStockListApi()
+                }
+
+            }
+        }
     }
 
     private fun getChemistVisitListApi() {
@@ -2243,97 +2298,104 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
 
     private fun getStockList() {
-        val repository = StockRepositoryProvider.provideStockRepository()
-        progress_wheel.spin()
-        BaseActivity.compositeDisposable.add(
-                repository.getStockList()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
-                            val response = result as NewStockListResponseModel
-                            if (response.status == NetworkConstant.SUCCESS) {
-                                val stock_details_list = response.stock_list
+        if (Pref.willStockShow) {
+            XLog.d("API_Optimization GET getStockList Login : enable " + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
+            val repository = StockRepositoryProvider.provideStockRepository()
+            progress_wheel.spin()
+            BaseActivity.compositeDisposable.add(
+                    repository.getStockList()
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe({ result ->
+                                val response = result as NewStockListResponseModel
+                                if (response.status == NetworkConstant.SUCCESS) {
+                                    val stock_details_list = response.stock_list
 
-                                if (stock_details_list != null && stock_details_list.isNotEmpty()) {
+                                    if (stock_details_list != null && stock_details_list.isNotEmpty()) {
 
-                                    doAsync {
+                                        doAsync {
 
-                                        for (i in stock_details_list.indices) {
-                                            val stockDetailsList = StockDetailsListEntity()
-                                            stockDetailsList.date = stock_details_list[i].stock_date_time //AppUtils.convertToCommonFormat(order_details_list[i].date!!)
-                                            if (!TextUtils.isEmpty(stock_details_list[i].stock_date_time))
-                                                stockDetailsList.only_date = AppUtils.convertDateTimeToCommonFormat(stock_details_list[i].stock_date_time!!)
-                                            stockDetailsList.shop_id = stock_details_list[i].shop_id
+                                            for (i in stock_details_list.indices) {
+                                                val stockDetailsList = StockDetailsListEntity()
+                                                stockDetailsList.date = stock_details_list[i].stock_date_time //AppUtils.convertToCommonFormat(order_details_list[i].date!!)
+                                                if (!TextUtils.isEmpty(stock_details_list[i].stock_date_time))
+                                                    stockDetailsList.only_date = AppUtils.convertDateTimeToCommonFormat(stock_details_list[i].stock_date_time!!)
+                                                stockDetailsList.shop_id = stock_details_list[i].shop_id
 
-                                            if (!TextUtils.isEmpty(stock_details_list[i].stock_amount)) {
-                                                val finalAmount = String.format("%.2f", stock_details_list[i].stock_amount?.toFloat())
-                                                stockDetailsList.amount = finalAmount
-                                            }
+                                                if (!TextUtils.isEmpty(stock_details_list[i].stock_amount)) {
+                                                    val finalAmount = String.format("%.2f", stock_details_list[i].stock_amount?.toFloat())
+                                                    stockDetailsList.amount = finalAmount
+                                                }
 
-                                            stockDetailsList.isUploaded = true
-                                            stockDetailsList.stock_id = stock_details_list[i].stock_id
-                                            stockDetailsList.qty = stock_details_list[i].stock_qty
+                                                stockDetailsList.isUploaded = true
+                                                stockDetailsList.stock_id = stock_details_list[i].stock_id
+                                                stockDetailsList.qty = stock_details_list[i].stock_qty
 
-                                            if (stock_details_list[i].product_list != null && stock_details_list[i].product_list?.size!! > 0) {
-                                                for (j in stock_details_list[i].product_list?.indices!!) {
-                                                    val stockProductList = StockProductListEntity()
-                                                    stockProductList.brand = stock_details_list[i].product_list?.get(j)?.brand
-                                                    stockProductList.brand_id = stock_details_list[i].product_list?.get(j)?.brand_id
-                                                    stockProductList.category_id = stock_details_list[i].product_list?.get(j)?.category_id
-                                                    stockProductList.watt = stock_details_list[i].product_list?.get(j)?.watt
-                                                    stockProductList.watt_id = stock_details_list[i].product_list?.get(j)?.watt_id
-                                                    stockProductList.product_id = stock_details_list[i].product_list?.get(j)?.id.toString()
-                                                    stockProductList.category = stock_details_list[i].product_list?.get(j)?.category
-                                                    stockProductList.stock_id = stock_details_list[i].stock_id
-                                                    stockProductList.product_name = stock_details_list[i].product_list?.get(j)?.product_name
+                                                if (stock_details_list[i].product_list != null && stock_details_list[i].product_list?.size!! > 0) {
+                                                    for (j in stock_details_list[i].product_list?.indices!!) {
+                                                        val stockProductList = StockProductListEntity()
+                                                        stockProductList.brand = stock_details_list[i].product_list?.get(j)?.brand
+                                                        stockProductList.brand_id = stock_details_list[i].product_list?.get(j)?.brand_id
+                                                        stockProductList.category_id = stock_details_list[i].product_list?.get(j)?.category_id
+                                                        stockProductList.watt = stock_details_list[i].product_list?.get(j)?.watt
+                                                        stockProductList.watt_id = stock_details_list[i].product_list?.get(j)?.watt_id
+                                                        stockProductList.product_id = stock_details_list[i].product_list?.get(j)?.id.toString()
+                                                        stockProductList.category = stock_details_list[i].product_list?.get(j)?.category
+                                                        stockProductList.stock_id = stock_details_list[i].stock_id
+                                                        stockProductList.product_name = stock_details_list[i].product_list?.get(j)?.product_name
 
-                                                    /*if (order_details_list[i].product_list?.get(j)?.rate?.contains(".")!!)
+                                                        /*if (order_details_list[i].product_list?.get(j)?.rate?.contains(".")!!)
                                                         productOrderList.rate = order_details_list[i].product_list?.get(j)?.rate?.toDouble()?.toInt().toString()
                                                     else*/
-                                                    if (!TextUtils.isEmpty(stock_details_list[i].product_list?.get(j)?.rate)) {
-                                                        val finalRate = String.format("%.2f", stock_details_list[i].product_list?.get(j)?.rate?.toFloat())
-                                                        stockProductList.rate = finalRate
-                                                    }
+                                                        if (!TextUtils.isEmpty(stock_details_list[i].product_list?.get(j)?.rate)) {
+                                                            val finalRate = String.format("%.2f", stock_details_list[i].product_list?.get(j)?.rate?.toFloat())
+                                                            stockProductList.rate = finalRate
+                                                        }
 
-                                                    stockProductList.qty = stock_details_list[i].product_list?.get(j)?.qty
+                                                        stockProductList.qty = stock_details_list[i].product_list?.get(j)?.qty
 
-                                                    /*if (order_details_list[i].product_list?.get(j)?.total_price?.contains(".")!!)
+                                                        /*if (order_details_list[i].product_list?.get(j)?.total_price?.contains(".")!!)
                                                         productOrderList.total_price = order_details_list[i].product_list?.get(j)?.total_price?.toDouble()?.toInt().toString()
                                                     else*/
 
-                                                    if (!TextUtils.isEmpty(stock_details_list[i].product_list?.get(j)?.total_price)) {
-                                                        val finalTotalPrice = String.format("%.2f", stock_details_list[i].product_list?.get(j)?.total_price?.toFloat())
-                                                        stockProductList.total_price = finalTotalPrice
-                                                    }
-                                                    stockProductList.shop_id = stock_details_list[i].shop_id
+                                                        if (!TextUtils.isEmpty(stock_details_list[i].product_list?.get(j)?.total_price)) {
+                                                            val finalTotalPrice = String.format("%.2f", stock_details_list[i].product_list?.get(j)?.total_price?.toFloat())
+                                                            stockProductList.total_price = finalTotalPrice
+                                                        }
+                                                        stockProductList.shop_id = stock_details_list[i].shop_id
 
-                                                    AppDatabase.getDBInstance()!!.stockProductDao().insert(stockProductList)
+                                                        AppDatabase.getDBInstance()!!.stockProductDao().insert(stockProductList)
+                                                    }
                                                 }
+
+                                                AppDatabase.getDBInstance()!!.stockDetailsListDao().insert(stockDetailsList)
                                             }
 
-                                            AppDatabase.getDBInstance()!!.stockDetailsListDao().insert(stockDetailsList)
+                                            uiThread {
+                                                progress_wheel.stopSpinning()
+                                                checkToCallDocumentTypeList()
+                                            }
                                         }
-
-                                        uiThread {
-                                            progress_wheel.stopSpinning()
-                                            checkToCallDocumentTypeList()
-                                        }
+                                    } else {
+                                        progress_wheel.stopSpinning()
+                                        checkToCallDocumentTypeList()
                                     }
                                 } else {
                                     progress_wheel.stopSpinning()
                                     checkToCallDocumentTypeList()
                                 }
-                            } else {
+
+                            }, { error ->
+                                error.printStackTrace()
                                 progress_wheel.stopSpinning()
                                 checkToCallDocumentTypeList()
-                            }
-
-                        }, { error ->
-                            error.printStackTrace()
-                            progress_wheel.stopSpinning()
-                            checkToCallDocumentTypeList()
-                        })
-        )
+                            })
+            )
+        }
+        else{
+            XLog.d("API_Optimization GET getStockList  Login : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+            checkToCallDocumentTypeList()
+        }
     }
 
     private fun checkToCallDocumentTypeList() {
@@ -2905,14 +2967,12 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                     uiThread {
                                         progress_wheel.stopSpinning()
-                                        //gotoHomeActivity()
                                         //sam
                                         getCurrentStockApi()
                                     }
                                 }
                             } else {
                                 progress_wheel.stopSpinning()
-                                //gotoHomeActivity()
                                 //sam
                                 getCurrentStockApi()
                             }
@@ -2920,7 +2980,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             progress_wheel.stopSpinning()
                             error.printStackTrace()
                             XLog.d("Visit Remarks List : ERROR " + error.localizedMessage)
-                            //gotoHomeActivity()
                             //sam
                             getCurrentStockApi()
                         })
@@ -2968,20 +3027,17 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                         uiThread {
                                             progress_wheel.stopSpinning()
-                                            //gotoHomeActivity()
                                             //sam
                                             getCurrentStockApi()
                                         }
                                     }
                                 } else {
                                     progress_wheel.stopSpinning()
-                                    //gotoHomeActivity()
                                     //sam
                                     getCurrentStockApi()
                                 }
                             } else {
                                 progress_wheel.stopSpinning()
-                                //gotoHomeActivity()
                                 //sam
                                 getCurrentStockApi()
                             }
@@ -2990,7 +3046,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             progress_wheel.stopSpinning()
                             XLog.d("TASK LIST: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
-                            //gotoHomeActivity()
                             //sam
                             getCurrentStockApi()
                         })
@@ -3327,7 +3382,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                     initiateLogin()
                                 } else {
                                     //Permission is not available. Display error text.
-                                    getOverlayPermission()
+                                    //getOverlayPermission()
+
+                                    // overlay testing
+                                    initiateLogin()
                                 }
                             } else {
                                 initiateLogin()
@@ -3356,7 +3414,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                 initiateLogin()
                             } else {
                                 //Permission is not available. Display error text.
-                                getOverlayPermission()
+                                //getOverlayPermission()
+
+                                // overlay testing
+                                initiateLogin()
                             }
                         } else {
                             initiateLogin()
@@ -3503,7 +3564,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     private fun initiateLogin() {
         println("xyz - initiateLogin started" + AppUtils.getCurrentDateTime());
         val list = AppDatabase.getDBInstance()?.addShopEntryDao()?.all
-
         if (Pref.isClearData) {
             if (list != null && list.isNotEmpty()) {
                 Toaster.msgLong(this, "Please clear your data, in order to login")
@@ -3796,8 +3856,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                     })
         }
     }
-
-
+    
+    
     private fun doLogin(username: String, password: String, location: String) {
         println("xyz - doLogin started" + AppUtils.getCurrentDateTime());
 
@@ -3922,15 +3982,23 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                 Toaster.msgLong(this, loginResponse.message!!)
                             }
                             else {
+                                progress_wheel.stopSpinning()
+
                                 if(loginResponse.message!!.contains("IMEI",ignoreCase = true))
                                 {
-                                    openDialogPopup("Current Login ID has already been used from another mobile device. You are not allowed to " +
+                                    var realName=""
+                                    try{
+                                        realName= Pref.user_name!!.replace("null","")
+                                    }catch (ex:Exception){
+                                        realName=""
+                                    }
+
+                                    openDialogPopupIMEI("Hi! $realName ($username)","Current Login ID has already been used from another mobile device. You are not allowed to " +
                                             "login from your current device due to IMEI BLOCKED! Please talk to Admin.")
                                 }else{
                                     openDialogPopup(loginResponse.message!!)
                                 }
-                                progress_wheel.stopSpinning()
-//                                showSnackMessage(loginResponse.message!!)
+
                                 login_TV.isEnabled = true
                             }
                             isApiInitiated = false
@@ -4102,60 +4170,68 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
 
     fun isStartOrEndDay() {
-        try {
-            Pref.DayStartMarked = false
-            Pref.DayEndMarked = false
-            Pref.DayStartShopType = ""
-            Pref.DayStartShopID = ""
-            //Pref.IsDDvistedOnceByDay=false
-            val repository = DayStartEndRepoProvider.dayStartRepositiry()
-            BaseActivity.compositeDisposable.add(
-                    repository.dayStartEndStatus(AppUtils.getCurrentDateyymmdd())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeOn(Schedulers.io())
-                            .subscribe({ result ->
-                                XLog.d("Login DayStart : RESPONSE " + result.status)
-                                val response = result as StatusDayStartEnd
-                                if (response.status == NetworkConstant.SUCCESS) {
+        if(Pref.IsShowDayStart) {
+            XLog.d("API_Optimization GET isStartOrEndDay Login : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+            try {
+                Pref.DayStartMarked = false
+                Pref.DayEndMarked = false
+                Pref.DayStartShopType = ""
+                Pref.DayStartShopID = ""
+                //Pref.IsDDvistedOnceByDay=false
+                val repository = DayStartEndRepoProvider.dayStartRepositiry()
+                BaseActivity.compositeDisposable.add(
+                        repository.dayStartEndStatus(AppUtils.getCurrentDateyymmdd())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe({ result ->
+                                    XLog.d("Login DayStart : RESPONSE " + result.status)
+                                    val response = result as StatusDayStartEnd
+                                    if (response.status == NetworkConstant.SUCCESS) {
 
-                                    doAsync {
-                                        Pref.DayStartMarked = response.DayStartMarked!!
-                                        Pref.DayEndMarked = response.DayEndMarked!!
-                                        Pref.DayStartShopType = response.day_start_shop_type!!
-                                        Pref.DayStartShopID = response.day_start_shop_id!!
-                                        Pref.IsDDvistedOnceByDay = response.IsDDvistedOnceByDay!!
+                                        doAsync {
+                                            Pref.DayStartMarked = response.DayStartMarked!!
+                                            Pref.DayEndMarked = response.DayEndMarked!!
+                                            Pref.DayStartShopType = response.day_start_shop_type!!
+                                            Pref.DayStartShopID = response.day_start_shop_id!!
+                                            Pref.IsDDvistedOnceByDay = response.IsDDvistedOnceByDay!!
 
-                                        uiThread {
-                                            if (Pref.DayEndMarked) {
-                                                //showSnackMessage(resources.getString(R.string.alert_imei_unavailable))
-                                                Pref.user_id = ""
-                                                showSnackMessage("You already marked Day End. You will be able to login tomorrow! Thanks.")
-                                                login_TV.isEnabled = true
-                                            } else {
-                                                getListFromDatabase()
+                                            uiThread {
+                                                if (Pref.DayEndMarked) {
+                                                    //showSnackMessage(resources.getString(R.string.alert_imei_unavailable))
+                                                    Pref.user_id = ""
+                                                    showSnackMessage("You already marked Day End. You will be able to login tomorrow! Thanks.")
+                                                    login_TV.isEnabled = true
+                                                } else {
+                                                    getListFromDatabase()
+                                                }
                                             }
                                         }
-                                    }
 
-                                } else {
+                                    } else {
+                                        Pref.IsDDvistedOnceByDay = false
+                                        getListFromDatabase()
+                                    }
+                                }, { error ->
+                                    if (error == null) {
+                                        XLog.d("Login DayStart : ERROR " + "UNEXPECTED ERROR IN DayStart API")
+                                    } else {
+                                        XLog.d("Login DayStart : ERROR " + error.localizedMessage)
+                                        error.printStackTrace()
+                                    }
                                     Pref.IsDDvistedOnceByDay = false
                                     getListFromDatabase()
-                                }
-                            }, { error ->
-                                if (error == null) {
-                                    XLog.d("Login DayStart : ERROR " + "UNEXPECTED ERROR IN DayStart API")
-                                } else {
-                                    XLog.d("Login DayStart : ERROR " + error.localizedMessage)
-                                    error.printStackTrace()
-                                }
-                                Pref.IsDDvistedOnceByDay = false
-                                getListFromDatabase()
-                            })
-            )
-        } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
-            getListFromDatabase()
+                                })
+                )
+            } catch (ex: java.lang.Exception) {
+                ex.printStackTrace()
+                getListFromDatabase()
+            }
         }
+        else
+            {
+                XLog.d("API_Optimization GET isStartOrEndDay Login : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+                getListFromDatabase()
+            }
 
     }
 
@@ -4213,7 +4289,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                         getProductList(AppDatabase.getDBInstance()?.productListDao()?.getAll()?.get(0)?.date)
                                 }
                             } else if (shopList.status == NetworkConstant.NO_DATA) {
-                                //gotoHomeActivity()
                                 progress_wheel.stopSpinning()
                                 val assignDDList = AppDatabase.getDBInstance()?.ddListDao()?.getAll()
                                 if (/*(assignDDList == null || assignDDList.isEmpty()) &&*/ !TextUtils.isEmpty(Pref.profile_state))
@@ -4227,7 +4302,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                 }
                             } else {
                                 progress_wheel.stopSpinning()
-                                //gotoHomeActivity()
                                 val assignDDList = AppDatabase.getDBInstance()?.ddListDao()?.getAll()
                                 if (/*(assignDDList == null || assignDDList.isEmpty()) &&*/ !TextUtils.isEmpty(Pref.profile_state))
                                     getAssignedDDListApi()
@@ -4243,7 +4317,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                         }, { error ->
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
-                            //gotoHomeActivity()
                             val assignDDList = AppDatabase.getDBInstance()?.ddListDao()?.getAll()
                             if (/*(assignDDList == null || assignDDList.isEmpty()) &&*/ !TextUtils.isEmpty(Pref.profile_state))
                                 getAssignedDDListApi()
@@ -4518,7 +4591,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         println("xyz - getOrderList ended" + AppUtils.getCurrentDateTime());
         val list = AppDatabase.getDBInstance()?.selectedWorkTypeDao()?.getAll()
         if (list != null && list.isNotEmpty()) {
-            //gotoHomeActivity()
             //callUserConfigApi()
             //checkToCallCollectionApi()
             AppDatabase.getDBInstance()?.selectedWorkTypeDao()?.delete()
@@ -4543,6 +4615,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     }
 
     private fun callCollectionListApi() {
+        if (Pref.isCollectioninMenuShow) {
+            XLog.d("API_Optimization GET callCollectionListApi Login : enable " +  "Time: " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
         val repository = NewCollectionListRepoProvider.newCollectionListRepository()
         progress_wheel.spin()
         BaseActivity.compositeDisposable.add(
@@ -4574,6 +4648,11 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             checkToCallAlarmConfigApi()   // calling instead of callUserConfigApi()
                         })
         )
+        }
+        else{
+            XLog.d("API_Optimization GET callCollectionListApi  Login : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+            checkToCallAlarmConfigApi()
+        }
     }
 
     //private fun saveToDatabase(collection_details_list: ArrayList<CollectionListDataModel>) {
@@ -5391,6 +5470,30 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     Pref.ShowUserwiseLeadMenu = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("GeofencingRelaxationinMeter", ignoreCase = true)) {
+                                                try{
+                                                    Pref.GeofencingRelaxationinMeter = response.getconfigure!![i].Value!!.toInt()
+                                                    if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                        Pref.GeofencingRelaxationinMeter = response.getconfigure!![i].Value!!.toInt()
+                                                    }
+                                                }catch(ex:Exception){
+                                                    Pref.GeofencingRelaxationinMeter = 100
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsFeedbackHistoryActivated", ignoreCase = true)) {
+                                                    Pref.IsFeedbackHistoryActivated = response.getconfigure!![i].Value == "1"
+                                                    if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                        Pref.IsFeedbackHistoryActivated = response.getconfigure?.get(i)?.Value == "1"
+                                                    }
+                                            }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsAutoLeadActivityDateTime", ignoreCase = true)) {
+                                                Pref.IsAutoLeadActivityDateTime = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsAutoLeadActivityDateTime = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                          
 
 
                                             /*else if (response.getconfigure?.get(i)?.Key.equals("isFingerPrintMandatoryForAttendance", ignoreCase = true)) {
@@ -5418,13 +5521,11 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             println("xyz - callUserConfigApi ended" + AppUtils.getCurrentDateTime());
                             progress_wheel.stopSpinning()
                             getConfigFetchApi()
-                            //gotoHomeActivity()
 
                         }, { error ->
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
                             getConfigFetchApi()
-                            //gotoHomeActivity()
                         })
         )
     }
@@ -5483,20 +5584,17 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                         uiThread {
                                             progress_wheel.stopSpinning()
-                                            //gotoHomeActivity()
                                             //callUserConfigApi()
                                             checkToCallCollectionApi()
                                         }
                                     }
                                 } else {
                                     progress_wheel.stopSpinning()
-                                    //gotoHomeActivity()
                                     //callUserConfigApi()
                                     checkToCallCollectionApi()
                                 }
                             } else {
                                 progress_wheel.stopSpinning()
-                                //gotoHomeActivity()
                                 //callUserConfigApi()
                                 checkToCallCollectionApi()
                             }
@@ -5504,7 +5602,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                         }, { error ->
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
-                            //gotoHomeActivity()
                             //callUserConfigApi()
                             checkToCallCollectionApi()
                         })
@@ -5940,6 +6037,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         progress_wheel.stopSpinning()
         setServiceAlarm(this, 1, 123)
 
+        //AppDatabase.getDBInstance()?.shopActivityDao()?.trash2("2022-04-04","432_1879749092874","28")
+        //AppDatabase.getDBInstance()!!.leadActivityDao().trash2("0d181797-65b8-4d96-929d-15a71ae16192","2022-04-05")
+
         val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
         intent.putExtra("fromClass", "LoginActivity")
         overridePendingTransition(0, 0)
@@ -5949,157 +6049,171 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
 
     fun getCurrentStockApi() {
-        progress_wheel.spin()
-        var shopAll = AppDatabase.getDBInstance()!!.shopCurrentStockEntryDao().getShopStockAll()
-        if (shopAll != null && shopAll?.isNotEmpty()) {
-            progress_wheel.stopSpinning()
-            getCompStockApi()
-        } else {
-            try {
-                val repository = ShopAddStockProvider.provideShopAddStockRepository()
-                BaseActivity.compositeDisposable.add(
-                        repository.getCurrStockList(Pref.session_token!!, Pref.user_id!!, "")
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribeOn(Schedulers.io())
-                                .subscribe({ result ->
-                                    XLog.d("Login Stock/CurrentStockList " + result.status)
-                                    val response = result as CurrentStockGetData
-                                    if (response.status == NetworkConstant.SUCCESS) {
-                                        if (response.stock_list!! != null && response.stock_list!!.isNotEmpty()) {
-                                            doAsync {
-                                                for (i in response.stock_list?.indices!!) {
-                                                    var obj = CurrentStockEntryModelEntity()
-                                                    obj.user_id = Pref.user_id!!
-                                                    obj.stock_id = response.stock_list?.get(i)?.stock_id!!
-                                                    obj.shop_id = response.stock_list?.get(i)?.shop_id!!
-                                                    obj.visited_datetime = response.stock_list?.get(i)?.visited_datetime!!
-                                                    obj.visited_date = response.stock_list?.get(i)?.visited_datetime?.take(10)
-                                                    obj.total_product_stock_qty = response.stock_list?.get(i)?.total_qty!!
-                                                    obj.isUploaded = true
-                                                    AppDatabase.getDBInstance()?.shopCurrentStockEntryDao()!!.insert(obj)
+        if (Pref.isCurrentStockEnable) {
+            XLog.d("API_Optimization GET getCurrentStockApi Login : enable " + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
+            progress_wheel.spin()
+            var shopAll = AppDatabase.getDBInstance()!!.shopCurrentStockEntryDao().getShopStockAll()
+            if (shopAll != null && shopAll?.isNotEmpty()) {
+                progress_wheel.stopSpinning()
+                getCompStockApi()
+            } else {
+                try {
+                    val repository = ShopAddStockProvider.provideShopAddStockRepository()
+                    BaseActivity.compositeDisposable.add(
+                            repository.getCurrStockList(Pref.session_token!!, Pref.user_id!!, "")
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribeOn(Schedulers.io())
+                                    .subscribe({ result ->
+                                        XLog.d("Login Stock/CurrentStockList " + result.status)
+                                        val response = result as CurrentStockGetData
+                                        if (response.status == NetworkConstant.SUCCESS) {
+                                            if (response.stock_list!! != null && response.stock_list!!.isNotEmpty()) {
+                                                doAsync {
+                                                    for (i in response.stock_list?.indices!!) {
+                                                        var obj = CurrentStockEntryModelEntity()
+                                                        obj.user_id = Pref.user_id!!
+                                                        obj.stock_id = response.stock_list?.get(i)?.stock_id!!
+                                                        obj.shop_id = response.stock_list?.get(i)?.shop_id!!
+                                                        obj.visited_datetime = response.stock_list?.get(i)?.visited_datetime!!
+                                                        obj.visited_date = response.stock_list?.get(i)?.visited_datetime?.take(10)
+                                                        obj.total_product_stock_qty = response.stock_list?.get(i)?.total_qty!!
+                                                        obj.isUploaded = true
+                                                        AppDatabase.getDBInstance()?.shopCurrentStockEntryDao()!!.insert(obj)
 
-                                                    val proDuctList = response.stock_list?.get(i)?.product_list
-                                                    for (j in proDuctList?.indices!!) {
-                                                        var objjj = CurrentStockEntryProductModelEntity()
-                                                        objjj.stock_id = response.stock_list?.get(i)?.stock_id!!
-                                                        objjj.shop_id = response.stock_list?.get(i)?.shop_id!!
-                                                        objjj.product_id = proDuctList?.get(j).product_id.toString()!!
-                                                        objjj.product_stock_qty = proDuctList?.get(j).product_stock_qty!!
-                                                        objjj.user_id = Pref.user_id
-                                                        objjj.isUploaded = true
+                                                        val proDuctList = response.stock_list?.get(i)?.product_list
+                                                        for (j in proDuctList?.indices!!) {
+                                                            var objjj = CurrentStockEntryProductModelEntity()
+                                                            objjj.stock_id = response.stock_list?.get(i)?.stock_id!!
+                                                            objjj.shop_id = response.stock_list?.get(i)?.shop_id!!
+                                                            objjj.product_id = proDuctList?.get(j).product_id.toString()!!
+                                                            objjj.product_stock_qty = proDuctList?.get(j).product_stock_qty!!
+                                                            objjj.user_id = Pref.user_id
+                                                            objjj.isUploaded = true
 
-                                                        AppDatabase.getDBInstance()?.shopCurrentStockProductsEntryDao()!!.insert(objjj)
+                                                            AppDatabase.getDBInstance()?.shopCurrentStockProductsEntryDao()!!.insert(objjj)
+                                                        }
+                                                    }
+                                                    uiThread {
+                                                        progress_wheel.stopSpinning()
+                                                        getCompStockApi()
                                                     }
                                                 }
-                                                uiThread {
-                                                    progress_wheel.stopSpinning()
-                                                    getCompStockApi()
-                                                }
+                                            } else {
+                                                progress_wheel.stopSpinning()
+                                                getCompStockApi()
                                             }
                                         } else {
                                             progress_wheel.stopSpinning()
                                             getCompStockApi()
                                         }
-                                    } else {
+                                    }, { error ->
+                                        if (error == null) {
+                                            XLog.d("Login Stock/CurrentStockList : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
+                                        } else {
+                                            XLog.d("Login Stock/CurrentStockList : ERROR " + error.localizedMessage)
+                                            error.printStackTrace()
+                                        }
                                         progress_wheel.stopSpinning()
                                         getCompStockApi()
-                                    }
-                                }, { error ->
-                                    if (error == null) {
-                                        XLog.d("Login Stock/CurrentStockList : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
-                                    } else {
-                                        XLog.d("Login Stock/CurrentStockList : ERROR " + error.localizedMessage)
-                                        error.printStackTrace()
-                                    }
-                                    progress_wheel.stopSpinning()
-                                    getCompStockApi()
-                                })
-                )
-            } catch (ex: Exception) {
-                progress_wheel.stopSpinning()
-                XLog.d("Login Stock/CurrentStockList : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
-                getCompStockApi()
+                                    })
+                    )
+                } catch (ex: Exception) {
+                    progress_wheel.stopSpinning()
+                    XLog.d("Login Stock/CurrentStockList : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
+                    getCompStockApi()
+                }
             }
+        }
+        else{
+            XLog.d("API_Optimization GET getCurrentStockApi Login : disable " + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
+            getCompStockApi()
         }
     }
 
     fun getCompStockApi() {
-        progress_wheel.spin()
-        var comListAll = AppDatabase.getDBInstance()!!.competetorStockEntryDao().getCompetetorStockAll()
-        if (comListAll != null && comListAll?.isNotEmpty()) {
-            progress_wheel.stopSpinning()
-            getShopTypeStockVisibility()
-        } else {
-            try {
-                val repository = AddCompStockProvider.provideCompStockRepositiry()
-                BaseActivity.compositeDisposable.add(
-                        repository.getCompStockList(Pref.session_token!!, Pref.user_id!!, "")
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribeOn(Schedulers.io())
-                                .subscribe({ result ->
-                                    XLog.d("Login CompetitorStock/CompetitorStockList : RESPONSE " + result.status)
-                                    val response = result as CompetetorStockGetData
-                                    if (response.status == NetworkConstant.SUCCESS) {
-                                        if (response.competitor_stock_list!! != null && response.competitor_stock_list!!.isNotEmpty()) {
-                                            doAsync {
+        if (Pref.IscompetitorStockRequired) {
+            XLog.d("API_Optimization GET getCompStockApi Login : enable " + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
+            progress_wheel.spin()
+            var comListAll = AppDatabase.getDBInstance()!!.competetorStockEntryDao().getCompetetorStockAll()
+            if (comListAll != null && comListAll?.isNotEmpty()) {
+                progress_wheel.stopSpinning()
+                getShopTypeStockVisibility()
+            } else {
+                try {
+                    val repository = AddCompStockProvider.provideCompStockRepositiry()
+                    BaseActivity.compositeDisposable.add(
+                            repository.getCompStockList(Pref.session_token!!, Pref.user_id!!, "")
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribeOn(Schedulers.io())
+                                    .subscribe({ result ->
+                                        XLog.d("Login CompetitorStock/CompetitorStockList : RESPONSE " + result.status)
+                                        val response = result as CompetetorStockGetData
+                                        if (response.status == NetworkConstant.SUCCESS) {
+                                            if (response.competitor_stock_list!! != null && response.competitor_stock_list!!.isNotEmpty()) {
+                                                doAsync {
 
-                                                for (i in response.competitor_stock_list?.indices!!) {
-                                                    var obj = CcompetetorStockEntryModelEntity()
-                                                    obj.user_id = Pref?.user_id!!
-                                                    obj.competitor_stock_id = response.competitor_stock_list?.get(i)?.competitor_stock_id!!
-                                                    obj.shop_id = response.competitor_stock_list?.get(i)?.shop_id!!
-                                                    obj.visited_datetime = response.competitor_stock_list?.get(i)?.visited_datetime!!
-                                                    obj.visited_date = response.competitor_stock_list?.get(i)?.visited_datetime?.take(10)
-                                                    obj.total_product_stock_qty = response.competitor_stock_list?.get(i)?.total_qty!!
-                                                    obj.isUploaded = true
-                                                    AppDatabase.getDBInstance()?.competetorStockEntryDao()?.insert(obj)
+                                                    for (i in response.competitor_stock_list?.indices!!) {
+                                                        var obj = CcompetetorStockEntryModelEntity()
+                                                        obj.user_id = Pref?.user_id!!
+                                                        obj.competitor_stock_id = response.competitor_stock_list?.get(i)?.competitor_stock_id!!
+                                                        obj.shop_id = response.competitor_stock_list?.get(i)?.shop_id!!
+                                                        obj.visited_datetime = response.competitor_stock_list?.get(i)?.visited_datetime!!
+                                                        obj.visited_date = response.competitor_stock_list?.get(i)?.visited_datetime?.take(10)
+                                                        obj.total_product_stock_qty = response.competitor_stock_list?.get(i)?.total_qty!!
+                                                        obj.isUploaded = true
+                                                        AppDatabase.getDBInstance()?.competetorStockEntryDao()?.insert(obj)
 
-                                                    val proDuctList = response.competitor_stock_list?.get(i)?.product_list
-                                                    for (j in proDuctList?.indices!!) {
-                                                        var objjj = CompetetorStockEntryProductModelEntity()
-                                                        objjj.user_id = Pref.user_id
-                                                        objjj.competitor_stock_id = response.competitor_stock_list?.get(i)?.competitor_stock_id!!
-                                                        objjj.shop_id = response.competitor_stock_list?.get(i)?.shop_id!!
+                                                        val proDuctList = response.competitor_stock_list?.get(i)?.product_list
+                                                        for (j in proDuctList?.indices!!) {
+                                                            var objjj = CompetetorStockEntryProductModelEntity()
+                                                            objjj.user_id = Pref.user_id
+                                                            objjj.competitor_stock_id = response.competitor_stock_list?.get(i)?.competitor_stock_id!!
+                                                            objjj.shop_id = response.competitor_stock_list?.get(i)?.shop_id!!
 
-                                                        objjj.brand_name = proDuctList?.get(j)?.brand_name
-                                                        objjj.product_name = proDuctList?.get(j)?.product_name
-                                                        objjj.qty = proDuctList?.get(j)?.qty
-                                                        objjj.mrp = proDuctList?.get(j)?.mrp
-                                                        objjj.isUploaded = true
-                                                        AppDatabase.getDBInstance()?.competetorStockEntryProductDao()?.insert(objjj)
+                                                            objjj.brand_name = proDuctList?.get(j)?.brand_name
+                                                            objjj.product_name = proDuctList?.get(j)?.product_name
+                                                            objjj.qty = proDuctList?.get(j)?.qty
+                                                            objjj.mrp = proDuctList?.get(j)?.mrp
+                                                            objjj.isUploaded = true
+                                                            AppDatabase.getDBInstance()?.competetorStockEntryProductDao()?.insert(objjj)
+                                                        }
+                                                    }
+
+                                                    uiThread {
+                                                        progress_wheel.stopSpinning()
+                                                        getShopTypeStockVisibility()
                                                     }
                                                 }
 
-                                                uiThread {
-                                                    progress_wheel.stopSpinning()
-                                                    getShopTypeStockVisibility()
-                                                }
+                                            } else {
+                                                progress_wheel.stopSpinning()
+                                                getShopTypeStockVisibility()
                                             }
-
                                         } else {
                                             progress_wheel.stopSpinning()
                                             getShopTypeStockVisibility()
                                         }
-                                    } else {
+                                    }, { error ->
+                                        if (error == null) {
+                                            XLog.d("Login CompetitorStock/CompetitorStockList : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
+                                        } else {
+                                            XLog.d("Login CompetitorStock/CompetitorStockList : ERROR " + error.localizedMessage)
+                                            error.printStackTrace()
+                                        }
                                         progress_wheel.stopSpinning()
                                         getShopTypeStockVisibility()
-                                    }
-                                }, { error ->
-                                    if (error == null) {
-                                        XLog.d("Login CompetitorStock/CompetitorStockList : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
-                                    } else {
-                                        XLog.d("Login CompetitorStock/CompetitorStockList : ERROR " + error.localizedMessage)
-                                        error.printStackTrace()
-                                    }
-                                    progress_wheel.stopSpinning()
-                                    getShopTypeStockVisibility()
-                                })
-                )
-            } catch (ex: Exception) {
-                progress_wheel.stopSpinning()
-                XLog.d("Login CompetitorStock/CompetitorStockList : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
-                getShopTypeStockVisibility()
+                                    })
+                    )
+                } catch (ex: Exception) {
+                    progress_wheel.stopSpinning()
+                    XLog.d("Login CompetitorStock/CompetitorStockList : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
+                    getShopTypeStockVisibility()
+                }
             }
+        }
+        else{
+            XLog.d("API_Optimization GET getCompStockApi Login : disable " + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
+            getShopTypeStockVisibility()
         }
     }
 
@@ -6133,32 +6247,27 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                             uiThread {
                                                 progress_wheel.stopSpinning()
-                                                //gotoHomeActivity()
                                                 getNewOrderDataList()
                                             }
                                         }
                                     } else {
                                         progress_wheel.stopSpinning()
-                                        //gotoHomeActivity()
                                         getNewOrderDataList()
                                     }
                                 } else {
                                     progress_wheel.stopSpinning()
-                                    //gotoHomeActivity()
                                     getNewOrderDataList()
                                 }
 
                             }, { error ->
                                 progress_wheel.stopSpinning()
                                 error.printStackTrace()
-                                //gotoHomeActivity()
                                 getNewOrderDataList()
                             })
             )
 
         } catch (ex: java.lang.Exception) {
             ex.printStackTrace()
-            //gotoHomeActivity()
             getNewOrderDataList()
         }
     }
@@ -6222,31 +6331,26 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                                 uiThread {
                                                     progress_wheel.stopSpinning()
-                                                    //gotoHomeActivity()
                                                     getNewOrderHistory()
                                                 }
                                             }
                                         } else {
                                             progress_wheel.stopSpinning()
-                                            //gotoHomeActivity()
                                             getNewOrderHistory()
                                         }
                                     } else {
                                         progress_wheel.stopSpinning()
-                                        //gotoHomeActivity()
                                         getNewOrderHistory()
                                     }
 
                                 }, { error ->
                                     progress_wheel.stopSpinning()
                                     error.printStackTrace()
-                                    //gotoHomeActivity()
                                     getNewOrderHistory()
                                 })
                 )
             } catch (ex: java.lang.Exception) {
                 ex.printStackTrace()
-                //gotoHomeActivity()
                 getNewOrderHistory()
             }
 
@@ -6308,31 +6412,33 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                             uiThread {
                                                 getQuestionApi()
-//                                            gotoHomeActivity()
+
                                             }
                                         }
                                     } else {
                                         getQuestionApi()
-//                                gotoHomeActivity()
+
                                     }
 
                                 }, { error ->
                                     progress_wheel.stopSpinning()
                                     getQuestionApi()
-//                            gotoHomeActivity()
+
                                 })
                 )
             } else {
                 getQuestionApi()
-//                gotoHomeActivity()
+
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
             getQuestionApi()
-//            gotoHomeActivity()
+
         }
 
     }
+
+
 
 
     override fun onPause() {
@@ -6548,7 +6654,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     private fun getOverlayPermission() {
         CommonDialog.getInstance(getString(R.string.overlaypermission), getString(R.string.overlay_permission_description), getString(R.string.cancel), getString(R.string.ok), false, object : CommonDialogClickListener {
             override fun onLeftClick() {
-                finish()
+                // overlay testing
+                //finish()
             }
 
             override fun onRightClick(editableData: String) {
@@ -6609,7 +6716,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                 AppDatabase.getDBInstance()?.questionMasterDao()?.insertAllBulk(response.Question_list!!)
                                                 uiThread {
                                                     getProspectApi()
-//                                                    gotoHomeActivity()
                                                 }
                                             }
                                         } else {
@@ -6618,27 +6724,26 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                     } else {
                                         progress_wheel.stopSpinning()
                                         getProspectApi()
-//                                        gotoHomeActivity()
+
                                     }
 
                                 }, { error ->
                                     progress_wheel.stopSpinning()
                                     XLog.d("GET STAGE DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                                     error.printStackTrace()
-//                                    gotoHomeActivity()
                                     getProspectApi()
                                 })
                 )
             } else {
                 progress_wheel.stopSpinning()
-//                gotoHomeActivity()
+
                 getProspectApi()
             }
 
         } catch (ex: Exception) {
             ex.printStackTrace()
             progress_wheel.stopSpinning()
-//            gotoHomeActivity()
+
             getProspectApi()
         }
     }
@@ -6709,32 +6814,27 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                 AppDatabase.getDBInstance()?.questionSubmitDao()?.updateFalseTo0("0", "false")
                                                 uiThread {
                                                     getSecImageToLogin()
-//                                                    gotoHomeActivity()
                                                 }
                                             }
                                         } else {
                                             progress_wheel.stopSpinning()
                                         }
                                     } else {
-//                                        gotoHomeActivity()
                                         getSecImageToLogin()
                                     }
 
                                 }, { error ->
                                     progress_wheel.stopSpinning()
-//                                    gotoHomeActivity()
                                     getSecImageToLogin()
                                 })
                 )
             } else {
                 progress_wheel.stopSpinning()
-//                gotoHomeActivity()
                 getSecImageToLogin()
             }
         } catch (ex: Exception) {
             progress_wheel.stopSpinning()
             ex.printStackTrace()
-//            gotoHomeActivity()
             getSecImageToLogin()
 
         }
@@ -6764,7 +6864,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                 }
                                                 uiThread {
                                                     getReturnList()
-//                                                    gotoHomeActivity()
                                                 }
                                             }
                                         } else {
@@ -6772,29 +6871,26 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                         }
                                     } else {
                                         getReturnList()
-//                                        gotoHomeActivity()
                                     }
 
                                 }, { error ->
                                     progress_wheel.stopSpinning()
                                     getReturnList()
-//                                    gotoHomeActivity()
                                 })
                 )
             } else {
                 progress_wheel.stopSpinning()
-//                gotoHomeActivity()
                 getReturnList()
             }
         } catch (ex: Exception) {
             progress_wheel.stopSpinning()
             ex.printStackTrace()
             getReturnList()
-//            gotoHomeActivity()
 
         }
 
     }
+
 
     /*20-12-2021*/
    private fun getReturnList() {
@@ -6877,30 +6973,93 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                             uiThread {
                                                 progress_wheel.stopSpinning()
-                                                gotoHomeActivity()
+                                                getShopFeedback()
                                             }
                                         }
                                     } else {
                                         progress_wheel.stopSpinning()
-                                        gotoHomeActivity()
+                                        getShopFeedback()
 
                                     }
                                 } else {
                                     progress_wheel.stopSpinning()
-                                    gotoHomeActivity()
+                                    getShopFeedback()
 
                                 }
 
                             }, { error ->
                                 progress_wheel.stopSpinning()
-                                gotoHomeActivity()
+                                getShopFeedback()
                             })
             )
         }else{
-            gotoHomeActivity()
+            getShopFeedback()
         }
 
     }
+
+    private fun getShopFeedback(){
+        try{
+            var feedList= AppDatabase.getDBInstance()?.shopFeedbackDao()?.getAll()
+            if(feedList!!.size==0){
+                XLog.d("getShopFeedback : feedList empty")
+                val repository = NewOrderListRepoProvider.provideOrderListRepository()
+                BaseActivity.compositeDisposable.add(
+                    repository.getShopFeedback(Pref.user_id!!, "","","90")
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({ result ->
+                            val response = result as ShopFeedbackResponseModel
+                            if (response.status == NetworkConstant.SUCCESS) {
+                                if(response.shop_list!=null && response.shop_list!!.size>0){
+                                    val objList = response.shop_list
+                                    doAsync {
+                                        println("xTag_ start")
+                                        AppDatabase.getDBInstance()?.shopFeedbackDao()?.deleteAll()
+                                        for(i in 0..objList!!.size-1){
+                                            var feedList=objList.get(i).feedback_remark_list!!
+                                            for(j in 0..feedList.size-1){
+                                                var ob: ShopFeedbackEntity = ShopFeedbackEntity()
+                                                ob.apply {
+                                                    shop_id=objList.get(i).shop_id
+                                                    feedback=feedList.get(j).feedback
+                                                    date_time=feedList.get(j).date_time
+                                                    if(feedback.equals(""))
+                                                        feedback="N/A"
+                                                }
+
+                                                AppDatabase.getDBInstance()?.shopFeedbackDao()?.insert(ob)
+                                            }
+
+                                        }
+                                        uiThread {
+                                            println("xTag_ finish")
+                                            gotoHomeActivity()
+                                        }
+                                    }
+                                }
+                            } else {
+                                gotoHomeActivity()
+
+                            }
+
+                        }, { error ->
+                            error.localizedMessage
+                            gotoHomeActivity()
+                        })
+                )
+            }else{
+                XLog.d("getShopFeedback : gotoHomeActivity")
+                gotoHomeActivity()
+            }
+
+
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            gotoHomeActivity()
+        }
+    }
+
 
     fun openDialogPopup(text:String){
         val simpleDialog = Dialog(mContext)
@@ -6909,6 +7068,22 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         simpleDialog.setContentView(R.layout.dialog_ok)
         val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
         dialogHeader.text = text
+        val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
+        dialogYes.setOnClickListener({ view ->
+            simpleDialog.cancel()
+        })
+        simpleDialog.show()
+    }
+
+    fun openDialogPopupIMEI(header:String,text:String){
+        val simpleDialog = Dialog(mContext)
+        simpleDialog.setCancelable(false)
+        simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        simpleDialog.setContentView(R.layout.dialog_ok_imei)
+        val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header) as AppCustomTextView
+        val dialogBody = simpleDialog.findViewById(R.id.dialog_yes_body) as AppCustomTextView
+        dialogHeader.text = header
+        dialogBody.text = text
         val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
         dialogYes.setOnClickListener({ view ->
             simpleDialog.cancel()

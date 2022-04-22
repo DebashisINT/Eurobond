@@ -435,7 +435,15 @@ class RegisTerFaceFragment: BaseFragment(), View.OnClickListener {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        registerFace(bitmap)
+
+        facePicTag=true
+        //registerFace(bitmap)
+
+
+
+
+
+
         //return bitmap
     }
 

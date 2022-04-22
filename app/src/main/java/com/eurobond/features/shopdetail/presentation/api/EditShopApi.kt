@@ -1,8 +1,10 @@
 package com.eurobond.features.shopdetail.presentation.api
 
 import com.eurobond.app.NetworkConstant
+import com.eurobond.base.BaseResponse
 import com.eurobond.features.addshop.model.AddShopRequestData
 import com.eurobond.features.addshop.model.AddShopResponse
+import com.eurobond.features.addshop.model.LogFileResponse
 import io.reactivex.Observable
 import okhttp3.MultipartBody
 import retrofit2.Retrofit
@@ -26,6 +28,10 @@ interface EditShopApi {
     @Multipart
     @POST("ShopRegistration/EditShop")
     fun editShopWithImage(@Query("data") addShop: String, @Part logo_img_data: MultipartBody.Part?): Observable<AddShopResponse>
+
+    @Multipart
+    @POST("APPLogFilesDetection/APPLogFilesSave")
+    fun logshareFile(@Query("data") userId: String, @Part attachments: MultipartBody.Part?): Observable<LogFileResponse>
 
     /**
      * Companion object to create the GithubApiService

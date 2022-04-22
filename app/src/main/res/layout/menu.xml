@@ -730,17 +730,17 @@
                         android:id="@+id/reports_TV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:drawablePadding="@dimen/_15sdp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_toLeftOf="@+id/iv_drop_down_icon"
                         android:drawableStart="@drawable/ic_add_order_report_icon"
-                        android:paddingBottom="@dimen/_7sdp"
+                        android:drawablePadding="@dimen/_15sdp"
                         android:paddingLeft="@dimen/_17sdp"
-                        android:paddingRight="@dimen/_17sdp"
                         android:paddingTop="@dimen/_15sdp"
+                        android:paddingRight="@dimen/_17sdp"
+                        android:paddingBottom="@dimen/_7sdp"
                         android:text="@string/reports"
                         android:textColor="@color/lightest_gray"
-                        android:textSize="@dimen/_12sdp"
-                        android:layout_toLeftOf="@+id/iv_drop_down_icon"
-                        android:layout_alignParentLeft="true"/>
+                        android:textSize="@dimen/_12sdp" />
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/iv_drop_down_icon"
