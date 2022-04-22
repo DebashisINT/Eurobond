@@ -42,6 +42,7 @@ import com.itextpdf.text.*
 import com.itextpdf.text.pdf.PdfPCell
 import com.itextpdf.text.pdf.PdfPTable
 import com.itextpdf.text.pdf.PdfWriter
+import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -319,12 +320,13 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             var font: Font = Font(Font.FontFamily.HELVETICA, 10f, Font.BOLD)
             var fontB1: Font = Font(Font.FontFamily.HELVETICA, 9f, Font.BOLD)
             var font1: Font = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL)
-            val grayFront = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL, BaseColor.GRAY)
+            var font1Big: Font = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL)
+            val grayFront = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL, BaseColor.GRAY)
 
 
             //image add
             val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo)
-            val bitmap = Bitmap.createScaledBitmap(bm, 150, 50, true);
+            val bitmap = Bitmap.createScaledBitmap(bm, 220, 90, true);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
             var img: Image? = null
@@ -344,12 +346,27 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             //var quotDate = AppUtils.getFormatedDateNew(addQuotEditResult.quotation_date_selection!!.replace("12:00:00 AM",""),"mm-dd-yyyy","dd-mm-yyyy")
 
-            val dateLine = Paragraph("DATE: " + addQuotEditResult.quotation_date_selection!! +
+            /*val dateLine = Paragraph("DATE: " + addQuotEditResult.quotation_date_selection!! +
                     "                                                              " + addQuotEditResult.quotation_number, font)
             dateLine.alignment = Element.ALIGN_LEFT
             dateLine.spacingAfter = 5f
-            document.add(dateLine)
+            document.add(dateLine)*/
 
+
+            val para = Paragraph()
+            val glue = Chunk(VerticalPositionMark())
+            val ph1 = Phrase()
+            val main = Paragraph()
+            ph1.add(Chunk("DATE: " + addQuotEditResult.quotation_date_selection!!, font))
+            ph1.add(glue) // Here I add special chunk to the same phrase.
+
+            ph1.add(Chunk(addQuotEditResult.quotation_number + "       ", font))
+            para.add(ph1)
+            document.add(para)
+
+            val xxx = Paragraph("", font)
+            xxx.spacingAfter = 5f
+            document.add(xxx)
 
             val toLine = Paragraph("To,", font)
             toLine.alignment = Element.ALIGN_LEFT
@@ -363,7 +380,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             val cusAddress = Paragraph(addQuotEditResult.shop_addr, font)
             cusAddress.alignment = Element.ALIGN_LEFT
-            cusAddress.spacingAfter = 2f
+            cusAddress.spacingAfter = 6f
             document.add(cusAddress)
 
 //            val cusemail = Paragraph("Email : " + addQuotEditResult.shop_email, font)
@@ -378,7 +395,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
 
             val xx = Paragraph("", font)
-            xx.spacingAfter = 2f
+            xx.spacingAfter = 6f
             document.add(xx)
 
             //val cusowner = Paragraph("Kind Attn. " + addQuotEditResult.shop_owner_name +"  "+ "(Mob.No.  " + addQuotEditResult.shop_phone_no +  ")", font)
@@ -392,7 +409,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             val x = Paragraph("", font)
             //cusemail.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
-            x.spacingAfter = 2f
+            x.spacingAfter = 6f
             document.add(x)
 
 
@@ -411,25 +428,30 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             document.add(body)
 
             // table header
-            val widths = floatArrayOf(0.05f, 0.55f, 0.2f, 0.2f)
+            //val widths = floatArrayOf(0.05f, 0.55f, 0.2f, 0.2f)
+            val widths = floatArrayOf(0.07f, 0.40f,0.13f, 0.2f, 0.2f)
 
             var tableHeader: PdfPTable = PdfPTable(widths)
             tableHeader.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER)
             tableHeader.setWidthPercentage(100f)
 
-            val cell1 = PdfPCell(Phrase("Sr.No",font1))
+            val cell1 = PdfPCell(Phrase("Sr.No",font1Big))
             cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableHeader.addCell(cell1);
 
-            val cell2 = PdfPCell(Phrase("Description",font1))
+            val cell2 = PdfPCell(Phrase("Description",font1Big))
             cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableHeader.addCell(cell2);
 
-            val cell3 = PdfPCell(Phrase("Rate/Sq.Mtr (INR)",font1))
+            val cell2_1 = PdfPCell(Phrase("Color Code",font1Big))
+            cell2_1.setHorizontalAlignment(Element.ALIGN_CENTER);
+            tableHeader.addCell(cell2_1);
+
+            val cell3 = PdfPCell(Phrase("Rate/Sq.Mtr (INR)",font1Big))
             cell3.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableHeader.addCell(cell3);
 
-            val cell4 = PdfPCell(Phrase("Rate/Sq.Ft (INR)",font1))
+            val cell4 = PdfPCell(Phrase("Rate/Sq.Ft (INR)",font1Big))
             cell4.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableHeader.addCell(cell4);
 
@@ -446,12 +468,14 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             //table body
             var srNo:String=""
             var desc:String=""
+            var colorCode:String=""
             var rateSqFt:String=""
             var rateSqMtr:String=""
             var obj=addQuotEditResult.quotation_product_details_list
             for (i in 0..obj!!.size-1) {
                 srNo= (i+1).toString()
-                desc=obj!!.get(i).product_name.toString() + "\n\n"+ "Color Code : "+obj.get(i).color_name
+                desc=obj!!.get(i).product_name.toString() //+ "\n\n"+ "Color Code : "+obj.get(i).color_name
+                colorCode = obj.get(i).color_name.toString()
                 rateSqFt="INR - "+obj!!.get(i).rate_sqft.toString()
                 rateSqMtr="INR - "+obj!!.get(i).rate_sqmtr.toString()
 
@@ -459,20 +483,23 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                 tableRows.defaultCell.horizontalAlignment = Element.ALIGN_CENTER
                 tableRows.setWidthPercentage(100f);
 
-                var cellBodySl = PdfPCell(Phrase(srNo,font1))
+                var cellBodySl = PdfPCell(Phrase(srNo,font1Big))
                 cellBodySl.setHorizontalAlignment(Element.ALIGN_CENTER);
                 tableRows.addCell(cellBodySl)
 
-                var cellBodyDesc = PdfPCell(Phrase(desc,font1))
+                var cellBodyDesc = PdfPCell(Phrase(desc,font1Big))
                 cellBodyDesc.setHorizontalAlignment(Element.ALIGN_CENTER);
                 tableRows.addCell(cellBodyDesc)
 
+                var cellBodyColor = PdfPCell(Phrase(colorCode,font1Big))
+                cellBodyColor.setHorizontalAlignment(Element.ALIGN_CENTER);
+                tableRows.addCell(cellBodyColor)
 
-                var cellBodySqMtr = PdfPCell(Phrase(rateSqMtr,font1))
+                var cellBodySqMtr = PdfPCell(Phrase(rateSqMtr,font1Big))
                 cellBodySqMtr.setHorizontalAlignment(Element.ALIGN_CENTER);
                 tableRows.addCell(cellBodySqMtr)
 
-                var cellBodySqFt = PdfPCell(Phrase(rateSqFt,font1))
+                var cellBodySqFt = PdfPCell(Phrase(rateSqFt,font1Big))
                 cellBodySqFt.setHorizontalAlignment(Element.ALIGN_CENTER);
                 tableRows.addCell(cellBodySqFt)
 
@@ -492,45 +519,45 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
 
 
-            val taxs = Paragraph("Taxes                                                  :     " + addQuotEditResult.taxes, font1)
+            val taxs = Paragraph("Taxes                                                  :     " + addQuotEditResult.taxes, font1Big)
             taxs.alignment = Element.ALIGN_LEFT
             taxs.spacingAfter = 2f
             document.add(taxs)
 
 
-            val freight = Paragraph("Freight                                                 :     " + addQuotEditResult.Freight, font1)
+            val freight = Paragraph("Freight                                                 :     " + addQuotEditResult.Freight, font1Big)
             freight.alignment = Element.ALIGN_LEFT
             freight.spacingAfter = 2f
             document.add(freight)
 
 
-            val delivery = Paragraph("Delivery Time                                      :     " + addQuotEditResult.delivery_time, font1)
+            val delivery = Paragraph("Delivery Time                                      :     " + addQuotEditResult.delivery_time, font1Big)
             delivery.alignment = Element.ALIGN_LEFT
             delivery.spacingAfter = 2f
             document.add(delivery)
 
 
-            val payment = Paragraph("Payment                                              :     " + addQuotEditResult.payment, font1)
+            val payment = Paragraph("Payment                                              :     " + addQuotEditResult.payment, font1Big)
             payment.alignment = Element.ALIGN_LEFT
             payment.spacingAfter = 2f
             document.add(payment)
 
-            val validity = Paragraph("Validity                                                 :     " + addQuotEditResult.validity, font1)
+            val validity = Paragraph("Validity                                                 :     " + addQuotEditResult.validity, font1Big)
             validity.alignment = Element.ALIGN_LEFT
             validity.spacingAfter = 2f
             document.add(validity)
 
-            val billing = Paragraph("Billing                                                   :     " + addQuotEditResult.billing, font1)
+            val billing = Paragraph("Billing                                                   :     " + addQuotEditResult.billing, font1Big)
             billing.alignment = Element.ALIGN_LEFT
             billing.spacingAfter = 2f
             document.add(billing)
 
-            val product_tolerance_of_thickness = Paragraph("Product Tolerance of Thickness          :     " + addQuotEditResult.product_tolerance_of_thickness, font1)
+            val product_tolerance_of_thickness = Paragraph("Product Tolerance of Thickness          :     " + addQuotEditResult.product_tolerance_of_thickness, font1Big)
             product_tolerance_of_thickness.alignment = Element.ALIGN_LEFT
             product_tolerance_of_thickness.spacingAfter = 2f
             document.add(product_tolerance_of_thickness)
 
-            val product_tolerance_of_coating = Paragraph("Tolerance of Coating Thickness          :     " + addQuotEditResult.tolerance_of_coating_thickness, font1)
+            val product_tolerance_of_coating = Paragraph("Tolerance of Coating Thickness          :     " + addQuotEditResult.tolerance_of_coating_thickness, font1Big)
             product_tolerance_of_coating.alignment = Element.ALIGN_LEFT
             product_tolerance_of_coating.spacingAfter = 3f
             document.add(product_tolerance_of_coating)
@@ -546,7 +573,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             thanks.spacingAfter = 2f
             document.add(thanks)
 
-            val companyName = Paragraph("EURO PANEL PRODUCTS PVT LTD", fontB1)
+            val companyName = Paragraph("EURO PANEL PRODUCTS LIMITED", fontB1)
             companyName.alignment = Element.ALIGN_LEFT
             companyName.spacingAfter = 2f
             document.add(companyName)
@@ -561,7 +588,8 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             salesmanDes.spacingAfter = 2f
             document.add(salesmanDes)
 
-            val salesmanphone = Paragraph(addQuotEditResult.salesman_phone_no, fontB1)
+            //val salesmanphone = Paragraph(addQuotEditResult.salesman_phone_no, fontB1)
+            val salesmanphone = Paragraph(addQuotEditResult.salesman_login_id, fontB1)
             salesmanphone.alignment = Element.ALIGN_LEFT
             salesmanphone.spacingAfter =  2f
             document.add(salesmanphone)
@@ -571,13 +599,17 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             salesmanemail.spacingAfter =  2f
             document.add(salesmanemail)
 
+            val xxxx = Paragraph("", font)
+            xxxx.spacingAfter = 4f
+            document.add(xxxx)
 
-            val euroHead = Paragraph("\nEURO PANEL PRODUCTS PVT. LTD.", font)
+
+            val euroHead = Paragraph("\nEURO PANEL PRODUCTS LIMITED", font)
             euroHead.alignment = Element.ALIGN_LEFT
             //document.add(euroHead)
 
             //strip_line//bar//ics
-            val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_logo)
+            val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.ics_image)
             val bitmap1 = Bitmap.createScaledBitmap(bm1, 850, 120, true)
             val stream1 = ByteArrayOutputStream()
             bitmap1.compress(Bitmap.CompressFormat.PNG, 100, stream1)

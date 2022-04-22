@@ -1,6 +1,7 @@
 package com.eurobond.features.localshops
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.location.Location
@@ -227,6 +228,7 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
     }
 
 
+    @SuppressLint("WrongConstant")
     private fun initAdapter() {
 
         if (list != null && list.size > 0) {
