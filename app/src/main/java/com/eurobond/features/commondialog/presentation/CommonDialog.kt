@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import com.elvishew.xlog.XLog
 import com.eurobond.CustomStatic
 import com.eurobond.R
 import com.eurobond.app.utils.AppUtils

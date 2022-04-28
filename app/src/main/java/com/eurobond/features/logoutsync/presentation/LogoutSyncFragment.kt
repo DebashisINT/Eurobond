@@ -5272,13 +5272,14 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
     private fun checkToCallActivity() {
 
-
         var intent = Intent(mContext, MonitorService::class.java)
         intent.action = CustomConstants.STOP_MONITOR_SERVICE
         //mContext.startService(intent)
         mContext.stopService(intent)
 
         SendBrod.stopBrod(mContext)
+
+        XLog.d("Logout =======> " + "checkToCallActivity")
 
         if (Pref.willActivityShow) {
             val list = AppDatabase.getDBInstance()?.activDao()?.getDataSyncWise(false)
@@ -6242,6 +6243,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
 
     private fun performLogout() {
+        XLog.d("Logout =======> " + "performLogout function")
         if(Pref.DayEndMarked){
             if (Pref.isShowLogoutReason && !TextUtils.isEmpty(Pref.approvedOutTime)) {
                 val currentTimeInLong = AppUtils.convertTimeWithMeredianToLong(AppUtils.getCurrentTimeWithMeredian())
@@ -6255,15 +6257,17 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             else
                 logoutYesClick()
         }else{
-
+            XLog.d("Logout =======> " + "performLogout dialog call")
             CommonDialog.getInstance(AppUtils.hiFirstNameText()+"!", getString(R.string.confirm_logout), getString(R.string.cancel), getString(R.string.ok), object : CommonDialogClickListener {
                 override fun onLeftClick() {
+                    XLog.d("performLogout =======> " + "onLeftClick")
                     (mContext as DashboardActivity).onBackPressed()
                 }
 
                 override fun onRightClick(editableData: String) {
                     //calllogoutApi(Pref.user_id!!, Pref.session_token!!)
                     if (Pref.isShowLogoutReason && !TextUtils.isEmpty(Pref.approvedOutTime)) {
+                        XLog.d("performLogout =======> " + "logoutYesClick")
                         val currentTimeInLong = AppUtils.convertTimeWithMeredianToLong(AppUtils.getCurrentTimeWithMeredian())
                         val approvedOutTimeInLong = AppUtils.convertTimeWithMeredianToLong(Pref.approvedOutTime)
 
@@ -6272,8 +6276,10 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         else
                             logoutYesClick()
                     }
-                    else
+                    else{
+                        XLog.d("performLogout =======> " + "logoutYesClick1")
                         logoutYesClick()
+                    }
                 }
 
             }).show((mContext as DashboardActivity).supportFragmentManager, "")
@@ -6328,6 +6334,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun logoutYesClick() {
+        XLog.d("performLogout =======> " + "logoutYesClick fun()")
         val list = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationNotUploaded(false)
 
         if (AppUtils.isOnline(mContext)) {
@@ -6877,6 +6884,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
       val fileUrl = Uri.parse(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "xeurobondlogsample/log").path);
       val file = File(fileUrl.path)
       if (!file.exists()) {
+          XLog.d("Logshare :  file not found")
           checkToCallActivity()
       }
       val uri: Uri = FileProvider.getUriForFile(mContext, mContext!!.applicationContext.packageName.toString() + ".provider", file)
