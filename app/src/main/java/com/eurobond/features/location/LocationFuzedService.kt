@@ -281,6 +281,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                                 Bitmap.createScaledBitmap(icon, 128, 128, false))
                         .setContentIntent(pendingIntent)
                         .setOngoing(true)
+                    .setSound(null)
+                    .setVibrate(null)
                         .build()
 
                 //notificationManager.notify(randInt, notificationBuilder.build())
