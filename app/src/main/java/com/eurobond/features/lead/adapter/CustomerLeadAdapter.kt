@@ -70,6 +70,10 @@ class CustomerLeadAdapter(var mContext:Context,var list:ArrayList<CustomerLeadLi
 
         holder.iv_activity.setOnClickListener {listener.onActivityClick(mList!!.get(holder.adapterPosition))  }
 
+        holder.shopPhone.setOnClickListener {listener.onPhoneClick(mList!!.get(holder.adapterPosition))  }
+
+
+
     }
 
     inner class CustomerLeadViewHolder(itemView: View):RecyclerView.ViewHolder(itemView){
@@ -162,6 +166,7 @@ class CustomerLeadAdapter(var mContext:Context,var list:ArrayList<CustomerLeadLi
 
     interface OnPendingLeadClickListener {
         fun onActivityClick(obj:CustomerLeadList)
+        fun onPhoneClick(obj:CustomerLeadList)
     }
 
 
