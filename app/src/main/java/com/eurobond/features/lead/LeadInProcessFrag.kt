@@ -19,6 +19,7 @@ import com.eurobond.app.NetworkConstant
 import com.eurobond.app.Pref
 import com.eurobond.app.SearchListener
 import com.eurobond.app.types.FragType
+import com.eurobond.app.uiaction.IntentActionable
 import com.eurobond.app.utils.AppUtils
 import com.eurobond.app.utils.FTStorageUtils
 import com.eurobond.base.presentation.BaseActivity
@@ -287,6 +288,14 @@ class LeadInProcessFrag : BaseFragment(),  DatePickerDialog.OnDateSetListener,Vi
         adapter = CustomerLeadAdapter(mContext,tempList,object : CustomerLeadAdapter.OnPendingLeadClickListener{
             override fun onActivityClick(obj: CustomerLeadList) {
                 doActivity(obj)
+            }
+
+            override fun onPhoneClick(obj: CustomerLeadList) {
+                if(obj.mobile_no.length>1)
+                {
+                    var phoneNo=obj.mobile_no
+                    IntentActionable.initiatePhoneCall(mContext, phoneNo)
+                }
             }
         }, {
             it
