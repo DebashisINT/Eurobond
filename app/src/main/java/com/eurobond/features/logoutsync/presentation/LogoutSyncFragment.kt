@@ -6225,7 +6225,8 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     (mContext as DashboardActivity).showSnackMessage("Good internet must required to logout, please switch on the internet and proceed. Thanks.")
                     return
                 }
-
+                /*4-05-20200*/
+                tv_logout.isEnabled = true
                 performLogout()
 
             }
