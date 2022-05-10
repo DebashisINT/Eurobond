@@ -393,5 +393,6 @@ object Pref : PreferenceHolder() {
 
     var IsFeedbackHistoryActivated: Boolean by bindToPreferenceField(false, "IsFeedbackHistoryActivated")
     var IsAutoLeadActivityDateTime: Boolean by bindToPreferenceField(false, "IsAutoLeadActivityDateTime")
+    var LogoutWithLogFile: Boolean by bindToPreferenceField(false, "LogoutWithLogFile")
 
 }

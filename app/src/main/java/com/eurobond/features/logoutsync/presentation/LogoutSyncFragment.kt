@@ -6225,8 +6225,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     (mContext as DashboardActivity).showSnackMessage("Good internet must required to logout, please switch on the internet and proceed. Thanks.")
                     return
                 }
-                /*4-05-20200*/
-                tv_logout.isEnabled = true
+
                 performLogout()
 
             }
@@ -6880,43 +6879,48 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
   /*25-03-2022*/
   private fun callLogshareApi(){
-      val addReqData = AddLogReqData()
-      addReqData.user_id = Pref.user_id
-      val fileUrl = Uri.parse(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "xeurobondlogsample/log").path);
-      val file = File(fileUrl.path)
-      if (!file.exists()) {
-          XLog.d("Logshare :  file not found")
-          checkToCallActivity()
-      }
-      val uri: Uri = FileProvider.getUriForFile(mContext, mContext!!.applicationContext.packageName.toString() + ".provider", file)
-      try{
-          val repository = EditShopRepoProvider.provideEditShopRepository()
-          BaseActivity.compositeDisposable.add(
-              repository.addLogfile(addReqData,file.toString(),mContext)
-                  .observeOn(AndroidSchedulers.mainThread())
-                  .subscribeOn(Schedulers.io())
-                  .subscribe({ result ->
-                      XLog.d("Logshare : RESPONSE " + result.status)
-                      if (result.status == NetworkConstant.SUCCESS){
-                          //XLog.d("Return : RESPONSE URL " + result.file_url +  " " +Pref.user_name)
-                      }
-                      checkToCallActivity()
-                  },{error ->
-                      if (error == null) {
-                          XLog.d("Logshare : ERROR " + "UNEXPECTED ERROR IN Log share API")
-                      } else {
-                          XLog.d("Logshare : ERROR " + error.localizedMessage)
-                          error.printStackTrace()
-                      }
-                      checkToCallActivity()
-                  })
-          )
+      if(Pref.LogoutWithLogFile){
+          val addReqData = AddLogReqData()
+          addReqData.user_id = Pref.user_id
+          val fileUrl = Uri.parse(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "xeurobondlogsample/log").path);
+          val file = File(fileUrl.path)
+          if (!file.exists()) {
+              XLog.d("Logshare :  file not found")
+              checkToCallActivity()
+          }
+          val uri: Uri = FileProvider.getUriForFile(mContext, mContext!!.applicationContext.packageName.toString() + ".provider", file)
+          try{
+              val repository = EditShopRepoProvider.provideEditShopRepository()
+              BaseActivity.compositeDisposable.add(
+                  repository.addLogfile(addReqData,file.toString(),mContext)
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .subscribeOn(Schedulers.io())
+                      .subscribe({ result ->
+                          XLog.d("Logshare : RESPONSE " + result.status)
+                          if (result.status == NetworkConstant.SUCCESS){
+                              //XLog.d("Return : RESPONSE URL " + result.file_url +  " " +Pref.user_name)
+                          }
+                          checkToCallActivity()
+                      },{error ->
+                          if (error == null) {
+                              XLog.d("Logshare : ERROR " + "UNEXPECTED ERROR IN Log share API")
+                          } else {
+                              XLog.d("Logshare : ERROR " + error.localizedMessage)
+                              error.printStackTrace()
+                          }
+                          checkToCallActivity()
+                      })
+              )
 
-      }
-      catch (ex:Exception){
-          ex.printStackTrace()
+          }
+          catch (ex:Exception){
+              ex.printStackTrace()
+              checkToCallActivity()
+          }
+      }else{
           checkToCallActivity()
       }
+
   }
 
 /* private fun callLogshareApi(){

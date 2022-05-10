@@ -316,7 +316,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         //AppDatabase.getDBInstance()?.shopActivityDao()?.trash2("2022-03-30","11984_1648452492858","12")
 
        //AppDatabase.getDBInstance()!!.shopActivityDao().trash("1")
-        println("load frag " + mFragType.toString() + "     " + AppUtils.minAccuracy.toString() + " " + Pref.user_id);
+        println("load frag " + mFragType.toString() + "     " + Pref.LogoutWithLogFile.toString() + " " + Pref.user_id );
         if (addToStack) {
             mTransaction.add(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
             mTransaction.addToBackStack(mFragType.toString()).commitAllowingStateLoss()
