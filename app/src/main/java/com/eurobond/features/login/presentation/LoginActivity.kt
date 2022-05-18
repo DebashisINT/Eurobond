@@ -4334,7 +4334,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
 
     private fun getProductList(date: String?) {
-        if(Pref.isOrderShow){
+        if(Pref.isOrderShow || true){
             XLog.d("API_Optimization getProductList Login : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
 
         println("xyzzz - getProductList started" + AppUtils.getCurrentDateTime());
@@ -6274,6 +6274,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     //03-09-2021
     fun getNewOrderDataList() {
         if(Pref.IsActivateNewOrderScreenwithSize) {
+
             XLog.d("API_Optimization getNewOrderDataList Login : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
             try {
                 AppDatabase.getDBInstance()?.newOrderGenderDao()?.deleteAll()
