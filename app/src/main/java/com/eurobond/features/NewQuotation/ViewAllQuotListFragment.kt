@@ -22,6 +22,7 @@ import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.eurobond.CustomStatic
 import com.eurobond.R
+import com.eurobond.app.AppDatabase
 import com.eurobond.app.NetworkConstant
 import com.eurobond.app.types.FragType
 import com.eurobond.app.utils.AppUtils
@@ -34,6 +35,7 @@ import com.eurobond.features.NewQuotation.api.GetQuotRegProvider
 import com.eurobond.features.NewQuotation.model.ViewDetailsQuotResponse
 import com.eurobond.features.NewQuotation.model.ViewQuotResponse
 import com.eurobond.features.NewQuotation.model.shop_wise_quotation_list
+import com.eurobond.features.activities.presentation.EditActivityFragment
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.member.model.TeamShopListDataModel
 import com.eurobond.widgets.AppCustomTextView
@@ -46,6 +48,7 @@ import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import org.intellij.lang.annotations.JdkConstants
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -378,10 +381,47 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             cusName.spacingAfter = 2f
             document.add(cusName)
 
-            val cusAddress = Paragraph(addQuotEditResult.shop_addr, font)
+
+            //// addr test begin
+            var finalStr =""
+            try{
+                var str = addQuotEditResult.shop_addr.toString().toCharArray()
+                //var str = "Chhatrapati Shivaji Terminus Main Post Office, Borabazar Precinct, Ballard Estate, Fort, Mumbai, Maharashtra 400001, India".toCharArray()
+                finalStr =""
+                var isNw=false
+                var comCnt=0
+                for(i in 0..str.size-1){
+                    if(str[i].toString().equals(",")){
+                        comCnt++
+                        finalStr=finalStr+","
+                        if(comCnt%2==0){
+                            finalStr=finalStr+"\n"
+                            isNw=true
+                        }
+                    }else {
+                        if(isNw && str[i].toString().equals(" ")){
+                            isNw=false
+                        }else{
+                            finalStr=finalStr+str[i].toString()
+                        }
+                    }
+                }
+            }catch (ex:Exception){
+                finalStr=""
+            }
+
+
+            //// addr test end
+
+
+            //val cusAddress = Paragraph(addQuotEditResult.shop_addr, font)
+            val cusAddress = Paragraph(finalStr, font)
             cusAddress.alignment = Element.ALIGN_LEFT
             cusAddress.spacingAfter = 6f
             document.add(cusAddress)
+
+
+
 
 //            val cusemail = Paragraph("Email : " + addQuotEditResult.shop_email, font)
 //            cusemail.alignment = Element.ALIGN_LEFT
@@ -468,6 +508,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             //table body
             var srNo:String=""
             var desc:String=""
+            var catagory:String=""
             var colorCode:String=""
             var rateSqFt:String=""
             var rateSqMtr:String=""
@@ -478,6 +519,13 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                 colorCode = obj.get(i).color_name.toString()
                 rateSqFt="INR - "+obj!!.get(i).rate_sqft.toString()
                 rateSqMtr="INR - "+obj!!.get(i).rate_sqmtr.toString()
+                try{
+                    catagory = AppDatabase.getDBInstance()?.productListDao()?.getSingleProduct(obj!!.get(i).product_id!!.toInt()!!)!!.category.toString()
+                }catch (ex:Exception){
+                    catagory=""
+                }
+
+                desc=desc+"\n"+catagory
 
                 val tableRows = PdfPTable(widths)
                 tableRows.defaultCell.horizontalAlignment = Element.ALIGN_CENTER

@@ -101,8 +101,10 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login_new.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
-import java.io.File
+import java.io.*
 import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.collections.ArrayList
 
 /**
@@ -6878,7 +6880,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
 
   /*25-03-2022*/
-  private fun callLogshareApi(){
+/*  private fun callLogshareApi(){
       if(Pref.LogoutWithLogFile){
           val addReqData = AddLogReqData()
           addReqData.user_id = Pref.user_id
@@ -6920,8 +6922,69 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
       }else{
           checkToCallActivity()
       }
+  }*/
 
-  }
+    private fun callLogshareApi(){
+        if(Pref.LogoutWithLogFile){
+            try{
+                val filesForZip: Array<String> = arrayOf(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "xeurobondlogsample/log").path)
+                ZipOutputStream(BufferedOutputStream(FileOutputStream(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "xeurobondlogsample/log.zip").path))).use { out ->
+                    for (file in filesForZip) {
+                        FileInputStream(file).use { fi ->
+                            BufferedInputStream(fi).use { origin ->
+                                val entry = ZipEntry(file.substring(file.lastIndexOf("/")))
+                                out.putNextEntry(entry)
+                                origin.copyTo(out, 1024)
+                            }
+                        }
+                    }
+                }
+
+                val addReqData = AddLogReqData()
+                addReqData.user_id = Pref.user_id
+                val fileUrl = Uri.parse(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "xeurobondlogsample/log.zip").path);
+                val file = File(fileUrl.path)
+                if (!file.exists()) {
+                    checkToCallActivity()
+                }
+                val uri: Uri = FileProvider.getUriForFile(mContext, mContext!!.applicationContext.packageName.toString() + ".provider", file)
+                try{
+                    val repository = EditShopRepoProvider.provideEditShopRepository()
+                    BaseActivity.compositeDisposable.add(
+                        repository.addLogfile(addReqData,file.toString(),mContext)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe({ result ->
+                                XLog.d("Logshare : RESPONSE " + result.status)
+                                if (result.status == NetworkConstant.SUCCESS){
+                                    //XLog.d("Return : RESPONSE URL " + result.file_url +  " " +Pref.user_name)
+                                }
+                                checkToCallActivity()
+                            },{error ->
+                                if (error == null) {
+                                    XLog.d("Logshare : ERROR " + "UNEXPECTED ERROR IN Log share API")
+                                } else {
+                                    XLog.d("Logshare : ERROR " + error.localizedMessage)
+                                    error.printStackTrace()
+                                }
+                                checkToCallActivity()
+                            })
+                    )
+
+                } catch (ex:Exception){
+                    ex.printStackTrace()
+                    XLog.d("Logshare : Exception " + "UNEXPECTED ERROR IN Log share API")
+                    checkToCallActivity()
+                }
+            }catch (ex:Exception){
+                XLog.d("Logshare : log.zip error " + ex.message)
+                checkToCallActivity()
+            }
+
+        }else{
+            checkToCallActivity()
+        }
+    }
 
 /* private fun callLogshareApi(){
      checkToCallActivity()
