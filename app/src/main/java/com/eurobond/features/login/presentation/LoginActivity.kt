@@ -3558,8 +3558,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     }
     fun openShareDB(dbpath:String) {
         try {
-
             var currentDBPath = dbpath
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+                currentDBPath="/data/user/0/com.eurobond/databases/fts_db"
+            }
             val shareIntent = Intent(Intent.ACTION_SEND)
             val fileUrl = Uri.parse(File(currentDBPath, "").path);
             val file = File(fileUrl.path)

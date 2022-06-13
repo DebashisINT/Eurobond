@@ -317,7 +317,6 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         //AppDatabase.getDBInstance()?.shopActivityDao()?.trash2("2022-03-30","11984_1648452492858","12")
 
        //AppDatabase.getDBInstance()!!.shopActivityDao().trash("1")
-        //copyFile()
         println("load frag " + mFragType.toString() + "     " + Pref.LogoutWithLogFile.toString() + " " + Pref.user_id );
         if (addToStack) {
             mTransaction.add(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
@@ -325,62 +324,6 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         } else {
             mTransaction.replace(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
             mTransaction.commitAllowingStateLoss()
-        }
-    }
-
-
-    private fun copyFile() {
-        var ppath:String=""
-        try {
-            val sd = Environment.getExternalStorageDirectory()
-            val data = Environment.getDataDirectory()
-            if (sd.canWrite()) {
-                val currentDBPath = getDatabasePath("fts_db").absolutePath
-                val backupDBPath = "fts_db.db"
-                ppath = currentDBPath
-                //previous wrong  code
-                // **File currentDB = new File(data,currentDBPath);**
-                // correct code
-                val currentDB = File(currentDBPath)
-                val backupDB = File(sd, backupDBPath)
-                if (currentDB.exists()) {
-                    val src: FileChannel = FileInputStream(currentDB).getChannel()
-                    val dst: FileChannel = FileOutputStream(backupDB).getChannel()
-                    dst.transferFrom(src, 0, src.size())
-                    src.close()
-                    dst.close()
-                }
-            }
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        }
-
-        openShareDB(ppath)
-
-    }
-    fun openShareDB(dbpath:String) {
-        try {
-
-            var currentDBPath = dbpath
-            //currentDBPath= dbpath.replace("com.example.xone","com.eurobond")
-            val shareIntent = Intent(Intent.ACTION_SEND)
-//        val phototUri = Uri.parse(localAbsoluteFilePath)
-            //val fileUrl = Uri.parse(File(Environment.getExternalStorageDirectory(), "xdemologsample/log").path);
-            //27-09-2021
-            val fileUrl = Uri.parse(File(currentDBPath, "").path);
-            val file = File(fileUrl.path)
-            if (!file.exists()) {
-                return
-            }
-
-//            val uri = Uri.fromFile(file)
-            val uri: Uri = FileProvider.getUriForFile(this, applicationContext.packageName.toString() + ".provider", file)
-//        shareIntent.data = fileUrl
-            shareIntent.type = "image/*"
-            shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-            startActivity(Intent.createChooser(shareIntent, "Share log using"));
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 
