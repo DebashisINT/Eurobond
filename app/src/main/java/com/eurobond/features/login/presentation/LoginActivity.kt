@@ -140,6 +140,7 @@ import kotlinx.android.synthetic.main.activity_login_new.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.io.*
+import java.nio.channels.FileChannel
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -3471,6 +3472,13 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                 simpleDialog.setContentView(R.layout.dialog_settings)
                 val tvappCustomAnydesk = simpleDialog.findViewById(R.id.activity_login_tvappCustomAnydesk) as AppCustomTextView
                 val tvappCustomSharelog = simpleDialog.findViewById(R.id.activity_login_tvappCustomLogs) as AppCustomTextView
+                val tvappDbShare = simpleDialog.findViewById(R.id.activity_login_tvappdbLogs) as AppCustomTextView
+
+                tvappDbShare.setOnClickListener {
+                    copyFile()
+                    simpleDialog.dismiss()
+
+                }
 
                 tvappCustomAnydesk.setOnClickListener {
                     var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
@@ -3519,6 +3527,51 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                  }*/
                 openShareIntents()
             }
+        }
+    }
+
+    private fun copyFile() {
+        var ppath:String=""
+        try {
+            val sd = Environment.getExternalStorageDirectory()
+            val data = Environment.getDataDirectory()
+            if (sd.canWrite()) {
+                val currentDBPath = getDatabasePath("fts_db").absolutePath
+                val backupDBPath = "fts_db.db"
+                ppath = currentDBPath
+                val currentDB = File(currentDBPath)
+                val backupDB = File(sd, backupDBPath)
+                if (currentDB.exists()) {
+                    val src: FileChannel = FileInputStream(currentDB).getChannel()
+                    val dst: FileChannel = FileOutputStream(backupDB).getChannel()
+                    dst.transferFrom(src, 0, src.size())
+                    src.close()
+                    dst.close()
+                }
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+
+        openShareDB(ppath)
+
+    }
+    fun openShareDB(dbpath:String) {
+        try {
+
+            var currentDBPath = dbpath
+            val shareIntent = Intent(Intent.ACTION_SEND)
+            val fileUrl = Uri.parse(File(currentDBPath, "").path);
+            val file = File(fileUrl.path)
+            if (!file.exists()) {
+                return
+            }
+            val uri: Uri = FileProvider.getUriForFile(this, applicationContext.packageName.toString() + ".provider", file)
+            shareIntent.type = "image/*"
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            startActivity(Intent.createChooser(shareIntent, "Share log using"));
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
