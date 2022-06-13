@@ -6262,6 +6262,13 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
                     rl_amount.visibility = View.GONE
                     rl_type.visibility = View.VISIBLE
                 }
+                "17","18","19","20","21","22","23","24","25" ->{
+                    rl_assigned_to_pp.visibility = View.GONE
+                    rl_assigned_to_dd.visibility = View.GONE
+                    rl_amount.visibility = View.GONE
+                    rl_type.visibility = View.GONE
+                }
+
                 else -> {
                     rl_assigned_to_pp.visibility = View.VISIBLE
                     rl_assigned_to_dd.visibility = View.GONE
