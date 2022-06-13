@@ -158,6 +158,7 @@
     <string name="add_shop" translatable="false">Add Shop</string>
     <string name="nearby_shops" translatable="false">Nearby Shops</string>
     <string name="share_log" translatable="false">Share Logs</string>
+    <string name="share_db" translatable="false">Share db</string>
     <string name="map_view" translatable="false">Map View</string>
     <string name="shops" translatable="false">Shops</string>
     <string name="my_orders" translatable="false">My Orders</string>
