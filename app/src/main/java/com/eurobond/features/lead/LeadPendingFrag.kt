@@ -156,6 +156,7 @@ class LeadPendingFrag : BaseFragment(), DatePickerDialog.OnDateSetListener, View
             R.id.frag_lead_pending_spinnerType->{
                 var List:ArrayList<String> = ArrayList()
                 List.add("IndiaMart")
+                List.add("IndiaMart (ARCHER)")
                 List.add("MccoyMart")
                 List.add("Website")
                 List.add("Direct Call")
