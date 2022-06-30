@@ -3500,7 +3500,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             saveData(userlocation, distance)
 
         } else if (distance * 1000 > maxDis /*AppUtils.maxDistance.toDouble()*/) {
-            saveData(userlocation, maxDis /*AppUtils.maxDistance.toDouble()*/ / 1000)
+            //saveData(userlocation, maxDis /*AppUtils.maxDistance.toDouble()*/ / 1000)
+            saveData(userlocation, distance)
         } else {
             /*if (!AppUtils.isShopVisited) {
                 val currentTimeStamp = System.currentTimeMillis()
