@@ -28,6 +28,7 @@ import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
@@ -64,6 +65,7 @@ import com.eurobond.features.commondialogsinglebtn.OnDialogClickListener
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.dashboard.presentation.ReasonDialog
 import com.eurobond.features.dashboard.presentation.ShopVerificationDialog
+import com.eurobond.features.dashboard.presentation.VisitRemarksTypeAdapter
 import com.eurobond.features.dashboard.presentation.api.otpsentapi.OtpSentRepoProvider
 import com.eurobond.features.dashboard.presentation.api.otpverifyapi.OtpVerificationRepoProvider
 import com.eurobond.features.location.LocationWizard
@@ -166,6 +168,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var rl_area: RelativeLayout
     private lateinit var tv_area: AppCustomTextView
     private lateinit var tv_area_asterisk_mark: AppCustomTextView
+    private lateinit var tv_dd_asterisk_mark: AppCustomTextView
     private lateinit var tv_model: AppCustomTextView
     private lateinit var tv_primary_app: AppCustomTextView
     private lateinit var tv_secondary_app: AppCustomTextView
@@ -183,10 +186,12 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var rl_owner_name_main: RelativeLayout
     private lateinit var til_no: TextInputLayout
     private lateinit var til_mail: TextInputLayout
+    private lateinit var til_dob: TextInputLayout
+    private lateinit var til_doannivesary: TextInputLayout
     private lateinit var rl_area_main: RelativeLayout
     private lateinit var tv_type: AppCustomTextView
     private lateinit var rl_type: RelativeLayout
-    private lateinit var tv_dd_asterisk_mark: AppCustomTextView
+
     private lateinit var next_visit_date_EDT: AppCustomEditText
     private lateinit var tv_visit_date_asterisk_mark: AppCustomTextView
     private lateinit var rl_audio_record_date: RelativeLayout
@@ -236,6 +241,9 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var tv_select_retailer: AppCustomTextView
     private lateinit var rl_select_dealer: RelativeLayout
     private lateinit var tv_select_dealer: AppCustomTextView
+    private lateinit var rl_select_purpose: RelativeLayout
+    private lateinit var tv_select_purpose: AppCustomTextView
+    private var visitRemarksPopupWindow: PopupWindow? = null
     private lateinit var rl_select_beat: RelativeLayout
     private lateinit var tv_select_beat: AppCustomTextView
     private lateinit var assign_to_shop_rl: RelativeLayout
@@ -263,6 +271,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private var assignedToShopId = ""
     private var actualAddress = ""
     private var ProsId = ""
+    private var feedbackValue = ""
 
     var finalUniqKey: String? = null
 
@@ -316,6 +325,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var  whatsapp_Rl: RelativeLayout
     private lateinit var alternate_number_EDT: AppCustomEditText
     private lateinit var whatsapp_number_EDT: AppCustomEditText
+
+    private lateinit var ll_feedback: LinearLayout
 
 
 
@@ -393,6 +404,9 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         isApiCall = true
         initView(view)
         initTextChangeListener()
+
+        //Pref.ShopScreenAftVisitRevisit = false
+        //Pref.ShopScreenAftVisitRevisitGlobal = false
 
         /*if (AppUtils.mLocation != null) {
             if (AppUtils.mLocation!!.accuracy <= 100) {
@@ -602,6 +616,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         ll_customer_view = view.findViewById(R.id.ll_customer_view)
         rl_owner_name_main = view.findViewById(R.id.rl_owner_name_main)
         til_mail = view.findViewById(R.id.til_mail)
+        til_dob = view.findViewById(R.id.til_dob)
+        til_doannivesary = view.findViewById(R.id.til_doannivesary)
         til_no = view.findViewById(R.id.til_no)
         rl_area_main = view.findViewById(R.id.rl_area_main)
         tv_type = view.findViewById(R.id.tv_type)
@@ -655,6 +671,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         tv_select_retailer = view.findViewById(R.id.tv_select_retailer)
         rl_select_dealer = view.findViewById(R.id.rl_select_dealer)
         tv_select_dealer = view.findViewById(R.id.tv_select_dealer)
+        rl_select_purpose = view.findViewById(R.id.rl_select_purpose)
+        tv_select_purpose  = view.findViewById(R.id.tv_select_purpose)
         rl_select_beat = view.findViewById(R.id.rl_select_beat)
         tv_select_beat = view.findViewById(R.id.tv_select_beat)
         assign_to_shop_rl = view.findViewById(R.id.assign_to_shop_rl)
@@ -697,11 +715,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         alternate_number_EDT = view.findViewById(R.id.alternate_number_EDT)
         whatsapp_number_EDT =  view.findViewById(R.id.whatsapp_number_EDT)
 
+        ll_feedback =  view.findViewById(R.id.ll_feedback)
+
 
 
 
 
         assign_to_shop_tv.hint = getString(R.string.assign_to_hint_text) + " ${Pref.shopText}"
+
 
 
         if(Pref.IsnewleadtypeforRuby && shopDataModel.type.equals("16"))
@@ -759,6 +780,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             whatsapp_Rl.visibility = View.GONE
         }
 
+        if (Pref.ShowPurposeInShopVisit) {
+            rl_select_purpose.visibility = View.VISIBLE
+        }
+        else {
+            rl_select_purpose.visibility = View.GONE
+        }
+
+
 
         val typeList = AppDatabase.getDBInstance()?.shopTypeDao()?.getAll()
         if (typeList != null && typeList.isNotEmpty()) {
@@ -776,9 +805,12 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         if (Pref.isCustomerFeatureEnable) {
             ll_customer_view.visibility = View.VISIBLE
             rl_owner_name_main.visibility = View.GONE
-            til_no.hint = getString(R.string.contact_number)
-            til_mail.hint = getString(R.string.only_email)
-            til_name.hint = getString(R.string.owner_name)
+            til_no.hint = Pref.contactNumberText + " Number"
+            til_mail.hint = Pref.emailText
+//            til_name.hint = Pref.contactNumberText + " Number"
+            til_name.hint = Pref.contactNameText + " Name"
+            til_dob.hint = Pref.dobText
+            til_doannivesary.hint = Pref.dateOfAnniversaryText
             rl_assign_to_dd.visibility = View.GONE
             assign_to_rl.visibility = View.GONE
             rl_amount.visibility = View.GONE
@@ -826,9 +858,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     ll_extra_info.visibility = View.GONE
                     assign_to_shop_rl.visibility = View.GONE
                     setMargin(false)
-                    til_no.hint = getString(R.string.owner_contact_number)
-                    til_mail.hint = getString(R.string.owner_email)
-                    til_name.hint = getString(R.string.owner_name)
+                    til_no.hint = Pref.contactNumberText + " Number"
+                    til_mail.hint = Pref.emailText
+                    til_name.hint = Pref.contactNameText + " Name"
+                    til_dob.hint = Pref.dobText
+                    til_doannivesary.hint = Pref.dateOfAnniversaryText
                     assign_to_tv.hint = "Assigned to " + Pref.ppText
 
                     if (Pref.willShowEntityTypeforShop)
@@ -857,6 +891,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         assign_to_tv.text = assignPPList[0].pp_name
                     }
                     (mContext as DashboardActivity). setTopBarTitle("Add " + Pref.shopText)
+
                 }
                 "2" -> {
                     ownerNumberLL.visibility = View.VISIBLE
@@ -894,9 +929,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     rl_select_dealer.visibility = View.GONE
                     assign_to_shop_rl.visibility = View.GONE
                     setMargin(false)
-                    til_no.hint = getString(R.string.owner_contact_number)
-                    til_mail.hint = getString(R.string.owner_email)
-                    til_name.hint = getString(R.string.owner_name)
+                    til_no.hint = Pref.contactNumberText + " Number"
+                    til_mail.hint = Pref.emailText
+                    til_name.hint = Pref.contactNameText + " Name"
+                    til_dob.hint = Pref.dobText
+                    til_doannivesary.hint = Pref.dateOfAnniversaryText
                     assign_to_tv.hint = "Assigned to " + Pref.ppText
                     (mContext as DashboardActivity). setTopBarTitle("Add " + Pref.shopText)
                 }
@@ -936,9 +973,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     rl_select_dealer.visibility = View.GONE
                     assign_to_shop_rl.visibility = View.GONE
                     setMargin(false)
-                    til_no.hint = getString(R.string.owner_contact_number)
-                    til_mail.hint = getString(R.string.owner_email)
-                    til_name.hint = getString(R.string.owner_name)
+                    til_no.hint = Pref.contactNumberText + " Number"
+                    til_mail.hint = Pref.emailText
+                    til_name.hint = Pref.contactNameText + " Name"
+                    til_dob.hint = Pref.dobText
+                    til_doannivesary.hint = Pref.dateOfAnniversaryText
                     assign_to_tv.hint = "Assigned to " + Pref.ppText
                     (mContext as DashboardActivity). setTopBarTitle("Add " + Pref.shopText)
                 }
@@ -977,9 +1016,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     rl_select_retailer.visibility = View.GONE
                     assign_to_shop_rl.visibility = View.GONE
                     setMargin(false)
-                    til_no.hint = getString(R.string.owner_contact_number)
-                    til_mail.hint = getString(R.string.owner_email)
-                    til_name.hint = getString(R.string.owner_name)
+                    til_no.hint = Pref.contactNumberText + " Number"
+                    til_mail.hint = Pref.emailText
+                    til_name.hint = Pref.contactNameText + " Name"
+                    til_dob.hint = Pref.dobText
+                    til_doannivesary.hint = Pref.dateOfAnniversaryText
                     assign_to_tv.hint = "Assigned to " + Pref.ppText
 
                     if (Pref.isShowDealerForDD)
@@ -1029,9 +1070,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     rl_select_dealer.visibility = View.GONE
                     assign_to_shop_rl.visibility = View.GONE
                     setMargin(false)
-                    til_no.hint = getString(R.string.owner_contact_number)
-                    til_mail.hint = getString(R.string.owner_email)
-                    til_name.hint = getString(R.string.owner_name)
+                    til_no.hint = Pref.contactNumberText + " Number"
+                    til_mail.hint = Pref.emailText
+                    til_name.hint = Pref.contactNameText + " Name"
+                    til_dob.hint = Pref.dobText
+                    til_doannivesary.hint = Pref.dateOfAnniversaryText
                     assign_to_tv.hint = "Assigned to " + Pref.ppText
 
                     if (assignPPList != null && assignPPList.isNotEmpty()) {
@@ -1082,9 +1125,9 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     checkExtraInfoWillVisibleOrNot()
                     shopImage.visibility = View.VISIBLE
                     setMargin(false)
-                    til_no.hint = getString(R.string.contact_number)
+                    til_no.hint = Pref.contactNumberText + " Number"
                     til_mail.hint = getString(R.string.contact_email)
-                    til_name.hint = getString(R.string.contact_name)
+                    til_name.hint = Pref.contactNameText + " Name"
                     assign_to_tv.hint = "Assigned to " + Pref.ppText
                     (mContext as DashboardActivity). setTopBarTitle("Add " + Pref.shopText)
                 }
@@ -1125,9 +1168,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     checkExtraInfoWillVisibleOrNot()
                     shopImage.visibility = View.VISIBLE
                     setMargin(false)
-                    til_no.hint = getString(R.string.contact_number)
-                    til_mail.hint = getString(R.string.contact_email)
-                    til_name.hint = getString(R.string.contact_name)
+                    til_no.hint = Pref.contactNumberText + " Number"
+                    til_mail.hint = Pref.emailText
+                    til_name.hint = Pref.contactNameText + " Name"
+                    til_dob.hint = Pref.dobText
+                    til_doannivesary.hint = Pref.dateOfAnniversaryText
                     assign_to_tv.hint = "Assigned to"
 
                     if (assignPPList != null && assignPPList.isNotEmpty()) {
@@ -1174,9 +1219,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     shopImage.visibility = View.GONE
                     assign_to_shop_rl.visibility = View.GONE
                     setMargin(true)
-                    til_no.hint = getString(R.string.contact_number)
-                    til_mail.hint = getString(R.string.contact_email)
-                    til_name.hint = getString(R.string.contact_name)
+                    til_no.hint = Pref.contactNumberText + " Number"
+                    til_mail.hint = Pref.emailText
+                    til_name.hint = Pref.contactNameText + " Name"
+                    til_dob.hint = Pref.dobText
+                    til_doannivesary.hint = Pref.dateOfAnniversaryText
                     assign_to_tv.hint = "Assigned to " + Pref.ppText
                     (mContext as DashboardActivity). setTopBarTitle("Add " + Pref.shopText)
                 }
@@ -1231,9 +1278,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     rl_select_dealer.visibility = View.GONE
                     assign_to_shop_rl.visibility = View.GONE
                     setMargin(false)
-                    til_no.hint = getString(R.string.owner_contact_number)
-                    til_mail.hint = getString(R.string.owner_email)
-                    til_name.hint = getString(R.string.owner_name)
+                    til_no.hint = Pref.contactNumberText + " Number"
+                    til_mail.hint = Pref.emailText
+                    til_name.hint = Pref.contactNameText + " Name"
+                    til_dob.hint = Pref.dobText
+                    til_doannivesary.hint = Pref.dateOfAnniversaryText
                     assign_to_tv.hint = "Assigned to " + Pref.ppText
                     (mContext as DashboardActivity). setTopBarTitle("Add " + Pref.shopText)
                 }
@@ -1273,9 +1322,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     rl_entity_main.visibility = View.GONE
                     assign_to_shop_rl.visibility = View.VISIBLE
                     setMargin(false)
-                    til_no.hint = getString(R.string.owner_contact_number)
-                    til_mail.hint = getString(R.string.owner_email)
-                    til_name.hint = getString(R.string.owner_name)
+                    til_no.hint = Pref.contactNumberText + " Number"
+                    til_mail.hint = Pref.emailText
+                    til_name.hint = Pref.contactNameText + " Name"
+                    til_dob.hint = Pref.dobText
+                    til_doannivesary.hint = Pref.dateOfAnniversaryText
                     assign_to_tv.hint = "Assigned to " + Pref.ppText
 
                     if (Pref.isShowRetailerEntity)
@@ -1360,16 +1411,35 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         rl_select_dealer.visibility = View.GONE
                         assign_to_shop_rl.visibility = View.GONE
                         setMargin(false)
-                        til_no.hint = getString(R.string.owner_contact_number)
-                        til_mail.hint = getString(R.string.owner_email)
-                        til_name.hint = getString(R.string.owner_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + " Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
                         (mContext as DashboardActivity). setTopBarTitle("Add " + Pref.shopText)
                     }
                 }
             }
-        }
 
+            /*AutoDDSelect Feature*/
+            if(Pref.AutoDDSelect && assignDDList!!.size>0){
+                tv_assign_to_dd.text = assignDDList!![0].dd_name!!
+                tv_dd_asterisk_mark.visibility = View.VISIBLE
+            }
+            else{
+                tv_assign_to_dd.text = ""
+                tv_dd_asterisk_mark.visibility = View.GONE
+            }
+            /*IsFeedbackAvailableInShop Feature*/
+            if(Pref.IsFeedbackAvailableInShop){
+                ll_feedback.visibility = View.VISIBLE
+            }
+            else{
+                ll_feedback.visibility = View.GONE
+            }
+
+        }
 
         /*if (Pref.isReplaceShopText)
             shop_name_TL.hint = getString(R.string.customer_name)
@@ -1432,6 +1502,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         rl_select_dealer.setOnClickListener(this)
         rl_select_beat.setOnClickListener(this)
         assign_to_shop_rl.setOnClickListener(this)
+        rl_select_purpose.setOnClickListener(this)
 
 //        shopLargeImg = view.findViewById(R.id.shop_large_IMG);
 //        imageRL = view.findViewById(R.id.shop_image_RL)
@@ -1460,6 +1531,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
         iv_image_cross_icon_1.setOnClickListener(this)
         iv_image_cross_icon_2.setOnClickListener(this)
+
 
 
 
@@ -1508,14 +1580,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             til_name.hint="Contact Name"
         }
         else {
-            til_name.hint = "Owner Name"
+            til_name.hint = Pref.contactNameText + " Name"
         }
 
         if (Pref.IslandlineforCustomer) {
             til_no.hint = "Contact Number"
         }
         else {
-            til_no.hint = "Owner Contact Number"
+            til_no.hint = Pref.contactNumberText + " Number"
         }
 
     }
@@ -1761,6 +1833,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         XLog.d("beat id=======> " + addShop.beat_id)
         XLog.d("assigned to shop id=======> " + addShop.assigned_to_shop_id)
         XLog.d("actual address=======> " + addShop.actual_address)
+        XLog.d("shopDuplicate=======> " + addShop.isShopDuplicate)
 
         if (shop_imgPath != null)
             XLog.d("shop image path=======> $shop_imgPath")
@@ -1830,8 +1903,39 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                     voiceAttendanceMsg(getString(R.string.shop_added_successfully))
 //                                (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
                                     (mContext as DashboardActivity).onBackPressed()
-                                    //(mContext as DashboardActivity).loadFragment(FragType.NearByShopsListFragment, false, "")
-                                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
+                                    if(Pref.ShopScreenAftVisitRevisit && Pref.ShopScreenAftVisitRevisitGlobal){
+                                        (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
+                                    }else{
+                                        val shopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(addShop.shop_id)
+                                        if (!TextUtils.isEmpty(shopList.dateOfBirth)) {
+                                            //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfBirth)) {
+                                            if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfBirth)) {
+                                                val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                                var body = ""
+                                                body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for birthday today."
+                                                else
+                                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for birthday today."
+                                                (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                                notification.sendLocNotification(mContext, body)
+                                            }
+                                        }
+                                        if (!TextUtils.isEmpty(shopList.dateOfAniversary)) {
+                                            //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfAniversary)) {
+                                            if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfAniversary)) {
+                                                val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                                var body = ""
+                                                body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for Anniversary today."
+                                                else
+                                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for Anniversary today."
+                                                (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                                notification.sendLocNotification(mContext, body)
+                                            }
+                                        }
+                                        (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                    } //(mContext as DashboardActivity).loadFragment(FragType.NearByShopsListFragment, false, "")
+//                                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 }
                                 BaseActivity.isApiInitiated = false
 //                            isApiCall=true
@@ -1850,8 +1954,40 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                 (mContext as DashboardActivity).onBackPressed()
                                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
                                 voiceAttendanceMsg(getString(R.string.shop_added_successfully))
+                                if(Pref.ShopScreenAftVisitRevisit && Pref.ShopScreenAftVisitRevisitGlobal){
+                                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
+                                }else{
+                                    val shopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(addShop.shop_id)
+                                    if (!TextUtils.isEmpty(shopList.dateOfBirth)) {
+                                        //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfBirth)) {
+                                        if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfBirth)) {
+                                            val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                            var body = ""
+                                            body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for birthday today."
+                                            else
+                                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for birthday today."
+                                            (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                            notification.sendLocNotification(mContext, body)
+                                        }
+                                    }
+                                    if (!TextUtils.isEmpty(shopList.dateOfAniversary)) {
+                                        //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfAniversary)) {
+                                        if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfAniversary)) {
+                                            val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                            var body = ""
+                                            body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for Anniversary today."
+                                            else
+                                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for Anniversary today."
+                                            (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                            notification.sendLocNotification(mContext, body)
+                                        }
+                                    }
+                                    (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                }
                                 //(mContext as DashboardActivity).loadFragment(FragType.NearByShopsListFragment, false, "")
-                                (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
+//                                (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 if (error != null) {
                                     XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", ERROR: " + error.localizedMessage)
                                 }
@@ -1918,7 +2054,39 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 //                                (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
                                     (mContext as DashboardActivity).onBackPressed()
                                     //(mContext as DashboardActivity).loadFragment(FragType.NearByShopsListFragment, false, "")
-                                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
+                                    if(Pref.ShopScreenAftVisitRevisit && Pref.ShopScreenAftVisitRevisitGlobal){
+                                        (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
+                                    }else{
+                                        val shopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(addShop.shop_id)
+                                        if (!TextUtils.isEmpty(shopList.dateOfBirth)) {
+                                            //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfBirth)) {
+                                            if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfBirth)) {
+                                                val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                                var body = ""
+                                                body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for birthday today."
+                                                else
+                                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for birthday today."
+                                                (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                                notification.sendLocNotification(mContext, body)
+                                            }
+                                        }
+                                        if (!TextUtils.isEmpty(shopList.dateOfAniversary)) {
+                                            //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfAniversary)) {
+                                            if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfAniversary)) {
+                                                val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                                var body = ""
+                                                body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for Anniversary today."
+                                                else
+                                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for Anniversary today."
+                                                (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                                notification.sendLocNotification(mContext, body)
+                                            }
+                                        }
+                                        (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                    }
+//                                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 }
                                 BaseActivity.isApiInitiated = false
 //                            isApiCall=true
@@ -1938,7 +2106,39 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
                                 voiceAttendanceMsg(getString(R.string.shop_added_successfully))
                                 //(mContext as DashboardActivity).loadFragment(FragType.NearByShopsListFragment, false, "")
-                                (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
+                                if(Pref.ShopScreenAftVisitRevisit && Pref.ShopScreenAftVisitRevisitGlobal){
+                                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
+                                }else{
+                                    val shopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(addShop.shop_id)
+                                    if (!TextUtils.isEmpty(shopList.dateOfBirth)) {
+                                        //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfBirth)) {
+                                        if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfBirth)) {
+                                            val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                            var body = ""
+                                            body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for birthday today."
+                                            else
+                                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for birthday today."
+                                            (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                            notification.sendLocNotification(mContext, body)
+                                        }
+                                    }
+                                    if (!TextUtils.isEmpty(shopList.dateOfAniversary)) {
+                                        //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfAniversary)) {
+                                        if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfAniversary)) {
+                                            val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                            var body = ""
+                                            body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for Anniversary today."
+                                            else
+                                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for Anniversary today."
+                                            (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                            notification.sendLocNotification(mContext, body)
+                                        }
+                                    }
+                                    (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                }
+//                                (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 if (error != null) {
                                     XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", ERROR: " + error.localizedMessage)
                                 }
@@ -2048,10 +2248,44 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
 
     private fun showShopVerificationDialog(shop_id: String) {
-
+//        Pref.ShopScreenAftVisitRevisit = false
+//        Pref.ShopScreenAftVisitRevisitGlobal = false
         if (!Pref.isShowOTPVerificationPopup) {
             (mContext as DashboardActivity).onBackPressed()
-            (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, shop_id)
+            if(Pref.ShopScreenAftVisitRevisit && Pref.ShopScreenAftVisitRevisitGlobal){
+                (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, shop_id!!)
+            }else{
+                val shopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shop_id)
+                if (!TextUtils.isEmpty(shopList.dateOfBirth)) {
+                        //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfBirth)) {
+                        if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfBirth)) {
+                            val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                            var body = ""
+                            body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for birthday today."
+                            else
+                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for birthday today."
+                            (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                            notification.sendLocNotification(mContext, body)
+                        }
+                    }
+                if (!TextUtils.isEmpty(shopList.dateOfAniversary)) {
+                        //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfAniversary)) {
+                        if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfAniversary)) {
+                            val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                            var body = ""
+                            body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for Anniversary today."
+                            else
+                                "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for Anniversary today."
+                            (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                            notification.sendLocNotification(mContext, body)
+                        }
+                    }
+
+                (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+            }
+//            (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, shop_id)
         } else {
             ShopVerificationDialog.getInstance(shop_id, object : ShopVerificationDialog.OnOTPButtonClickListener {
                 override fun onEditClick(number: String) {
@@ -2068,7 +2302,40 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
                 override fun onCancelClick() {
                     (mContext as DashboardActivity).onBackPressed()
-                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, shop_id)
+                    if(Pref.ShopScreenAftVisitRevisit && Pref.ShopScreenAftVisitRevisitGlobal){
+                        (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, shop_id!!)
+                    }else{
+                        val shopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shop_id)
+                        if (!TextUtils.isEmpty(shopList.dateOfBirth)) {
+                            //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfBirth)) {
+                            if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfBirth)) {
+                                val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                var body = ""
+                                body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for birthday today."
+                                else
+                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for birthday today."
+                                (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                notification.sendLocNotification(mContext, body)
+                            }
+                        }
+                        if (!TextUtils.isEmpty(shopList.dateOfAniversary)) {
+                            //if (AppUtils.getCurrentDateForShopActi() == AppUtils.changeAttendanceDateFormatToCurrent(it.dateOfAniversary)) {
+                            if (AppUtils.getCurrentMonthDayForShopActi() == AppUtils.changeAttendanceDateFormatToMonthDay(shopList.dateOfAniversary)) {
+                                val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
+                                var body = ""
+                                body = if (TextUtils.isEmpty(shopList.ownerEmailId))
+                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + " for Anniversary today."
+                                else
+                                    "Please wish Mr. " + shopList.ownerName + " of " + shopList.shopName + ", Contact Number: " + shopList.ownerContactNumber + ", Email: " + shopList.ownerEmailId + " for Anniversary today."
+                                (mContext as DashboardActivity).tv_noti_count.visibility=View.VISIBLE
+                                notification.sendLocNotification(mContext, body)
+                            }
+                        }
+
+                        (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                    }
+//                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, shop_id)
                 }
 
                 override fun onOkButtonClick(otp: String) {
@@ -2513,6 +2780,9 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         if (!TextUtils.isEmpty(feedback_EDT.text.toString().trim()))
             shopActivityEntity.feedback = feedback_EDT.text.toString().trim()
 
+        if (!TextUtils.isEmpty(feedbackValue))
+            shopActivityEntity.feedback = feedbackValue
+
         shopActivityEntity.next_visit_date = nextVisitDate
 
         var distance = 0.0
@@ -2621,6 +2891,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         shopActivityEntity.pros_id=addShop.pros_id
         shopActivityEntity.updated_by=Pref.user_id
         shopActivityEntity.updated_on= AppUtils.getCurrentDateForShopActi()
+
+        //shopActivityEntity.feedback =  feedbackValue
 
         AppDatabase.getDBInstance()!!.shopActivityDao().insertAll(shopActivityEntity)
 
@@ -3195,11 +3467,23 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             }
 
             R.id.rl_select_dealer -> {
-                val list = AppDatabase.getDBInstance()?.dealerDao()?.getAll() as ArrayList<DealerEntity>
-                if (list != null && list.isNotEmpty())
-                    showDealerListDialog(list)
-                else
-                    getDealerListApi(false)
+                    val list = AppDatabase.getDBInstance()?.dealerDao()?.getAll() as ArrayList<DealerEntity>
+                    if (list != null && list.isNotEmpty())
+                        showDealerListDialog(list)
+                    else
+                        getDealerListApi(false)
+            }
+
+            R.id.rl_select_purpose -> {
+                val list = AppDatabase.getDBInstance()?.visitRemarksDao()?.getAll()
+                if (list == null || list.isEmpty())
+                    Toaster.msgShort(mContext, getString(R.string.no_data_found))
+                else {
+                    if (visitRemarksPopupWindow != null && visitRemarksPopupWindow?.isShowing!!)
+                        visitRemarksPopupWindow?.dismiss()
+
+                    callMeetingTypeDropDownPopUp(list)
+                }
             }
 
             R.id.rl_select_beat -> {
@@ -4684,7 +4968,6 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             (mContext as DashboardActivity).startActivityForResult(intent, PermissionHelper.REQUEST_CODE_STORAGE)
 
         }
-
     }
     /*9-12-2021*/
     fun showPictureDialogImage() {
@@ -4751,7 +5034,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 (mContext as DashboardActivity).showSnackMessage("Please select any GPTPL/Distributor")
                 BaseActivity.isApiInitiated = false
                 return
-            } else if (TextUtils.isEmpty(assignedToDDId)) {
+            } else if (TextUtils.isEmpty(assignedToDDId) && Pref.AutoDDSelect==true) {
                 (mContext as DashboardActivity).showSnackMessage("Please select assigned to " + Pref.ddText)
                 BaseActivity.isApiInitiated = false
                 return
@@ -4786,7 +5069,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 (mContext as DashboardActivity).showSnackMessage("Please select assigned to " + Pref.ppText)
                 BaseActivity.isApiInitiated = false
                 return
-            } else if (TextUtils.isEmpty(assignedToDDId)) {
+            } else if (TextUtils.isEmpty(assignedToDDId) && Pref.AutoDDSelect==true) {
                 (mContext as DashboardActivity).showSnackMessage("Please select assigned to " + Pref.ddText)
                 BaseActivity.isApiInitiated = false
                 return
@@ -4809,7 +5092,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             assignedToShopId = ""
 
             if (Pref.isDDMandatoryForMeeting) {
-                if (TextUtils.isEmpty(assignedToDDId)) {
+                if (TextUtils.isEmpty(assignedToDDId) && Pref.AutoDDSelect==true) {
                     (mContext as DashboardActivity).showSnackMessage("Please select assigned to " + Pref.ddText)
                     BaseActivity.isApiInitiated = false
                     return
@@ -5118,8 +5401,6 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             } else
                 shopDataModel.chemist_pincode = chemist_pin_code_EDT.text.toString().trim()
 
-
-
             saveDataToDb()
             return
         }
@@ -5280,11 +5561,38 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         else
             shopDataModel.booking_amount = booking_amount_EDT.text.toString().trim()
 
-        if (AppDatabase.getDBInstance()!!.addShopEntryDao().getDuplicateShopData(ownerNumber.text.toString().trim()).size > 0) {
-            (mContext as DashboardActivity).showSnackMessage(getString(R.string.contact_number_exist))
-            BaseActivity.isApiInitiated = false
-            return
+        if(!Pref.IgnoreNumberCheckwhileShopCreation){
+            if (AppDatabase.getDBInstance()!!.addShopEntryDao().getDuplicateShopData(ownerNumber.text.toString().trim()).size > 0) {
+                (mContext as DashboardActivity).showSnackMessage(getString(R.string.contact_number_exist))
+                BaseActivity.isApiInitiated = false
+                return
+            }
         }
+
+
+
+        val allShopList= AppDatabase.getDBInstance()?.addShopEntryDao()?.all
+        shopDataModel.isShopDuplicate=false
+        if(allShopList != null){
+            for(i in 0..allShopList?.size-1){
+                var shopLat = allShopList.get(i).shopLat
+                var shopLon = allShopList.get(i).shopLong
+                if(shopLat == shopDataModel.shopLat && shopLon == shopDataModel.shopLong){
+                    shopDataModel.isShopDuplicate=true
+                    break
+                }else{
+                    val dist = LocationWizard.getDistance(shopLat,shopLon,shopDataModel.shopLat,shopDataModel.shopLong)
+                    if(dist<0.01) {
+                        shopDataModel.isShopDuplicate=true
+                        break
+                    }
+                }
+            }
+        }
+        //feeback shop_details table
+        shopDataModel.purpose = feedbackValue
+
+
 
 
         if (Pref.isFingerPrintMandatoryForVisit) {
@@ -5532,8 +5840,10 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             addShopData.whatsappNoForCustomer=""
         }
 
+        // duplicate shop api call
+        addShopData.isShopDuplicate=shopDataModel.isShopDuplicate
 
-
+        addShopData.purpose=shopDataModel.purpose
 
 
         addShopApi(addShopData, shopDataModel.shopImageLocalPath, shopDataModel.doc_degree)
@@ -5633,9 +5943,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         ll_doc_extra_info.visibility = View.GONE
                         ll_extra_info.visibility = View.GONE
                         assign_to_shop_rl.visibility = View.GONE
-                        til_no.hint = getString(R.string.owner_contact_number)
-                        til_mail.hint = getString(R.string.owner_email)
-                        til_name.hint = getString(R.string.owner_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + "Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
 
                         if (Pref.willShowEntityTypeforShop)
@@ -5709,9 +6021,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         rl_select_retailer.visibility = View.GONE
                         rl_select_dealer.visibility = View.GONE
                         assign_to_shop_rl.visibility = View.GONE
-                        til_no.hint = getString(R.string.owner_contact_number)
-                        til_mail.hint = getString(R.string.owner_email)
-                        til_name.hint = getString(R.string.owner_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + " Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
                         rl_entity_main.visibility = View.GONE
                         assignedToPPId = ""
@@ -5760,9 +6074,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         rl_select_retailer.visibility = View.GONE
                         rl_select_dealer.visibility = View.GONE
                         assign_to_shop_rl.visibility = View.GONE
-                        til_no.hint = getString(R.string.owner_contact_number)
-                        til_mail.hint = getString(R.string.owner_email)
-                        til_name.hint = getString(R.string.owner_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + " Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
                         rl_entity_main.visibility = View.GONE
                         assignedToPPId = ""
@@ -5810,9 +6126,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         ll_extra_info.visibility = View.GONE
                         rl_select_retailer.visibility = View.GONE
                         assign_to_shop_rl.visibility = View.GONE
-                        til_no.hint = getString(R.string.owner_contact_number)
-                        til_mail.hint = getString(R.string.owner_email)
-                        til_name.hint = getString(R.string.owner_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + " Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
                         rl_entity_main.visibility = View.GONE
 
@@ -5870,9 +6188,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         rl_select_retailer.visibility = View.GONE
                         rl_select_dealer.visibility = View.GONE
                         assign_to_shop_rl.visibility = View.GONE
-                        til_no.hint = getString(R.string.owner_contact_number)
-                        til_mail.hint = getString(R.string.owner_email)
-                        til_name.hint = getString(R.string.owner_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + " Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
                         rl_entity_main.visibility = View.GONE
 
@@ -5930,9 +6250,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         checkExtraInfoWillVisibleOrNot()
                         shopImage.visibility = View.VISIBLE
                         setMargin(false)
-                        til_no.hint = getString(R.string.contact_number)
-                        til_mail.hint = getString(R.string.contact_email)
-                        til_name.hint = getString(R.string.contact_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + " Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
                         rl_entity_main.visibility = View.GONE
                         assignedToPPId = ""
@@ -5982,9 +6304,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         checkExtraInfoWillVisibleOrNot()
                         shopImage.visibility = View.VISIBLE
                         setMargin(false)
-                        til_no.hint = getString(R.string.contact_number)
-                        til_mail.hint = getString(R.string.contact_email)
-                        til_name.hint = getString(R.string.contact_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + " Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to"
                         rl_entity_main.visibility = View.GONE
 
@@ -6039,9 +6363,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         shopImage.visibility = View.GONE
                         assign_to_shop_rl.visibility = View.GONE
                         setMargin(true)
-                        til_no.hint = getString(R.string.contact_number)
-                        til_mail.hint = getString(R.string.contact_email)
-                        til_name.hint = getString(R.string.contact_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + "Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
                         rl_entity_main.visibility = View.GONE
                         assignedToPPId = ""
@@ -6104,9 +6430,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         ll_extra_info.visibility = View.GONE
                         rl_select_dealer.visibility = View.GONE
                         assign_to_shop_rl.visibility = View.GONE
-                        til_no.hint = getString(R.string.owner_contact_number)
-                        til_mail.hint = getString(R.string.owner_email)
-                        til_name.hint = getString(R.string.owner_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + " Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
                         rl_entity_main.visibility = View.GONE
                         assignedToPPId = ""
@@ -6154,9 +6482,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         rl_select_dealer.visibility = View.GONE
                         assign_to_shop_rl.visibility = View.VISIBLE
                         rl_entity_main.visibility = View.GONE
-                        til_no.hint = getString(R.string.owner_contact_number)
-                        til_mail.hint = getString(R.string.owner_email)
-                        til_name.hint = getString(R.string.owner_name)
+                        til_no.hint = Pref.contactNumberText + " Number"
+                        til_mail.hint = Pref.emailText
+                        til_name.hint = Pref.contactNameText + " Name"
+                        til_dob.hint = Pref.dobText
+                        til_doannivesary.hint = Pref.dateOfAnniversaryText
                         assign_to_tv.hint = "Assigned to " + Pref.ppText
 
                         if (Pref.isShowRetailerEntity)
@@ -6246,9 +6576,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                             rl_select_retailer.visibility = View.GONE
                             rl_select_dealer.visibility = View.GONE
                             assign_to_shop_rl.visibility = View.GONE
-                            til_no.hint = getString(R.string.owner_contact_number)
-                            til_mail.hint = getString(R.string.owner_email)
-                            til_name.hint = getString(R.string.owner_name)
+                            til_no.hint = Pref.contactNumberText + " Number"
+                            til_mail.hint = Pref.emailText
+                            til_name.hint = Pref.contactNameText + "Name"
+                            til_dob.hint = Pref.dobText
+                            til_doannivesary.hint = Pref.dateOfAnniversaryText
                             assign_to_tv.hint = "Assigned to " + Pref.ppText
                             rl_entity_main.visibility = View.GONE
                             assignedToPPId = ""
@@ -6264,6 +6596,16 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         }
                     }
                 }
+
+                /*AutoDDSelect Feature*/
+                if(Pref.AutoDDSelect && assignDDList!!.size>0){
+                    tv_assign_to_dd.text = assignDDList!![0].dd_name!!
+                    tv_dd_asterisk_mark.visibility = View.VISIBLE
+                }
+                else{
+                    tv_assign_to_dd.text = ""
+                    tv_dd_asterisk_mark.visibility = View.GONE
+                }
             }
             else {
                 rl_assign_to_dd.visibility = View.GONE
@@ -6277,9 +6619,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 rl_select_retailer.visibility = View.GONE
                 rl_select_dealer.visibility = View.GONE
                 assign_to_shop_rl.visibility = View.GONE
-                til_no.hint = getString(R.string.contact_number)
-                til_mail.hint = getString(R.string.only_email)
-                til_name.hint = getString(R.string.owner_name)
+                til_no.hint = Pref.contactNumberText + " Number"
+                til_mail.hint = Pref.emailText
+                til_name.hint = Pref.contactNameText + " Name"
+                til_dob.hint = Pref.dobText
+                til_doannivesary.hint = Pref.dateOfAnniversaryText
                 assign_to_tv.hint = "Assigned to " + Pref.ppText
                 rl_entity_main.visibility = View.GONE
                 assignedToPPId = ""
@@ -6296,6 +6640,19 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 assign_to_shop_tv.text = ""
                 (mContext as DashboardActivity). setTopBarTitle("Add " + Pref.shopText)
             }
+
+            /*IsFeedbackAvailableInShop Feature*/
+            if(Pref.IsFeedbackAvailableInShop){
+                ll_feedback.visibility = View.VISIBLE
+            }
+            else{
+                ll_feedback.visibility = View.GONE
+            }
+
+            if (Pref.isAreaVisible)
+                rl_area_main.visibility = View.VISIBLE
+            else
+                rl_area_main.visibility = View.GONE
 
             popup.dismiss()
         }
@@ -6392,12 +6749,12 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
 
         when (isDOB) {
-            0 -> {
+            1 -> {
                 addShopData.date_aniversary = AppUtils.getFormattedDateForApi(myCalendar.time)
                 date_aniverdary_EDT.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
                 shopDataModel.dateOfAniversary = AppUtils.getDobFormattedDate(myCalendar.time)
             }
-            1 -> {
+            0 -> {
                 addShopData.dob = AppUtils.getFormattedDateForApi(myCalendar.time)
                 dob_EDT.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
                 shopDataModel.dateOfBirth = AppUtils.getDobFormattedDate(myCalendar.time)
@@ -6720,6 +7077,43 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         }catch (ex:Exception){
             XLog.d("QuestionSubmit : ERROR " + ex.toString())
             ex.printStackTrace()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun callMeetingTypeDropDownPopUp(list: List<VisitRemarksEntity>) {
+
+        val inflater = mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater?
+
+        // Inflate the custom layout/view
+        val customView = inflater!!.inflate(R.layout.popup_meeting_type, null)
+
+        visitRemarksPopupWindow = PopupWindow(customView, resources.getDimensionPixelOffset(R.dimen._220sdp), RelativeLayout.LayoutParams.WRAP_CONTENT)
+        val rv_meeting_type_list = customView.findViewById(R.id.rv_meeting_type_list) as RecyclerView
+        rv_meeting_type_list.layoutManager = LinearLayoutManager(mContext)
+
+        visitRemarksPopupWindow?.elevation = 200f
+        visitRemarksPopupWindow?.isFocusable = true
+        visitRemarksPopupWindow?.update()
+
+        rv_meeting_type_list.adapter = VisitRemarksTypeAdapter(mContext, list as ArrayList<VisitRemarksEntity>, object : VisitRemarksTypeAdapter.OnItemClickListener {
+            override fun onItemClick(adapterPosition: Int) {
+                tv_select_purpose.text = list[adapterPosition].name
+                feedbackValue = list[adapterPosition].name!!
+                visitRemarksPopupWindow?.dismiss()
+            }
+        })
+
+        if (visitRemarksPopupWindow != null && !visitRemarksPopupWindow?.isShowing!!) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                rl_select_purpose.post(Runnable {
+                    visitRemarksPopupWindow?.showAtLocation(tv_select_purpose, Gravity.BOTTOM, 0, tv_select_purpose.getHeight())
+                    visitRemarksPopupWindow?.showAsDropDown(tv_select_purpose, resources.getDimensionPixelOffset(R.dimen._1sdp), resources.getDimensionPixelOffset(R.dimen._10sdp), Gravity.BOTTOM)
+                })
+            } else {
+                visitRemarksPopupWindow?.showAsDropDown(tv_select_purpose, tv_select_purpose.width - visitRemarksPopupWindow?.width!!, 0)
+            }
         }
     }
 

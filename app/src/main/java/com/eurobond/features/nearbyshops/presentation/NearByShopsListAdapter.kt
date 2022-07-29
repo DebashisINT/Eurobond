@@ -136,7 +136,8 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                         })
                     } else
                         itemView.sync_icon.setImageResource(R.drawable.ic_registered_shop_sync)
-                } else {
+                }
+                else {
                     itemView.sync_icon.setImageResource(R.drawable.ic_registered_shop_not_sync)
                     itemView.sync_icon.setOnClickListener(View.OnClickListener {
                         listener.syncClick(adapterPosition)
@@ -148,8 +149,10 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                 if (shopType != null && !TextUtils.isEmpty(shopType.shoptype_name)) {
                     itemView.tv_type.text = shopType.shoptype_name
                     itemView.ll_shop_type.visibility = View.VISIBLE
-                } else
-                    itemView.ll_shop_type.visibility = View.GONE
+                } else{
+                    itemView.tv_type.text = "NA"
+                    //itemView.ll_shop_type.visibility = View.GONE
+                }
 
                 if(Pref.isCollectioninMenuShow) {
                     itemView.ll_collection.visibility = View.VISIBLE
@@ -233,6 +236,21 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                     itemView.lead_return_ll.visibility = View.GONE
                     itemView.lead_return_view.visibility = View.GONE
                 }
+
+                /*Survey Icon*/
+                if(Pref.IsSurveyRequiredforDealer && list[adapterPosition].type!!.equals("1")) {
+                        itemView.shop_survey_ll.visibility = View.VISIBLE
+                        itemView.shop_survey_view.visibility = View.VISIBLE
+                }
+                else if(Pref.IsSurveyRequiredforNewParty && list[adapterPosition].type!!.equals("3")){
+                        itemView.shop_survey_ll.visibility = View.VISIBLE
+                        itemView.shop_survey_view.visibility = View.VISIBLE
+                }
+                else{
+                    itemView.shop_survey_ll.visibility = View.GONE
+                    itemView.shop_survey_view.visibility = View.GONE
+                }
+
                 /*20-12-2021*/
                 val OrderavalibleByShopId = AppDatabase.getDBInstance()?.orderDetailsListDao()?.getListAccordingToShopId(list[adapterPosition].shop_id) as ArrayList<OrderDetailsListEntity>
                 if(OrderavalibleByShopId.size>0){
@@ -364,7 +382,7 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
 
                     var maxOrder = "0.00"
                     if (amountList.isNotEmpty())
-                        maxOrder = String.format("%.2f", amountList.max()?.toFloat())
+                        maxOrder = String.format("%.2f", amountList.maxOrNull()?.toFloat())
                     val str6 = SpannableString("₹ $maxOrder")
                     str6.setSpan(ForegroundColorSpan(Color.BLACK), 0, str6.length, 0)
                     builder.append(str6)
@@ -376,7 +394,7 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
 
                     var minOrder = "0.00"
                     if (amountList.isNotEmpty())
-                        minOrder = String.format("%.2f", amountList.min()?.toFloat())
+                        minOrder = String.format("%.2f", amountList.minOrNull()?.toFloat())
                     val str8 = SpannableString("₹ $minOrder")
                     str8.setSpan(ForegroundColorSpan(Color.BLACK), 0, str8.length, 0)
                     builder.append(str8)
@@ -660,6 +678,13 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                             itemView.ll_dd_name.visibility = View.GONE
                         }
                     }
+                    /*AutoDDSelect Feature*/
+                    if(Pref.AutoDDSelect){
+                        itemView.ll_dd_name.visibility = View.VISIBLE
+                    }
+                    else{
+                        itemView.ll_dd_name.visibility = View.GONE
+                    }
                 }
 
                 val shopActivityList = AppDatabase.getDBInstance()?.shopActivityDao()?.getShopActivityForIdDescVisitDate(list[adapterPosition].shop_id)
@@ -777,6 +802,22 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
 
                 itemView.shop_history_ll.setOnClickListener {
                     listener.onHistoryClick(list[adapterPosition])
+                }
+
+                if (Pref.IsAllowBreakageTracking) {
+                    itemView.shop_damage_ll.visibility = View.VISIBLE
+                    itemView.shop_damage_view.visibility = View.VISIBLE
+                }
+                else {
+                    itemView.shop_damage_ll.visibility = View.GONE
+                    itemView.shop_damage_view.visibility = View.GONE
+                }
+
+                itemView.shop_damage_ll.setOnClickListener{
+                    listener.onDamageClick(list[adapterPosition].shop_id)
+                }
+                itemView.shop_survey_ll.setOnClickListener{
+                    listener.onSurveyClick(list[adapterPosition].shop_id)
                 }
 
                 //Hardcoded for EuroBond

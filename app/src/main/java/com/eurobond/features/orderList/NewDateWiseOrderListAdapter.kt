@@ -107,10 +107,24 @@ class NewDateWiseOrderListAdapter(context: Context, userLocationDataEntity: Arra
                 } else
                     itemView.email_icon.visibility = View.GONE
 
-                if (Pref.isCollectioninMenuShow)
+                /*if (Pref.isCollectioninMenuShow)
                     itemView.collection_icon.visibility = View.VISIBLE
                 else
+                    itemView.collection_icon.visibility = View.GONE*/
+
+                if(Pref.isCollectioninMenuShow && Pref.ShowCollectionOnlywithInvoiceDetails ==false){
+                    itemView.collection_icon.visibility = View.VISIBLE
+                }else if(Pref.isCollectioninMenuShow && Pref.ShowCollectionOnlywithInvoiceDetails){
+                    val list = AppDatabase.getDBInstance()!!.billingDao().getDataOrderIdWise(userLocationDataEntity[adapterPosition]?.order_id!!) as ArrayList
+                    if(list.size>0){
+                        itemView.collection_icon.visibility = View.VISIBLE
+                    }else{
+                        itemView.collection_icon.visibility = View.GONE
+                    }
+                }else{
                     itemView.collection_icon.visibility = View.GONE
+                }
+
 
                 itemView.setOnClickListener {
                     (context as DashboardActivity).loadFragment(FragType.ViewCartFragment, true, userLocationDataEntity.get(adapterPosition))

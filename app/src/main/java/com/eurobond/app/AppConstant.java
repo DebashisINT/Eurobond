@@ -8,6 +8,7 @@ public interface AppConstant {
     String DBNAME = "fts_db";
     String LOCATION_TABLE = "location_db";
     String SHOP_TABLE = "shop_detail";
+    String SHOP_TABLE_ALL_TEAM = "shop_detail_all_team";
     String ATTENDANCE_TABLE = "attendance";
     String SHOP_ACTIVITY = "shop_activity";
     String GPS_STATUS = "gps_status";
@@ -134,5 +135,13 @@ public interface AppConstant {
     String TBL_SHOP_FEEDBACK = "tbl_shop_deefback";
     String TBL_SHOP_FEEDBACK_TEMP = "tbl_shop_deefback_temp";
     String TBL_LEAD_ACTIVITY = "tbl_lead_activity";
+
+    String SHOP_DTLS_TEAM = "shop_dtls_team";
+    String ORDER_DTLS_TEAM = "order_dtls_team";
+    String COLL_DTLS_TEAM = "coll_dtls_team";
+    String BILL_DTLS_TEAM = "bill_dtls_team";
+
+    String TBL_DIST_WISE_ORD_REPORT = "tbl_dist_wise_ord_report";
+
 
 }

@@ -27,11 +27,13 @@ import android.widget.PopupWindow
 import android.widget.RelativeLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.eurobond.CustomStatic
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
 import com.eurobond.app.NetworkConstant
 import com.eurobond.app.NewFileUtils
 import com.eurobond.app.Pref
+import com.eurobond.app.domain.AddShopDBModelEntity
 import com.eurobond.app.domain.CollectionDetailsEntity
 import com.eurobond.app.domain.PaymentModeEntity
 import com.eurobond.app.utils.AppUtils
@@ -322,9 +324,9 @@ class AddCollectionDialog : DialogFragment(), View.OnClickListener {
                     iv_camera.visibility = View.VISIBLE
                     et_link.visibility = View.GONE
                     Glide.with(mContext)
-                            .load(dataPath)
-                            .apply(RequestOptions.placeholderOf(R.drawable.ic_camera_pic).error(R.drawable.ic_camera_pic))
-                            .into(iv_camera)
+                        .load(dataPath)
+                        .apply(RequestOptions.placeholderOf(R.drawable.ic_camera_pic).error(R.drawable.ic_camera_pic))
+                        .into(iv_camera)
                 }
                 else {
                     iv_camera.visibility = View.GONE
@@ -383,8 +385,8 @@ class AddCollectionDialog : DialogFragment(), View.OnClickListener {
                     }
                     else -> {
                         addCollectionClickListener.onClick(et_collection.text.toString().trim(), et_date.text.toString().trim(), paymentId,
-                                et_instrument.text.toString().trim(), et_bank.text.toString().trim(), dataPath, et_feedback.text.toString().trim(),
-                                et_patient.text.toString().trim(), et_address.text.toString().trim(), et_phone.text.toString().trim(),et_lab.text.toString().trim(),et_emailaddress.text.toString().trim())
+                            et_instrument.text.toString().trim(), et_bank.text.toString().trim(), dataPath, et_feedback.text.toString().trim(),
+                            et_patient.text.toString().trim(), et_address.text.toString().trim(), et_phone.text.toString().trim(),et_lab.text.toString().trim(),et_emailaddress.text.toString().trim(),"")
                         dismiss()
                     }
                 }
@@ -397,8 +399,8 @@ class AddCollectionDialog : DialogFragment(), View.OnClickListener {
             R.id.et_date -> {
                 AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
                 val aniDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, date, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                    myCalendar.get(Calendar.DAY_OF_MONTH))
                 aniDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
 
                 if (!TextUtils.isEmpty(dateString))
@@ -455,30 +457,30 @@ class AddCollectionDialog : DialogFragment(), View.OnClickListener {
             progress_wheel.spin()
 
             PRDownloader.download(downloadUrl, FTStorageUtils.getFolderPath(mContext) + "/", fileName)
-                    .build()
-                    .setOnProgressListener {
-                        Log.e("Collection Details", "Attachment Download Progress======> $it")
-                    }
-                    .start(object : OnDownloadListener {
-                        override fun onDownloadComplete() {
+                .build()
+                .setOnProgressListener {
+                    Log.e("Collection Details", "Attachment Download Progress======> $it")
+                }
+                .start(object : OnDownloadListener {
+                    override fun onDownloadComplete() {
 
-                            doAsync {
-                                AppDatabase.getDBInstance()!!.collectionDetailsDao().updateAttachment(FTStorageUtils.getFolderPath(mContext) + "/" + fileName, mAddShopDBModelEntity?.collection_id!!)
+                        doAsync {
+                            AppDatabase.getDBInstance()!!.collectionDetailsDao().updateAttachment(FTStorageUtils.getFolderPath(mContext) + "/" + fileName, mAddShopDBModelEntity?.collection_id!!)
 
-                                uiThread {
-                                    progress_wheel.stopSpinning()
-                                    val file = File(FTStorageUtils.getFolderPath(mContext) + "/" + fileName)
-                                    openFile(file)
-                                }
+                            uiThread {
+                                progress_wheel.stopSpinning()
+                                val file = File(FTStorageUtils.getFolderPath(mContext) + "/" + fileName)
+                                openFile(file)
                             }
                         }
+                    }
 
-                        override fun onError(error: Error) {
-                            progress_wheel.stopSpinning()
-                            (mContext as DashboardActivity).showSnackMessage("Download failed")
-                            Log.e("Collection Details", "Attachment download error msg=======> " + error.serverErrorMessage)
-                        }
-                    })
+                    override fun onError(error: Error) {
+                        progress_wheel.stopSpinning()
+                        (mContext as DashboardActivity).showSnackMessage("Download failed")
+                        Log.e("Collection Details", "Attachment download error msg=======> " + error.serverErrorMessage)
+                    }
+                })
 
         } catch (e: Exception) {
             (mContext as DashboardActivity).showSnackMessage("Download failed")
@@ -626,50 +628,50 @@ class AddCollectionDialog : DialogFragment(), View.OnClickListener {
         val repository = NewCollectionListRepoProvider.newCollectionListRepository()
         progress_wheel.spin()
         BaseActivity.compositeDisposable.add(
-                repository.paymentModeList()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
-                            val response = result as PaymentModeResponseModel
-                            XLog.d("PAYMENT RESPONSE=======> " + response.status)
+            repository.paymentModeList()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    val response = result as PaymentModeResponseModel
+                    XLog.d("PAYMENT RESPONSE=======> " + response.status)
 
-                            if (response.status == NetworkConstant.SUCCESS) {
-                                if (response.paymemt_mode_list != null && response.paymemt_mode_list!!.size > 0) {
-                                    doAsync {
-                                        response.paymemt_mode_list?.forEach {
-                                            val paymentMode = PaymentModeEntity()
-                                            AppDatabase.getDBInstance()?.paymenttDao()?.insert(paymentMode.apply {
-                                                payment_id = it.id
-                                                name = it.name
-                                            })
-                                        }
-
-                                        uiThread {
-                                            progress_wheel.stopSpinning()
-
-                                            if (paymentTypePopupWindow != null && paymentTypePopupWindow?.isShowing!!)
-                                                paymentTypePopupWindow?.dismiss()
-                                            else
-                                                callMeetingTypeDropDownPopUp(AppDatabase.getDBInstance()?.paymenttDao()?.getAll()!!)
-                                        }
-                                    }
-
-
-                                } else {
-                                    progress_wheel.stopSpinning()
-                                    Toaster.msgShort(mContext, response.message)
+                    if (response.status == NetworkConstant.SUCCESS) {
+                        if (response.paymemt_mode_list != null && response.paymemt_mode_list!!.size > 0) {
+                            doAsync {
+                                response.paymemt_mode_list?.forEach {
+                                    val paymentMode = PaymentModeEntity()
+                                    AppDatabase.getDBInstance()?.paymenttDao()?.insert(paymentMode.apply {
+                                        payment_id = it.id
+                                        name = it.name
+                                    })
                                 }
-                            } else {
-                                progress_wheel.stopSpinning()
-                                Toaster.msgShort(mContext, response.message)
+
+                                uiThread {
+                                    progress_wheel.stopSpinning()
+
+                                    if (paymentTypePopupWindow != null && paymentTypePopupWindow?.isShowing!!)
+                                        paymentTypePopupWindow?.dismiss()
+                                    else
+                                        callMeetingTypeDropDownPopUp(AppDatabase.getDBInstance()?.paymenttDao()?.getAll()!!)
+                                }
                             }
 
-                        }, { error ->
-                            error.printStackTrace()
+
+                        } else {
                             progress_wheel.stopSpinning()
-                            Toaster.msgShort(mContext, getString(R.string.something_went_wrong))
-                            XLog.d("PAYMENT ERROR=======> " + error.localizedMessage)
-                        })
+                            Toaster.msgShort(mContext, response.message)
+                        }
+                    } else {
+                        progress_wheel.stopSpinning()
+                        Toaster.msgShort(mContext, response.message)
+                    }
+
+                }, { error ->
+                    error.printStackTrace()
+                    progress_wheel.stopSpinning()
+                    Toaster.msgShort(mContext, getString(R.string.something_went_wrong))
+                    XLog.d("PAYMENT ERROR=======> " + error.localizedMessage)
+                })
         )
     }
 
@@ -695,18 +697,18 @@ class AddCollectionDialog : DialogFragment(), View.OnClickListener {
         pictureDialog.setTitle("Select Action")
         val pictureDialogItems = arrayOf("Select photo from gallery", "Capture Image", "Select file from file manager")
         pictureDialog.setItems(pictureDialogItems,
-                DialogInterface.OnClickListener { dialog, which ->
-                    when (which) {
-                        0 -> selectImageInAlbum()
-                        1 -> {
-                            //(mContext as DashboardActivity).openFileManager()
-                            launchCamera()
-                        }
-                        2 -> {
-                            (mContext as DashboardActivity).openFileManager()
-                        }
+            DialogInterface.OnClickListener { dialog, which ->
+                when (which) {
+                    0 -> selectImageInAlbum()
+                    1 -> {
+                        //(mContext as DashboardActivity).openFileManager()
+                        launchCamera()
                     }
-                })
+                    2 -> {
+                        (mContext as DashboardActivity).openFileManager()
+                    }
+                }
+            })
         pictureDialog.show()
     }
 
@@ -738,9 +740,9 @@ class AddCollectionDialog : DialogFragment(), View.OnClickListener {
             iv_camera.visibility = View.VISIBLE
             et_link.visibility = View.GONE
             Glide.with(mContext)
-                    .load(dataPath)
-                    .apply(RequestOptions.placeholderOf(R.drawable.ic_camera_pic).error(R.drawable.ic_camera_pic))
-                    .into(iv_camera)
+                .load(dataPath)
+                .apply(RequestOptions.placeholderOf(R.drawable.ic_camera_pic).error(R.drawable.ic_camera_pic))
+                .into(iv_camera)
         }
         else {
             iv_camera.visibility = View.GONE
@@ -751,6 +753,6 @@ class AddCollectionDialog : DialogFragment(), View.OnClickListener {
 
     interface AddCollectionClickLisneter {
         fun onClick(collection: String, date: String, paymentId: String, instrument: String, bank: String, filePath: String, feedback: String,
-                    patientName: String, patientAddress: String, patinetNo: String,hospital:String,emailAddress:String)
+                    patientName: String, patientAddress: String, patinetNo: String,hospital:String,emailAddress:String,order_id:String)
     }
 }

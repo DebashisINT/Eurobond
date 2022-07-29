@@ -687,7 +687,7 @@ private fun calllogoutApi(user_id: String, session_id: String) {
     }
 
     //uploadShopRevisitData()
-        syncShopList()
+        //syncShopList()
 
 
     Handler().postDelayed(Runnable {
@@ -2212,6 +2212,12 @@ val revisitStatusList : MutableList<ShopRevisitStatusRequestData> = ArrayList()
 
             addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
             addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+            // duplicate shop api call
+            addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+            addShopData.purpose=mAddShopDBModelEntity.purpose
+
 
             callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shopList, true,
                     mAddShopDBModelEntity.doc_degree)

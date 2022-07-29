@@ -13,8 +13,10 @@ import com.elvishew.xlog.interceptor.BlacklistTagsFilterInterceptor
 import com.elvishew.xlog.printer.AndroidPrinter
 import com.elvishew.xlog.printer.Printer
 import com.elvishew.xlog.printer.file.FilePrinter
+import com.elvishew.xlog.printer.file.backup.FileSizeBackupStrategy
 import com.elvishew.xlog.printer.file.backup.FileSizeBackupStrategy2
 import com.elvishew.xlog.printer.file.backup.NeverBackupStrategy
+import com.elvishew.xlog.printer.file.clean.CleanStrategy
 import com.elvishew.xlog.printer.file.clean.FileLastModifiedCleanStrategy
 import com.facebook.stetho.Stetho
 import com.marcinmoskala.kotlinpreferences.PreferenceHolder
@@ -93,9 +95,12 @@ class FTSApp : MultiDexApplication() {
                 // Specify the path to save log file
 //                .fileNameGenerator(ChangelessFileNameGenerator())        // Default: ChangelessFileNameGenerator("log")
                  //.backupStrategy(NeverBackupStrategy())             // Default: FileSizeBackupStrategy(1024 * 1024)
-                .backupStrategy(FileSizeBackupStrategy2(1024*1024*15,1))             // Default: FileSizeBackupStrategy(1024 * 1024)
+                 //.backupStrategy(FileSizeBackupStrategy2(50*1024,1))             // Default: FileSizeBackupStrategy(1024 * 1024)
+                 .backupStrategy(FileSizeBackupStrategy2(1024*1024*40,1))             // Default: FileSizeBackupStrategy(1024 * 1024)
                 //.logFlattener(ClassicFlattener())                  // Default: DefaultFlattener
                 .cleanStrategy(FileLastModifiedCleanStrategy(MAX_TIME))
+            //.cleanStrategy(FileLastModifiedCleanStrategy(9000000))  //2.5 hts
+                //.cleanStrategy(FileLastModifiedCleanStrategy(57000000)) // 15.8 hrs
                 .build()
 
         XLog.init(                                                 // Initialize XLog

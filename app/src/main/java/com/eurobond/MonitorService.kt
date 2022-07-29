@@ -93,8 +93,8 @@ class MonitorService:Service() {
                 powerSaver=true
                 //sendGPSOffBroadcast()
             }else{
-                Log.e("pww", "Power Save Mode OFF" )
-                XLog.d("pww : Power Save Mode OFF" + " Time :" + AppUtils.getCurrentDateTime())
+                //Log.e("pww", "Power Save Mode OFF" )
+                //XLog.d("pww : Power Save Mode OFF" + " Time :" + AppUtils.getCurrentDateTime())
 
                 powerMode = "Power Save Mode OFF"
 
@@ -137,8 +137,8 @@ class MonitorService:Service() {
             }else{
 
                 println("pww - Power Save Mode OFF xm")
-                Log.e("pww", "Power Save Mode OFF xm" )
-                XLog.d("pww : Power Save Mode OFF xm" + " Time :" + AppUtils.getCurrentDateTime())
+               // Log.e("pww", "Power Save Mode OFF xm" )
+                //XLog.d("pww : Power Save Mode OFF xm" + " Time :" + AppUtils.getCurrentDateTime())
 
 
                 powerMode = "Power Save Mode OFF"
@@ -154,8 +154,8 @@ class MonitorService:Service() {
 
         if(shouldShopActivityUpdate()){
             if (FTStorageUtils.isMyServiceRunning(LocationFuzedService::class.java, this)) {
-                XLog.d("MonitorService LocationFuzedService : " + "true" + "," + " Time :" + AppUtils.getCurrentDateTime())
-                XLog.d("MonitorService Power Save Mode Status : " + powerMode + "," + " Time :" + AppUtils.getCurrentDateTime())
+                //XLog.d("MonitorService LocationFuzedService : " + "true" + "," + " Time :" + AppUtils.getCurrentDateTime())
+                //XLog.d("MonitorService Power Save Mode Status : " + powerMode + "," + " Time :" + AppUtils.getCurrentDateTime())
                 /*if(powerSaver){
                     sendGPSOffBroadcast()
                 }else{

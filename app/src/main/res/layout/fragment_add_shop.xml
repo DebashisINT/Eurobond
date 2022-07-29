@@ -1272,7 +1272,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@android:color/transparent"
-                            android:hint="@string/owner_name"
+                            android:hint="@string/owner_name1"
                             android:imeOptions="actionNext"
                             android:inputType="text"
                             android:singleLine="true"
@@ -1333,7 +1333,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@android:color/transparent"
-                            android:hint="@string/owner_contact_number"
+                            android:hint="@string/owner_contact_number1"
                             android:imeOptions="actionNext"
                             android:inputType="number"
                             android:maxLength="10"
@@ -1545,7 +1545,7 @@
                             android:id="@+id/owneremail_EDT"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/owner_email"
+                            android:hint="@string/owner_email1"
                             android:imeOptions="actionDone"
                             android:inputType="textEmailAddress"
                             android:singleLine="true"
@@ -2223,6 +2223,7 @@
                         android:src="@drawable/ic_add_shop_birthday_icon" />
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_dob"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColorHint="@color/light_gray"
@@ -2259,6 +2260,7 @@
                         android:src="@drawable/ic_add_shop_anniversary_icon" />
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_doannivesary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColorHint="@color/light_gray"
@@ -3647,7 +3649,7 @@
                             android:id="@+id/feedback_EDT"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/feedback"
+                            android:hint="@string/feedback1"
                             android:inputType="textMultiLine"
                             android:maxLength="500"
                             android:maxLines="7"
@@ -3704,7 +3706,7 @@
                             android:background="@android:color/transparent"
                             android:editable="false"
                             android:focusable="false"
-                            android:hint="@string/next_visit_date"
+                            android:hint="@string/next_visit_date1"
                             android:textSize="@dimen/_13sdp"
                             app:theme="@style/EvoEditTextTheme" />
 
@@ -3778,6 +3780,72 @@
                         android:layout_alignLeft="@+id/audio_record_TL"
                         android:layout_marginRight="@dimen/_2sdp"
                         android:background="@color/light_gray" />
+                </RelativeLayout>
+
+                <!--PurPose Design-->
+
+                <RelativeLayout
+                    android:id="@+id/rl_select_purpose"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:clickable="true">
+
+                    <ImageView
+                        android:id="@+id/iv_select_purpose"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:layout_marginRight="@dimen/_5sdp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_assigned_dd_icon" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/iv_select_purpose">
+
+                        <com.eurobond.widgets.AppCustomTextView
+                            android:id="@+id/tv_select_purpose"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/tv_purpose_asterisk_mark"
+                            android:hint="@string/select_purpose"
+                            android:padding="@dimen/_5sdp"
+                            android:textSize="@dimen/_13sdp" />
+
+                        <ImageView
+                            android:id="@+id/iv_purpose_dropdown"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:contentDescription="@null"
+                            android:padding="@dimen/_2sdp"
+                            android:src="@drawable/ic_gray_down_arrow_icon" />
+
+                        <com.eurobond.widgets.AppCustomTextView
+                            android:id="@+id/tv_purpose_asterisk_mark"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="@dimen/_5sdp"
+                            android:layout_toLeftOf="@+id/iv_purpose_dropdown"
+                            android:paddingTop="@dimen/_4sdp"
+                            android:text="@string/mandatory_mark"
+                            android:visibility="gone"
+                            android:textColor="@color/red"
+                            android:textSize="@dimen/_15sdp" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_1sdp"
+                            android:layout_below="@id/tv_select_purpose"
+                            android:layout_marginLeft="@dimen/_2sdp"
+                            android:layout_marginRight="@dimen/_2sdp"
+                            android:background="@color/light_gray" />
+                    </RelativeLayout>
                 </RelativeLayout>
 
                 <LinearLayout

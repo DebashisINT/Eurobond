@@ -1190,6 +1190,10 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 (mContext as DashboardActivity).loadFragment(FragType.ViewAllReturnListFragment, true, ShopActivityEntityList[position])
             }
 
+            override fun onDamageClick(shop_id: String) {
+                (mContext as DashboardActivity).loadFragment(FragType.ShopDamageProductListFrag, true, shop_id+"~"+Pref.user_id)
+            }
+
 
             override fun OnItemClick(position: Int) {
                 try {
@@ -1304,6 +1308,11 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
 
             addShopData.alternateNoForCustomer = shop.alternateNoForCustomer
             addShopData.whatsappNoForCustomer = shop.whatsappNoForCustomer
+
+            // duplicate shop api call
+            addShopData.isShopDuplicate=shop.isShopDuplicate
+
+            addShopData.purpose=shop.purpose
 
             callAddShopApi(addShopData, shop.shopImageLocalPath, shop.doc_degree, position)
             //}
@@ -2485,6 +2494,11 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                    addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
                else
                    addShopData.whatsappNoForCustomer =""
+
+               // duplicate shop api call
+               addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+               addShopData.purpose=mAddShopDBModelEntity.purpose
 
 
                callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shopList, true,

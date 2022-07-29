@@ -50,4 +50,11 @@ interface CollectionDetailsDao {
     @JvmSuppressWildcards
     abstract fun insertAll(kist: List<CollectionDetailsEntity>)
 
+
+    @Query("select SUM(collection) from collection_list where shop_id=:shop_id ")
+    fun getCollectSumAmt(shop_id: String): String
+
+    @Query("select SUM(collection) from collection_list where order_id=:order_id ")
+    fun getCollectSumAmtByOrdID(order_id: String): String
+
 }

@@ -290,7 +290,6 @@ class LeadInProcessFrag : BaseFragment(),  DatePickerDialog.OnDateSetListener,Vi
             override fun onActivityClick(obj: CustomerLeadList) {
                 doActivity(obj)
             }
-
             override fun onPhoneClick(obj: CustomerLeadList) {
                 if(obj.mobile_no.length>1)
                 {

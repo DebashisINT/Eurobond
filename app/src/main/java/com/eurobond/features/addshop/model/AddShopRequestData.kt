@@ -78,6 +78,7 @@ class AddShopRequestData {
     var alternateNoForCustomer: String?= null
     var whatsappNoForCustomer: String?= null
 
-
+    var isShopDuplicate: Boolean?= null
+    var purpose: String?= null
 
 }

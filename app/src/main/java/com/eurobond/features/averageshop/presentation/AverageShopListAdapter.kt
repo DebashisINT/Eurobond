@@ -1,28 +1,28 @@
 package com.eurobond.features.averageshop.presentation
 
 import android.content.Context
-import androidx.recyclerview.widget.RecyclerView
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.recyclerview.widget.RecyclerView
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
 import com.eurobond.app.Pref
-import com.eurobond.app.domain.AddShopDao
 import com.eurobond.app.domain.OrderDetailsListEntity
 import com.eurobond.app.domain.ShopActivityEntity
 import com.eurobond.app.types.FragType
 import com.eurobond.app.uiaction.IntentActionable
 import com.eurobond.app.utils.AppUtils
 import com.eurobond.app.utils.Toaster
-import com.eurobond.features.commondialogsinglebtn.AddFeedbackSingleBtnDialog
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.*
-import kotlinx.android.synthetic.main.inflate_nearby_shops.view.*
+import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.activity_view
+import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.shop_damage_ll
+import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.shop_damage_view
 import kotlinx.android.synthetic.main.inflate_registered_shops.view.*
 import kotlinx.android.synthetic.main.inflate_registered_shops.view.add_order_ll
 import kotlinx.android.synthetic.main.inflate_registered_shops.view.add_quot_ll
@@ -381,6 +381,18 @@ class AverageShopListAdapter(context: Context, userLocationDataEntity: List<Shop
 
                 }
 
+                if (Pref.IsAllowBreakageTracking) {
+                    itemView.shop_damage_ll.visibility = View.VISIBLE
+                    itemView.shop_damage_view.visibility = View.VISIBLE
+                }
+                else {
+                    itemView.shop_damage_ll.visibility = View.GONE
+                    itemView.shop_damage_view.visibility = View.GONE
+                }
+                itemView.shop_damage_ll.setOnClickListener{
+                    listener.onDamageClick(userLocationDataEntity[adapterPosition].shopid!!)
+                }
+
 
 
                 if (!TextUtils.isEmpty(userLocationDataEntity[adapterPosition].device_model))
@@ -446,6 +458,15 @@ class AverageShopListAdapter(context: Context, userLocationDataEntity: List<Shop
                 var type_name=AppDatabase.getDBInstance()!!.shopTypeDao().getShopNameById(type_id)
 
                 itemView.myyshop_Type_TV.text = type_name
+
+                if (Pref.willActivityShow) {
+                    itemView.ll_activity.visibility = View.VISIBLE
+                    itemView.activity_view.visibility = View.VISIBLE
+                }else{
+                    itemView.ll_activity.visibility = View.GONE
+                    itemView.activity_view.visibility = View.GONE
+                }
+
 
             } catch (e: Exception) {
                 e.printStackTrace()

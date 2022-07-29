@@ -1,5 +1,6 @@
 package com.eurobond.features.lead
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
@@ -132,6 +133,7 @@ class LeadPendingFrag : BaseFragment(), DatePickerDialog.OnDateSetListener, View
         }
     }
 
+    @SuppressLint("NewApi")
     override fun onClick(v: View?) {
         when (v?.id) {
 
@@ -301,12 +303,11 @@ class LeadPendingFrag : BaseFragment(), DatePickerDialog.OnDateSetListener, View
             override fun onActivityClick(obj: CustomerLeadList) {
                 doActivity(obj)
             }
-
             override fun onPhoneClick(obj: CustomerLeadList) {
                 if(obj.mobile_no.length>1)
                 {
                     var phoneNo=obj.mobile_no
-                IntentActionable.initiatePhoneCall(mContext, phoneNo)
+                    IntentActionable.initiatePhoneCall(mContext, phoneNo)
                 }
             }
         }, {

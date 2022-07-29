@@ -14,6 +14,7 @@ import android.location.Location
 import android.os.*
 import android.speech.tts.TextToSpeech
 import android.text.Editable
+import android.text.Html
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Log
@@ -65,6 +66,7 @@ import com.eurobond.features.location.LocationWizard
 import com.eurobond.features.location.SingleShotLocationProvider
 import com.eurobond.features.login.UserLoginDataEntity
 import com.eurobond.features.login.model.LoginStateListDataModel
+import com.eurobond.features.newcollectionreport.PendingCollData
 import com.eurobond.features.photoReg.api.GetUserListPhotoRegProvider
 import com.eurobond.features.photoReg.model.UserFacePicUrlResponse
 import com.eurobond.widgets.AppCustomEditText
@@ -97,6 +99,8 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
+import java.time.LocalDate
+import java.time.Period
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -388,6 +392,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
     private var selectedRoute = ArrayList<RouteEntity>()
     private var routeID = ""
 
+    @SuppressLint("WrongConstant")
     private fun setRouteAdapter(arrayList: ArrayList<RouteEntity>, selectionStatus: Int, route_id: String?) {
         /*val routeList = ArrayList<String>()
         for (i in 1..10) {
@@ -540,6 +545,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         }
     }
 
+    @SuppressLint("WrongConstant")
     private fun setLeaveTypeAdapter(leaveTypeList: ArrayList<LeaveTypeEntity>?) {
         rv_leave_type_list.layoutManager = LinearLayoutManager(mContext, LinearLayout.VERTICAL, false)
         rv_leave_type_list.adapter = LeaveTypeListAdapter(mContext, leaveTypeList!!, object : LeaveTypeListAdapter.OnLeaveTypeClickListener {
@@ -911,6 +917,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
 
     private var position = -1
     private var workTypeList = ArrayList<WorkTypeEntity>()
+    @SuppressLint("WrongConstant")
     private fun setAdapter(list: ArrayList<WorkTypeEntity>?) {
         if (list != null) {
             rv_work_type_list.layoutManager = LinearLayoutManager(mContext, LinearLayout.VERTICAL, false)
@@ -1700,9 +1707,10 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
             (mContext as DashboardActivity).showSnackMessage("Your end date is before start date.")
             return
         }
-        val date = "Leave: From " + day + AppUtils.getDayNumberSuffix(day.toInt()) + FTStorageUtils.formatMonth((++monthOfYear).toString() + "") + " " + year + " To " + dayEnd + AppUtils.getDayNumberSuffix(dayEnd.toInt()) + FTStorageUtils.formatMonth((++monthOfYearEnd).toString() + "") + " " + yearEnd
+        //val date = "Leave: From " + day + AppUtils.getDayNumberSuffix(day.toInt()) + FTStorageUtils.formatMonth((++monthOfYear).toString() + "") + " " + year + " To " + dayEnd + AppUtils.getDayNumberSuffix(dayEnd.toInt()) + FTStorageUtils.formatMonth((++monthOfYearEnd).toString() + "") + " " + yearEnd
+        val date = "<font color=#800000> Leave: From </font>" + day + AppUtils.getDayNumberSuffix(day.toInt()) + FTStorageUtils.formatMonth((++monthOfYear).toString() + "") + " " + year + "<font color=#800000> To </font>" + dayEnd + AppUtils.getDayNumberSuffix(dayEnd.toInt()) + FTStorageUtils.formatMonth((++monthOfYearEnd).toString() + "") + " " + yearEnd
         tv_show_date_range.visibility = View.VISIBLE
-        tv_show_date_range.text = date
+        tv_show_date_range.text = Html.fromHtml(date)
 
         startDate = AppUtils.convertFromRightToReverseFormat(fronString)
         endDate = AppUtils.convertFromRightToReverseFormat(endString)
@@ -1871,8 +1879,10 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
                         prepareAddAttendanceInputParams()
                     }
                     //prepareAddAttendanceInputParams()
-                else
-                    callLeaveApprovalApi()
+                else{
+                    //callLeaveApprovalApi()
+                    calculateDaysForLeave()
+                }
         }
 
         } else
@@ -1967,7 +1977,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         fingerprintDialog?.show((mContext as DashboardActivity).supportFragmentManager, "")
     }
 
-    private fun callLeaveApprovalApi() {
+    /*private fun callLeaveApprovalApi() {
         val leaveApproval = SendLeaveApprovalInputParams()
         leaveApproval.session_token = Pref.session_token!!
         leaveApproval.user_id = Pref.user_id!!
@@ -2045,6 +2055,188 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
                             progress_wheel.stopSpinning()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
+        )
+    }*/
+
+    var dateList:ArrayList<String> = ArrayList()
+    var count=0
+
+    @SuppressLint("NewApi")
+    private fun calculateDaysForLeave(){
+        val stDate = LocalDate.parse(startDate)
+        val enDate = LocalDate.parse(endDate)
+        val diff = Period.between(stDate,enDate)
+
+
+        dateList.add(startDate)
+        var countDate=stDate
+
+        for(i in 0..diff.days-1){
+            countDate=countDate.plusDays(1)
+            dateList.add(countDate.toString())
+        }
+        //for(j in 0..dateList.size-1){
+        callLeaveApiForUser()
+        //}
+    }
+
+    private fun callLeaveApiForUser(){
+
+        var stDate=dateList.get(count).toString()
+        var enDate=dateList.get(count).toString()
+
+        var addAttendenceModel: AddAttendenceInpuModel = AddAttendenceInpuModel()
+        addAttendenceModel.user_id=Pref.user_id.toString()
+        addAttendenceModel.add_attendence_time=AppUtils.getCurrentTimeWithMeredian()
+        addAttendenceModel.collection_taken="0"
+        addAttendenceModel.distance=""
+        addAttendenceModel.distributor_name=""
+        addAttendenceModel.from_id=""
+        addAttendenceModel.is_on_leave="true"
+        addAttendenceModel.leave_from_date=stDate
+        addAttendenceModel.leave_to_date=enDate
+        //addAttendenceModel.work_date_time=AppUtils.getCurrentDateTime()
+        addAttendenceModel.work_date_time=stDate + " "+AppUtils.getCurrentTime()
+
+        var mLeaveReason=""
+        if (!TextUtils.isEmpty(et_leave_reason_text.text.toString().trim()))
+            mLeaveReason = et_leave_reason_text.text.toString().trim()
+
+        addAttendenceModel.leave_reason=mLeaveReason
+        addAttendenceModel.leave_type=leaveId
+        addAttendenceModel.market_worked=""
+        addAttendenceModel.new_shop_visit="0"
+        addAttendenceModel.order_taken="0"
+
+        addAttendenceModel.revisit_shop="0"
+        addAttendenceModel.route=""
+        addAttendenceModel.session_token=""
+
+        addAttendenceModel.work_lat=Pref.current_latitude
+        addAttendenceModel.work_long=Pref.current_longitude
+
+        val repository = AddAttendenceRepoProvider.addAttendenceRepo()
+        progress_wheel.spin()
+        BaseActivity.compositeDisposable.add(
+            repository.addAttendence(addAttendenceModel)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    progress_wheel.stopSpinning()
+                    val response = result as BaseResponse
+                    if (response.status == NetworkConstant.SUCCESS) {
+                        if(count==(dateList.size-1)){
+                            count=0
+                            callLeaveApprovalApi()
+                        }else{
+                            count++
+                            callLeaveApiForUser()
+                        }
+                    } else {
+                        BaseActivity.isApiInitiated = false
+                        (mContext as DashboardActivity).showSnackMessage(response.message!!)
+                    }
+                    Log.e("ApprovalPend work attendance", "api work type")
+
+                }, { error ->
+                    XLog.d("AddAttendance Response Msg=========> " + error.message)
+                    BaseActivity.isApiInitiated = false
+                    progress_wheel.stopSpinning()
+                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                })
+        )
+
+    }
+
+    private fun callLeaveApprovalApi() {
+
+        if (!AppUtils.isOnline(mContext)) {
+            (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
+            return
+        }
+
+        var stDate=dateList.get(count).toString()
+        var enDate=dateList.get(count).toString()
+
+        val leaveApproval = SendLeaveApprovalInputParams()
+        leaveApproval.session_token = Pref.session_token!!
+        leaveApproval.user_id = Pref.user_id!!
+        leaveApproval.leave_from_date = stDate
+        leaveApproval.leave_to_date = enDate
+        leaveApproval.leave_type = leaveId
+
+        var tt=AppUtils.getCurrentDateTime()
+
+        if (TextUtils.isEmpty(Pref.current_latitude))
+            leaveApproval.leave_lat = "0.0"
+        else
+            leaveApproval.leave_lat = Pref.current_latitude
+
+        if (TextUtils.isEmpty(Pref.current_longitude))
+            leaveApproval.leave_long = "0.0"
+        else
+            leaveApproval.leave_long = Pref.current_longitude
+
+        if (TextUtils.isEmpty(Pref.current_latitude))
+            leaveApproval.leave_add = ""
+        else
+            leaveApproval.leave_add = LocationWizard.getLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
+
+
+        if (!TextUtils.isEmpty(et_leave_reason_text.text.toString().trim()))
+            leaveApproval.leave_reason = et_leave_reason_text.text.toString().trim()
+
+        XLog.d("=========Apply Leave Input Params==========")
+        XLog.d("session_token======> " + leaveApproval.session_token)
+        XLog.d("user_id========> " + leaveApproval.user_id)
+        XLog.d("leave_from_date=======> " + leaveApproval.leave_from_date)
+        XLog.d("leave_to_date=======> " + leaveApproval.leave_to_date)
+        XLog.d("leave_type========> " + leaveApproval.leave_type)
+        XLog.d("leave_lat========> " + leaveApproval.leave_lat)
+        XLog.d("leave_long========> " + leaveApproval.leave_long)
+        XLog.d("leave_add========> " + leaveApproval.leave_add)
+        XLog.d("leave_reason========> " + leaveApproval.leave_reason)
+        XLog.d("===============================================")
+
+        val repository = AddAttendenceRepoProvider.leaveApprovalRepo()
+        progress_wheel.spin()
+        BaseActivity.compositeDisposable.add(
+            repository.sendLeaveApproval(leaveApproval)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    progress_wheel.stopSpinning()
+                    val response = result as BaseResponse
+                    XLog.d("Apply Leave Response Code========> " + response.status)
+                    XLog.d("Apply Leave Response Msg=========> " + response.message)
+                    BaseActivity.isApiInitiated = false
+
+                    if (response.status == NetworkConstant.SUCCESS) {
+
+                        Pref.prevOrderCollectionCheckTimeStamp = 0L
+
+                        if(count==(dateList.size-1)){
+                            count=0
+                            openPopupshowMessage(response.message!!)
+                        }else{
+                            count++
+                            callLeaveApprovalApi()
+
+                        }
+
+//                                (mContext as DashboardActivity).showSnackMessage(response.message!!)
+                        //(mContext as DashboardActivity).onBackPressed()
+
+                    } else {
+                        (mContext as DashboardActivity).showSnackMessage(response.message!!)
+                    }
+
+                }, { error ->
+                    XLog.d("Apply Leave Response ERROR=========> " + error.message)
+                    BaseActivity.isApiInitiated = false
+                    progress_wheel.stopSpinning()
+                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                })
         )
     }
 
@@ -2342,6 +2534,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         }
     }
 
+    @SuppressLint("NewApi")
     private fun callAddAttendanceApi(addAttendenceModel: AddAttendenceInpuModel) {
         XLog.e("==========AddAttendance=============")
         XLog.d("=====AddAttendance Input Params========")
@@ -2530,8 +2723,20 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
 
                                 //Pref.isAddAttendence = true
                                 BaseActivity.isApiInitiated = false
+
                                 (mContext as DashboardActivity).showSnackMessage(response.message!!)
-                                (mContext as DashboardActivity).onBackPressed()
+
+                                if(Pref.ShowZeroCollectioninAlert)
+                                    calculatePendingColl()
+                                if(Pref.IsShowRepeatOrderinNotification)
+                                    calculateZeroOrder()
+                                //getDobAnniv()
+
+                                Handler().postDelayed(Runnable {
+                                    (mContext as DashboardActivity).onBackPressed()
+                                }, 1000)
+
+
 
 
                                 /*Pref.isAddAttendence = true
@@ -2556,7 +2761,159 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
     }
 
 
+    private fun calculatePendingColl(){
+        progress_wheel.spin()
+        if(Pref.IsCollectionEntryConsiderOrderOrInvoice){
+            var pendingCollDataList:ArrayList<PendingCollData> = ArrayList()
+            val shopList = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopIdHasOrder() as ArrayList<AddShopDBModelEntity>
+            if(shopList.size>0){
+                for(i in 0..shopList.size-1){
+                    var totalInvAmt ="0"
+                    var totalCollectionAmt ="0"
+                    var dueAmt ="0"
 
+
+                    var isShopOrder = AppDatabase.getDBInstance()!!.orderDetailsListDao().getListAccordingToShopId(shopList.get(i).shop_id.toString())
+                    if(isShopOrder.size!=0){
+                        for(j in 0..isShopOrder.size-1){
+                            var ob=AppDatabase.getDBInstance()!!.billingDao().getInvoiceSumAmt(isShopOrder.get(j).order_id.toString())
+                            if(ob!=null)
+                                totalInvAmt=(totalInvAmt.toDouble()+ob.toDouble()).toString()
+                        }
+                    }
+
+                    var isShopCollection = AppDatabase.getDBInstance()!!.collectionDetailsDao().getListAccordingToShopId(shopList.get(i).shop_id.toString())
+                    if(isShopCollection.size!=0){
+                        totalCollectionAmt = AppDatabase.getDBInstance()!!.collectionDetailsDao().getCollectSumAmt(shopList.get(i).shop_id.toString())
+                    }
+
+                    try{
+                        dueAmt = (totalInvAmt.toDouble()-totalCollectionAmt.toDouble()).toString()
+                    }catch (ex:Exception){
+
+                    }
+                    if(dueAmt.contains("-") || dueAmt.equals("0.0") || dueAmt.equals("0.00")){
+                        dueAmt="0"
+                    }
+
+                    if(totalInvAmt.toDouble() == dueAmt.toDouble())
+                        pendingCollDataList.add(PendingCollData(shopList.get(i).shopName,dueAmt,shopList.get(i).shop_id.toString()))
+                }
+            }
+            if(pendingCollDataList.size>0){
+                Pref.IsPendingColl=true
+                Pref.NotiCountFlag = true
+            }else{
+                Pref.IsPendingColl=false
+            }
+            progress_wheel.stopSpinning()
+        }
+        else{
+            var pendingCollDataList:ArrayList<PendingCollData> = ArrayList()
+            val shopList = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopIdHasOrder() as ArrayList<AddShopDBModelEntity>
+            if(shopList.size>0){
+                for(i in 0..shopList.size-1){
+                    var totalOrderAmt ="0"
+                    var totalCollectionAmt ="0"
+                    var dueAmt ="0"
+
+                    var isShopOrder = AppDatabase.getDBInstance()!!.orderDetailsListDao().getListAccordingToShopId(shopList.get(i).shop_id.toString())
+                    if(isShopOrder.size!=0){
+                        totalOrderAmt=AppDatabase.getDBInstance()!!.orderDetailsListDao().getOrderSumAmt(shopList.get(i).shop_id.toString()).toString()
+
+                        var isShopCollection = AppDatabase.getDBInstance()!!.collectionDetailsDao().getListAccordingToShopId(shopList.get(i).shop_id.toString())
+                        if(isShopCollection.size!=0){
+                            totalCollectionAmt = AppDatabase.getDBInstance()!!.collectionDetailsDao().getCollectSumAmt(shopList.get(i).shop_id.toString())
+                        }
+                        try{
+                            dueAmt = (totalOrderAmt.toDouble()-totalCollectionAmt.toDouble()).toString()
+                        }catch (ex:Exception){
+
+                        }
+                        if(dueAmt.contains("-")){
+                            dueAmt="0"
+                        }
+                        if(totalOrderAmt.toDouble() == dueAmt.toDouble())
+                            pendingCollDataList.add(PendingCollData(shopList.get(i).shopName,dueAmt,shopList.get(i).shop_id.toString()))
+                    }
+
+                }
+            }
+            if(pendingCollDataList.size>0){
+                Pref.IsPendingColl=true
+                Pref.NotiCountFlag = true
+            }else{
+                Pref.IsPendingColl=false
+            }
+            progress_wheel.stopSpinning()
+        }
+        progress_wheel.stopSpinning()
+    }
+
+    private fun calculateZeroOrder(){
+        var shopList:ArrayList<AddShopDBModelEntity> = ArrayList()
+
+        if(Pref.ZeroOrderInterval.toInt()!=0){
+            dateList= ArrayList()
+            shopList= ArrayList()
+            progress_wheel.spin()
+            var currentDStr = AppUtils.getCurrentDateyymmdd()
+            var currentD= LocalDate.parse(currentDStr)
+            var stDate=currentD.minusDays(Pref.ZeroOrderInterval.toInt().toLong())
+            var endDate=currentD.minusDays(1)
+            val diff = Period.between(stDate,endDate)
+
+            dateList.add(stDate.toString())
+            var countDate=stDate
+            for(i in 0..diff.days-1){
+                countDate=countDate.plusDays(1)
+                dateList.add(countDate.toString())
+            }
+
+            var todayDateFormat = AppUtils.convertDateTimeToCommonFormat(AppUtils.getCurrentDateTime())
+            var shopListfromOrder = AppDatabase.getDBInstance()!!.orderDetailsListDao().getDistinctShopIDExceptCurrDate(todayDateFormat) as ArrayList<String>
+
+            if(shopListfromOrder!=null){
+                for(i in 0..shopListfromOrder.size-1){
+                    var isshopOrderTaken=false
+                    for(j in 0..dateList.size-1){
+                        var convDate=AppUtils.convertDateTimeToCommonFormat(dateList.get(j)+"T00:00:00")
+                        var shopCount = AppDatabase.getDBInstance()!!.orderDetailsListDao().getAllByOnlyDate(convDate,shopListfromOrder.get(i))
+                        if(shopCount.size>0){
+                            isshopOrderTaken=true
+                            break
+                        }
+                    }
+                    if(isshopOrderTaken==false){
+                        shopList.add(AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopListfromOrder.get(i)))
+                    }
+                }
+            }
+            progress_wheel.stopSpinning()
+            if(shopList.size>0){
+                Pref.IsZeroOrder=true
+                Pref.NotiCountFlag = true
+            }else{
+                Pref.IsZeroOrder=false
+            }
+
+
+        }
+    }
+
+    private fun getDobAnniv(){
+        Pref.IsTodayDOBDOA = false
+        val list= AppDatabase.getDBInstance()?.addShopEntryDao()?.all
+        var todayDateFormat = AppUtils.convertDateTimeToCommonFormat(AppUtils.getCurrentDateTime())
+        for(i in 0..list!!.size-1){
+           var  dob =   AppUtils.convertDateTimeToCommonFormat(list.get(i).dateOfBirth+"T00:00:00")
+            var doa =  AppUtils.convertDateTimeToCommonFormat( list.get(i).dateOfAniversary+"T00:00:00")
+            if(dob.equals(todayDateFormat) || doa.equals(todayDateFormat)){
+                Pref.IsTodayDOBDOA = true
+                break
+            }
+        }
+    }
 
     fun getPicUrl(){
         //31-08-2021

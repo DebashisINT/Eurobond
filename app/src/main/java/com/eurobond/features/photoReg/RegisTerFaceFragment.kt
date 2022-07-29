@@ -1,6 +1,7 @@
 package com.eurobond.features.photoReg
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
@@ -181,7 +182,6 @@ class RegisTerFaceFragment: BaseFragment(), View.OnClickListener {
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             (mContext as DashboardActivity).startActivityForResult(intent, PermissionHelper.REQUEST_CODE_STORAGE)
         }
-
     }
 
 
@@ -317,6 +317,7 @@ class RegisTerFaceFragment: BaseFragment(), View.OnClickListener {
 
 
 
+    @SuppressLint("UseRequireInsteadOfGet")
     private fun saveImageToGallery() {
         iv_frag_reg_face.setRotation(90f)
         iv_frag_reg_face.setDrawingCacheEnabled(true)

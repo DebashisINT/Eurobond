@@ -852,6 +852,12 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
         addShopData.alternateNoForCustomer = shop.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = shop.whatsappNoForCustomer
 
+        // duplicate shop api call
+        addShopData.isShopDuplicate=shop.isShopDuplicate
+
+         addShopData.purpose=shop.purpose
+
+
         callAddShopApi(addShopData, shop.shopImageLocalPath, shop.doc_degree, position)
         //}
     }
@@ -2231,6 +2237,11 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
 
             addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
             addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+             // duplicate shop api call
+            addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+            addShopData.purpose=mAddShopDBModelEntity.purpose
+
 
 
             callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shopList, true,

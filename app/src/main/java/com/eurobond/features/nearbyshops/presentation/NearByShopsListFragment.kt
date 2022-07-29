@@ -659,6 +659,19 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
         tv_shop_count.text = "Total " + Pref.shopText + "(s): " + list.size
 
         mNearByShopsListAdapter = NearByShopsListAdapter(this.mContext!!, list, object : NearByShopsListClickListener {
+
+            override fun onDamageClick(shop_id: String) {
+                (mContext as DashboardActivity).loadFragment(FragType.ShopDamageProductListFrag, true, shop_id+"~"+Pref.user_id)
+            }
+
+            override fun onSurveyClick(shop_id: String) {
+               if(Pref.isAddAttendence){
+                   (mContext as DashboardActivity).loadFragment(FragType.SurveyViewFrag, true, shop_id)
+               }else{
+                   (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+               }
+            }
+
             override fun onUpdateStageClick(position: Int) {
                 if (list[position].isUploaded) {
                     val stageList = AppDatabase.getDBInstance()?.stageDao()?.getAll() as ArrayList<StageEntity>
@@ -783,9 +796,12 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                     if (!Pref.isAddAttendence)
                         (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
                     else {
+                        if(Pref.IsCollectionOrderWise){
+                            (mContext as DashboardActivity).loadFragment(FragType.NewOrderListFragment, true, "")
+                        }else{
                         collectionDialog = AddCollectionDialog.getInstance(list[position], true, list[position].shopName!!, "", "", "", object : AddCollectionDialog.AddCollectionClickLisneter {
                             override fun onClick(collection: String, date: String, paymentId: String, instrument: String, bank: String, filePath: String, feedback: String, patientName: String, patientAddress: String, patinetNo: String,
-                            hospital:String,emailAddress:String) {
+                            hospital:String,emailAddress:String,order_id:String) {
 
 
                                 val addShop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(list[position].shop_id)
@@ -820,6 +836,8 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                         /*06-01-2022*/
                                         collectionDetails.Hospital = hospital
                                         collectionDetails.Email_Address = emailAddress
+
+                                        collectionDetails.order_id = order_id
                                         AppDatabase.getDBInstance()!!.collectionDetailsDao().insert(collectionDetails)
 
                                         val collectionDate = AppUtils.getCurrentDateForShopActi() + "T" + collectionDetails.only_time
@@ -846,6 +864,7 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                             }
                         })
                         collectionDialog?.show((mContext as DashboardActivity).supportFragmentManager, "AddCollectionDialog")
+                        }
                     }
 
                 } catch (e: java.lang.Exception) {
@@ -1057,6 +1076,11 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
                     addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
                     addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+                    // duplicate shop api call
+                    addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+                    addShopData.purpose=mAddShopDBModelEntity.purpose
 
 
                     callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, null, true,
@@ -1378,6 +1402,11 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+        addShopData.purpose=mAddShopDBModelEntity.purpose
 
 
         callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, order_id, amount, collection,
@@ -3201,6 +3230,11 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
 
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+        addShopData.purpose=mAddShopDBModelEntity.purpose
+
 
         callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shopList, true,
                 mAddShopDBModelEntity.doc_degree)
@@ -3342,6 +3376,10 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
             addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
             addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+            // duplicate shop api call
+            addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+            addShopData.purpose=mAddShopDBModelEntity.purpose
 
 
             addShopData

@@ -175,8 +175,11 @@
     <string name="address" translatable="false">Address</string>
     <string name="pin_code" translatable="false">Pin Code</string>
     <string name="owner_name" translatable="false">Owner Name</string>
+    <string name="owner_name1" translatable="false">Contact Name</string>
     <string name="owner_contact_number" translatable="false">Owner Contact Number</string>
+    <string name="owner_contact_number1" translatable="false">Contact Number</string>
     <string name="owner_email" translatable="false">Owner Email</string>
+    <string name="owner_email1" translatable="false">Email</string>
     <string name="only_email" translatable="false">Email</string>
     <string name="dob" translatable="false">Date of Birth</string>
     <string name="date_aniversary" translatable="false">Date of Anniversary</string>
@@ -202,6 +205,7 @@
     <string name="amount_error" translatable="false">Please enter amount</string>
     <string name="valid_amount_error" translatable="false">Please enter valid amount</string>
     <string name="feedback" translatable="false">Feedback</string>
+    <string name="feedback1" translatable="false">Type your feedback</string>
     <string name="type_your_feedback" translatable="false">Type your Feedback</string>
     <string name="error_enter_valid_phn_no" translatable="false">Mobile number should start only with 6 or 7 or 8 or 9</string>
     <string name="area" translatable="false">Area</string>
@@ -219,6 +223,7 @@
     <string name="enter_type" translatable="false">Enter Type</string>
     <string name="enter_product" translatable="false">Enter Product</string>
     <string name="next_visit_date" translatable="false">Next Visit Date</string>
+    <string name="next_visit_date1" translatable="false">Select next visit date</string>
     <string name="select_next_visit_date" translatable="false">Select Next Visit Date</string>
     <string name="audio_record" translatable="false">Audio Record</string>
     <string name="competitor_image" translatable="false">Attach Competitor Image</string>
@@ -256,6 +261,7 @@
     <string name="select_retailer" translatable="false">Select Retailer/Entity</string>
     <string name="select_dealer" translatable="false">Select GPTPL/Distributor</string>
     <string name="select_beat" translatable="false">Select Beat/Group</string>
+    <string name="select_purpose" translatable="false">Select Purpose</string>
 
     <!--my order-->
     <string name="capital_electronics" translatable="false">Capital Electronics</string>
@@ -507,6 +513,7 @@
     <string name="no_attendance" translatable="false">No Registered Shops Available</string>
     <string name="no_data_available" translatable="false">No Data Available</string>
     <string name="no_notification_available" translatable="false">No Notification Available</string>
+    <string name="no_collect_available" translatable="false">No Pending Collection Available</string>
     <string name="no_billing_available" translatable="false">No Bill(Invoice) found in the system.</string>
     <string name="monthly" translatable="false">Monthly</string>
     <string name="daily" translatable="false">Daily</string>
@@ -568,6 +575,7 @@
     <string name="no_internet" translatable="false">Please check your internet connection.</string>
     <string name="alert_nolocation" translatable="false">Please enable your device location.</string>
     <string name="something_went_wrong" translatable="false">Something went wrong. Please try again later</string>
+    <string name="something_went_wrong1" translatable="false">Something went wrong. Please try again later...............</string>
     <string name="no_value" translatable="false">Please Insert Value</string>
     <string name="unable_to_sync" translatable="false">Unable to sync</string>
     <string name="unable_to_sync_order" translatable="false">Unable to sync order</string>
@@ -1409,6 +1417,7 @@
     <string name="note" translatable="false">Note</string>
     <string name="wait_for_preview" translatable="false">Please wait for the preview...</string>
     <string name="video_duration" translatable="false">Video duration (in HH:MM:SS):</string>
+    <string name="video_duration1" translatable="false">Video duration (hh:mm:ss) :</string>
 
     <!--Splash-->
     <string name="use_location" translatable="false">Use your location</string>
@@ -1554,6 +1563,9 @@
     <string name="camera_back" translatable="false">Back Camera :\u0020 </string>
     <string name="camera_front" translatable="false">Front Camera :\u0020 </string>
     <string name="historys" translatable="false">Historys</string>
-
     <string name="firebase_key" translatable="false">key=AAAAZj4rINg:APA91bHmnhpJuY6068fHwK3RFHPdWAEWOcksGpMbZJFEwQ39jf8xzSm2IFDMwifn9e_A6AY8EYWmnP5IVFyJVyFmgvDNVzguemofko53fYEcJUsbpMYMxinjnzcTdOHQwfSfbenM_tzr</string>
+
+    <string name="GenderTextNewOrd" translatable="false">Gender</string>
+    <string name="ProductTextNewOrd" translatable="false">Product Type</string>
+
 </resources>

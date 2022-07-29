@@ -22,6 +22,7 @@ import com.eurobond.app.NetworkConstant
 import com.eurobond.app.Pref
 import com.eurobond.app.types.FragType
 import com.eurobond.app.utils.AppUtils
+import com.eurobond.app.utils.Toaster
 import com.eurobond.base.BaseResponse
 import com.eurobond.base.presentation.BaseActivity
 import com.eurobond.base.presentation.BaseFragment
@@ -33,6 +34,7 @@ import com.eurobond.features.addAttendence.model.Leave_list_Response
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.leaveapplynew.adapter.AdapterAppliedLeaveList
 import com.eurobond.features.leaveapplynew.model.ApprovalRejectReqModel
+import com.eurobond.features.leaveapplynew.model.clearAttendanceonRejectReqModelRejectReqModel
 import com.eurobond.widgets.AppCustomEditText
 import com.eurobond.widgets.AppCustomTextView
 import com.elvishew.xlog.XLog
@@ -155,9 +157,13 @@ class ApprovalPendFrag: BaseFragment(), View.OnClickListener {
         val dialogYes = simpleDialog.findViewById(R.id.dialog_remark_ok) as AppCustomTextView
 
         dialogYes.setOnClickListener({ view ->
-            simpleDialog.cancel()
-            remark =  dialog_remark.text.toString().trim()
-            apiCallOnClick(status,obj)
+            if(dialog_remark.text.toString().trim().length>0){
+                simpleDialog.cancel()
+                remark =  dialog_remark.text.toString().trim()
+                apiCallOnClick(status,obj)
+            }else{
+                Toaster.msgShort(mContext,"Please enter remarks.")
+            }
         })
 
         simpleDialog.show()
@@ -181,11 +187,45 @@ class ApprovalPendFrag: BaseFragment(), View.OnClickListener {
                         .subscribe({ result ->
                             val response = result as BaseResponse
                             if (response.status == NetworkConstant.SUCCESS) {
-                                getDeviceTokerOfAppliedUser(status)
+                                if(status.equals("REJECT")){
+                                    apiCallOnClearAttenReject(status,obj)
+                                }else{
+                                    getDeviceTokerOfAppliedUser(status)
+                                }
+
                        /*         Handler().postDelayed(Runnable {
                                     progress_wheel.stopSpinning()
                                     getApprovalPendingList()
                                 }, 3500)*/
+                            }
+                        }, { error ->
+                            progress_wheel.stopSpinning()
+                            (mContext as DashboardActivity).showSnackMessage("ERROR")
+                        })
+        )
+    }
+
+
+
+
+    private fun apiCallOnClearAttenReject(status:String,obj:Leave_list_Response) {
+        var req : clearAttendanceonRejectReqModelRejectReqModel = clearAttendanceonRejectReqModelRejectReqModel()
+        req.user_id=userId
+        req.leave_apply_date=AppUtils.getFormatedDateNew(obj.from_date,"dd-mm-yyyy","yyyy-mm-dd")
+        req.isOnLeave=true
+
+
+        val repository = LeaveTypeRepoProvider.leaveTypeListRepoProvider()
+        progress_wheel.spin()
+        BaseActivity.compositeDisposable.add(
+                repository.clearAttendanceonRejectclick(req)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({ result ->
+                            val response = result as BaseResponse
+                            if (response.status == NetworkConstant.SUCCESS) {
+                                getDeviceTokerOfAppliedUser(status)
+
                             }
                         }, { error ->
                             progress_wheel.stopSpinning()

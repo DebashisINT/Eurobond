@@ -1,5 +1,6 @@
 package com.eurobond.features.shopdetail.presentation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -112,6 +113,7 @@ class CollectionDetailsFragment : BaseFragment(), View.OnClickListener {
     }
 
 
+    @SuppressLint("RestrictedApi")
     private fun initView(view: View) {
         add_order_tv = view.findViewById(R.id.add_order_tv)
         add_order_tv.visibility = View.GONE
@@ -559,6 +561,11 @@ class CollectionDetailsFragment : BaseFragment(), View.OnClickListener {
 
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+        addShopData.purpose=mAddShopDBModelEntity.purpose
 
         callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, order_id, amount, collection, currentDateForShopActi, desc, mAddShopDBModelEntity.doc_degree)
     }
@@ -1084,7 +1091,7 @@ class CollectionDetailsFragment : BaseFragment(), View.OnClickListener {
                     override fun onViewClick(position: Int) {
                         AddCollectionDialog.getInstance(viewAllOrderList?.get(position), false, shopName, "", "", "", object : AddCollectionDialog.AddCollectionClickLisneter {
                             override fun onClick(collection: String, date: String, paymentId: String, instrument: String, bank: String, filePath: String, feedback: String, patientName: String, patientAddress: String, patinetNo: String
-                            , hospital:String,emailAddress:String) {
+                            , hospital:String,emailAddress:String,order_id:String) {
                             }
                         }).show((mContext as DashboardActivity).supportFragmentManager, "AddOrderDialog")
                     }
@@ -1175,6 +1182,10 @@ class CollectionDetailsFragment : BaseFragment(), View.OnClickListener {
 
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+        addShopData.purpose=mAddShopDBModelEntity.purpose
 
         callAddShopApiForSync(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, collection_id, amount, collection,
                 currentDateForShopActi, desc, mAddShopDBModelEntity.doc_degree, billId, orderId, collectionDetailsEntity)

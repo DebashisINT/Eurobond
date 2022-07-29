@@ -24,13 +24,11 @@ interface NewOrderProductDao {
     @Query("SELECT product_name FROM " + AppConstant.NEW_ORDER_PRODUCT + " where product_id=:product_id ")
     fun getNewOrderProductName(product_id:String): String
 
-    @Query("SELECT * FROM " + AppConstant.NEW_ORDER_PRODUCT + " where product_id=:product_id ")
-    fun getNewOrderProduct(product_id:String): NewOrderProductEntity
-
     @Query("update " + AppConstant.NEW_ORDER_PRODUCT+" set product_name = UPPER(product_name), product_for_gender = UPPER(product_for_gender)")
     fun updateProducttoUpperCase()
 
     @Query("SELECT * FROM " + AppConstant.NEW_ORDER_PRODUCT )
     fun getAllProduct(): List<NewOrderProductEntity>
+
 
 }

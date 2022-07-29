@@ -222,7 +222,7 @@ class ShopBillingListFragment : BaseFragment() {
                 else {
                     collectionDialog = AddCollectionDialog.getInstance(mAddShopDataObj, true, mAddShopDataObj?.shopName!!, it.invoice_date!!, it.total_amount!!, it.order_id!!,  object : AddCollectionDialog.AddCollectionClickLisneter {
                         override fun onClick(collection: String, date: String, paymentId: String, instrument: String, bank: String, filePath: String, feedback: String, patientName: String, patientAddress: String, patinetNo: String,
-                                             hospital:String,emailAddress:String) {
+                                             hospital:String,emailAddress:String,order_id:String) {
 
 
                             val addShop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(mAddShopDataObj?.shop_id)
@@ -257,6 +257,8 @@ class ShopBillingListFragment : BaseFragment() {
                                     /*06-01-2022*/
                                     collectionDetails.Hospital = hospital
                                     collectionDetails.Email_Address = emailAddress
+
+                                    collectionDetails.order_id = order_id
                                     AppDatabase.getDBInstance()!!.collectionDetailsDao().insert(collectionDetails)
 
                                     val collectionDate = AppUtils.getCurrentDateForShopActi() + "T" + collectionDetails.only_time
@@ -403,6 +405,11 @@ class ShopBillingListFragment : BaseFragment() {
 
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+        addShopData.purpose=mAddShopDBModelEntity.purpose
 
         callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, collection_id, amount, collection,
                 currentDateForShopActi, desc, billId, mAddShopDBModelEntity.doc_degree, orderId, collectionDetails)

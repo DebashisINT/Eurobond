@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Vibrator;
 import androidx.core.app.NotificationCompat;
 
+import com.eurobond.app.Pref;
 import com.eurobond.app.utils.AppUtils;
 import com.eurobond.features.splash.presentation.SplashActivity;
 import com.elvishew.xlog.XLog;
@@ -26,6 +27,7 @@ public class MonitorBroadcast extends BroadcastReceiver {
     public static MediaPlayer player = null;
     public static Vibrator vibrator = null;
     public static Boolean isSound = false;
+    public static Boolean isVibrator = false;
 
     @SuppressLint("NewApi")
     @Override
@@ -126,10 +128,15 @@ public class MonitorBroadcast extends BroadcastReceiver {
 
         if(!isSound)
             player.stop();
+//        if(Pref.GPSAlertwithVibration)
+        if(isVibrator) {
+            vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            long[] pattern = {0, 5, 10, 20, 40, 80, 120, 100, 600, 700, 500, 500, 500};
+            vibrator.vibrate(pattern, 1);
+        }
+        else{
 
-        vibrator=(Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-        long[] pattern = {0,5,10,20,40,80,120,100,600,700,500,500,500};
-        vibrator.vibrate(pattern,1);
+        }
         //vibrator.vibrate(10*60*1000);
 
     }

@@ -82,6 +82,16 @@ class ConfigFetchResponseModel : BaseResponse() {
 
     var NewQuotationRateCaption: String = ""
     var NewQuotationShowTermsAndCondition: Boolean? = null
+    var IsCollectionEntryConsiderOrderOrInvoice: Boolean? = null
+    var contactNameText: String = ""
+    var contactNumberText: String = ""
+    var emailText: String = ""
+    var dobText: String = ""
+    var dateOfAnniversaryText: String = ""
+    var ShopScreenAftVisitRevisit:Boolean? = null
+    var IsSurveyRequiredforNewParty:Boolean? = null
+    var IsSurveyRequiredforDealer:Boolean? = null
+    var IsShowHomeLocationMap:Boolean? = null
 
 
 

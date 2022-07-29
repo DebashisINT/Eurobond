@@ -35,7 +35,6 @@ import com.eurobond.features.NewQuotation.api.GetQuotRegProvider
 import com.eurobond.features.NewQuotation.model.ViewDetailsQuotResponse
 import com.eurobond.features.NewQuotation.model.ViewQuotResponse
 import com.eurobond.features.NewQuotation.model.shop_wise_quotation_list
-import com.eurobond.features.activities.presentation.EditActivityFragment
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.member.model.TeamShopListDataModel
 import com.eurobond.widgets.AppCustomTextView
@@ -48,7 +47,6 @@ import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import org.intellij.lang.annotations.JdkConstants
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -309,7 +307,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
         //val fileName = "QUTO_" +  "_" + time
         var fileName = addQuotEditResult.quotation_number!!.toUpperCase() +  "_" + time
         fileName=fileName.replace("/", "_")
-        val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+"/QUTO/"
+        val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+"/eurobondApp/QUTO/"
 
         val dir = File(path)
         if (!dir.exists()) {
@@ -317,6 +315,10 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
         }
 
         try{
+            //var pdfWriter :PdfWriter = PdfWriter.getInstance(document, FileOutputStream(path + fileName + ".pdf"))
+
+            //val event = HeaderFooterPageEvent()
+            //pdfWriter.setPageEvent(event)
             PdfWriter.getInstance(document, FileOutputStream(path + fileName + ".pdf"))
             document.open()
 
@@ -413,15 +415,11 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             //// addr test end
 
-
-            //val cusAddress = Paragraph(addQuotEditResult.shop_addr, font)
+//            val cusAddress = Paragraph(addQuotEditResult.shop_addr, font)
             val cusAddress = Paragraph(finalStr, font)
             cusAddress.alignment = Element.ALIGN_LEFT
             cusAddress.spacingAfter = 6f
             document.add(cusAddress)
-
-
-
 
 //            val cusemail = Paragraph("Email : " + addQuotEditResult.shop_email, font)
 //            cusemail.alignment = Element.ALIGN_LEFT
@@ -454,7 +452,8 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
 
             //val sub = Paragraph("Sub :-Quotation For Eurobond-ALUMINIUM COMPOSITE PANEL", font)
-            val sub = Chunk("Sub :-Quotation For Eurobond-ALUMINIUM COMPOSITE PANEL", font)
+            //val sub = Chunk("Sub :-Quotation For Eurobond-ALUMINIUM COMPOSITE PANEL", font)
+            val sub = Chunk("Sub :-Quotation For "+getString(R.string.app_name), font)
             sub.setUnderline(0.1f, -2f) //0.1 thick, -2 y-location
             //sub.alignment = Element.ALIGN_LEFT
             //sub.spacingAfter = 10f
@@ -524,7 +523,6 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                 }catch (ex:Exception){
                     catagory=""
                 }
-
                 desc=desc+"\n"+catagory
 
                 val tableRows = PdfPTable(widths)
@@ -621,7 +619,8 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             thanks.spacingAfter = 2f
             document.add(thanks)
 
-            val companyName = Paragraph("EURO PANEL PRODUCTS LIMITED", fontB1)
+            //val companyName = Paragraph("EURO PANEL PRODUCTS LIMITED", fontB1)
+            val companyName = Paragraph(getString(R.string.app_name), fontB1)
             companyName.alignment = Element.ALIGN_LEFT
             companyName.spacingAfter = 2f
             document.add(companyName)
@@ -651,13 +650,15 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             xxxx.spacingAfter = 4f
             document.add(xxxx)
 
-
-            val euroHead = Paragraph("\nEURO PANEL PRODUCTS LIMITED", font)
+            //val euroHead = Paragraph("\nEURO PANEL PRODUCTS LIMITED", font)
+            val euroHead = Paragraph("\n"+getString(R.string.app_name), font)
             euroHead.alignment = Element.ALIGN_LEFT
             //document.add(euroHead)
 
             //strip_line//bar//ics
-            val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.ics_image)
+            //Hardcoded for EuroBond
+           val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.ics_image)
+            //val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.bar)
             val bitmap1 = Bitmap.createScaledBitmap(bm1, 850, 120, true)
             val stream1 = ByteArrayOutputStream()
             bitmap1.compress(Bitmap.CompressFormat.PNG, 100, stream1)

@@ -6,6 +6,9 @@
     <uses-sdk />
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
 
@@ -31,6 +34,7 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     -->
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
@@ -156,7 +160,8 @@
             android:exported="false" />
         <service
             android:name=".features.location.LocationFuzedService"
-            android:enabled="true">
+            android:enabled="true"
+            android:foregroundServiceType="location" >
             <intent-filter>
                 <action android:name="android.intent.action.LOCATIONSERVICE" />
             </intent-filter>
@@ -211,15 +216,15 @@
             android:authorities="com.eurobond.provider"
             android:exported="false"
             android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
-        </provider>
-        <!--
+        <meta-data
+            android:name="android.support.FILE_PROVIDER_PATHS"
+            android:resource="@xml/provider_paths" />
+    </provider>
+    <!--
 <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="1e0ac5665985732a45675dd339fad2ef2a5e37e8" />
-        -->
+        android:name="io.fabric.ApiKey"
+        android:value="1e0ac5665985732a45675dd339fad2ef2a5e37e8" />
+    -->
         <!-- <service -->
         <!-- android:name=".features.updatedlocation.LocationService" -->
         <!-- android:enabled="true" /> -->
@@ -290,6 +295,15 @@
 
         <receiver
             android:name=".MonitorBroadcast"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".MonitorCollPending"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

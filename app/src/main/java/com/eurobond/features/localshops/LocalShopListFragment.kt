@@ -113,16 +113,6 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
             geofenceTv.visibility = View.GONE
         }
 
-        geofenceTv = view.findViewById(R.id.tv_geofence_relax)
-
-        if(Pref.IsRestrictNearbyGeofence){
-            geofenceTv.visibility = View.VISIBLE
-            geofenceTv.text ="Geofence Relaxed :  " + Pref.GeofencingRelaxationinMeter + " mtr"
-        }
-        else{
-            geofenceTv.visibility = View.GONE
-        }
-
         shop_list_parent_rl.setOnClickListener { view ->
             floating_fab.close(true)
         }
@@ -302,10 +292,13 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
                     override fun onHistoryClick(shop: Any) {
                         (mContext as DashboardActivity).loadFragment(FragType.ShopFeedbackHisFrag, true, shop)
                     }
+
+                    override fun onDamageClick(shop_id: String) {
+                        (mContext as DashboardActivity).loadFragment(FragType.ShopDamageProductListFrag, true, shop_id+"~"+Pref.user_id)
+                    }
                 }, {
                     it
                 })
-
 
                 (mContext as DashboardActivity).nearbyShopList = list
 
@@ -474,12 +467,9 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
                     //val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(location, shopLocation, NEARBY_RADIUS)
                     val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(location, shopLocation, mRadious)
                     if (isShopNearby) {
-                        XLog.d("shop_id====> " + newList[i].shop_id)
-                        XLog.d("shopName====> " + newList[i].shopName)
-                        XLog.d("shopLat====> $shopLat")
-                        XLog.d("shopLong====> $shopLong")
-                        XLog.d("lat=====> " + location.latitude)
-                        XLog.d("long=====> " + location.longitude)
+                        XLog.d("shop_id====> " + newList[i].shop_id+ " shopName====> " + newList[i].shopName)
+                        XLog.d("shopLat====> $shopLat"+" shopLong====> $shopLong")
+                        XLog.d("lat=====> " + location.latitude+" long=====> " + location.longitude)
                         XLog.d("NEARBY_RADIUS====> $NEARBY_RADIUS")
                         XLog.d("=====" + newList[i].shopName + " is nearby=====")
                         newList[i].visited = !shoulIBotherToUpdate(newList[i].shop_id)
@@ -489,8 +479,7 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
                     }
 
                 } else {
-                    XLog.d("shop_id====> " + newList[i].shop_id)
-                    XLog.d("shopName===> " + newList[i].shopName)
+                    XLog.d("shop_id====> " + newList[i].shop_id+ " shopName===> " + newList[i].shopName)
 
                     if (shopLat != null)
                         XLog.d("shopLat===> $shopLat")

@@ -546,6 +546,11 @@ class AddBillingFragment : BaseFragment(), View.OnClickListener {
         addShopData.alternateNoForCustomer = shop.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = shop.whatsappNoForCustomer
 
+        // duplicate shop api call
+        addShopData.isShopDuplicate=shop.isShopDuplicate
+
+        addShopData.purpose=shop.purpose
+
         callAddShopApi(addShopData, shop.shopImageLocalPath, shop.doc_degree, billing)
         //}
     }

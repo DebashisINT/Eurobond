@@ -12,6 +12,7 @@ import android.location.Location
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.*
+import android.provider.MediaStore
 import android.speech.tts.TextToSpeech
 import android.text.InputFilter
 import android.text.TextUtils
@@ -130,6 +131,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.*
 import java.net.URL
+import java.nio.file.Files
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -419,6 +421,17 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
         //checkToCallMemberList()
         writeDataToFile()
+        println("on Resume " +AppUtils.getCurrentDateTime());
+
+        if(Pref.IsActivateNewOrderScreenwithSize){
+            var rateListToday= AppDatabase.getDBInstance()?.newOrderScrOrderDao()?.getRateListByDate(AppUtils.getCurrentDateyymmdd()) as List<String>
+            var sum = 0.0
+            for(i in 0..rateListToday.size-1){
+                sum+=rateListToday.get(i).toDouble()
+            }
+            avgOrder.text= getString(R.string.rupee_symbol) + sum.toString()
+        }
+
     }
 
 
@@ -583,6 +596,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         mContext = context
     }
 
+    @SuppressLint("UseRequireInsteadOfGet", "RestrictedApi")
     private fun initView(view: View?) {
 
         cancel_timer = view!!.findViewById(R.id.cancel_timer)
@@ -1134,7 +1148,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     if (Pref.isMeetingAvailable && Pref.isShopAddEditAvailable) {
                         CustomStatic.IsCommDLeftBtnColor = true
                         CustomStatic.IsCommDRightBtnColor = true
-                        CommonDialog.getInstance("Select Activity", "What will you be doing now?", "Add a ${Pref.shopText}", Pref.meetingText, false, false, true, object : CommonDialogClickListener {
+                        CommonDialog.getInstance("${AppUtils.hiFirstNameText()+"!"}", "What will you be doing now?", "Add a ${Pref.shopText}", Pref.meetingText, false, false, true, object : CommonDialogClickListener {
                             override fun onLeftClick() {
                                 (mContext as DashboardActivity).loadFragment(FragType.AddShopFragment, true, "")
                             }
@@ -1550,6 +1564,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     }
 
 
+    @SuppressLint("WrongConstant", "UseRequireInsteadOfGet")
     private fun initAdapter() {
         mRouteActivityDashboardAdapter = RouteActivityDashboardAdapter(this.context!!, AppDatabase.getDBInstance()!!.userLocationDataDao().all)
         layoutManager = LinearLayoutManager(mContext, LinearLayout.VERTICAL, false)
@@ -1615,9 +1630,9 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         else {
             //getUserPjpList(work_type_list)
 
-            val pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAll() as ArrayList<PjpListEntity>
+            //val pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAll() as ArrayList<PjpListEntity>
             //task new updation
-            //val pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAllByDate(AppUtils.getCurrentDateForShopActi()) as ArrayList<PjpListEntity>
+            val pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAllByDate(AppUtils.getCurrentDateForShopActi()) as ArrayList<PjpListEntity>
 
             if (pjpList != null && pjpList.isNotEmpty()) {
                 no_shop_tv.visibility = View.GONE
@@ -3366,6 +3381,124 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.LogoutWithLogFile = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowCollectionAlert", ignoreCase = true)) {
+                                                Pref.ShowCollectionAlert = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowCollectionAlert = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowZeroCollectioninAlert", ignoreCase = true)) {
+                                                Pref.ShowZeroCollectioninAlert = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowZeroCollectioninAlert = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsCollectionOrderWise", ignoreCase = true)) {
+                                                Pref.IsCollectionOrderWise = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCollectionOrderWise = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowCollectionOnlywithInvoiceDetails", ignoreCase = true)) {
+                                                Pref.ShowCollectionOnlywithInvoiceDetails = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowCollectionOnlywithInvoiceDetails = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsPendingCollectionRequiredUnderTeam", ignoreCase = true)) {
+                                                Pref.IsPendingCollectionRequiredUnderTeam = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsPendingCollectionRequiredUnderTeam = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsShowRepeatOrderinNotification", ignoreCase = true)) {
+                                                Pref.IsShowRepeatOrderinNotification = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowRepeatOrderinNotification = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsShowRepeatOrdersNotificationinTeam", ignoreCase = true)) {
+                                                Pref.IsShowRepeatOrdersNotificationinTeam = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowRepeatOrdersNotificationinTeam = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("AutoDDSelect", ignoreCase = true)) {
+                                                Pref.AutoDDSelect = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.AutoDDSelect = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowPurposeInShopVisit", ignoreCase = true)) {
+                                                Pref.ShowPurposeInShopVisit = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowPurposeInShopVisit = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("GPSAlertwithVibration", ignoreCase = true)) {
+                                                Pref.GPSAlertwithVibration = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.GPSAlertwithVibration = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("WillRoomDBShareinLogin", ignoreCase = true)) {
+                                                Pref.WillRoomDBShareinLogin = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.WillRoomDBShareinLogin = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("ShopScreenAftVisitRevisit", ignoreCase = true)) {
+                                                Pref.ShopScreenAftVisitRevisit = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShopScreenAftVisitRevisit = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure!![i].Key.equals("IsShowNearByTeam", ignoreCase = true)) {
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowNearByTeam = response.getconfigure!![i].Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure!![i].Key.equals("IsFeedbackAvailableInShop", ignoreCase = true)) {
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsFeedbackAvailableInShop = response.getconfigure!![i].Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure!![i].Key.equals("IsAllowBreakageTracking", ignoreCase = true)) {
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsAllowBreakageTracking = response.getconfigure!![i].Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure!![i].Key.equals("IsAllowBreakageTrackingunderTeam", ignoreCase = true)) {
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsAllowBreakageTrackingunderTeam = response.getconfigure!![i].Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure!![i].Key.equals("IsRateEnabledforNewOrderScreenwithSize", ignoreCase = true)) {
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsRateEnabledforNewOrderScreenwithSize = response.getconfigure!![i].Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure!![i].Key.equals("IgnoreNumberCheckwhileShopCreation", ignoreCase = true)) {
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IgnoreNumberCheckwhileShopCreation = response.getconfigure!![i].Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure!![i].Key.equals("Showdistributorwisepartyorderreport", ignoreCase = true)) {
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.Showdistributorwisepartyorderreport = response.getconfigure!![i].Value == "1"
+                                                }
+                                            }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsShowHomeLocationMap", ignoreCase = true)) {
+                                                Pref.IsShowHomeLocationMap = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowHomeLocationMap =
+                                                        response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+
 
                                         }
                                     }
@@ -3588,6 +3721,32 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                 if (configResponse.NewQuotationShowTermsAndCondition != null)
                                     Pref.NewQuotationShowTermsAndCondition = configResponse.NewQuotationShowTermsAndCondition!!
 
+                                if (configResponse.IsCollectionEntryConsiderOrderOrInvoice != null)
+                                    Pref.IsCollectionEntryConsiderOrderOrInvoice = configResponse.IsCollectionEntryConsiderOrderOrInvoice!!
+
+                                if (!TextUtils.isEmpty(configResponse.contactNameText))
+                                    Pref.contactNameText = configResponse.contactNameText
+
+                                if (!TextUtils.isEmpty(configResponse.contactNumberText))
+                                    Pref.contactNumberText = configResponse.contactNumberText
+
+                                if (!TextUtils.isEmpty(configResponse.emailText))
+                                    Pref.emailText = configResponse.emailText
+
+                                if (!TextUtils.isEmpty(configResponse.dobText))
+                                    Pref.dobText = configResponse.dobText
+
+                                if (!TextUtils.isEmpty(configResponse.dateOfAnniversaryText))
+                                    Pref.dateOfAnniversaryText = configResponse.dateOfAnniversaryText
+
+                                if (configResponse.ShopScreenAftVisitRevisit != null)
+                                    Pref.ShopScreenAftVisitRevisitGlobal = configResponse.ShopScreenAftVisitRevisit!!
+
+                                if (configResponse.IsSurveyRequiredforNewParty != null)
+                                    Pref.IsSurveyRequiredforNewParty = configResponse.IsSurveyRequiredforNewParty!!
+
+                                if (configResponse.IsSurveyRequiredforDealer != null)
+                                    Pref.IsSurveyRequiredforDealer = configResponse.IsSurveyRequiredforDealer!!
 
                             }
                             BaseActivity.isApiInitiated = false
@@ -4504,6 +4663,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         )
     }
 
+    @SuppressLint("RestrictedApi")
     private fun changeUI() {
         tv_shop.text = Pref.shopText + "(s)"
 
@@ -4706,6 +4866,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     }*/
 
 
+    @SuppressLint("UseRequireInsteadOfGet")
     private fun startRecordingScreen() {
 
         if (hbRecorder == null) {
@@ -4740,6 +4901,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     }
 
 
+    @SuppressLint("UseRequireInsteadOfGet")
     override fun HBRecorderOnComplete() {
         var intent = Intent(mContext, ScreenRecService::class.java)
         intent.action = CustomConstants.STOP_Screen_SERVICE

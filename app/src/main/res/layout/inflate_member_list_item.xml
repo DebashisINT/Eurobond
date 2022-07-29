@@ -39,8 +39,31 @@
                     android:id="@+id/rl_icons"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.7"
+                    android:layout_weight="1.5"
                     android:layout_marginLeft="@dimen/_10sdp">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_zero_order"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toLeftOf="@+id/iv_coll"
+                        android:contentDescription="@null"
+                        android:padding="@dimen/_5sdp"
+                        app:srcCompat="@drawable/ic_order_icon"
+                        app:tint="@color/blue" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_coll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toLeftOf="@+id/iv_leave"
+                        android:contentDescription="@null"
+                        android:padding="@dimen/_5sdp"
+                        app:srcCompat="@drawable/ic_collection_blue"
+                        app:tint="@color/violet" />
+
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/iv_leave"

@@ -867,6 +867,10 @@ class ViewAllOrderListFragment : BaseFragment(), View.OnClickListener {
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
 
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+        addShopData.purpose=mAddShopDBModelEntity.purpose
+
         callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, order_id, amount, collection,
                 currentDateForShopActi, desc, mAddShopDBModelEntity.doc_degree)
     }
@@ -1428,7 +1432,7 @@ class ViewAllOrderListFragment : BaseFragment(), View.OnClickListener {
                                 viewAllOrderList[position].order_id!!, object : AddCollectionDialog.AddCollectionClickLisneter {
                             override fun onClick(collection: String, date: String, paymentId: String, instrument: String, bank: String,
                                                  filePath: String, feedback: String, patientName: String, patientAddress: String, patinetNo: String,
-                                                 hospital:String,emailAddress:String) {
+                                                 hospital:String,emailAddress:String,order_id:String) {
 
 
                                 if (addShop != null) {
@@ -1461,6 +1465,8 @@ class ViewAllOrderListFragment : BaseFragment(), View.OnClickListener {
                                         /*06-01-2022*/
                                         collectionDetails.Hospital = hospital
                                         collectionDetails.Email_Address = emailAddress
+
+                                        collectionDetails.order_id = order_id
 
                                         AppDatabase.getDBInstance()!!.collectionDetailsDao().insert(collectionDetails)
 
@@ -1812,6 +1818,11 @@ class ViewAllOrderListFragment : BaseFragment(), View.OnClickListener {
 
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+        addShopData.purpose=mAddShopDBModelEntity.purpose
+
         callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, collection_id, amount, collection,
                 currentDateForShopActi, desc, billId, mAddShopDBModelEntity.doc_degree, orderId, collectionDetails)
     }
@@ -2251,6 +2262,10 @@ class ViewAllOrderListFragment : BaseFragment(), View.OnClickListener {
 
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+        addShopData.purpose=mAddShopDBModelEntity.purpose
 
         callAddShopApiForSync(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, order_id, amount, collection,
                 currentDateForShopActi, desc, mAddShopDBModelEntity.doc_degree, remarks, signature, orderLat, orderLong, orderDetailsListEntity)

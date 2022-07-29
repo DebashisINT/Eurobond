@@ -619,6 +619,10 @@ class QuotationListFragment : BaseFragment() {
             addShopData.alternateNoForCustomer = alternateNoForCustomer
             addShopData.whatsappNoForCustomer = whatsappNoForCustomer
 
+            // duplicate shop api call
+            addShopData.isShopDuplicate=isShopDuplicate
+
+            addShopData.purpose=purpose
 
 
 

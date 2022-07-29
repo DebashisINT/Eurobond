@@ -51,7 +51,7 @@
                         android:padding="@dimen/_5sdp"
                         android:singleLine="true"
                         android:text=""
-                        android:textColor="@color/maroon"
+                        android:textColor="@color/color_custom_green"
                         android:textSize="@dimen/_12sdp"
                         android:textStyle="bold" />
                 </RelativeLayout>
@@ -439,10 +439,52 @@
 
             </RelativeLayout>
 
+            <ImageView
+                android:id="@+id/shop_IV_flased"
+                android:layout_width="@dimen/_43sdp"
+                android:layout_height="0dp"
+                android:contentDescription="@null"
+                android:visibility="gone" />
+
+            <RelativeLayout
+                android:id="@+id/last_visited_RL"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_7sdp"
+                android:layout_toRightOf="@+id/shop_IV_flased">
+
+                <com.eurobond.widgets.AppCustomTextView
+                    android:id="@+id/last_visited_TV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:singleLine="true"
+                    android:text="@string/last_visits"
+                    android:textColor="@color/light_gray"
+                    android:textSize="@dimen/_11sdp" />
+
+                <com.eurobond.widgets.AppCustomTextView
+                    android:id="@+id/last_visited_date_TV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/_2sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_toRightOf="@id/last_visited_TV"
+                    android:singleLine="true"
+                    android:text="@string/zero_order_in_value"
+                    android:textColor="@color/login_txt_color"
+                    android:textSize="@dimen/_11sdp" />
+
+
+            </RelativeLayout>
+
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
                 android:paddingLeft="@dimen/_7sdp">
 
                 <LinearLayout
@@ -455,6 +497,38 @@
                     android:orientation="horizontal"
                     android:paddingBottom="@dimen/_7sdp"
                     android:paddingTop="@dimen/_5sdp">
+
+                    <LinearLayout
+                        android:id="@+id/shop_damage_ll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="@dimen/_20sdp"
+                            android:layout_height="@dimen/_20sdp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/ic_damage" />
+
+                        <com.eurobond.widgets.AppCustomTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            android:text="Damage"
+                            android:textColor="@color/login_txt_color"
+                            android:textSize="@dimen/_8sdp"  />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/shop_damage_view"
+                        android:layout_width="@dimen/_1sdp"
+                        android:layout_height="@dimen/_20sdp"
+                        android:layout_marginLeft="@dimen/_5sdp"
+                        android:layout_marginRight="@dimen/_5sdp"
+                        android:background="@color/popup_window_bar_color" />
+
 
 
                     <!--16-12-2021-->
@@ -652,48 +726,7 @@
 
                 </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/shop_IV_flased"
-                    android:layout_width="@dimen/_43sdp"
-                    android:layout_height="0dp"
-                    android:contentDescription="@null"
-                    android:visibility="gone" />
 
-                <RelativeLayout
-                    android:id="@+id/last_visited_RL"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toRightOf="@+id/shop_IV_flased"
-
-
-                    >
-
-                    <com.eurobond.widgets.AppCustomTextView
-                        android:id="@+id/last_visited_TV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginTop="@dimen/_5sdp"
-                        android:singleLine="true"
-                        android:text="@string/last_visits"
-                        android:textColor="@color/light_gray"
-                        android:textSize="@dimen/_11sdp" />
-
-                    <com.eurobond.widgets.AppCustomTextView
-                        android:id="@+id/last_visited_date_TV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="@dimen/_2sdp"
-                        android:layout_marginTop="@dimen/_5sdp"
-                        android:layout_toRightOf="@id/last_visited_TV"
-                        android:singleLine="true"
-                        android:text="@string/zero_order_in_value"
-                        android:textColor="@color/login_txt_color"
-                        android:textSize="@dimen/_11sdp" />
-
-
-                </RelativeLayout>
 
 
             </RelativeLayout>

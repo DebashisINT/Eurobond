@@ -491,6 +491,9 @@ class StockListFragment : BaseFragment(), View.OnClickListener {
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
 
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
         callAddShopApiForSync(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, stock_id, amount,
                 currentDateForShopActi, stock_lat, stock_long, mAddShopDBModelEntity.doc_degree)
         //callAddShopApi(addShopData, "")

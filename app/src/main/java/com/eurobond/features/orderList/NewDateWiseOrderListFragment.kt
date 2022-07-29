@@ -1,12 +1,15 @@
 package com.eurobond.features.orderList
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.speech.tts.TextToSpeech
 import androidx.core.content.ContextCompat
 import androidx.appcompat.widget.AppCompatTextView
@@ -22,6 +25,7 @@ import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.core.content.FileProvider
+import com.eurobond.NumberToWords
 import com.elvishew.xlog.XLog
 import com.github.jhonnyx2012.horizontalpicker.DatePickerListener
 import com.github.jhonnyx2012.horizontalpicker.HorizontalPicker
@@ -64,18 +68,27 @@ import com.eurobond.features.orderList.model.NewOrderListResponseModel
 import com.eurobond.features.orderList.model.OrderListDataModel
 import com.eurobond.features.orderList.model.OrderListResponseModel
 import com.eurobond.features.shopdetail.presentation.AddCollectionDialog
+import com.eurobond.features.shopdetail.presentation.AddCollectionWithOrderDialog
 import com.eurobond.features.shopdetail.presentation.api.addcollection.AddCollectionRepoProvider
 import com.eurobond.features.shopdetail.presentation.model.addcollection.AddCollectionInputParamsModel
 import com.eurobond.features.viewAllOrder.api.addorder.AddOrderRepoProvider
 import com.eurobond.features.viewAllOrder.model.AddOrderInputParamsModel
 import com.eurobond.features.viewAllOrder.model.AddOrderInputProductList
 import com.eurobond.widgets.AppCustomTextView
+import com.itextpdf.text.*
+import com.itextpdf.text.pdf.PdfPCell
+import com.itextpdf.text.pdf.PdfPTable
+import com.itextpdf.text.pdf.PdfWriter
+import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import org.joda.time.DateTime
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -98,7 +111,7 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
     private lateinit var progress_wheel: ProgressWheel
     private lateinit var selectedDate: String
     private lateinit var sync_all_tv: AppCustomTextView
-
+    private var collectionDialog1: AddCollectionWithOrderDialog?= null
     var i: Int = 0
     private var collectionDialog: AddCollectionDialog?= null
 
@@ -788,6 +801,7 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
         }
     }
 
+    @SuppressLint("WrongConstant")
     private fun initAdapter() {
         /*OrderListAdapter = OrderListAdapter(mContext, orderList, object : AverageShopListClickListener {
             override fun onSyncClick(position: Int) {
@@ -846,56 +860,61 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
             override fun onReturnClick(position: Int) {
 
             }
+
+            override fun onDamageClick(shop_id: String) {
+                TODO("Not yet implemented")
+            }
         }, { shopId: String, orderId: String ->
             val shopType = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopType(shopId)
             senOrderEmail(shopId, orderId, shopType)
         }, {
 
-            val heading = "SALES ORDER"
-            var pdfBody = "\n\n\n\nOrder No.: " + it.order_id + "\n\nOrder Date: " + AppUtils.convertDateTimeToCommonFormat(it.date!!) +
-                    "\n\nParty Name: "
-
-            val shop = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(it.shop_id)
-
-            pdfBody = pdfBody + shop?.shopName + "\n\nAddress: " + shop?.address + "\n\nContact No.: " + shop?.ownerContactNumber +
-                    "\n\nSales Person: " + Pref.user_name + "\n\n\n"
-
-            if (Pref.isPatientDetailsShowInOrder) {
-                pdfBody = pdfBody + "Patient Name: " + if (!TextUtils.isEmpty(it.patient_name)) it.patient_name else "N.A." + "\n\nAddress: " +
-                        if (!TextUtils.isEmpty(it.patient_address)) it.patient_address else "N.A." + "\n\nPhone: " +
-                                if (!TextUtils.isEmpty(it.patient_no)) it.patient_no else "N.A." + "\n\n\n"
-            }
-
-            val productList = AppDatabase.getDBInstance()!!.orderProductListDao().getDataAccordingToOrderId(it.order_id!!)
-            productList?.forEach {it1 ->
-                pdfBody = pdfBody + "Item: " + it1.product_name + "\nQty: " + it1.qty + "  Rate: " +
-                        getString(R.string.rupee_symbol_with_space) + it1.rate + "  Amount: " + getString(R.string.rupee_symbol_with_space) +
-                        it1.total_price + "\n\n"
-            }
-
-            pdfBody = pdfBody + "Total Amount: " + getString(R.string.rupee_symbol_with_space) + it.amount
-
-            val image = BitmapFactory.decodeResource(mContext.resources, R.mipmap.ic_launcher)
-
-            val path = FTStorageUtils.stringToPdf(pdfBody, mContext, "FTS_" + it.order_id + ".pdf", image, heading, 2.7f)
-
-            if (!TextUtils.isEmpty(path)) {
-                try {
-                    val shareIntent = Intent(Intent.ACTION_SEND)
-                    val fileUrl = Uri.parse(path)
-
-                    val file = File(fileUrl.path)
-//                    val uri = Uri.fromFile(file)
-                    val uri:Uri= FileProvider.getUriForFile(mContext, context!!.applicationContext.packageName.toString() + ".provider", file)
-                    shareIntent.type = "image/png"
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-                    startActivity(Intent.createChooser(shareIntent, "Share pdf using"));
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-            else
-                (mContext as DashboardActivity).showSnackMessage("Pdf can not be sent.")
+//            val heading = "SALES ORDER"
+//            var pdfBody = "\n\n\n\nOrder No.: " + it.order_id + "\n\nOrder Date: " + AppUtils.convertDateTimeToCommonFormat(it.date!!) +
+//                    "\n\nParty Name: "
+//
+//            val shop = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(it.shop_id)
+//
+//            pdfBody = pdfBody + shop?.shopName + "\n\nAddress: " + shop?.address + "\n\nContact No.: " + shop?.ownerContactNumber +
+//                    "\n\nSales Person: " + Pref.user_name + "\n\n\n"
+//
+//            if (Pref.isPatientDetailsShowInOrder) {
+//                pdfBody = pdfBody + "Patient Name: " + if (!TextUtils.isEmpty(it.patient_name)) it.patient_name else "N.A." + "\n\nAddress: " +
+//                        if (!TextUtils.isEmpty(it.patient_address)) it.patient_address else "N.A." + "\n\nPhone: " +
+//                                if (!TextUtils.isEmpty(it.patient_no)) it.patient_no else "N.A." + "\n\n\n"
+//            }
+//
+//            val productList = AppDatabase.getDBInstance()!!.orderProductListDao().getDataAccordingToOrderId(it.order_id!!)
+//            productList?.forEach {it1 ->
+//                pdfBody = pdfBody + "Item: " + it1.product_name + "\nQty: " + it1.qty + "  Rate: " +
+//                        getString(R.string.rupee_symbol_with_space) + it1.rate + "  Amount: " + getString(R.string.rupee_symbol_with_space) +
+//                        it1.total_price + "\n\n"
+//            }
+//
+//            pdfBody = pdfBody + "Total Amount: " + getString(R.string.rupee_symbol_with_space) + it.amount
+//
+//            val image = BitmapFactory.decodeResource(mContext.resources, R.mipmap.ic_launcher)
+//
+//            val path = FTStorageUtils.stringToPdf(pdfBody, mContext, "FTS_" + it.order_id + ".pdf", image, heading, 2.7f)
+//
+//            if (!TextUtils.isEmpty(path)) {
+//                try {
+//                    val shareIntent = Intent(Intent.ACTION_SEND)
+//                    val fileUrl = Uri.parse(path)
+//
+//                    val file = File(fileUrl.path)
+////                    val uri = Uri.fromFile(file)
+//                    val uri:Uri= FileProvider.getUriForFile(mContext, context!!.applicationContext.packageName.toString() + ".provider", file)
+//                    shareIntent.type = "image/png"
+//                    shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+//                    startActivity(Intent.createChooser(shareIntent, "Share pdf using"));
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//            }
+//            else
+//                (mContext as DashboardActivity).showSnackMessage("Pdf can not be sent.")
+            saveDataAsPdf(it)
         }, {
             try {
 
@@ -905,73 +924,153 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
 
                     val addShop = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(it.shop_id)
 
-                    collectionDialog = AddCollectionDialog.getInstance(it, true, addShop?.shopName!!, AppUtils.getCurrentDateFormatInTa(it.only_date!!),
-                            it.amount!!, it.order_id!!, object : AddCollectionDialog.AddCollectionClickLisneter {
-                        override fun onClick(collection: String, date: String, paymentId: String, instrument: String, bank: String, filePath: String, feedback: String, patientName: String, patientAddress: String, patinetNo: String,
-                                             hospital:String,emailAddress:String) {
+                    var bID = ""
+                    var bDtlList = AppDatabase.getDBInstance()!!.billingDao().getDataOrderIdWise(it.order_id.toString())
+                    if(bDtlList!= null && bDtlList.size>0){
+                        bID=bDtlList.get(0).bill_id
+                    }
 
-                            //val addShop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(it.shop_id)
-                            if (addShop != null) {
+                    if(Pref.IsCollectionOrderWise){
+                        collectionDialog1 = AddCollectionWithOrderDialog.getInstance(it, true, addShop?.shopName!!, AppUtils.getCurrentDateFormatInTa(it.only_date!!),
+                            it.amount!!, it.order_id!!,bID, object : AddCollectionWithOrderDialog.AddCollectionClickLisneter {
+                                override fun onClick(collection: String, date: String, paymentId: String, instrument: String, bank: String, filePath: String, feedback: String, patientName: String, patientAddress: String, patinetNo: String,
+                                                     hospital: String, emailAddress: String,order_id:String) {
 
-                                //if (addShop.isUploaded) {
-                                val order = it
-                                doAsync {
+                                    //val addShop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(it.shop_id)
+                                    if (addShop != null) {
+                                        //if (addShop.isUploaded) {
+                                        val order = it
+                                        doAsync {
 
-                                    val collectionDetails = CollectionDetailsEntity()
-                                    collectionDetails.collection = collection/*.substring(1)*/
+                                            val collectionDetails = CollectionDetailsEntity()
+                                            collectionDetails.collection = collection/*.substring(1)*/
 
-                                    val random = Random()
-                                    val m = random.nextInt(9999 - 1000) + 1000
+                                            val random = Random()
+                                            val m = random.nextInt(9999 - 1000) + 1000
 
-                                    //collectionDetails.collection_id = Pref.user_id + "_" + m /*+ "_" + System.currentTimeMillis().toString()*/
-                                    collectionDetails.collection_id = Pref.user_id + "c" + m
-                                    collectionDetails.shop_id = it.shop_id
-                                    collectionDetails.date = date //AppUtils.getCurrentDate()
-                                    collectionDetails.only_time = AppUtils.getCurrentTime()  //AppUtils.getCurrentDate()
-                                    collectionDetails.bill_id = ""
-                                    collectionDetails.order_id = it.order_id
-                                    collectionDetails.payment_id = paymentId
-                                    collectionDetails.bank = bank
-                                    collectionDetails.instrument_no = instrument
-                                    collectionDetails.file_path = filePath
-                                    collectionDetails.feedback = feedback
-                                    collectionDetails.patient_name = patientName
-                                    collectionDetails.patient_address = patientAddress
-                                    collectionDetails.patient_no = patinetNo
-                                    /*06-01-2022*/
-                                    collectionDetails.Hospital = hospital
-                                    collectionDetails.Email_Address = emailAddress
-                                    AppDatabase.getDBInstance()!!.collectionDetailsDao().insert(collectionDetails)
+                                            //collectionDetails.collection_id = Pref.user_id + "_" + m /*+ "_" + System.currentTimeMillis().toString()*/
+                                            collectionDetails.collection_id = Pref.user_id + "c" + m
+                                            collectionDetails.shop_id = it.shop_id
+                                            collectionDetails.date = date //AppUtils.getCurrentDate()
+                                            collectionDetails.only_time = AppUtils.getCurrentTime()  //AppUtils.getCurrentDate()
+                                            collectionDetails.bill_id = ""
+                                            collectionDetails.order_id = it.order_id
+                                            collectionDetails.payment_id = paymentId
+                                            collectionDetails.bank = bank
+                                            collectionDetails.instrument_no = instrument
+                                            collectionDetails.file_path = filePath
+                                            collectionDetails.feedback = feedback
+                                            collectionDetails.patient_name = patientName
+                                            collectionDetails.patient_address = patientAddress
+                                            collectionDetails.patient_no = patinetNo
+                                            /*06-01-2022*/
+                                            collectionDetails.Hospital = hospital
+                                            collectionDetails.Email_Address = emailAddress
 
-                                    val collectionDate = AppUtils.getCurrentDateForShopActi() + "T" + collectionDetails.only_time
+                                            collectionDetails.order_id = order_id
+                                            AppDatabase.getDBInstance()!!.collectionDetailsDao().insert(collectionDetails)
 
-                                    uiThread {
+                                            val collectionDate = AppUtils.getCurrentDateForShopActi() + "T" + collectionDetails.only_time
 
-                                        if (AppUtils.isOnline(mContext)) {
-                                            if (addShop.isUploaded) {
-                                                if (order.isUploaded) {
-                                                    addCollectionApi(collectionDetails.shop_id, collectionDetails.collection_id, "",
-                                                            "", collection, collectionDate, collectionDetails.bill_id, collectionDetails.order_id, collectionDetails)
-                                                }
-                                                else {
-                                                    syncOrderForCollection(order, collectionDetails.shop_id, collectionDetails.collection_id, "", "", collection,
+                                            uiThread {
+
+                                                if (AppUtils.isOnline(mContext)) {
+                                                    if (addShop.isUploaded) {
+                                                        if (order.isUploaded) {
+                                                            addCollectionApi(collectionDetails.shop_id, collectionDetails.collection_id, "",
+                                                                "", collection, collectionDate, collectionDetails.bill_id, collectionDetails.order_id, collectionDetails)
+                                                        } else {
+                                                            syncOrderForCollection(order, collectionDetails.shop_id, collectionDetails.collection_id, "", "", collection,
+                                                                collectionDate, collectionDetails.bill_id, collectionDetails.order_id, collectionDetails)
+                                                        }
+                                                    } else {
+                                                        syncShopForCollection(addShop, collectionDetails.shop_id, collectionDetails.collection_id, "", "", collection,
                                                             collectionDate, collectionDetails.bill_id, collectionDetails.order_id, collectionDetails)
-                                                }
-                                            } else {
-                                                syncShopForCollection(addShop, collectionDetails.shop_id, collectionDetails.collection_id, "", "", collection,
-                                                        collectionDate, collectionDetails.bill_id, collectionDetails.order_id, collectionDetails)
-                                            }
+                                                    }
 
-                                        } else {
-                                            (mContext as DashboardActivity).showSnackMessage("Collection added successfully")
-                                            voiceCollectionMsg()
+                                                } else {
+                                                    (mContext as DashboardActivity).showSnackMessage("Collection added successfully")
+                                                    voiceCollectionMsg()
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        }
-                    })
-                    collectionDialog?.show((mContext as DashboardActivity).supportFragmentManager, "AddCollectionDialog")
+                            })
+                        collectionDialog1?.show((mContext as DashboardActivity).supportFragmentManager, "AddCollectionWithOrderDialog")
+                    }else{
+                        collectionDialog = AddCollectionDialog.getInstance(it, true, addShop?.shopName!!, AppUtils.getCurrentDateFormatInTa(it.only_date!!),
+                            it.amount!!, it.order_id!!, object : AddCollectionDialog.AddCollectionClickLisneter {
+                                override fun onClick(collection: String, date: String, paymentId: String, instrument: String, bank: String, filePath: String, feedback: String, patientName: String, patientAddress: String, patinetNo: String,
+                                                     hospital:String,emailAddress:String,order_id:String) {
+
+                                    //val addShop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(it.shop_id)
+                                    if (addShop != null) {
+
+                                        //if (addShop.isUploaded) {
+                                        val order = it
+                                        doAsync {
+
+                                            val collectionDetails = CollectionDetailsEntity()
+                                            collectionDetails.collection = collection/*.substring(1)*/
+
+                                            val random = Random()
+                                            val m = random.nextInt(9999 - 1000) + 1000
+
+                                            //collectionDetails.collection_id = Pref.user_id + "_" + m /*+ "_" + System.currentTimeMillis().toString()*/
+                                            collectionDetails.collection_id = Pref.user_id + "c" + m
+                                            collectionDetails.shop_id = it.shop_id
+                                            collectionDetails.date = date //AppUtils.getCurrentDate()
+                                            collectionDetails.only_time = AppUtils.getCurrentTime()  //AppUtils.getCurrentDate()
+                                            collectionDetails.bill_id = ""
+                                            collectionDetails.order_id = it.order_id
+                                            collectionDetails.payment_id = paymentId
+                                            collectionDetails.bank = bank
+                                            collectionDetails.instrument_no = instrument
+                                            collectionDetails.file_path = filePath
+                                            collectionDetails.feedback = feedback
+                                            collectionDetails.patient_name = patientName
+                                            collectionDetails.patient_address = patientAddress
+                                            collectionDetails.patient_no = patinetNo
+                                            /*06-01-2022*/
+                                            collectionDetails.Hospital = hospital
+                                            collectionDetails.Email_Address = emailAddress
+
+                                            collectionDetails.order_id = order_id
+                                            AppDatabase.getDBInstance()!!.collectionDetailsDao().insert(collectionDetails)
+
+                                            val collectionDate = AppUtils.getCurrentDateForShopActi() + "T" + collectionDetails.only_time
+
+                                            uiThread {
+
+                                                if (AppUtils.isOnline(mContext)) {
+                                                    if (addShop.isUploaded) {
+                                                        if (order.isUploaded) {
+                                                            addCollectionApi(collectionDetails.shop_id, collectionDetails.collection_id, "",
+                                                                "", collection, collectionDate, collectionDetails.bill_id, collectionDetails.order_id, collectionDetails)
+                                                        }
+                                                        else {
+                                                            syncOrderForCollection(order, collectionDetails.shop_id, collectionDetails.collection_id, "", "", collection,
+                                                                collectionDate, collectionDetails.bill_id, collectionDetails.order_id, collectionDetails)
+                                                        }
+                                                    } else {
+                                                        syncShopForCollection(addShop, collectionDetails.shop_id, collectionDetails.collection_id, "", "", collection,
+                                                            collectionDate, collectionDetails.bill_id, collectionDetails.order_id, collectionDetails)
+                                                    }
+
+                                                } else {
+                                                    (mContext as DashboardActivity).showSnackMessage("Collection added successfully")
+                                                    voiceCollectionMsg()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            })
+                        collectionDialog?.show((mContext as DashboardActivity).supportFragmentManager, "AddCollectionDialog")
+                    }
+
+
                 }
 
             } catch (e: java.lang.Exception) {
@@ -1003,6 +1102,397 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
             if (bitmap != null)
                 QrCodeDialog.newInstance(bitmap, it.shop_id!!, shop?.shopName!!, it.order_id!!, "Create QR of Order").show((mContext as DashboardActivity).supportFragmentManager, "")
         })
+    }
+
+    private fun saveDataAsPdf(obj: OrderDetailsListEntity) {
+        /*21-04-2022 new pdf format*/
+        var document: Document = Document()
+        var fileName = "FTS"+ "_" + obj.order_id
+        fileName = fileName.replace("/", "_")
+
+        val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() +"/eurobondApp/ORDERDETALIS/"
+
+        val dir = File(path)
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+
+        try {
+            PdfWriter.getInstance(document, FileOutputStream(path + fileName + ".pdf"))
+
+
+
+            document.open()
+
+            var font: Font = Font(Font.FontFamily.HELVETICA, 10f, Font.BOLD)
+            var fontBoldU: Font = Font(Font.FontFamily.HELVETICA, 12f, Font.UNDERLINE or Font.BOLD)
+            var font1: Font = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL)
+            val grayFront = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL, BaseColor.GRAY)
+
+
+
+
+            //image add
+            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+            val bitmap = Bitmap.createScaledBitmap(bm, 50, 50, true);
+            val stream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            var img: Image? = null
+            val byteArray: ByteArray = stream.toByteArray()
+            try {
+                img = Image.getInstance(byteArray)
+                img.scaleToFit(90f, 90f)
+                img.scalePercent(70f)
+                img.alignment = Image.ALIGN_LEFT
+            } catch (e: BadElementException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            //document.add(img)
+
+
+            val Heading = Paragraph("SALES ORDER ", fontBoldU)
+            Heading.alignment = Element.ALIGN_CENTER
+            Heading.spacingAfter = 2f
+            //document.add(Heading)
+
+
+/////////////////////////////
+
+            val sp = Paragraph("", font)
+            sp.spacingAfter = 50f
+            document.add(sp)
+
+
+
+
+            val h = Paragraph("SALES ORDER ", fontBoldU)
+            h.alignment = Element.ALIGN_CENTER
+
+            val pHead = Paragraph()
+            pHead.add(Chunk(img, 0f, -30f))
+            pHead.add(h)
+            document.add(pHead)
+
+            /*val paraHead = Paragraph()
+            val glueHead = Chunk(VerticalPositionMark())
+            val ph1Head = Phrase()
+            val mainHead = Paragraph()
+            ph1Head.add(Chunk(img, 0f,0f))
+            ph1Head.add(glueHead) // Here I add special chunk to the same phrase.
+
+            ph1Head.add(Chunk("SALES ORDER: " + "\u20B9" + obj.amount, font))
+            paraHead.add(ph1Head)
+            document.add(paraHead)*/
+////////////////////////////////////
+
+
+
+            val x = Paragraph("", font)
+            x.spacingAfter = 20f
+            document.add(x)
+
+            val widthsOrder = floatArrayOf(0.50f, 0.50f)
+
+            var tableHeaderOrder: PdfPTable = PdfPTable(widthsOrder)
+            tableHeaderOrder.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER)
+            tableHeaderOrder.setWidthPercentage(100f)
+
+            var invoiceNo="."
+            var invoiceDate="."
+            try{
+                invoiceNo = AppDatabase.getDBInstance()!!.billingDao().getInvoice(obj.order_id!!)
+                if (invoiceNo==null){
+                    invoiceNo=""
+                }
+            }catch (ex:Exception){
+                invoiceNo=""
+            }
+            try{
+                invoiceDate = AppDatabase.getDBInstance()!!.billingDao().getInvoiceDate(obj.order_id!!)
+                if (invoiceDate==null){
+                    invoiceDate=""
+                }
+            }catch (ex:Exception){
+                invoiceDate=""
+            }
+
+            val cell11 = PdfPCell(Phrase("Order No       :     " + obj.order_id + "\n\n" + "Order Date    :     " + AppUtils.convertDateTimeToCommonFormat(obj.date!!), font))
+            cell11.setHorizontalAlignment(Element.ALIGN_LEFT)
+            cell11.borderColor = BaseColor.GRAY
+            tableHeaderOrder.addCell(cell11)
+
+
+            val cell222 = PdfPCell(Phrase("Invoice No     :     " + invoiceNo + "\n\n" + "Invoice Date  :     " + invoiceDate, font))
+            cell222.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cell222.borderColor = BaseColor.GRAY
+            cell222.paddingBottom=10f
+            tableHeaderOrder.addCell(cell222)
+
+            document.add(tableHeaderOrder)
+
+
+            var orderNoDate: String = ""
+            var InvoicDate: String = ""
+            val tableRows = PdfPTable(widthsOrder)
+            tableRows.defaultCell.horizontalAlignment = Element.ALIGN_LEFT
+            tableRows.setWidthPercentage(100f);
+
+            var cellBodySl1 = PdfPCell(Phrase(orderNoDate + "Order Date: " + AppUtils.convertDateTimeToCommonFormat(obj.date!!), font))
+            cellBodySl1.setHorizontalAlignment(Element.ALIGN_LEFT)
+            cellBodySl1.borderColor = BaseColor.GRAY
+//            tableRows.addCell(cellBodySl1)
+
+
+            var cellBody22 = PdfPCell(Phrase(InvoicDate + invoiceNo + "Invoice Date: " + invoiceDate, font))
+            cellBody22.setHorizontalAlignment(Element.ALIGN_LEFT)
+            cellBody22.borderColor = BaseColor.GRAY
+//            tableRows.addCell(cellBody22)
+
+            document.add(tableRows)
+
+            document.add(Paragraph())
+
+
+            val xz = Paragraph("", font)
+            xz.spacingAfter = 10f
+            document.add(xz)
+
+            val HeadingPartyDetls = Paragraph("Details of Party ", fontBoldU)
+            HeadingPartyDetls.indentationLeft = 82f
+//            HeadingPartyDetls.alignment = Element.ALIGN_LEFT
+            HeadingPartyDetls.spacingAfter = 2f
+            document.add(HeadingPartyDetls)
+
+            val shop = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(obj.shop_id)
+
+            val Parties = Paragraph("Name                    :      " + shop?.shopName, font1)
+            Parties.alignment = Element.ALIGN_LEFT
+            Parties.spacingAfter = 2f
+            document.add(Parties)
+
+            val address = Paragraph("Address                :      " + shop?.address, font1)
+            address.alignment = Element.ALIGN_LEFT
+            address.spacingAfter = 2f
+            document.add(address)
+
+
+            val Contact = Paragraph("Contact No.          :      " + shop?.ownerContactNumber, font1)
+            Contact.alignment = Element.ALIGN_LEFT
+            Contact.spacingAfter = 2f
+            document.add(Contact)
+
+
+            if (Pref.isPatientDetailsShowInOrder) {
+                val PatientName = Paragraph("Patient Name        :  " + obj.patient_name, font1)
+                PatientName.alignment = Element.ALIGN_LEFT
+                PatientName.spacingAfter = 2f
+                document.add(PatientName)
+
+                val PatientAddr = Paragraph("Patient Address     :  " + obj.patient_address, font1)
+                PatientAddr.alignment = Element.ALIGN_LEFT
+                PatientAddr.spacingAfter = 2f
+                document.add(PatientAddr)
+
+                val PatientPhone = Paragraph("Patient Phone        :  " + obj.patient_no, font1)
+                PatientPhone.alignment = Element.ALIGN_LEFT
+                PatientPhone.spacingAfter = 10f
+                document.add(PatientPhone)
+
+            }
+            val xze = Paragraph("", font)
+            xze.spacingAfter = 10f
+            document.add(xze)
+
+            // table header
+            //val widths = floatArrayOf(0.55f, 0.05f, 0.2f, 0.2f)
+            val widths = floatArrayOf(0.06f, 0.58f, 0.07f, 0.07f, 0.07f, 0.15f)
+
+            var tableHeader: PdfPTable = PdfPTable(widths)
+            tableHeader.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT)
+            tableHeader.setWidthPercentage(100f)
+
+            val cell111 = PdfPCell(Phrase("SL. ", font))
+            cell111.setHorizontalAlignment(Element.ALIGN_LEFT)
+            cell111.borderColor = BaseColor.GRAY
+            tableHeader.addCell(cell111);
+
+            val cell1 = PdfPCell(Phrase("Item Description ", font))
+            cell1.setHorizontalAlignment(Element.ALIGN_LEFT)
+            cell1.borderColor = BaseColor.GRAY
+            tableHeader.addCell(cell1);
+
+            val cell2 = PdfPCell(Phrase("Qty ", font))
+            cell2.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cell2.borderColor = BaseColor.GRAY
+            tableHeader.addCell(cell2);
+
+            val cell21 = PdfPCell(Phrase("Unit ", font))
+            cell21.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cell21.borderColor = BaseColor.GRAY
+            tableHeader.addCell(cell21);
+
+            val cell3 = PdfPCell(Phrase("Rate ", font))
+            cell3.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cell3.borderColor = BaseColor.GRAY
+            tableHeader.addCell(cell3);
+
+            val cell4 = PdfPCell(Phrase("Amount ", font))
+            cell4.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cell4.borderColor = BaseColor.GRAY
+            tableHeader.addCell(cell4);
+
+            document.add(tableHeader)
+
+            //table body
+            var srNo: String = ""
+            var item: String = ""
+            var qty: String = ""
+            var unit: String = ""
+            var rate: String = ""
+            var amount: String = ""
+
+            val productList = AppDatabase.getDBInstance()!!.orderProductListDao().getDataAccordingToOrderId(obj.order_id!!)
+
+            for (i in 0..productList.size-1) {
+                srNo = (i+1).toString() +" "
+                item = productList!!.get(i).product_name +  "       "
+                qty = productList!!.get(i).qty +" "
+                unit = "KG" +" "
+                rate =   getString(R.string.rupee_symbol_with_space)+" "+productList !!.get(i).rate +" "
+                amount = getString(R.string.rupee_symbol_with_space)+" "+productList!!.get(i).total_price +" "
+
+
+                val tableRows = PdfPTable(widths)
+                tableRows.defaultCell.horizontalAlignment = Element.ALIGN_CENTER
+                tableRows.setWidthPercentage(100f);
+
+
+                var cellBodySr = PdfPCell(Phrase(srNo, font1))
+                cellBodySr.setHorizontalAlignment(Element.ALIGN_LEFT);
+                cellBodySr.borderColor = BaseColor.GRAY
+                tableRows.addCell(cellBodySr)
+
+                var cellBodySl = PdfPCell(Phrase(item, font1))
+                cellBodySl.setHorizontalAlignment(Element.ALIGN_LEFT);
+                cellBodySl.borderColor = BaseColor.GRAY
+                tableRows.addCell(cellBodySl)
+
+                var cellBody2 = PdfPCell(Phrase(qty, font1))
+                cellBody2.setHorizontalAlignment(Element.ALIGN_LEFT)
+                cellBody2.borderColor = BaseColor.GRAY
+                tableRows.addCell(cellBody2)
+
+
+                var cellBody21 = PdfPCell(Phrase(unit, font1))
+                cellBody21.setHorizontalAlignment(Element.ALIGN_LEFT)
+                cellBody21.borderColor = BaseColor.GRAY
+                tableRows.addCell(cellBody21)
+
+                var cellBody3 = PdfPCell(Phrase(rate, font1))
+                cellBody3.setHorizontalAlignment(Element.ALIGN_LEFT)
+                cellBody3.borderColor = BaseColor.GRAY
+                tableRows.addCell(cellBody3)
+
+                var cellBody4 = PdfPCell(Phrase(amount, font1))
+                cellBody4.setHorizontalAlignment(Element.ALIGN_LEFT)
+                cellBody4.borderColor = BaseColor.GRAY
+                tableRows.addCell(cellBody4)
+
+                document.add(tableRows)
+
+                document.add(Paragraph())
+            }
+            val xffx = Paragraph("", font)
+            xffx.spacingAfter = 12f
+            document.add(xffx)
+
+//            val widthsamount = floatArrayOf(0.70f,0.30f)
+//
+//            var tableamountHeader: PdfPTable = PdfPTable(widthsamount)
+//            tableamountHeader.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT)
+//            tableamountHeader.setWidthPercentage(100f)
+//
+//            val cellamount = PdfPCell(Phrase(convertIntoWords(obj.amount!!.toDouble(),"en","US")+"Only  "+"  "+"Total Amount: " + "\u20B9" + obj.amount, font))
+//            cellamount.setHorizontalAlignment(Element.ALIGN_LEFT)
+//            cellamount.borderColor = BaseColor.GRAY
+//            tableamountHeader.addCell(cellamount)
+
+
+//            document.add(tableamountHeader)
+
+            val para = Paragraph()
+            val glue = Chunk(VerticalPositionMark())
+            val ph1 = Phrase()
+            val main = Paragraph()
+            //ph1.add(Chunk("Rupees " + convertIntoWords(obj.amount!!.toDouble(), "en", "US")!!.toUpperCase() + " Only  ", font))
+            ph1.add(Chunk("Rupees " + NumberToWords.numberToWord(obj.amount!!.toDouble().toInt()!!)!!.toUpperCase() + " Only  ", font))
+            ph1.add(glue) // Here I add special chunk to the same phrase.
+
+            ph1.add(Chunk("Total Amount: " + "\u20B9" + obj.amount, font))
+            para.add(ph1)
+            document.add(para)
+
+//            val TotalAmountword = Paragraph("" + "\u20B9" + convertIntoWords(obj.amount!!.toDouble(),"en","US"), font)
+//            TotalAmountword.alignment = Element.ALIGN_LEFT
+//            TotalAmountword.spacingAfter = 2f
+//            document.add(TotalAmountword)
+//
+//
+//            val TotalAmount = Paragraph("Total Amount:" + "\u20B9" + obj.amount, font)
+//            TotalAmount.alignment = Element.ALIGN_RIGHT
+//            TotalAmount.spacingAfter = 2f
+//            document.add(TotalAmount)
+
+            val xfx = Paragraph("", font)
+            xfx.spacingAfter = 12f
+            document.add(xfx)
+
+
+            val widthsSalesPerson = floatArrayOf(1f)
+
+            var tablewidthsSalesPersonHeader: PdfPTable = PdfPTable(widthsSalesPerson)
+            tablewidthsSalesPersonHeader.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT)
+            tablewidthsSalesPersonHeader.setWidthPercentage(100f)
+
+            val cellsales = PdfPCell(Phrase("Entered by: " + Pref.user_name, font1))
+            cellsales.setHorizontalAlignment(Element.ALIGN_LEFT)
+            cellsales.borderColor = BaseColor.GRAY
+            tablewidthsSalesPersonHeader.addCell(cellsales)
+
+
+            document.add(tablewidthsSalesPersonHeader)
+
+
+
+//            val salesPerson = Paragraph("Entered by: " + Pref.user_name, font)
+//            salesPerson.alignment = Element.ALIGN_LEFT
+//            salesPerson.spacingAfter = 10f
+//            document.add(salesPerson)
+
+            document.close()
+
+            var sendingPath = path + fileName + ".pdf"
+            if (!TextUtils.isEmpty(sendingPath)) {
+                try {
+                    val shareIntent = Intent(Intent.ACTION_SEND)
+                    val fileUrl = Uri.parse(sendingPath)
+                    val file = File(fileUrl.path)
+                    val uri: Uri = FileProvider.getUriForFile(mContext, mContext.applicationContext.packageName.toString() + ".provider", file)
+                    shareIntent.type = "image/png"
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+                    startActivity(Intent.createChooser(shareIntent, "Share pdf using"))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong1))
+                }
+            }
+        }
+        catch (ex: Exception){
+            ex.printStackTrace()
+            (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+        }
     }
 
     private fun voiceCollectionMsg() {
@@ -1256,6 +1746,11 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
 
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+        addShopData.purpose=mAddShopDBModelEntity.purpose
+
 
 
         callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, collection_id, amount, collection,
@@ -1875,6 +2370,13 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
 
         addShopData.alternateNoForCustomer = shop.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = shop.whatsappNoForCustomer
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=shop.isShopDuplicate
+
+        addShopData.purpose=shop.purpose
+
+
 
 
         callAddShopApi(addShopData, shop.shopImageLocalPath, position, list, shop.doc_degree)

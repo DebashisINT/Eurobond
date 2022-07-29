@@ -64,6 +64,7 @@ import com.eurobond.features.orderhistory.api.LocationUpdateRepositoryProviders
 import com.eurobond.features.orderhistory.model.LocationData
 import com.eurobond.features.orderhistory.model.LocationUpdateRequest
 import com.eurobond.mappackage.SendBrod.Companion.monitorNotiID
+import com.google.android.gms.maps.model.LatLng
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -250,8 +251,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 val notificationChannel = NotificationChannel(channelId, channelName, importance)
                 notificationChannel.enableLights(true)
                 notificationChannel.lightColor = applicationContext.getColor(R.color.colorPrimary)
-                notificationChannel.enableVibration(false)
-                notificationChannel.setSound(null,null)
+                notificationChannel.enableVibration(true)
                 notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 notificationManager.createNotificationChannel(notificationChannel)
 
@@ -281,8 +281,6 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                                 Bitmap.createScaledBitmap(icon, 128, 128, false))
                         .setContentIntent(pendingIntent)
                         .setOngoing(true)
-                    .setSound(null)
-                    .setVibrate(null)
                         .build()
 
                 //notificationManager.notify(randInt, notificationBuilder.build())
@@ -543,8 +541,13 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     private var previousOnLocationChangedTimeStamp = 0L
     private var currentOnLocationChangedTimeStamp = 0L
 
+    var lastInd = 0
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onLocationChanged(location: Location) {
+
+        var tempLoc : Location= Location("")
+        tempLoc.latitude
 
         if (Pref.login_date != AppUtils.getCurrentDateChanged()) {
             XLog.e("=======Auto logout scenario (Location Fuzed Service)==========")
@@ -625,8 +628,9 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         if (location.isFromMockProvider)
             XLog.e("==================Mock Location is on (Location Fuzed Serive)====================")
-        else
-            XLog.e("==================Mock Location is off (Location Fuzed Serive)====================")
+        else{
+            //XLog.e("==================Mock Location is off (Location Fuzed Serive)====================")
+        }
 
         /*try {
 
@@ -697,8 +701,9 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         if (Pref.willAutoRevisitEnable)
             checkAutoRevisit()
-        else
-            XLog.e("====================Auto Revisit Disable (Location Fuzed Service)====================")
+        else{
+            //XLog.e("====================Auto Revisit Disable (Location Fuzed Service)====================")
+        }
 
         //saveAllLocation(location)
         checkMeetingDistance()
@@ -746,15 +751,18 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         else
             800f
 
+        //accuracy=1f
+
         /*Discard Data if Inaccurate*/
         if (location.accuracy > accuracy /*&& shouldLocationUpdate()*/) {
+        //if (location.accuracy > 2 /*&& shouldLocationUpdate()*/) {
 
             /*LOCATION_ACTIVITY_INTERVAL = 0
             updateInaccurateLocation(location)*/
 
             accuracyStatus = "inaccurate"
 
-            XLog.e("=============Inaccurate location (Location Fuzed Service)============")
+            XLog.e("=Inaccurate location (Location Fuzed Service)=")
 
             if (!TextUtils.isEmpty(Pref.home_latitude) && !TextUtils.isEmpty(Pref.home_longitude)) {
                 val distance = LocationWizard.getDistance(Pref.home_latitude.toDouble(), Pref.home_longitude.toDouble(), location.latitude, location.longitude)
@@ -762,16 +770,16 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 if (distance * 1000 > Pref.homeLocDistance.toDouble()) {
                     calculateInaccurateDistance(location)
                 } else {
-                    XLog.e("==========User is at home location (Location Fuzed Service)==========")
+                    XLog.e("=User is at home location (Location Fuzed Service)=")
                     if (Pref.isAddAttendence)
                         calculateIdleTime(location, "inaccurate")
                     else
-                        XLog.e("=====Attendance is not added for today (Inaccurate idle time)======")
+                        XLog.e("=Attendance not added for today (Inaccurate idle time)=")
                 }
             } else
                 calculateInaccurateDistance(location)
 
-            XLog.e("Temp Distance for inaccurate====> $tempDistance")
+            XLog.e("Temp Distance for inaccurate=> $tempDistance")
 
             updateInaccurateLocation(location)
 
@@ -786,7 +794,6 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         if( Pref.isShopVisited){
             if (shouldShopDurationComplete()) {
-
                 val list = AppDatabase.getDBInstance()!!.shopActivityDao().getDurationCalculatedShopForADay(AppUtils.getCurrentDateForShopActi(), false, true)
                 if (list != null && list.isNotEmpty()) {
                     val shopId = list[0].shopid
@@ -795,21 +802,17 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
                     val distance = LocationWizard.getDistance(shop.shopLat, shop.shopLong, location.latitude, location.longitude)
 
-                    XLog.e("Location Fuzed Service: Distance between current location & visited shop location====> $distance km(s)")
-                    XLog.e("Location Fuzed Service: Gps accuracy====> " + Pref.gpsAccuracy + " m(s)")
+                    XLog.e("Location Fuzed Service: Distance between current loc & visited shop loc=> $distance km(s)")
+                    XLog.e("Location Fuzed Service: Gps accuracy=> " + Pref.gpsAccuracy + " m(s)")
 
                     if (distance * 1000 > Pref.gpsAccuracy.toInt()) {
                         endShopDuration(shopId!!)
                     }
-
-
-
                 }
             }
         }
 
-
-        XLog.e("Temp Distance for accurate====> $tempDistance")
+        XLog.e("Temp Distance for accurate=> $tempDistance")
 
         lastLat = location.latitude
         lastLng = location.longitude
@@ -853,13 +856,13 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     private fun checkAutoRevisit() {
 
         if (!Pref.isAddAttendence) {
-            XLog.e("====================Attendance is not given (Location Fuzed Service)====================")
+            XLog.e("=Attendance is not given (Location Fuzed Service)=")
             return
         }
 
 
         if (lastLat == 0.0 || lastLng == 0.0) {
-            XLog.e("====================1st time check auto revisit====================")
+            XLog.e("=1st time check auto revisit=")
             return
         }
 
@@ -888,7 +891,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
                         if (isShopNearby) {
 
-                            XLog.e("================Nearby shop " + allShopList[i].shopName + "(Location Fuzed Service)===================")
+                            XLog.e("=Nearby shop " + allShopList[i].shopName + "(Location Fuzed Service)=")
 
                             /*val shopActivity = AppDatabase.getDBInstance()!!.shopActivityDao().durationAvailableForTodayShop(allShopList[i].shop_id,
                                     false, false, AppUtils.getCurrentDateForShopActi())*/
@@ -925,7 +928,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
                                 break
                             } else
-                                XLog.e("================" + allShopList[i].shopName + " is visiting now normally (Location Fuzed Service)===================")
+                                XLog.e("=" + allShopList[i].shopName + " is visiting now normally (Location Fuzed Service)=")
                         }
                     }
                 }
@@ -1224,6 +1227,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showNotification() {
 
+
         if (!Pref.isShowCurrentLocNotifiaction)
             return
 
@@ -1285,8 +1289,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             for (i in list.indices) {
                 val distance = LocationWizard.getDistance(list[i].lattitude?.toDouble()!!, list[i].longitude?.toDouble()!!, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
 
-                XLog.e("MEETING DISTANCE==========> $distance KM")
-                XLog.e("MEETING DISTANCE LIMIT==========> ${Pref.meetingDistance} Meter")
+                XLog.e("MEETING DISTANCE=> $distance KM"+" : MEETING DISTANCE LIMIT=> ${Pref.meetingDistance} Meter")
+               // XLog.e("MEETING DISTANCE LIMIT=> ${Pref.meetingDistance} Meter")
 
                 if (distance * 1000 > Pref.meetingDistance.toDouble()) {
                     AppUtils.changeLanguage(this,"en")
@@ -1739,24 +1743,21 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         userlocation.updateDate = AppUtils.getCurrentDateForShopActi()
         userlocation.updateDateTime = AppUtils.getCurrentDateTime()
 
-        XLog.d("====================Current inaccurate location (Location Fuzed Service)=====================")
-        XLog.d("accuracy=====> " + userlocation.accuracy)
-        XLog.d("lat====> " + userlocation.latitude)
-        XLog.d("long=====> " + userlocation.longitude)
+        XLog.d("=Current inaccurate location (Location Fuzed Service)=")
+        XLog.d("accuracy=====> " + userlocation.accuracy + " lat====> " + userlocation.latitude + " long=====> " + userlocation.longitude + " date time=====> " + userlocation.updateDateTime)
         XLog.d("location=====> " + userlocation.locationName)
-        XLog.d("date time=====> " + userlocation.updateDateTime)
 
         AppDatabase.getDBInstance()!!.inaccurateLocDao().insertAll(userlocation)
-        XLog.d("==============inaccurate location added to db (Location Fuzed Service)=======================")
+        XLog.d("=inaccurate location added to db (Location Fuzed Service)=")
     }
 
 
     private fun syncMeetingData() {
 
-        XLog.e("===============Sync Meeting Data(Location Fuzed Service)==============")
+        XLog.e("==Sync Meeting Data(Location Fuzed Service)==")
 
         if (!shouldUpdateMeetingDuration()) {
-            XLog.e("===============Should not call sync Meeting Data(Location Fuzed Service)==============")
+            XLog.e("=Should not call sync Meeting Data(Location Fuzed Service)=")
             return
         }
 
@@ -1767,7 +1768,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         if (list != null && list.isNotEmpty()) {
 
-            XLog.e("IS MEETING UPDATING (LOCATION FUZED SERVICE)===========> $isMeetingUpdating")
+            XLog.e("IS MEETING UPDATING (LOCATION FUZED SERVICE=> $isMeetingUpdating")
 
             if (isMeetingUpdating)
                 return
@@ -1802,7 +1803,6 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             XLog.d("USER ID======> " + meeting.user_id)
             XLog.d("SESSION ID======> " + meeting.session_token)
             XLog.d("MEETING LIST SIZE=========> " + meeting.meeting_list.size)
-            XLog.d("========================================================================")
 
             val repository = ShopDurationRepositoryProvider.provideShopDurationRepository()
             BaseActivity.compositeDisposable.add(
@@ -1946,8 +1946,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             distanceCovered += allLocationList[i].distance.toDouble()
 
             if (!TextUtils.isEmpty(allLocationList[i].home_duration)) {
-                XLog.e("Home Duration (Location Fuzed Service)=================> ${allLocationList[i].home_duration}")
-                XLog.e("Time (Location Fuzed Service)=================> ${allLocationList[i].time}")
+                XLog.e("Home Duration (Location Fuzed Service)==> ${allLocationList[i].home_duration}")
+                XLog.e("Time (Location Fuzed Service)==> ${allLocationList[i].time}")
                 val arr = allLocationList[i].home_duration?.split(":".toRegex())?.toTypedArray()
                 timeStamp += arr?.get(2)?.toInt()?.toLong()!!
                 timeStamp += 60 * arr[1].toInt().toLong()
@@ -2013,8 +2013,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         for (i in apiLocationList.indices) {
             if (!apiLocationList[i].isUploaded) {
 
-                XLog.e("Final Home Duration (Location Fuzed Service)=================> ${apiLocationList[i].home_duration}")
-                XLog.e("Time (Location Fuzed Service)=================> ${apiLocationList[i].time} ${apiLocationList[i].meridiem}")
+                XLog.e("Final Home Duration (Location Fuzed Service)==> ${apiLocationList[i].home_duration}")
+                XLog.e("Time (Location Fuzed Service)==> ${apiLocationList[i].time} ${apiLocationList[i].meridiem}")
 
                 val locationData = LocationData()
 
@@ -2152,13 +2152,12 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             return AppDatabase.getDBInstance()!!.userLocationDataDao().all.size == 0
         }
 
-
     }
 
 
     private fun shouldShopActivityUpdate(): Boolean {
         AppUtils.changeLanguage(this,"en")
-        return if (abs(System.currentTimeMillis() - Pref.prevShopActivityTimeStamp) > 1000 * 60 * 20) {
+        return if (abs(System.currentTimeMillis() - Pref.prevShopActivityTimeStamp) > 1000 * 60 * 10) {
             Pref.prevShopActivityTimeStamp = System.currentTimeMillis()
             changeLocale()
             true
@@ -2308,12 +2307,9 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         XLog.d("======Current valid location (Location Fuzed Service)======")
         XLog.d("distance=====> " + location.distance)
-        XLog.d("lat====> " + location.latitude)
-        XLog.d("long=====> " + location.longitude)
-        XLog.d("location=====> " + location.locationName)
-        XLog.d("date time=====> " + location.updateDateTime)
-        XLog.d("network_status=====> " + location.network_status)
-        XLog.d("battery_percentage=====> " + location.battery_percentage)
+        XLog.d("lat====> " + location.latitude+" long=====> " + location.longitude)
+        XLog.d("location=====> " + location.locationName + " date time=====> " + location.updateDateTime)
+        XLog.d("network_status=====> " + location.network_status+" battery_percentage=====> " + location.battery_percentage)
 
         //AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(location)
 //        syncLocationActivity()
@@ -2342,10 +2338,10 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
              XLog.e("Fuzed Location: interval====> $interval")*/
 
             val intervalInMins = (interval / 1000) / 60
-            XLog.e("Fuzed Location: interval=====> $intervalInMins min(s)")
-
             intervalInSec = (interval / 1000)
-            XLog.e("Fuzed Location: interval=====> $intervalInSec sec(s)")
+
+            XLog.e("Fuzed Location: interval=====> $intervalInMins min(s)  $intervalInSec sec(s)")
+            //XLog.e("Fuzed Location: interval=====> $intervalInSec sec(s)")
 
 //        if (/*userlocation.*/speed.toDouble() in 0.0..50.0)
 //            assumedDistanceCover = 200.00
@@ -2664,7 +2660,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         if (!shouldShopActivityUpdate())
             return
 
-        Log.e("Location Fuzed Srvice", "isShopActivityUpdating=============> $isShopActivityUpdating")
+        Log.e("Location Fuzed Srvice", "isShopActivityUpdating===> $isShopActivityUpdating")
 
         if (Pref.user_id.isNullOrEmpty() || isShopActivityUpdating)
             return
@@ -3336,7 +3332,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         } else
             maxDis = AppUtils.maxDistance.toDouble()
 
-        XLog.e("LocationFuzedService: Max Distance=====> $maxDis meter")
+        XLog.e("LocationFuzedService: Max Distance=> $maxDis meter")
 
         //userlocation.accuracy = location.accuracy.toString()
 //        userlocation.prev_latitude=mLastLocation.latitude.toString()
@@ -3347,12 +3343,12 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             val distance = LocationWizard.getDistance(Pref.home_latitude.toDouble(), Pref.home_longitude.toDouble(), location.latitude, location.longitude)
 
             userlocation.home_distance = (distance * 1000).toString()
-            XLog.e("LocationFuzedService: home_distance=====> ${userlocation.home_distance} Meter")
+            XLog.e("LocationFuzedService: home_distance=> ${userlocation.home_distance} Meter")
 
             if (distance * 1000 > Pref.homeLocDistance.toDouble())
                 calculateAccurateDistance(userlocation, maxDis, location)
             else {
-                XLog.e("==========User is at home location (Location Fuzed Service)==========")
+                XLog.e("=User is at home location (Location Fuzed Service)=")
                 userlocation.distance = "0.0"
 
                 if (Pref.isAddAttendence) {
@@ -3365,7 +3361,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                     if (currentTimeInLong in inTimeInLong..outTimeInLong) {
                         if (Pref.willShowHomeLocReason && Pref.isOnLeave.equals("false", ignoreCase = true)) {
                             if (shouldCheckHomeLocationReason()) {
-                                XLog.e("==========Should Check Home Location Reason (Location Fuzed Service)==========")
+                                XLog.e("=Should Check Home Location Reason (Location Fuzed Service)=")
                                 /*if (!TextUtils.isEmpty(Pref.approvedOutTime) && !TextUtils.isEmpty(Pref.approvedInTime)) {
 
                                     val currentTimeInLong = AppUtils.convertTimeWithMeredianToLong(AppUtils.getCurrentTimeWithMeredian())
@@ -3384,12 +3380,12 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                                     /*}
                                 }*/
                             } else
-                                XLog.e("==========Should Not Check Home Location Reason (Location Fuzed Service)==========")
+                                XLog.e("=Should Not Check Home Location Reason (Location Fuzed Service)=")
                         }
                     }
                 }
                 else
-                    XLog.e("=====Attendance is not added for today (Accurate idle time)======")
+                    XLog.e("=Attendance is not added for today (Accurate idle time)=")
             }
         } else {
             calculateAccurateDistance(userlocation, maxDis, location)
@@ -3438,7 +3434,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                             results
                     )
 
-                    if (results.getOrNull(0) ?: -1f in 0..200) {
+                    if (results.getOrNull(0) ?: -1 in 0..200) {
                         observable.onNext(it)
                     } /*else {
                         val shopActivityList = AppDatabase.getDBInstance()!!.shopActivityDao().getShopForDay(it.shop_id, AppUtils.getCurrentDateForShopActi())
@@ -3556,13 +3552,23 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
     private fun saveData(userlocation: UserLocationDataEntity, distance: Double) {
         resetData()
-        val finalDistance = (tempDistance.toDouble() + distance).toString()
+        var finalDistance = (tempDistance.toDouble() + distance).toString()
 
         XLog.e("===Distance (LocationFuzedService)===")
         XLog.e("Temp Distance====> $tempDistance")
         XLog.e("Normal Distance====> $distance")
         XLog.e("Total Distance====> $finalDistance")
         XLog.e("=====================================")
+
+        var fDist=finalDistance.toDouble().toInt()
+        if(fDist>499){ // if current lat-long and prev lat-long dist is >499km then reject it & replace it with previous valid distance
+            try{
+                var obj = AppDatabase.getDBInstance()!!.userLocationDataDao().getLastRecord()
+                finalDistance=obj.distance
+            }catch (ex:Exception){
+                finalDistance="0.0"
+            }
+        }
 
         userlocation.distance = finalDistance  //LocationWizard.getDistance(mLastLocation.latitude, mLastLocation.longitude, userlocation.latitude.toDouble(), userlocation.longitude.toDouble()).toString()
         tempDistance = "0.0"
@@ -3757,6 +3763,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                         //notificationManager.cancel(monitorNotiID)
                         Pref.isLocFuzedBroadPlaying = true
                         MonitorBroadcast.isSound = Pref.GPSAlertwithSound
+                        MonitorBroadcast.isVibrator = Pref.GPSAlertwithVibration
                         val intent: Intent = Intent(this, MonitorBroadcast::class.java)
                         intent.putExtra("notiId", monitorNotiID)
                         intent.putExtra("fuzedLoc", "Fuzed Stop")

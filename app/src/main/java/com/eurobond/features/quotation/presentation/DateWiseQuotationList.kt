@@ -861,6 +861,10 @@ class DateWiseQuotationList : BaseFragment(), DatePickerListener {
 
             addShopData.alternateNoForCustomer = alternateNoForCustomer
             addShopData.whatsappNoForCustomer = whatsappNoForCustomer
+
+            // duplicate shop api call
+            addShopData.isShopDuplicate=isShopDuplicate
+            addShopData.purpose=purpose
         }
         callAddShopApi(addShopData, shop?.shopImageLocalPath!!, quot, isEdit, shop.doc_degree!!)
     }

@@ -286,6 +286,7 @@ class ProtoRegistrationFragment:BaseFragment(),View.OnClickListener {
         )
     }
 
+    @SuppressLint("UseRequireInsteadOfGet")
     private fun getBytesForMemCache(percent: Int): Int {
         val mi: ActivityManager.MemoryInfo = ActivityManager.MemoryInfo()
         val activityManager: ActivityManager = context!!.getSystemService(ACTIVITY_SERVICE) as ActivityManager
@@ -1070,6 +1071,7 @@ class ProtoRegistrationFragment:BaseFragment(),View.OnClickListener {
         }
     }
 
+    @SuppressLint("UseRequireInsteadOfGet")
     private fun openFile(file: File) {
 
         val mimeType = NewFileUtils.getMemeTypeFromFile(file.absolutePath + "." + NewFileUtils.getExtension(file))

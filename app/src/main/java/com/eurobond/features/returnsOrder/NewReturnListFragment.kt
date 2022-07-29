@@ -363,6 +363,10 @@ class NewReturnListFragment : BaseFragment() {
             override fun onReturnClick(position: Int) {
 
             }
+
+            override fun onDamageClick(shop_id: String) {
+                TODO("Not yet implemented")
+            }
         }, {
 
             val heading = "ORDERS RETURN"
@@ -684,6 +688,12 @@ class NewReturnListFragment : BaseFragment() {
 
         addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+        addShopData.purpose=mAddShopDBModelEntity.purpose
+
 
         callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, collection_id, amount, collection,
                 currentDateForShopActi, desc, billId, mAddShopDBModelEntity.doc_degree, orderId, collectionDetails)
@@ -1289,6 +1299,11 @@ class NewReturnListFragment : BaseFragment() {
 
         addShopData.alternateNoForCustomer = shop.alternateNoForCustomer
         addShopData.whatsappNoForCustomer = shop.whatsappNoForCustomer
+
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=shop.isShopDuplicate
+        addShopData.purpose=shop.purpose
 
         callAddShopApi(addShopData, shop.shopImageLocalPath, position, list, shop.doc_degree)
         //}
@@ -2029,6 +2044,12 @@ class NewReturnListFragment : BaseFragment() {
 
         var uniqKeyObj=AppDatabase.getDBInstance()!!.shopActivityDao().getNewShopActivityKey(mAddShopDBModelEntity.shop_id!!,false)
         addShopData.shop_revisit_uniqKey=uniqKeyObj?.shop_revisit_uniqKey!!
+
+        // duplicate shop api call
+        addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+        addShopData.purpose=mAddShopDBModelEntity.purpose
+
 
         callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shopList, orderDetailsList,
                 mAddShopDBModelEntity.doc_degree)

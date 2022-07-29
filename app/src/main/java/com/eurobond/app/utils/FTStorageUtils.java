@@ -55,7 +55,7 @@ import static android.content.Context.ACTIVITY_SERVICE;
 
 public class FTStorageUtils {
 
-    private static String APP_FOLDERNAME = "FTS";
+    private static String APP_FOLDERNAME = "eurobondApp/FTS";
     private static String folderPath;
     public static Uri IMG_URI = null;
     private static final int EOF = -1;
@@ -260,6 +260,17 @@ public class FTStorageUtils {
         try {
             SimpleDateFormat monthParse = new SimpleDateFormat("MM");
             SimpleDateFormat monthDisplay = new SimpleDateFormat("MMM");
+            return monthDisplay.format(monthParse.parse(month));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return " ";
+        }
+    }
+    public static String formatMm(String month) {
+
+        try {
+            SimpleDateFormat monthParse = new SimpleDateFormat("MM");
+            SimpleDateFormat monthDisplay = new SimpleDateFormat("MM");
             return monthDisplay.format(monthParse.parse(month));
         } catch (ParseException e) {
             e.printStackTrace();

@@ -1,24 +1,11 @@
 package com.eurobond.features.NewQuotation.api
 
-import android.content.Context
-import android.net.Uri
-import android.text.TextUtils
-import android.util.Log
-import com.eurobond.app.FileUtils
 import com.eurobond.base.BaseResponse
-import com.eurobond.features.NewQuotation.model.*
-import com.eurobond.features.addshop.model.AddShopRequestData
-import com.eurobond.features.addshop.model.AddShopResponse
-import com.eurobond.features.login.model.userconfig.UserConfigResponseModel
-import com.eurobond.features.myjobs.model.WIPImageSubmit
-import com.eurobond.features.photoReg.model.*
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.gson.Gson
+import com.eurobond.features.NewQuotation.model.AddQuotRequestData
+import com.eurobond.features.NewQuotation.model.EditQuotRequestData
+import com.eurobond.features.NewQuotation.model.ViewDetailsQuotResponse
+import com.eurobond.features.NewQuotation.model.ViewQuotResponse
 import io.reactivex.Observable
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import java.io.File
 
 class GetQuotListRegRepository(val apiService : GetQutoListApi) {
 

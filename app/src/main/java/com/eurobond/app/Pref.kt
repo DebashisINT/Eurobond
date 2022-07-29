@@ -388,11 +388,66 @@ object Pref : PreferenceHolder() {
     var GeofencingRelaxationinMeter: Int by bindToPreferenceField(100, "GeofencingRelaxationinMeter")
 
 
-
     var user_login_ID: String by bindToPreferenceField("", "user_login_ID")
 
     var IsFeedbackHistoryActivated: Boolean by bindToPreferenceField(false, "IsFeedbackHistoryActivated")
     var IsAutoLeadActivityDateTime: Boolean by bindToPreferenceField(false, "IsAutoLeadActivityDateTime")
     var LogoutWithLogFile: Boolean by bindToPreferenceField(false, "LogoutWithLogFile")
 
+    var IsCollectionOrderWise: Boolean by bindToPreferenceField(false, "IsCollectionOrderWise")
+    var ShowCollectionOnlywithInvoiceDetails: Boolean by bindToPreferenceField(false, "ShowCollectionOnlywithInvoiceDetails")
+
+
+    var ShowCollectionAlert: Boolean by bindToPreferenceField(false, "ShowCollectionAlert")
+    var ShowZeroCollectioninAlert: Boolean by bindToPreferenceField(false, "ShowZeroCollectioninAlert")
+
+    var IsPendingCollectionRequiredUnderTeam: Boolean by bindToPreferenceField(false, "IsPendingCollectionRequiredUnderTeam")
+
+    var IsPendingColl: Boolean by bindToPreferenceField(false, "IsPendingColl")
+    var IsZeroOrder: Boolean by bindToPreferenceField(false, "IsZeroOrder")
+
+    var IsCollectionEntryConsiderOrderOrInvoice: Boolean by bindToPreferenceField(false, "IsCollectionEntryConsiderOrderOrInvoice")  // if 0 then order else invoice for collection
+
+    var IsShowRepeatOrderinNotification: Boolean by bindToPreferenceField(false, "IsShowRepeatOrderinNotification")
+    var IsShowRepeatOrdersNotificationinTeam: Boolean by bindToPreferenceField(false, "IsShowRepeatOrdersNotificationinTeam")
+
+    var ZeroOrderInterval: String by bindToPreferenceField("0", "ZeroOrderInterval")
+
+    var AutoDDSelect: Boolean by bindToPreferenceField(true, "AutoDDSelect")
+    var ShowPurposeInShopVisit: Boolean by bindToPreferenceField(false, "ShowPurposeInShopVisit")
+    var contactNameText: String by bindToPreferenceField("Contact", "contactNameText")
+    var contactNumberText: String by bindToPreferenceField("Contact", "contactNumberText")
+    var emailText: String by bindToPreferenceField("Email", "emailText")
+    var dobText: String by bindToPreferenceField("Date of Birth", "dobText")
+    var dateOfAnniversaryText: String by bindToPreferenceField("Date of Anniversary", "dateOfAnniversaryText")
+
+    var IsTodayDOBDOA: Boolean by bindToPreferenceField(false, "IsTodayDOBDOA")
+
+    var GPSAlertwithVibration: Boolean by bindToPreferenceField(false, "GPSAlertwithVibration")
+    var WillRoomDBShareinLogin: Boolean by bindToPreferenceField(false, "WillRoomDBShareinLogin")
+
+    var ShopScreenAftVisitRevisit: Boolean by bindToPreferenceField(true, "ShopScreenAftVisitRevisit")
+    var ShopScreenAftVisitRevisitGlobal: Boolean by bindToPreferenceField(true, "ShopScreenAftVisitRevisit")
+
+    var NotiCountFlag: Boolean by bindToPreferenceField(false, "NotiCountFlag")
+
+    var IsShowNearByTeam: Boolean by bindToPreferenceField(false, "IsShowNearByTeam")
+
+    var IsFeedbackAvailableInShop: Boolean by bindToPreferenceField(true, "IsFeedbackAvailableInShop")
+
+    var IsAllowBreakageTracking: Boolean by bindToPreferenceField(false, "IsAllowBreakageTracking")
+    var IsAllowBreakageTrackingunderTeam: Boolean by bindToPreferenceField(false, "IsFeedbackAvailableInShop")
+
+    var IsRateEnabledforNewOrderScreenwithSize: Boolean by bindToPreferenceField(false, "IsRateEnabledforNewOrderScreenwithSize")
+
+    var IgnoreNumberCheckwhileShopCreation:Boolean by bindToPreferenceField(false, "IgnoreNumberCheckwhileShopCreation")
+    var Showdistributorwisepartyorderreport:Boolean by bindToPreferenceField(false, "Showdistributorwisepartyorderreport")
+
+    var IsMenuSurveyEnabled:Boolean by bindToPreferenceField(false, "IsMenuSurveyEnabled")
+
+    var IsSurveyRequiredforNewParty: Boolean by bindToPreferenceField(false, "IsSurveyRequiredforNewParty")
+    var IsSurveyRequiredforDealer: Boolean by bindToPreferenceField(false, "IsSurveyRequiredforDealer")
+
+    var IsShowHomeLocationMap: Boolean by bindToPreferenceField(true, "IsShowHomeLocationMap")
+    var IsShowHomeLocationMapGlobal: Boolean by bindToPreferenceField(true, "IsShowHomeLocationMap")
 }
