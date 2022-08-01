@@ -57,17 +57,18 @@
 
                 <com.eurobond.widgets.AppCustomTextView
                     android:id="@+id/Logo_name_TV"
-                    android:layout_below="@+id/logo_new"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center|center_horizontal"
-                    android:layout_gravity="center"
-                    android:textStyle="bold"
+                    android:layout_below="@+id/logo_new"
                     android:layout_centerHorizontal="true"
-                    android:textColor="#287fb2"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:gravity="center|center_horizontal"
                     android:text="@string/name_filed_managenent_system"
+                    android:textColor="#287fb2"
                     android:textSize="@dimen/_12sdp"
-                    android:layout_marginTop="@dimen/_10sdp"/>
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <com.eurobond.widgets.AppCustomTextView
                     android:id="@+id/app_title_TV"
