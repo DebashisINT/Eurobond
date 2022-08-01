@@ -418,13 +418,18 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 //            val cusAddress = Paragraph(addQuotEditResult.shop_addr, font)
             val cusAddress = Paragraph(finalStr, font)
             cusAddress.alignment = Element.ALIGN_LEFT
-            cusAddress.spacingAfter = 6f
+            cusAddress.spacingAfter = 5f
             document.add(cusAddress)
 
 //            val cusemail = Paragraph("Email : " + addQuotEditResult.shop_email, font)
 //            cusemail.alignment = Element.ALIGN_LEFT
 //            cusemail.spacingAfter = 5f
 //            document.add(cusemail)
+
+            val projectName = Paragraph("Project Name : "+addQuotEditResult.project_name, font)
+            projectName.alignment = Element.ALIGN_LEFT
+            projectName.spacingAfter = 5f
+            document.add(projectName)
 
 
             val cusemail = Chunk("Email : " +  addQuotEditResult.shop_email, font)
