@@ -1,34 +1,33 @@
 {
   "project_info": {
-    "project_number": "148270680727",
-    "firebase_url": "https://speedy-area-274407.firebaseio.com",
-    "project_id": "speedy-area-274407",
-    "storage_bucket": "speedy-area-274407.appspot.com"
+    "project_number": "439129678040",
+    "project_id": "eurobond---bonds-that-last",
+    "storage_bucket": "eurobond---bonds-that-last.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:148270680727:android:b6260da39073f34b15f7d2",
+        "mobilesdk_app_id": "1:439129678040:android:04989d01c69150d13cb7ad",
         "android_client_info": {
           "package_name": "com.eurobond"
         }
       },
       "oauth_client": [
         {
-          "client_id": "148270680727-r501f1jvigsveqe6n56k6j76pjm9vj6f.apps.googleusercontent.com",
+          "client_id": "439129678040-5rmhot45a1qeeejin9t24hu74vac8bue.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB4CvqaBws_qn1Pat82uEMo5WJzINfocqY"
+          "current_key": "AIzaSyAeLxEmnPBOmPppLB5Oj4XjkZQMhHYmoYE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "148270680727-r501f1jvigsveqe6n56k6j76pjm9vj6f.apps.googleusercontent.com",
+              "client_id": "439129678040-5rmhot45a1qeeejin9t24hu74vac8bue.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
