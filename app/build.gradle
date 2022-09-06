@@ -19,14 +19,14 @@ apply plugin: 'de.undercouch.download'
 
 android {
 
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    compileSdkVersion 31
+    buildToolsVersion "31.0.0"
     defaultConfig {
         applicationId "com.eurobond"
         minSdkVersion 26
-        targetSdkVersion 30
-        versionCode 90
-        versionName "4.0.4"
+        targetSdkVersion 31
+        versionCode 92
+        versionName "4.0.5"
         //versionName "2.3.0"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -74,6 +74,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
 
     // For Kotlin compilers:
     kotlinOptions {
@@ -258,8 +259,8 @@ dependencies {
     implementation('org.tensorflow:tensorflow-lite:0.0.0-nightly') { changing = true }
     implementation 'com.google.mlkit:face-detection:16.0.0'
 
-    implementation 'com.google.android.gms:play-services-location:18.0.0'   //location
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'   //location
+    implementation 'com.google.android.gms:play-services-location:20.0.0'   //location
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'   //location
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -278,7 +279,7 @@ dependencies {
 
     implementation 'com.github.HBiSoft:HBRecorder:2.0.0'
 
-    implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.android.volley:volley:1.2.1'
 
     implementation 'com.itextpdf:itextg:5.5.10'
 
@@ -287,9 +288,16 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.7.1") {
         force = true
     }
-    implementation "org.jetbrains.kotlin:kotlin-script-runtime:1.5.30"
+    implementation "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
 
     implementation 'com.google.maps:google-maps-services:0.2.7'
 
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation files('libs/mail.jar')
+    implementation files('libs/activation.jar')
+    implementation files('libs/additionnal.jar')
+    
 }
+
+
 apply plugin: 'com.google.gms.google-services'

@@ -397,6 +397,16 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
             else
                 shopDurationData.approximate_1st_billing_value = ""
 
+            //duration garbage fix
+            try{
+                if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
+                {
+                    shopDurationData.spent_duration="00:00:10"
+                }
+            }catch (ex:Exception){
+                shopDurationData.spent_duration="00:00:10"
+            }
+
             shopDataList.add(shopDurationData)
 
             XLog.d("========SYNC ALL VISITED SHOP DATA (AVERAGE SHOP)=====")
@@ -862,6 +872,16 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
             else
                 shopDurationData.approximate_1st_billing_value = ""
 
+            //duration garbage fix
+            try{
+                if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
+                {
+                    shopDurationData.spent_duration="00:00:10"
+                }
+            }catch (ex:Exception){
+                shopDurationData.spent_duration="00:00:10"
+            }
+
             shopDataList.add(shopDurationData)
 
             if (shopDataList.isEmpty()) {
@@ -1194,6 +1214,13 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 (mContext as DashboardActivity).loadFragment(FragType.ShopDamageProductListFrag, true, shop_id+"~"+Pref.user_id)
             }
 
+            override fun onSurveyClick(shop_id: String) {
+                if(Pref.isAddAttendence){
+                    (mContext as DashboardActivity).loadFragment(FragType.SurveyViewFrag, true, shop_id)
+                }else{
+                    (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+                }
+            }
 
             override fun OnItemClick(position: Int) {
                 try {
@@ -1625,6 +1652,16 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 else
                     shopDurationData.approximate_1st_billing_value = ""
 
+                //duration garbage fix
+                try{
+                    if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
+                    {
+                        shopDurationData.spent_duration="00:00:10"
+                    }
+                }catch (ex:Exception){
+                    shopDurationData.spent_duration="00:00:10"
+                }
+
                 shopDataList.add(shopDurationData)
             }
             else {
@@ -1702,6 +1739,16 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                         shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
                     else
                         shopDurationData.approximate_1st_billing_value = ""
+
+                    //duration garbage fix
+                    try{
+                        if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
+                        {
+                            shopDurationData.spent_duration="00:00:10"
+                        }
+                    }catch (ex:Exception){
+                        shopDurationData.spent_duration="00:00:10"
+                    }
 
                     shopDataList.add(shopDurationData)
                 }
@@ -2109,7 +2156,15 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
         else
             shopDurationData.approximate_1st_billing_value = ""
 
-
+        //duration garbage fix
+        try{
+            if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
+            {
+                shopDurationData.spent_duration="00:00:10"
+            }
+        }catch (ex:Exception){
+            shopDurationData.spent_duration="00:00:10"
+        }
         shopDataList.add(shopDurationData)
 
         if (shopDataList.isEmpty()) {

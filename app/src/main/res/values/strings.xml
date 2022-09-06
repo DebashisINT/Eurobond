@@ -33,6 +33,7 @@
     <string name="add_order" translatable="false">Add Order</string>
     <string name="photo_registration" translatable="false">Photo Registration</string>
     <string name="team_attendance" translatable="false">Team Attendance</string>
+    <string name="clear_attendance" translatable="false">Attendance clear</string>
     <string name="photo_attd" translatable="false">Photo Attendance</string>
     <string name="view_order" translatable="false">View Order</string>
     <string name="add" translatable="false">Add</string>
@@ -575,6 +576,7 @@
     <string name="no_internet" translatable="false">Please check your internet connection.</string>
     <string name="alert_nolocation" translatable="false">Please enable your device location.</string>
     <string name="something_went_wrong" translatable="false">Something went wrong. Please try again later</string>
+    <string name="something_went_wrong_new" translatable="false">Something went wrong. Please try again later..</string>
     <string name="something_went_wrong1" translatable="false">Something went wrong. Please try again later...............</string>
     <string name="no_value" translatable="false">Please Insert Value</string>
     <string name="unable_to_sync" translatable="false">Unable to sync</string>
@@ -1564,6 +1566,7 @@
     <string name="camera_front" translatable="false">Front Camera :\u0020 </string>
     <string name="historys" translatable="false">Historys</string>
     <string name="firebase_key" translatable="false">key=AAAAZj4rINg:APA91bHmnhpJuY6068fHwK3RFHPdWAEWOcksGpMbZJFEwQ39jf8xzSm2IFDMwifn9e_A6AY8EYWmnP5IVFyJVyFmgvDNVzguemofko53fYEcJUsbpMYMxinjnzcTdOHQwfSfbenM_tzr</string>
+
 
     <string name="GenderTextNewOrd" translatable="false">Gender</string>
     <string name="ProductTextNewOrd" translatable="false">Product Type</string>

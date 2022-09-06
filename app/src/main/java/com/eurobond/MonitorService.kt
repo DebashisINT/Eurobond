@@ -1,21 +1,28 @@
 package com.eurobond
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.NotificationManager
 import android.app.Service
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
 import android.os.*
 import android.provider.Settings
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.eurobond.Customdialog.CustomDialog
 import com.eurobond.Customdialog.OnDialogCustomClickListener
+import com.eurobond.app.AlarmReceiver
 import com.eurobond.app.Pref
 import com.eurobond.app.utils.AppUtils
 import com.eurobond.app.utils.FTStorageUtils
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.location.LocationFuzedService
+import com.eurobond.features.location.LocationJobService
 import com.eurobond.features.powerSavingSettings.PowerSavingSettingsActivity
 import com.eurobond.mappackage.SendBrod
 import com.elvishew.xlog.XLog
@@ -66,6 +73,9 @@ class MonitorService:Service() {
     }
 
     fun serviceStatusActionable(){
+
+        XLog.d("MonitorService running : Time :" + AppUtils.getCurrentDateTime())
+
         Log.e("abc", "startabc" )
         monitorBroadcast=MonitorBroadcast()
 
@@ -154,7 +164,7 @@ class MonitorService:Service() {
 
         if(shouldShopActivityUpdate()){
             if (FTStorageUtils.isMyServiceRunning(LocationFuzedService::class.java, this)) {
-                //XLog.d("MonitorService LocationFuzedService : " + "true" + "," + " Time :" + AppUtils.getCurrentDateTime())
+                XLog.d("MonitorService LocationFuzedService : " + "trueee" + "," + " Time :" + AppUtils.getCurrentDateTime())
                 //XLog.d("MonitorService Power Save Mode Status : " + powerMode + "," + " Time :" + AppUtils.getCurrentDateTime())
                 /*if(powerSaver){
                     sendGPSOffBroadcast()
@@ -162,6 +172,9 @@ class MonitorService:Service() {
                     cancelGpsBroadcast()
                 }*/
             }else{
+                if (!FTStorageUtils.isMyServiceRunning(LocationFuzedService::class.java, this)) {
+                    restartLocationService()
+                }
                 XLog.d("MonitorService LocationFuzedService : " + "false" + "," + " Time :" + AppUtils.getCurrentDateTime())
                 XLog.d("MonitorService  Power Save Mode Status : " + powerMode + "," + " Time :" + AppUtils.getCurrentDateTime())
                 XLog.d("Monitor Service Stopped" + "" + "," + " Time :" + AppUtils.getCurrentDateTime())
@@ -252,7 +265,7 @@ class MonitorService:Service() {
 
 
     fun shouldShopActivityUpdate(): Boolean {
-        return if (Math.abs(System.currentTimeMillis() - Pref.prevShopActivityTimeStampMonitorService) > 20000) {
+        return if (Math.abs(System.currentTimeMillis() - Pref.prevShopActivityTimeStampMonitorService) > 10000) {
             Pref.prevShopActivityTimeStampMonitorService = System.currentTimeMillis()
             true
             //server timestamp is within 5 minutes of current system time
@@ -260,6 +273,48 @@ class MonitorService:Service() {
             false
         }
     }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun restartLocationService() {
+        try {
+            if(Pref.IsLeavePressed== true && Pref.IsLeaveGPSTrack == false){
+                return
+            }
+            val serviceLauncher = Intent(this, LocationFuzedService::class.java)
+            if (Pref.user_id != null && Pref.user_id!!.isNotEmpty()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+                    val componentName = ComponentName(this, LocationJobService::class.java)
+                    val jobInfo = JobInfo.Builder(12, componentName)
+                        //.setRequiresCharging(true)
+                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                        //.setRequiresDeviceIdle(true)
+                        .setOverrideDeadline(1000)
+                        .build()
 
+                    val resultCode = jobScheduler.schedule(jobInfo)
+
+                    if (resultCode == JobScheduler.RESULT_SUCCESS) {
+                        XLog.d("===============================From MonitorS LocationFuzedService   Job scheduled (Base Activity) " + AppUtils.getCurrentDateTime() + "============================")
+                    } else {
+                        XLog.d("=====================From MonitorS LocationFuzedService Job not scheduled (Base Activity) " + AppUtils.getCurrentDateTime() + "====================================")
+                    }
+                } else
+                    startService(serviceLauncher)
+            } else {
+                /*stopService(serviceLauncher)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+                    jobScheduler.cancelAll()
+                    XLog.d("===============================From MonitorS LocationFuzedService Job scheduler cancel (Base Activity)" + AppUtils.getCurrentDateTime() + "============================")
+                }
+
+                AlarmReceiver.stopServiceAlarm(this, 123)
+                XLog.d("===========From MonitorS LocationFuzedService Service alarm is stopped (Base Activity)================")*/
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
 }

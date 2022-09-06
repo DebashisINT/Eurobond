@@ -57,6 +57,8 @@ import com.eurobond.features.addAttendence.api.addattendenceapi.AddAttendenceRep
 import com.eurobond.features.addAttendence.api.leavetytpeapi.LeaveTypeRepoProvider
 import com.eurobond.features.addAttendence.api.routeapi.RouteRepoProvider
 import com.eurobond.features.addAttendence.model.*
+import com.eurobond.features.addshop.api.typeList.TypeListRepoProvider
+import com.eurobond.features.addshop.model.BeatListResponseModel
 import com.eurobond.features.commondialogsinglebtn.CommonDialogSingleBtn
 import com.eurobond.features.commondialogsinglebtn.OnDialogClickListener
 import com.eurobond.features.dashboard.presentation.DashboardActivity
@@ -69,6 +71,7 @@ import com.eurobond.features.login.model.LoginStateListDataModel
 import com.eurobond.features.newcollectionreport.PendingCollData
 import com.eurobond.features.photoReg.api.GetUserListPhotoRegProvider
 import com.eurobond.features.photoReg.model.UserFacePicUrlResponse
+import com.eurobond.features.survey.SurveyFromListDialog
 import com.eurobond.widgets.AppCustomEditText
 import com.eurobond.widgets.AppCustomTextView
 import com.elvishew.xlog.XLog
@@ -87,6 +90,7 @@ import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import com.itextpdf.text.pdf.PdfName.VIEW
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -156,7 +160,9 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
     private lateinit var et_from_loc: AppCustomEditText
     private lateinit var et_to_loc: AppCustomEditText
     private lateinit var cv_distance: CardView
+    private lateinit var cv_beat: CardView
     private lateinit var et_distance: AppCustomEditText
+    private lateinit var tv_beat_type: AppCustomTextView
 
     private var isOnLeave = false
     private var workTypeId = ""
@@ -166,6 +172,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
     private var startDate = ""
     private var endDate = ""
     private var leaveId = ""
+    private var mbeatId = ""
 
     private lateinit var ll_target_value: LinearLayout
     private lateinit var rv_primary_value_list: RecyclerView
@@ -274,6 +281,17 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         et_to_loc = view.findViewById(R.id.et_to_loc)
         cv_distance = view.findViewById(R.id.cv_distance)
         et_distance = view.findViewById(R.id.et_distance)
+        cv_beat = view.findViewById(R.id.cv_beat_type_root)
+        tv_beat_type= view.findViewById(R.id.tv_beat_type)
+
+        tv_beat_type.hint = "Select " + "${Pref.beatText}" + " Type"
+
+        if(Pref.IsBeatRouteAvailableinAttendance)
+        {
+            cv_beat.visibility=View.VISIBLE
+        }else{
+            cv_beat.visibility=View.GONE
+        }
 
         if (Pref.isVisitPlanShow)
             cv_visit_plan.visibility = View.VISIBLE
@@ -365,7 +383,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
        // faceDetectorSetUp()
     }
 
-    override fun onMapReady(googleMap: GoogleMap?) {
+  /*  override fun onMapReady(googleMap: GoogleMap?) {
         mGoogleMap = googleMap
         mGoogleMap?.uiSettings?.isZoomControlsEnabled = true
 
@@ -378,15 +396,15 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
 
             markerOptions.also {
                 it.position(latLng)
-                /*it.title(locationName)
-                it.snippet(locationName)*/
+                *//*it.title(locationName)
+                it.snippet(locationName)*//*
                 it.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                 mGoogleMap?.addMarker(it)!!
             }
 
             tv_address.text = LocationWizard.getLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
         }
-    }
+    }*/
 
 
     private var selectedRoute = ArrayList<RouteEntity>()
@@ -570,6 +588,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         tv_show_date_range.setOnClickListener(this)
         et_from_loc.setOnClickListener(this)
         et_to_loc.setOnClickListener(this)
+        cv_beat.setOnClickListener(this)
     }
 
     private fun locationList() {
@@ -1529,6 +1548,14 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
                 }
             }
 
+            R.id.cv_beat_type_root->{
+                val list = AppDatabase.getDBInstance()?.beatDao()?.getAll() as ArrayList<BeatEntity>
+                if (list != null && list.isNotEmpty())
+                    showBeatListDialog(list)
+                else
+                    getBeatListApi(false)
+            }
+
             R.id.rl_work_type_header -> {
                 if (iv_work_type_dropdown.isSelected) {
                     iv_work_type_dropdown.isSelected = false
@@ -1586,6 +1613,15 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_date_found))
             }
         }
+    }
+
+    private fun showBeatListDialog(list: ArrayList<BeatEntity>) {
+        BeatListCustomDialog.newInstance(list as ArrayList<BeatEntity>) {
+            tv_beat_type.text = it.name
+            mbeatId = it.beat_id!!
+            Pref.SelectedBeatIDFromAttend = mbeatId
+        }.show((mContext as DashboardActivity).supportFragmentManager, "")
+
     }
 
 
@@ -1727,10 +1763,13 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         }*/
     }
 
+
     private fun visibilityCheck() {
         if (!isOnLeave) {
             if (TextUtils.isEmpty(workTypeId))
                 (mContext as DashboardActivity).showSnackMessage("Please select work type")
+            else if(TextUtils.isEmpty(mbeatId) && Pref.IsBeatRouteAvailableinAttendance)
+                openDialogPopup("Hi! (${Pref.user_name})","Please select ${Pref.beatText} type")
             else {
                 if (tv_work_type.text.contains("Field")) {
                     val list_ = AppDatabase.getDBInstance()?.routeDao()?.getAll()
@@ -2115,6 +2154,8 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         addAttendenceModel.work_lat=Pref.current_latitude
         addAttendenceModel.work_long=Pref.current_longitude
 
+        addAttendenceModel.beat_id="0"
+
         val repository = AddAttendenceRepoProvider.addAttendenceRepo()
         progress_wheel.spin()
         BaseActivity.compositeDisposable.add(
@@ -2495,6 +2536,8 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
                 addAttendenceModel.distance = LocationWizard.getDistance(fromLat.toDouble(), fromLong.toDouble(), toLat.toDouble(), toLong.toDouble()).toString()
 
 
+
+            addAttendenceModel.beat_id =  if(Pref.IsBeatRouteAvailableinAttendance) Pref.SelectedBeatIDFromAttend else "0"
 
             doAttendanceViaApiOrPlanScreen()
 
@@ -3273,5 +3316,109 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         return false
     }
 
+    private fun getBeatListApi(isFromRefresh: Boolean) {
+        if (!isFromRefresh && !AppUtils.isOnline(mContext)) {
+            (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
+            return
+        }
+
+        val repository = TypeListRepoProvider.provideTypeListRepository()
+        progress_wheel.spin()
+        BaseActivity.compositeDisposable.add(
+            repository.beatList()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    val response = result as BeatListResponseModel
+                    if (response.status == NetworkConstant.SUCCESS) {
+                        val list = response.beat_list
+
+                        if (list != null && list.isNotEmpty()) {
+
+                            if (isFromRefresh)
+                                AppDatabase.getDBInstance()?.beatDao()?.delete()
+
+                            doAsync {
+
+                                list.forEach {
+                                    val beat = BeatEntity()
+                                    AppDatabase.getDBInstance()?.beatDao()?.insert(beat.apply {
+                                        beat_id = it.id
+                                        name = it.name
+                                    })
+                                }
+
+                                uiThread {
+                                    progress_wheel.stopSpinning()
+                                    if (!isFromRefresh)
+                                        showBeatListDialog(AppDatabase.getDBInstance()?.beatDao()?.getAll() as ArrayList<BeatEntity>)
+                                }
+                            }
+                        } else {
+                            progress_wheel.stopSpinning()
+                            if (!isFromRefresh)
+                                (mContext as DashboardActivity).showSnackMessage(response.message!!)
+                        }
+                    } else if (response.status == NetworkConstant.NO_DATA) {
+                        progress_wheel.stopSpinning()
+                        if (!isFromRefresh)
+                            (mContext as DashboardActivity).showSnackMessage(response.message!!)
+                    } else {
+                        progress_wheel.stopSpinning()
+                        if (!isFromRefresh)
+                            (mContext as DashboardActivity).showSnackMessage(response.message!!)
+                        else
+                            (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_msg), 1000)
+                    }
+
+                }, { error ->
+                    progress_wheel.stopSpinning()
+                    error.printStackTrace()
+                    if (!isFromRefresh)
+                        (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                    else
+                        (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_msg), 1000)
+                })
+        )
+    }
+    fun openDialogPopup(header:String,text:String){
+        val simpleDialog = Dialog(mContext)
+        simpleDialog.setCancelable(false)
+        simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        simpleDialog.setContentView(R.layout.dialog_ok_imei)
+        val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header) as AppCustomTextView
+        val dialogBody = simpleDialog.findViewById(R.id.dialog_yes_body) as AppCustomTextView
+        dialogHeader.text = header
+        dialogBody.text = text
+        val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
+        dialogYes.setOnClickListener({ view ->
+            simpleDialog.cancel()
+        })
+        simpleDialog.show()
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mGoogleMap = googleMap
+        mGoogleMap?.uiSettings?.isZoomControlsEnabled = true
+
+        if (!TextUtils.isEmpty(Pref.current_latitude) && !TextUtils.isEmpty(Pref.current_longitude)) {
+            mGoogleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(Pref.current_latitude.toDouble(),
+                Pref.current_longitude.toDouble()), 15f))
+
+            val latLng = LatLng(Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
+            val markerOptions = MarkerOptions()
+
+            markerOptions.also {
+                it.position(latLng)
+                /*it.title(locationName)
+                it.snippet(locationName)*/
+                it.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                mGoogleMap?.addMarker(it)!!
+            }
+
+            tv_address.text = LocationWizard.getLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
+        }
+
+    }
 
 }

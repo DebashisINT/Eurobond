@@ -414,6 +414,33 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
                 itemView.direction_view.visibility = View.GONE
             }
 
+            /*if(Pref.IsSurveyRequiredforDealer && list[adapterPosition].type!!.equals("1")) {
+                itemView.shop_rv_survey_ll.visibility = View.VISIBLE
+                itemView.shop_rv_survey_view.visibility = View.VISIBLE
+            }
+            else if(Pref.IsSurveyRequiredforNewParty && list[adapterPosition].type!!.equals("3")){
+                itemView.shop_rv_survey_ll.visibility = View.VISIBLE
+                itemView.shop_rv_survey_view.visibility = View.VISIBLE
+            }
+            else{
+                itemView.shop_rv_survey_ll.visibility = View.GONE
+                itemView.shop_rv_survey_view.visibility = View.GONE
+            }
+
+            itemView.shop_rv_survey_ll.setOnClickListener{
+                listener.onSurveyClick(list[adapterPosition].shop_id)
+            }*/
+
+            if(Pref.IsBeatRouteAvailableinAttendance){
+                if(list[adapterPosition].beat_id.equals(Pref.SelectedBeatIDFromAttend)){
+                    itemView.rl_revisit_nearby_shop.visibility=View.VISIBLE
+                    itemView.visit_rl.isEnabled=true
+                }else{
+                    itemView.rl_revisit_nearby_shop.visibility=View.GONE
+                    itemView.visit_rl.isEnabled=false
+                }
+            }
+
 
         }
     }

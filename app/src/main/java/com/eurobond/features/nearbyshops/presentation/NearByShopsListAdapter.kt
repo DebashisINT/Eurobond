@@ -820,7 +820,7 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                     listener.onSurveyClick(list[adapterPosition].shop_id)
                 }
 
-                //Hardcoded for EuroBond
+//                Hardcoded for EuroBond
                 itemView.ll_last_visit_age.visibility=View.GONE
                 itemView.ll_average_visit_time.visibility=View.GONE
                 itemView.ll_distance.visibility=View.GONE

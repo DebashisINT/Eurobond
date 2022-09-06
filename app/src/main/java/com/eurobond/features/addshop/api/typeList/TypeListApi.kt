@@ -5,6 +5,7 @@ import com.eurobond.app.NetworkConstant
 import com.eurobond.base.BaseResponse
 import com.eurobond.features.addshop.model.*
 import com.eurobond.features.addshop.model.assigntopplist.AssignToPPListResponseModel
+import com.eurobond.features.beatCustom.BeatTeamResponseModel
 import io.reactivex.Observable
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory

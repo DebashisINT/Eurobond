@@ -93,6 +93,11 @@ class ConfigFetchResponseModel : BaseResponse() {
     var IsSurveyRequiredforDealer:Boolean? = null
     var IsShowHomeLocationMap:Boolean? = null
 
+    var IsBeatRouteAvailableinAttendance:Boolean? = null
+    var IsAllBeatAvailable:Boolean? = null
+    var BeatText: String = ""
+    var TodaysTaskText:String = ""
+
 
 
 

@@ -1694,7 +1694,15 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
             else
                 shopDurationData.approximate_1st_billing_value = ""
-
+            //duration garbage fix
+            try{
+                if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
+                {
+                    shopDurationData.spent_duration="00:00:10"
+                }
+            }catch (ex:Exception){
+                shopDurationData.spent_duration="00:00:10"
+            }
 
             shopDataList.add(shopDurationData)
         }
@@ -1777,6 +1785,16 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
                 else
                     shopDurationData.approximate_1st_billing_value = ""
+
+                //duration garbage fix
+                try{
+                    if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
+                    {
+                        shopDurationData.spent_duration="00:00:10"
+                    }
+                }catch (ex:Exception){
+                    shopDurationData.spent_duration="00:00:10"
+                }
 
                 shopDataList.add(shopDurationData)
             }
@@ -3113,6 +3131,16 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         else
                             shopDurationData.approximate_1st_billing_value = ""
 
+                        //duration garbage fix
+                        try{
+                            if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
+                            {
+                                shopDurationData.spent_duration="00:00:10"
+                            }
+                        }catch (ex:Exception){
+                            shopDurationData.spent_duration="00:00:10"
+                        }
+
                         shopDataList.add(shopDurationData)
 
 
@@ -3194,6 +3222,16 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             shopDurationData.approximate_1st_billing_value = it.approximate_1st_billing_value!!
                         else
                             shopDurationData.approximate_1st_billing_value = ""
+
+                        //duration garbage fix
+                        try{
+                            if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
+                            {
+                                shopDurationData.spent_duration="00:00:10"
+                            }
+                        }catch (ex:Exception){
+                            shopDurationData.spent_duration="00:00:10"
+                        }
 
 
                         shopDataList.add(shopDurationData)
@@ -3342,15 +3380,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                                     AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, shopDataList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(shopDataList[i].visited_date!!), shopDataList[i].start_timestamp!!)
                                                 }
 
-                                                checkToRetryVisitButton()
+                                                // multivisit test
+                                                syncShopVisitImage(shopDataList)
+
+                                                //checkToRetryVisitButton()
                                             }
                                         }
-
-
-
-
-
-
                                     } else {
                                         BaseActivity.isShopActivityUpdating = false
                                         /*revisitTickImg.visibility = View.VISIBLE
@@ -3546,8 +3581,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     }
                 }
                 else {
-                    val shopActivity = AppDatabase.getDBInstance()!!.shopActivityDao().durationAvailableForShopList(syncedShopList[k].shop_id, true,
-                            false)
+                    val shopActivity = AppDatabase.getDBInstance()!!.shopActivityDao().durationAvailableForShopList(syncedShopList[k].shop_id, true, false)
 
                     shopActivity?.forEach {
                         val shopDurationData = ShopDurationRequestData()

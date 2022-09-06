@@ -273,8 +273,12 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                 }
             }
             R.id.iv_close_icon -> {
-                dismiss()
-                mListener.onCloseClick()
+                if (Pref.RevisitRemarksMandatory && TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim()))
+                    Toaster.msgShort(mContext, getString(R.string.error_message_remarks_manadatory))
+                else{
+                    dismiss()
+                    mListener.onCloseClick(tv_remarks_dropdown.text.toString().trim())
+                }
             }
 
             R.id.et_next_visit_date -> {
@@ -450,7 +454,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
     interface OnOkClickListener {
         fun onOkClick(feedback: String, nextVisitDate: String, filePath: String,approxValue:String,prosId:String)
 
-        fun onCloseClick()
+        fun onCloseClick(mfeedback: String)
 
         fun onClickCompetitorImg()
     }

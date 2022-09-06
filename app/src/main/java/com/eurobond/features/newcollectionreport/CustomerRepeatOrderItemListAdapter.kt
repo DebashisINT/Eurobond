@@ -425,15 +425,15 @@ class CustomerRepeatOrderItemListAdapter(context: Context, list: ArrayList<AddSh
                     }
 
                     //Hardcoded for EuroBond
-                    /*itemView.ll_last_visit_age.visibility=View.GONE
-                    itemView.ll_average_visit_time.visibility=View.GONE
-                    itemView.ll_distance.visibility=View.GONE
-                    itemView.order_amount_tv.visibility=View.GONE
-                    itemView.highest_order_amount_tv.visibility=View.GONE
-                    itemView.avg_order_amount_tv.visibility=View.GONE
-                    itemView.lowest_order_amount_tv.visibility=View.GONE
-                    itemView.high_value_month_tv.visibility=View.GONE
-                    itemView.low_value_month_tv.visibility=View.GONE*/
+                    //itemView.ll_last_visit_age.visibility=View.GONE
+                    //itemView.ll_average_visit_time.visibility=View.GONE
+                    //itemView.ll_distance.visibility=View.GONE
+                    //itemView.order_amount_tv.visibility=View.GONE
+                    //itemView.highest_order_amount_tv.visibility=View.GONE
+                    //itemView.avg_order_amount_tv.visibility=View.GONE
+                    //itemView.lowest_order_amount_tv.visibility=View.GONE
+                    //itemView.high_value_month_tv.visibility=View.GONE
+                    //itemView.low_value_month_tv.visibility=View.GONE
 
 
                 itemView.lead_return_ll.visibility=View.GONE

@@ -423,16 +423,29 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         writeDataToFile()
         println("on Resume " +AppUtils.getCurrentDateTime());
 
-        if(Pref.IsActivateNewOrderScreenwithSize){
+        /*if(Pref.IsActivateNewOrderScreenwithSize){
             var rateListToday= AppDatabase.getDBInstance()?.newOrderScrOrderDao()?.getRateListByDate(AppUtils.getCurrentDateyymmdd()) as List<String>
             var sum = 0.0
             for(i in 0..rateListToday.size-1){
                 sum+=rateListToday.get(i).toDouble()
             }
             avgOrder.text= getString(R.string.rupee_symbol) + sum.toString()
-        }
+        }*/
 
+        updateOrdAmtForNewOrd()
     }
+
+    fun updateOrdAmtForNewOrd(){
+        if(Pref.IsActivateNewOrderScreenwithSize){
+            var rateListToday= AppDatabase.getDBInstance()?.newOrderScrOrderDao()?.getRateListByDate(AppUtils.getCurrentDateyymmdd()) as List<NewOrderScrOrderEntity>
+            var sum = 0.0
+            for(i in 0..rateListToday.size-1){
+                sum+=rateListToday.get(i).qty!!.toDouble() * rateListToday.get(i).rate!!.toDouble()
+            }
+            avgOrder.text= getString(R.string.rupee_symbol) + String.format("%.02f",sum)
+        }
+    }
+
 
 
     private fun writeDataToFile() {
@@ -821,7 +834,9 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
             (mContext as DashboardActivity).showLanguageAlert(false)
         }
 
-        best_performing_shop_TV.text = getString(R.string.todays_task)
+//        best_performing_shop_TV.text = getString(R.string.todays_task)
+
+        best_performing_shop_TV.text = "${Pref.TodaysTaskText}"
 
         tv_pick_date_range.text = AppUtils.getFormattedDate(myCalendar.time)
 
@@ -1632,7 +1647,37 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
             //val pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAll() as ArrayList<PjpListEntity>
             //task new updation
-            val pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAllByDate(AppUtils.getCurrentDateForShopActi()) as ArrayList<PjpListEntity>
+            var pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAllByDate(AppUtils.getCurrentDateForShopActi()) as ArrayList<PjpListEntity>
+
+            if(!Pref.SelectedBeatIDFromAttend.equals("-1") && Pref.IsBeatRouteAvailableinAttendance && Pref.isAddAttendence){
+
+                var shopListWithBeat = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBeatWise(Pref.SelectedBeatIDFromAttend)
+                if(shopListWithBeat.size>0){
+                    for(l in 0..shopListWithBeat.size-1){
+
+                        var obj :PjpListEntity = PjpListEntity()
+                        if(pjpList.size>0){
+                            obj.pjp_id=(pjpList.get(pjpList.size-1).pjp_id!!.toInt()+1).toString()
+                        }else{
+                            obj.pjp_id="1"
+                        }
+                        obj.from_time=""
+                        obj.to_time=""
+
+                        var beatName = AppDatabase.getDBInstance()?.beatDao()?.getSingleItem(shopListWithBeat.get(l).beat_id)!!.name
+
+                        obj.customer_name="${Pref.beatText}"+" : "+beatName+"\n"+"${Pref.shopText}"+" : "+shopListWithBeat.get(l).shopName
+                        obj.customer_id=shopListWithBeat.get(l).shop_id
+                        obj.location=""
+                        obj.date=AppUtils.getCurrentDateForShopActi()
+                        obj.remarks=""
+
+                        pjpList.add(obj)
+                    }
+                }
+
+
+            }
 
             if (pjpList != null && pjpList.isNotEmpty()) {
                 no_shop_tv.visibility = View.GONE
@@ -3270,9 +3315,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.IsReturnEnableforParty = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
-
-
-                                            /*06-01-2022*/
                                             else if (response.getconfigure?.get(i)?.Key.equals("MRPInOrder", ignoreCase = true)) {
                                                 Pref.MRPInOrder = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
@@ -3284,8 +3326,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.FaceRegistrationFrontCamera = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
-
-                                            /*18-01-2022*/
                                             else if (response.getconfigure?.get(i)?.Key.equals("IslandlineforCustomer", ignoreCase = true)) {
                                                 Pref.IslandlineforCustomer = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
@@ -3312,15 +3352,12 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.IsRestrictNearbyGeofence = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
-                                            /*07-02-2022*/
                                             else if (response.getconfigure?.get(i)?.Key.equals("IsNewQuotationfeatureOn", ignoreCase = true)) {
                                                 Pref.IsNewQuotationfeatureOn = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsNewQuotationfeatureOn = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
-
-                                            /*10-02-2022*/
                                             else if (response.getconfigure?.get(i)?.Key.equals("IsAlternateNoForCustomer", ignoreCase = true)) {
                                                 Pref.IsAlternateNoForCustomer = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
@@ -3332,8 +3369,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.IsWhatsappNoForCustomer = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
-
-                                            /*17-02-2022*/
                                             else if (response.getconfigure?.get(i)?.Key.equals("IsNewQuotationNumberManual", ignoreCase = true)) {
                                                 Pref.IsNewQuotationNumberManual = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
@@ -3354,9 +3389,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.ShowUserwiseLeadMenu = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-
                                             }else if (response.getconfigure?.get(i)?.Key.equals("GeofencingRelaxationinMeter", ignoreCase = true)) {
-
                                                 try{
                                                     Pref.GeofencingRelaxationinMeter = response.getconfigure!![i].Value!!.toInt()
                                                     if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
@@ -3497,7 +3530,18 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                         response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowAttednaceClearmenu", ignoreCase = true)) {
+                                                Pref.ShowAttednaceClearmenu = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowAttednaceClearmenu= response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsBeatRouteReportAvailableinTeam", ignoreCase = true)) {
+                                                Pref.IsBeatRouteReportAvailableinTeam = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsBeatRouteReportAvailableinTeam= response.getconfigure?.get(i)?.Value == "1"
+                                                }
 
+                                            }
 
 
                                         }
@@ -3747,6 +3791,21 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
                                 if (configResponse.IsSurveyRequiredforDealer != null)
                                     Pref.IsSurveyRequiredforDealer = configResponse.IsSurveyRequiredforDealer!!
+
+                                if (configResponse.IsShowHomeLocationMap != null)
+                                    Pref.IsShowHomeLocationMapGlobal = configResponse.IsShowHomeLocationMap!!
+
+                                if (configResponse.IsBeatRouteAvailableinAttendance != null)
+                                    Pref.IsBeatRouteAvailableinAttendance = configResponse.IsBeatRouteAvailableinAttendance!!
+
+                                if (configResponse.IsAllBeatAvailable != null)
+                                    Pref.IsAllBeatAvailableforParty = configResponse.IsAllBeatAvailable!!
+
+                                if (configResponse.BeatText != null)
+                                    Pref.beatText=configResponse.BeatText!!
+
+                                if (configResponse.TodaysTaskText != null)
+                                    Pref.TodaysTaskText=configResponse.TodaysTaskText!!
 
                             }
                             BaseActivity.isApiInitiated = false
@@ -4677,7 +4736,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         avgShop.text = todaysShopVisitCount
         avgTime.text = InfoWizard.getAverageShopVisitTimeDuration() + " Hrs"
 
-        best_performing_shop_TV.text = getString(R.string.todays_task)
+        //best_performing_shop_TV.text = getString(R.string.todays_task)
+        best_performing_shop_TV.text = "${Pref.TodaysTaskText}"
 
         tv_pick_date_range.text = AppUtils.getFormattedDate(myCalendar.time)
 

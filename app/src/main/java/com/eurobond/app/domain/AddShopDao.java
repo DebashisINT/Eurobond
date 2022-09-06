@@ -231,6 +231,9 @@ public interface AddShopDao {
     @Query("SELECT * FROM " + SHOP_TABLE+" where assigned_to_dd_id=:assigned_to_dd_id")
     List<AddShopDBModelEntity> getShopByDD(String assigned_to_dd_id);
 
+    @Query("SELECT * FROM " + SHOP_TABLE+" where visitDate=:visitDate")
+    List<AddShopDBModelEntity> getShopCreatedToday(String visitDate);
+
 //    @Query("INSERT OR REPLACE INTO SHOP_TABLE (shopId,shopName,address,pinCode,ownerName,isVisited) VALUES (:id, :title, :url, COALESCE((SELECT isSubscribed FROM articles WHERE id = :id), 0));")
 //    void insertOrUpdateShop(long id, String title, String url);
 }

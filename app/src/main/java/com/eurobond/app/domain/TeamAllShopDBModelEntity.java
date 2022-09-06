@@ -1,8 +1,8 @@
 package com.eurobond.app.domain;
 
+import static com.eurobond.app.AppConstant.SHOP_TABLE;
 import static com.eurobond.app.AppConstant.SHOP_TABLE_ALL_TEAM;
 
-import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

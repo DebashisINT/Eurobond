@@ -215,6 +215,10 @@ class MemberListFragment : BaseFragment() {
                 getOrderListFromZeroOrd(team.user_id,team)
             }
 
+            override fun onBeatClick(team: TeamListDataModel) {
+                (mContext as DashboardActivity).loadFragment(FragType.TeamBeatListFragment, true, team)
+            }
+
             override fun getSize(size: Int) {
                 tv_member_no.text = "Total member(s): " + size
             }

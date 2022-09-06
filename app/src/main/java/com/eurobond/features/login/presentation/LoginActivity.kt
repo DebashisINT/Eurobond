@@ -21,21 +21,14 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.text.TextUtils
-import android.transition.Slide
-import android.transition.TransitionManager
 import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.view.animation.TranslateAnimation
 import android.widget.CheckBox
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.appcompat.widget.SwitchCompat
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.FileProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.eurobond.CustomStatic
@@ -59,8 +52,9 @@ import com.eurobond.features.addshop.model.*
 import com.eurobond.features.addshop.model.TypeListResponseModel
 import com.eurobond.features.addshop.model.assigntoddlist.AssignToDDListResponseModel
 import com.eurobond.features.addshop.model.assigntopplist.AssignToPPListResponseModel
-import com.eurobond.features.addshop.presentation.AdapterQuestionList
 import com.eurobond.features.alarm.model.AlarmData
+import com.eurobond.features.beatCustom.BeatGetStatusModel
+import com.eurobond.features.beatCustom.api.GetBeatRegProvider
 import com.eurobond.features.billing.api.billinglistapi.BillingListRepoProvider
 import com.eurobond.features.billing.model.BillingListResponseModel
 import com.eurobond.features.commondialog.presentation.CommonDialog
@@ -108,11 +102,9 @@ import com.eurobond.features.newcollection.newcollectionlistapi.NewCollectionLis
 import com.eurobond.features.orderList.api.neworderlistapi.NewOrderListRepoProvider
 import com.eurobond.features.orderList.model.NewOrderListResponseModel
 import com.eurobond.features.orderList.model.ReturnListResponseModel
-import com.eurobond.features.photoReg.model.GetUserListResponse
 import com.eurobond.features.quotation.api.QuotationRepoProvider
 import com.eurobond.features.quotation.model.BSListResponseModel
 import com.eurobond.features.quotation.model.QuotationListResponseModel
-import com.eurobond.features.shopFeedbackHistory.ShopFeedbackHisFrag
 import com.eurobond.features.stock.api.StockRepositoryProvider
 import com.eurobond.features.stock.model.NewStockListResponseModel
 import com.eurobond.features.stockAddCurrentStock.api.ShopAddStockProvider
@@ -125,7 +117,6 @@ import com.eurobond.features.timesheet.api.TimeSheetRepoProvider
 import com.eurobond.features.timesheet.model.TimeSheetConfigResponseModel
 import com.eurobond.features.timesheet.model.TimeSheetDropDownResponseModel
 import com.eurobond.features.viewAllOrder.api.OrderDetailsListRepoProvider
-import com.eurobond.features.viewAllOrder.interf.QaOnCLick
 import com.eurobond.features.viewAllOrder.model.NewOrderDataModel
 import com.eurobond.features.viewPPDDStock.api.stocklist.StockListRepoProvider
 import com.eurobond.features.viewPPDDStock.model.stocklist.StockListDataModel
@@ -147,7 +138,6 @@ import java.io.*
 import java.nio.channels.FileChannel
 import java.util.*
 import java.util.concurrent.ExecutionException
-import kotlin.collections.ArrayList
 
 
 /**Permission NameDISABLE KEYGUARD Status
@@ -512,6 +502,18 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                  if (configResponse.IsShowHomeLocationMap != null)
                                     Pref.IsShowHomeLocationMapGlobal = configResponse.IsShowHomeLocationMap!!
+
+                                if (configResponse.IsBeatRouteAvailableinAttendance != null)
+                                    Pref.IsBeatRouteAvailableinAttendance = configResponse.IsBeatRouteAvailableinAttendance!!
+
+                                if (configResponse.IsAllBeatAvailable != null)
+                                    Pref.IsAllBeatAvailableforParty = configResponse.IsAllBeatAvailable!!
+
+                                if (configResponse.BeatText != null)
+                                    Pref.beatText=configResponse.BeatText!!
+
+                                if (configResponse.TodaysTaskText != null)
+                                    Pref.TodaysTaskText=configResponse.TodaysTaskText!!
 
 
                                 /*if (configResponse.willShowUpdateDayPlan != null)
@@ -3634,8 +3636,11 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             startActivity(Intent.createChooser(shareIntent, "Share log using"));
         } catch (e: Exception) {
             e.printStackTrace()
+            Toaster.msgLong(this,e.toString())
         }
     }
+
+
 
 
     private fun fileManagePermi() {
@@ -3776,11 +3781,12 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             isApiInitiated = false
 
                         }, { error ->
+                            XLog.d(" Login callNewSettingsApi : error : " +error.message.toString())
                             isApiInitiated = false
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
                             login_TV.isEnabled = true
-                            showSnackMessage(getString(R.string.something_went_wrong))
+                            showSnackMessage(getString(R.string.something_went_wrong_new))
                         })
         )
     }
@@ -4119,8 +4125,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                     }catch (ex:Exception){
                                         realName=""
                                     }
+//                                    openDialogPopupIMEI("Hi! $realName ($username)","Current Login ID has already been used from another mobile device. You are not allowed to " +
+//                                            "login from your current device due to IMEI BLOCKED! Please talk to Admin.")
 
-                                    openDialogPopupIMEI("Hi! $realName ($username)","Current Login ID has already been used from another mobile device. You are not allowed to " +
+                                    openDialogPopupIMEI("Hi! $realName ($username)","The Current Device is already in use by another User ($realName). You are not allowed to " +
                                             "login from your current device due to IMEI BLOCKED! Please talk to Admin.")
                                 }else{
                                     openDialogPopup(loginResponse.message!!)
@@ -4469,7 +4477,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     private fun getProductList(date: String?) {
         //Hardcoded for EuroBond
         if(Pref.isOrderShow || true){
-        //if(Pref.isOrderShow){
+//        if(Pref.isOrderShow){
             XLog.d("API_Optimization getProductList Login : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
 
         println("xyzzz - getProductList started" + AppUtils.getCurrentDateTime());
@@ -5753,8 +5761,24 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     Pref.IsShowHomeLocationMap =
                                                         response.getconfigure?.get(i)?.Value == "1"
                                                 }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowAttednaceClearmenu", ignoreCase = true)) {
+                                                Pref.ShowAttednaceClearmenu = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowAttednaceClearmenu= response.getconfigure?.get(i)?.Value == "1"
+                                                }
+
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsBeatRouteReportAvailableinTeam", ignoreCase = true)) {
+                                                Pref.IsBeatRouteReportAvailableinTeam = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsBeatRouteReportAvailableinTeam= response.getconfigure?.get(i)?.Value == "1"
+                                                }
 
                                             }
+
+
+
+
 
                                             /*else if (response.getconfigure?.get(i)?.Key.equals("isFingerPrintMandatoryForAttendance", ignoreCase = true)) {
                                                 if (!TextUtilsDash.isEmpty(response.getconfigure?.get(i)?.Value)) {
@@ -6722,7 +6746,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         val intent = Intent(context, NewAlarmReceiver::class.java)
         intent.putExtra("request_code", requestCode)
         intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-        val pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        //val pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        // FLAG_IMMUTABLE update
+        val pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_IMMUTABLE)
 
         val calendar = Calendar.getInstance(Locale.ENGLISH)
 
@@ -7297,27 +7323,52 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                         }
                                         uiThread {
                                             println("xTag_ finish")
-                                            gotoHomeActivity()
+                                            getBeatStatus()
                                         }
                                     }
                                 }
                             } else {
-                                gotoHomeActivity()
+                                getBeatStatus()
 
                             }
 
                         }, { error ->
                             error.localizedMessage
-                            gotoHomeActivity()
+                            getBeatStatus()
                         })
                 )
             }else{
                 XLog.d("getShopFeedback : gotoHomeActivity")
-                gotoHomeActivity()
+                getBeatStatus()
             }
-
-
         }catch (ex:Exception){
+            ex.printStackTrace()
+            getBeatStatus()
+        }
+    }
+
+    fun getBeatStatus(){
+        try{
+            Pref.SelectedBeatIDFromAttend="-1"
+            val repository = GetBeatRegProvider.provideSaveButton()
+            BaseActivity.compositeDisposable.add(
+                repository.getBeat(Pref.user_id!!,AppUtils.getCurrentDateyymmdd(),Pref.session_token!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val viewResult = result as BeatGetStatusModel
+                        if (viewResult!!.status == NetworkConstant.SUCCESS) {
+                            Pref.SelectedBeatIDFromAttend = viewResult.beat_id?.toString()!!
+                            gotoHomeActivity()
+                        } else {
+                            gotoHomeActivity()
+                        }
+                    }, { error ->
+                        gotoHomeActivity()
+                    })
+            )
+        }
+        catch (ex:Exception){
             ex.printStackTrace()
             gotoHomeActivity()
         }

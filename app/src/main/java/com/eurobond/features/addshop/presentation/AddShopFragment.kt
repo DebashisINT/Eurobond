@@ -718,7 +718,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         ll_feedback =  view.findViewById(R.id.ll_feedback)
 
 
-
+        tv_select_beat.hint = "Select " + "${Pref.beatText}"
 
 
         assign_to_shop_tv.hint = getString(R.string.assign_to_hint_text) + " ${Pref.shopText}"
@@ -4662,10 +4662,20 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun showBeatListDialog(list: ArrayList<BeatEntity>) {
-        BeatListDialog.newInstance(list) {
-            tv_select_beat.text = it.name
-            beatId = it.beat_id!!
-        }.show((mContext as DashboardActivity).supportFragmentManager, "")
+
+        if(Pref.IsAllBeatAvailableforParty){
+            BeatListDialog.newInstance(list) {
+                tv_select_beat.text = it.name
+                beatId = it.beat_id!!
+            }.show((mContext as DashboardActivity).supportFragmentManager, "")
+        }else{
+            var singleList = list.filter { Pref.SelectedBeatIDFromAttend.equals(it.beat_id) } as ArrayList
+
+            BeatListDialog.newInstance(singleList) {
+                tv_select_beat.text = it.name
+                beatId = it.beat_id!!
+            }.show((mContext as DashboardActivity).supportFragmentManager, "")
+        }
     }
 
     private var permissionUtils: PermissionUtils? = null

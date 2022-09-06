@@ -32,9 +32,9 @@
                 android:layout_width="@dimen/_20sdp"
                 android:layout_height="@dimen/_20sdp"
                 android:layout_alignParentRight="true"
-                app:srcCompat="@drawable/ic_no"
                 android:layout_marginTop="@dimen/_5sdp"
-                android:layout_marginRight="@dimen/_5sdp" />
+                android:layout_marginRight="@dimen/_5sdp"
+                app:srcCompat="@drawable/ic_no" />
         </RelativeLayout>
 
 

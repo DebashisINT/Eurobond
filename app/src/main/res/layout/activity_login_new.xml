@@ -40,14 +40,14 @@
             <RelativeLayout
                 android:id="@+id/rl_main_new"
                 android:layout_width="match_parent"
-                android:elevation="@dimen/_10sdp"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true">
+                android:layout_centerInParent="true"
+                android:elevation="@dimen/_10sdp">
 
                 <ImageView
                     android:id="@+id/logo_new"
-                    android:layout_width="@dimen/_115sdp"
-                    android:layout_height="@dimen/_48sdp"
+                    android:layout_width="@dimen/_145sdp"
+                    android:layout_height="@dimen/_78sdp"
                     android:layout_centerHorizontal="true"
                     android:layout_gravity="center"
                     android:layout_marginTop="@dimen/_30sdp"
@@ -66,8 +66,8 @@
                     android:text="@string/name_filed_managenent_system"
                     android:textColor="#287fb2"
                     android:textSize="@dimen/_12sdp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:textStyle="bold" />
 
                 <com.eurobond.widgets.AppCustomTextView
                     android:id="@+id/app_title_TV"
@@ -82,10 +82,10 @@
 
                 <LinearLayout
                     android:id="@+id/login_LL"
-                    android:layout_marginTop="@dimen/_145sdp"
                     android:layout_width="match_parent"
-                    android:layout_marginBottom="@dimen/_2sdp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_145sdp"
+                    android:layout_marginBottom="@dimen/_2sdp"
                     android:orientation="vertical">
 
                     <LinearLayout
@@ -101,117 +101,117 @@
 
 
                             <LinearLayout
-                                    android:background="@drawable/new_login_bg_newscre"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="@dimen/_30sdp"
+                                android:background="@drawable/new_login_bg_newscre"
+                                android:elevation="@dimen/_3sdp"
+                                android:orientation="vertical"
+                                android:paddingTop="@dimen/_10sdp"
+                                android:paddingBottom="@dimen/_10sdp">
+
+                                <LinearLayout
                                     android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
+                                    android:layout_height="@dimen/_45sdp"
+                                    android:layout_marginLeft="@dimen/_10sdp"
                                     android:layout_marginRight="@dimen/_30sdp"
-                                    android:paddingTop="@dimen/_10sdp"
-                                    android:paddingBottom="@dimen/_10sdp"
-                                    android:elevation="@dimen/_3sdp">
+                                    android:gravity="center|start"
+                                    android:orientation="horizontal">
 
-                                        <LinearLayout
+                                    <ImageView
+                                        android:layout_width="@dimen/_20sdp"
+                                        android:layout_height="@dimen/_25sdp"
+                                        android:layout_gravity="center"
+                                        android:layout_marginTop="@dimen/_3sdp"
+                                        android:src="@drawable/ic_user_newscr" />
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="@dimen/_35sdp"
+                                        android:layout_gravity="center"
+                                        android:background="@color/transparent"
+                                        android:textColorHint="@color/gray"
+                                        app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
+
+                                        <com.eurobond.widgets.AppCustomEditText
+                                            android:id="@+id/username_EDT"
                                             android:layout_width="match_parent"
-                                            android:orientation="horizontal"
-                                            android:layout_height="@dimen/_45sdp"
-                                            android:layout_marginLeft="@dimen/_10sdp"
-                                            android:layout_marginRight="@dimen/_30sdp"
-                                            android:gravity="center|start">
+                                            android:layout_height="match_parent"
+                                            android:layout_gravity="center"
+                                            android:background="@color/transparent"
+                                            android:hint="@string/username_new"
+                                            android:imeOptions="actionNext"
+                                            android:inputType="textEmailAddress"
+                                            android:paddingStart="@dimen/_10sdp"
+                                            android:singleLine="true"
+                                            android:textSize="@dimen/_13sdp"
+                                            app:theme="@style/EvoEditTextTheme" />
 
-                                            <ImageView
-                                                android:layout_width="@dimen/_20sdp"
-                                                android:src="@drawable/ic_user_newscr"
-                                                android:layout_gravity="center"
-                                                android:layout_height="@dimen/_25sdp"
-                                                android:layout_marginTop="@dimen/_3sdp"/>
-
-                                            <com.google.android.material.textfield.TextInputLayout
-                                                android:layout_width="match_parent"
-                                                android:layout_height="@dimen/_35sdp"
-                                                android:textColorHint="@color/gray"
-                                                android:background="@color/transparent"
-                                                android:layout_gravity="center"
-                                                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
-
-                                                <com.eurobond.widgets.AppCustomEditText
-                                                    android:id="@+id/username_EDT"
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="match_parent"
-                                                    android:hint="@string/username_new"
-                                                    android:imeOptions="actionNext"
-                                                    android:layout_gravity="center"
-                                                    android:background="@color/transparent"
-                                                    android:inputType="textEmailAddress"
-                                                    android:singleLine="true"
-                                                    android:paddingStart="@dimen/_10sdp"
-                                                    android:textSize="@dimen/_13sdp"
-                                                    app:theme="@style/EvoEditTextTheme" />
-
-                                            </com.google.android.material.textfield.TextInputLayout>
-
-                                        </LinearLayout>
-
-                                        <View
-                                            android:layout_width="match_parent"
-                                            android:layout_height="1dp"
-                                            android:layout_marginTop="@dimen/_5sdp"
-                                            android:layout_marginBottom="@dimen/_1sdp"
-                                            android:background="@color/card_custom_back1"
-                                            android:layout_marginLeft="@dimen/_10sdp"
-                                            android:layout_marginRight="@dimen/_10sdp" />
-
-                                        <LinearLayout
-                                            android:layout_width="match_parent"
-                                            android:layout_height="@dimen/_45sdp"
-                                            android:orientation="horizontal"
-                                            android:layout_marginLeft="@dimen/_10sdp"
-                                            android:layout_marginRight="@dimen/_30sdp"
-                                            android:gravity="center|start">
-
-                                            <ImageView
-                                                android:layout_width="@dimen/_20sdp"
-                                                android:layout_height="@dimen/_25sdp"
-                                                android:src="@drawable/ic_padlock"
-                                                android:layout_gravity="center"
-                                                android:layout_marginTop="@dimen/_3sdp"/>
-
-                                            <com.google.android.material.textfield.TextInputLayout
-                                                android:layout_width="match_parent"
-                                                android:layout_height="@dimen/_35sdp"
-                                                android:textColorHint="@color/gray"
-                                                app:passwordToggleEnabled="true"
-                                                android:layout_gravity="center"
-                                                android:background="@color/transparent"
-                                                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
-
-                                                <com.google.android.material.textfield.TextInputEditText
-                                                    android:id="@+id/password_EDT"
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="match_parent"
-                                                    android:layout_gravity="center"
-                                                    android:background="@color/transparent"
-                                                    android:hint="@string/password"
-                                                    android:imeOptions="actionDone"
-                                                    android:inputType="textPassword"
-                                                    android:paddingStart="@dimen/_10sdp"
-                                                    android:singleLine="true"
-                                                    android:textSize="@dimen/_13sdp"
-                                                    app:theme="@style/EvoEditTextTheme" />
-
-                                            </com.google.android.material.textfield.TextInputLayout>
-
-                                        </LinearLayout>
-
+                                    </com.google.android.material.textfield.TextInputLayout>
 
                                 </LinearLayout>
+
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="1dp"
+                                    android:layout_marginLeft="@dimen/_10sdp"
+                                    android:layout_marginTop="@dimen/_5sdp"
+                                    android:layout_marginRight="@dimen/_10sdp"
+                                    android:layout_marginBottom="@dimen/_1sdp"
+                                    android:background="@color/card_custom_back1" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="@dimen/_45sdp"
+                                    android:layout_marginLeft="@dimen/_10sdp"
+                                    android:layout_marginRight="@dimen/_30sdp"
+                                    android:gravity="center|start"
+                                    android:orientation="horizontal">
+
+                                    <ImageView
+                                        android:layout_width="@dimen/_20sdp"
+                                        android:layout_height="@dimen/_25sdp"
+                                        android:layout_gravity="center"
+                                        android:layout_marginTop="@dimen/_3sdp"
+                                        android:src="@drawable/ic_padlock" />
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="@dimen/_35sdp"
+                                        android:layout_gravity="center"
+                                        android:background="@color/transparent"
+                                        android:textColorHint="@color/gray"
+                                        app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+                                        app:passwordToggleEnabled="true">
+
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/password_EDT"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            android:layout_gravity="center"
+                                            android:background="@color/transparent"
+                                            android:hint="@string/password"
+                                            android:imeOptions="actionDone"
+                                            android:inputType="textPassword"
+                                            android:paddingStart="@dimen/_10sdp"
+                                            android:singleLine="true"
+                                            android:textSize="@dimen/_13sdp"
+                                            app:theme="@style/EvoEditTextTheme" />
+
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                </LinearLayout>
+
+
+                            </LinearLayout>
 
                             <ImageView
                                 android:id="@+id/login_TV"
                                 android:layout_width="@dimen/_59sdp"
-                                android:src="@drawable/sub_loginbtn"
-                                android:layout_gravity="center|end"
                                 android:layout_height="@dimen/_59sdp"
-                                android:elevation="@dimen/_3sdp"/>
+                                android:layout_gravity="center|end"
+                                android:elevation="@dimen/_3sdp"
+                                android:src="@drawable/sub_loginbtn" />
 
 
                         </FrameLayout>
@@ -222,45 +222,45 @@
                     <RelativeLayout
                         android:id="@+id/rem_rl"
                         android:layout_width="wrap_content"
-                        android:layout_gravity="end"
                         android:layout_height="@dimen/_30sdp"
-                        android:gravity="end"
-                        android:orientation="horizontal"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="@dimen/_2sdp"
                         android:layout_marginRight="@dimen/_10sdp"
-                        android:layout_marginTop="@dimen/_2sdp">
+                        android:gravity="end"
+                        android:orientation="horizontal">
 
                         <CheckBox
                             android:id="@+id/cb_remember_me"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:text="@string/remember_me"
                             android:buttonTint="#33BAFF"
+                            android:text="@string/remember_me"
                             android:textColor="@color/colorPrimaryDark"
-                            android:textSize="@dimen/_11sdp"/>
+                            android:textSize="@dimen/_11sdp" />
 
-<!--                        <androidx.appcompat.widget.SwitchCompat-->
-<!--                            android:id="@+id/cb_remember_me"-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="@dimen/_35sdp"-->
-<!--                            wheel:switchMinWidth="@dimen/_35sdp"-->
-<!--                            wheel:switchPadding="@dimen/_5sdp"-->
-<!--                            android:text="Remember Me"-->
-<!--                            android:thumb="@drawable/login_rem_thumb_selector"-->
-<!--                            wheel:track="@drawable/login_rem_track_selector" />-->
+                        <!--                        <androidx.appcompat.widget.SwitchCompat-->
+                        <!--                            android:id="@+id/cb_remember_me"-->
+                        <!--                            android:layout_width="wrap_content"-->
+                        <!--                            android:layout_height="@dimen/_35sdp"-->
+                        <!--                            wheel:switchMinWidth="@dimen/_35sdp"-->
+                        <!--                            wheel:switchPadding="@dimen/_5sdp"-->
+                        <!--                            android:text="Remember Me"-->
+                        <!--                            android:thumb="@drawable/login_rem_thumb_selector"-->
+                        <!--                            wheel:track="@drawable/login_rem_track_selector" />-->
 
                         <com.eurobond.widgets.AppCustomTextView
                             android:id="@+id/share_log_login_TV"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
                             android:drawableStart="@drawable/ic_share_svg"
+                            android:drawablePadding="5dp"
                             android:gravity="center"
                             android:text="@string/share_log"
                             android:textColor="#084e8b"
-                            android:textStyle="bold"
                             android:textSize="@dimen/_12sdp"
-                            android:visibility="gone"
-                            android:layout_alignParentRight="true"
-                            android:drawablePadding="5dp"/>
+                            android:textStyle="bold"
+                            android:visibility="gone" />
 
                     </RelativeLayout>
 
@@ -301,9 +301,9 @@
                     android:id="@+id/setting_ll_activity_login_new"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:layout_below="@+id/tv_internet_info"
                     android:layout_marginTop="@dimen/_7sdp"
-                    android:layout_below="@+id/tv_internet_info">
+                    android:orientation="horizontal">
 
                     <com.eurobond.widgets.AppCustomTextView
                         android:id="@+id/activity_login_tvappCustomAnydeskInfo"
@@ -319,46 +319,46 @@
                         android:textColor="@color/white"
                         android:textStyle="bold" />
 
-<!--                    <LinearLayout-->
-<!--                        android:id="@+id/activity_login_llList"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_marginTop="@dimen/_25sdp"-->
-<!--                        android:layout_marginHorizontal="@dimen/_5sdp"-->
-<!--                        android:background="@drawable/rect_stroke_solid_off_green"-->
-<!--                        android:orientation="vertical"-->
-<!--                        android:paddingHorizontal="@dimen/_8sdp"-->
-<!--                        android:paddingVertical="@dimen/_8sdp"-->
-<!--                        android:layout_marginStart="@dimen/_1sdp"-->
-<!--                        android:visibility="invisible">-->
+                    <!--                    <LinearLayout-->
+                    <!--                        android:id="@+id/activity_login_llList"-->
+                    <!--                        android:layout_width="wrap_content"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:layout_marginTop="@dimen/_25sdp"-->
+                    <!--                        android:layout_marginHorizontal="@dimen/_5sdp"-->
+                    <!--                        android:background="@drawable/rect_stroke_solid_off_green"-->
+                    <!--                        android:orientation="vertical"-->
+                    <!--                        android:paddingHorizontal="@dimen/_8sdp"-->
+                    <!--                        android:paddingVertical="@dimen/_8sdp"-->
+                    <!--                        android:layout_marginStart="@dimen/_1sdp"-->
+                    <!--                        android:visibility="invisible">-->
 
-<!--                        <com.eurobond.widgets.AppCustomTextView-->
-<!--                            android:id="@+id/activity_login_tvappCustomAnydesk"-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:layout_gravity="center_vertical"-->
-<!--                            android:background="@drawable/selector_green_botton_bg_1"-->
-<!--                            android:gravity="center"-->
-<!--                            android:paddingHorizontal="@dimen/_10sdp"-->
-<!--                            android:paddingVertical="@dimen/_5sdp"-->
-<!--                            android:text="@string/report"-->
-<!--                            android:textColor="@color/white"-->
-<!--                            android:textSize="@dimen/_8sdp" />-->
+                    <!--                        <com.eurobond.widgets.AppCustomTextView-->
+                    <!--                            android:id="@+id/activity_login_tvappCustomAnydesk"-->
+                    <!--                            android:layout_width="wrap_content"-->
+                    <!--                            android:layout_height="wrap_content"-->
+                    <!--                            android:layout_gravity="center_vertical"-->
+                    <!--                            android:background="@drawable/selector_green_botton_bg_1"-->
+                    <!--                            android:gravity="center"-->
+                    <!--                            android:paddingHorizontal="@dimen/_10sdp"-->
+                    <!--                            android:paddingVertical="@dimen/_5sdp"-->
+                    <!--                            android:text="@string/report"-->
+                    <!--                            android:textColor="@color/white"-->
+                    <!--                            android:textSize="@dimen/_8sdp" />-->
 
-<!--                        <com.eurobond.widgets.AppCustomTextView-->
-<!--                            android:id="@+id/activity_login_tvappCustomLogs"-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:layout_gravity="center_vertical"-->
-<!--                            android:layout_marginTop="@dimen/_8sdp"-->
-<!--                            android:background="@drawable/selector_green_botton_bg_1"-->
-<!--                            android:gravity="center"-->
-<!--                            android:paddingHorizontal="@dimen/_10sdp"-->
-<!--                            android:paddingVertical="@dimen/_5sdp"-->
-<!--                            android:text="@string/share_log"-->
-<!--                            android:textColor="@color/white"-->
-<!--                            android:textSize="@dimen/_8sdp" />-->
-<!--                    </LinearLayout>-->
+                    <!--                        <com.eurobond.widgets.AppCustomTextView-->
+                    <!--                            android:id="@+id/activity_login_tvappCustomLogs"-->
+                    <!--                            android:layout_width="wrap_content"-->
+                    <!--                            android:layout_height="wrap_content"-->
+                    <!--                            android:layout_gravity="center_vertical"-->
+                    <!--                            android:layout_marginTop="@dimen/_8sdp"-->
+                    <!--                            android:background="@drawable/selector_green_botton_bg_1"-->
+                    <!--                            android:gravity="center"-->
+                    <!--                            android:paddingHorizontal="@dimen/_10sdp"-->
+                    <!--                            android:paddingVertical="@dimen/_5sdp"-->
+                    <!--                            android:text="@string/share_log"-->
+                    <!--                            android:textColor="@color/white"-->
+                    <!--                            android:textSize="@dimen/_8sdp" />-->
+                    <!--                    </LinearLayout>-->
 
                 </LinearLayout>
 
@@ -367,20 +367,19 @@
                     android:layout_width="@dimen/_265sdp"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/login_LL"
-                    android:padding="@dimen/_5sdp"
                     android:layout_toRightOf="@+id/icon_internet"
+                    android:padding="@dimen/_5sdp"
                     android:text="@string/login_logout_msg"
-                    android:textSize="@dimen/_11sdp"
-                    android:textColor="@color/color_deep_blue" />
+                    android:textColor="@color/color_deep_blue"
+                    android:textSize="@dimen/_11sdp" />
 
                 <ImageView
                     android:id="@+id/icon_internet"
-                    android:src="@drawable/ic_info_interenet"
                     android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_25sdp"
                     android:layout_below="@+id/login_LL"
                     android:layout_margin="@dimen/_2sdp"
-                    android:layout_height="@dimen/_25sdp"/>
-
+                    android:src="@drawable/ic_info_interenet" />
 
 
             </RelativeLayout>

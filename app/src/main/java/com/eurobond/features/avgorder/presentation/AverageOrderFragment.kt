@@ -1,5 +1,6 @@
 package com.eurobond.features.avgorder.presentation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -161,6 +162,7 @@ class AverageOrderFragment : BaseFragment(), DatePickerListener {
         }
     }
 
+    @SuppressLint("WrongConstant")
     private fun initAdapter(list: List<AddShopDBModelEntity>) {
 //        getLocationList()
         averageShopListAdapter = AverageOrderListAdapter(mContext, list, object : AverageShopListClickListener {
@@ -180,6 +182,7 @@ class AverageOrderFragment : BaseFragment(), DatePickerListener {
                 TODO("Not yet implemented")
             }
 
+
             override fun OnItemClick(position: Int) {
                 (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, list[position])
             }
@@ -188,6 +191,9 @@ class AverageOrderFragment : BaseFragment(), DatePickerListener {
                 initiatePopupWindow(view, position)
             }
 
+            override fun onSurveyClick(shop_id: String) {
+
+            }
         })
         layoutManager = LinearLayoutManager(mContext, LinearLayout.VERTICAL, false)
         shopList.layoutManager = layoutManager
