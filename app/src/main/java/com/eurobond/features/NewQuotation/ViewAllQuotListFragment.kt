@@ -789,7 +789,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                }
            }*/
 
-            if (!TextUtils.isEmpty(sendingPath)) {
+            /*if (!TextUtils.isEmpty(sendingPath)) {
                 try {
                     val shareIntent = Intent(Intent.ACTION_SEND)
                     val fileUrl = Uri.parse(sendingPath)
@@ -802,8 +802,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                     e.printStackTrace()
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                 }
-            }
-            return
+            }*/
 
 
             val m = Mail("saheli.bhattacharjee@indusnet.co.in", "@Intsaheli22")
