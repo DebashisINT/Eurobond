@@ -169,6 +169,9 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                                         no_quot_tv.visibility = View.GONE
                                         addedQuotList.clear()
                                         addedQuotList.addAll(addQuotResult!!.shop_wise_quotation_list!!)
+
+                                        addedQuotList.reverse()
+
                                         setAdapter()
                                     }
 
@@ -379,7 +382,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             ph1.add(Chunk("DATE: " + addQuotEditResult.quotation_date_selection!!, font))
             ph1.add(glue) // Here I add special chunk to the same phrase.
 
-            ph1.add(Chunk(addQuotEditResult.quotation_number + "       ", font))
+            ph1.add(Chunk(addQuotEditResult.quotation_number + "                         ", font))
             para.add(ph1)
             document.add(para)
 
