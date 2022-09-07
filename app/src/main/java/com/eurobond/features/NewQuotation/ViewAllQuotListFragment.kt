@@ -3,7 +3,6 @@ package com.eurobond.features.NewQuotation
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -16,8 +15,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
@@ -804,7 +801,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             val m = Mail("saheli.bhattacharjee@indusnet.co.in", "@Intsaheli22")
 //            val m = Mail("saheli.bhattacharjee@indusnet.co.in", "@Intsaheli22")"suman.roy@indusnet.co.in"
-            val toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in")
+            val toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
 //            val toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
             m.setTo(toArr)
             m.setFrom("TEAM");
