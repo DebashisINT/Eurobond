@@ -2,12 +2,9 @@ package com.eurobond.features.NewQuotation
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
-import com.eurobond.BuildConfig
 import com.eurobond.R
 import com.eurobond.app.utils.AppUtils
 import com.itextpdf.text.*
-import com.itextpdf.text.pdf.ColumnText
 import com.itextpdf.text.pdf.PdfContentByte
 import com.itextpdf.text.pdf.PdfPageEventHelper
 import com.itextpdf.text.pdf.PdfWriter
