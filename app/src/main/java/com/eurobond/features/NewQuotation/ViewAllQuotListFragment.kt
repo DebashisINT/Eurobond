@@ -172,6 +172,9 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                                         no_quot_tv.visibility = View.GONE
                                         addedQuotList.clear()
                                         addedQuotList.addAll(addQuotResult!!.shop_wise_quotation_list!!)
+
+                                        addedQuotList.reverse()
+
                                         setAdapter()
                                     }
 
@@ -382,7 +385,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             ph1.add(Chunk("DATE: " + addQuotEditResult.quotation_date_selection!!, font))
             ph1.add(glue) // Here I add special chunk to the same phrase.
 
-            ph1.add(Chunk(addQuotEditResult.quotation_number + "       ", font))
+            ph1.add(Chunk(addQuotEditResult.quotation_number + "                         ", font))
             para.add(ph1)
             document.add(para)
 
@@ -786,7 +789,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                }
            }*/
 
-            /*if (!TextUtils.isEmpty(sendingPath)) {
+            if (!TextUtils.isEmpty(sendingPath)) {
                 try {
                     val shareIntent = Intent(Intent.ACTION_SEND)
                     val fileUrl = Uri.parse(sendingPath)
@@ -799,7 +802,8 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                     e.printStackTrace()
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                 }
-            }*/
+            }
+            return
 
 
             val m = Mail("saheli.bhattacharjee@indusnet.co.in", "@Intsaheli22")
