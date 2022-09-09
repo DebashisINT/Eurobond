@@ -802,7 +802,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             }*/
 
 
-            val m = Mail("saheli.bhattacharjee@indusnet.co.in", "@Intsaheli22")
+            val m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
 //            val m = Mail("saheli.bhattacharjee@indusnet.co.in", "@Intsaheli22")"suman.roy@indusnet.co.in"
             val toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
 //            val toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
