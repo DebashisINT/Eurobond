@@ -515,6 +515,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                 if (configResponse.TodaysTaskText != null)
                                     Pref.TodaysTaskText=configResponse.TodaysTaskText!!
 
+                                if (configResponse.IsDistributorSelectionRequiredinAttendance != null)
+                                    Pref.IsDistributorSelectionRequiredinAttendance = configResponse.IsDistributorSelectionRequiredinAttendance!!
+
 
                                 /*if (configResponse.willShowUpdateDayPlan != null)
                                     Pref.willShowUpdateDayPlan = configResponse.willShowUpdateDayPlan!!
@@ -5775,6 +5778,15 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                 }
 
                                             }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("GPSNetworkIntervalMins", ignoreCase = true)) {
+                                                try{
+                                                    Pref.GPSNetworkIntervalMins =response.getconfigure!![i].Value!!
+                                                }catch (e: Exception) {
+                                                    e.printStackTrace()
+                                                    Pref.GPSNetworkIntervalMins = "0"
+                                                }
+                                            }
+
 
 
 

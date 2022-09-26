@@ -97,6 +97,7 @@ class ConfigFetchResponseModel : BaseResponse() {
     var IsAllBeatAvailable:Boolean? = null
     var BeatText: String = ""
     var TodaysTaskText:String = ""
+    var IsDistributorSelectionRequiredinAttendance:Boolean? = null
 
 
 

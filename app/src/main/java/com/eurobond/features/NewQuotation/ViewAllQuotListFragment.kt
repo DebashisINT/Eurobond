@@ -634,7 +634,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             val end = Paragraph("Anticipating healthy business relation with your esteemed organization.", grayFront)
             end.alignment = Element.ALIGN_LEFT
-            end.spacingAfter = 2f
+            end.spacingAfter = 4f
             document.add(end)
 
             val thanks = Paragraph("\nThanks & Regards,", fontB1)
@@ -803,7 +803,9 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
 
             val m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
-            val toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
+//            val m = Mail("saheli.bhattacharjee@indusnet.co.in", "@Intsaheli22")
+            //val toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
+            val toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
             m.setTo(toArr)
             m.setFrom("TEAM");
             m.setSubject("Quotation for $shop_name created on dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)}.")

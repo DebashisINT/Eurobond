@@ -153,7 +153,6 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                     itemView.tv_type.text = "NA"
                     //itemView.ll_shop_type.visibility = View.GONE
                 }
-
                 if(Pref.isCollectioninMenuShow) {
                     itemView.ll_collection.visibility = View.VISIBLE
                     itemView.collection_view.visibility = View.VISIBLE
@@ -161,6 +160,15 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                 else {
                     itemView.ll_collection.visibility = View.GONE
                     itemView.collection_view.visibility = View.GONE
+                }
+                /*Beat Name show*/
+                val shopBeatType = AppDatabase.getDBInstance()?.beatDao()?.getSingleItem(list[adapterPosition].beat_id)
+                if(shopBeatType!=null && Pref.isShowBeatGroup && !TextUtils.isEmpty(shopBeatType.name)) {
+                    itemView.rl_beat_type.visibility = View.VISIBLE
+                    itemView.tv_beat_type.text = shopBeatType.name
+                }
+                else {
+                    itemView.tv_beat_type.text ="NA"
                 }
 
                 itemView.ll_collection.setOnClickListener {
@@ -820,7 +828,7 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                     listener.onSurveyClick(list[adapterPosition].shop_id)
                 }
 
-//                Hardcoded for EuroBond
+                //Hardcoded for EuroBond
                 itemView.ll_last_visit_age.visibility=View.GONE
                 itemView.ll_average_visit_time.visibility=View.GONE
                 itemView.ll_distance.visibility=View.GONE

@@ -461,6 +461,13 @@ object Pref : PreferenceHolder() {
 
     var isLocationHintPermissionGranted: Boolean by bindToPreferenceField(false, "isLocationHintPermissionGranted")
     var AutostartPermissionStatus: Boolean by bindToPreferenceField(false, "AutostartPermissionStatus")
+    var IsDistributorSelectionRequiredinAttendance: Boolean by bindToPreferenceField(false, "IsDistributorSelectionRequiredinAttendance")
+    var SelectedDDIDFromAttend: String by bindToPreferenceField("0", "SelectedDDIDFromAttend")
+
+    var PowerSaverStatus: String by bindToPreferenceField("Off", "PowerSaverStatus")
+    var GPSNetworkIntervalMins: String by bindToPreferenceField("0", "GPSNetworkIntervalMins")
+    var prevGpsNetSyncTimeStamp: Long by bindToPreferenceField(0, "prevGpsNetSyncTimeStamp")
+    var prevGpsNetSyncTimeStampService: Long by bindToPreferenceField(0, "prevGpsNetSyncTimeStampService")
 
 
 }

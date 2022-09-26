@@ -191,6 +191,7 @@ public class Mail extends javax.mail.Authenticator {
         props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         props.put("mail.smtp.socketFactory.fallback", "false");
 
+
         return props;
     }
 

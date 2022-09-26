@@ -140,6 +140,9 @@ public interface AddShopDao {
     @Query("Select * from shop_detail where shop_name LIKE '%' || :shopNameorNum  || '%' OR owner_contact_number LIKE '%' || :shopNameorNum  || '%' ")
     List<AddShopDBModelEntity> getShopBySearchData(String shopNameorNum);
 
+    @Query("Select * from shop_detail where shop_name LIKE '%' || :shopNameorNum  || '%' OR owner_contact_number LIKE '%' || :shopNameorNum  ||  '%' OR owner_name LIKE '%' || :shopNameorNum  || '%' ")
+    List<AddShopDBModelEntity> getShopBySearchDataNew(String shopNameorNum);
+
 
     @Update
     int updateAddShop(AddShopDBModelEntity mAddShopDBModelEntity);
@@ -205,6 +208,10 @@ public interface AddShopDao {
     @Query("Select * from shop_detail where beat_id=:beat_id")
     List<AddShopDBModelEntity> getShopBeatWise(String beat_id);
 
+    @Query("Select * from shop_detail where beat_id=:beat_id and assigned_to_dd_id =:assigned_to_dd_id")
+    List<AddShopDBModelEntity> getShopBeatWiseDD(String beat_id,String assigned_to_dd_id);
+
+
     @Query("Select * from shop_detail where shop_name LIKE '%' || :shopNameorNum  || '%' OR owner_contact_number LIKE '%' || :shopNameorNum  || '%' and beat_id=:beat_id")
     List<AddShopDBModelEntity> getSearchedShopBeatWise(String beat_id, String shopNameorNum);
 
@@ -233,6 +240,14 @@ public interface AddShopDao {
 
     @Query("SELECT * FROM " + SHOP_TABLE+" where visitDate=:visitDate")
     List<AddShopDBModelEntity> getShopCreatedToday(String visitDate);
+
+    @Query("Select *  FROM " + SHOP_TABLE+" where type=:type")
+    List<AddShopDBModelEntity> getShopNameByDD(String type);
+
+    @Query("SELECT beat_id FROM " + SHOP_TABLE+" where assigned_to_dd_id=:assigned_to_dd_id")
+    List<String> getDistinctBeatID(String assigned_to_dd_id);
+
+
 
 //    @Query("INSERT OR REPLACE INTO SHOP_TABLE (shopId,shopName,address,pinCode,ownerName,isVisited) VALUES (:id, :title, :url, COALESCE((SELECT isSubscribed FROM articles WHERE id = :id), 0));")
 //    void insertOrUpdateShop(long id, String title, String url);

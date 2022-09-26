@@ -255,6 +255,7 @@
     <string name="error_enter_chemist_name" translatable="false">Please enter chemist name</string>
     <string name="error_enter_chemist_address" translatable="false">Please enter chemist address</string>
     <string name="error_enter_chemist_pincode" translatable="false">Please enter chemist pincode</string>
+    <string name="error_enter_beat" translatable="false">Please enter beat type</string>
     <string name="contact_email" translatable="false">Contact Email</string>
     <string name="confirm_revisit" translatable="false">Confirm Revisit</string>
     <string name="entity_type" translatable="false">Entity Type</string>
@@ -1566,7 +1567,6 @@
     <string name="camera_front" translatable="false">Front Camera :\u0020 </string>
     <string name="historys" translatable="false">Historys</string>
     <string name="firebase_key" translatable="false">key=AAAAZj4rINg:APA91bHmnhpJuY6068fHwK3RFHPdWAEWOcksGpMbZJFEwQ39jf8xzSm2IFDMwifn9e_A6AY8EYWmnP5IVFyJVyFmgvDNVzguemofko53fYEcJUsbpMYMxinjnzcTdOHQwfSfbenM_tzr</string>
-
 
     <string name="GenderTextNewOrd" translatable="false">Gender</string>
     <string name="ProductTextNewOrd" translatable="false">Product Type</string>

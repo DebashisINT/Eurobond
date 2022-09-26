@@ -163,6 +163,8 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
     private lateinit var cv_beat: CardView
     private lateinit var et_distance: AppCustomEditText
     private lateinit var tv_beat_type: AppCustomTextView
+    private lateinit var tv_dd: AppCustomTextView
+    private lateinit var cv_dd: CardView
 
     private var isOnLeave = false
     private var workTypeId = ""
@@ -188,6 +190,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
     private var fromLong = ""
     private var toLat = ""
     private var toLong = ""
+    private var assignedToDDId = ""
 
     private val addAttendenceModel: AddAttendenceInpuModel by lazy {
         AddAttendenceInpuModel()
@@ -283,14 +286,24 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         et_distance = view.findViewById(R.id.et_distance)
         cv_beat = view.findViewById(R.id.cv_beat_type_root)
         tv_beat_type= view.findViewById(R.id.tv_beat_type)
+        tv_dd = view.findViewById(R.id.tv_dd)
+        cv_dd = view.findViewById(R.id.cv_dd_root)
+
 
         tv_beat_type.hint = "Select " + "${Pref.beatText}" + " Type"
+        tv_dd.hint = "Select Distributor"
 
         if(Pref.IsBeatRouteAvailableinAttendance)
         {
             cv_beat.visibility=View.VISIBLE
         }else{
             cv_beat.visibility=View.GONE
+        }
+        if(Pref.IsDistributorSelectionRequiredinAttendance)
+        {
+            cv_dd.visibility=View.VISIBLE
+        }else{
+            cv_dd.visibility=View.GONE
         }
 
         if (Pref.isVisitPlanShow)
@@ -589,6 +602,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         et_from_loc.setOnClickListener(this)
         et_to_loc.setOnClickListener(this)
         cv_beat.setOnClickListener(this)
+        cv_dd.setOnClickListener(this)
     }
 
     private fun locationList() {
@@ -1549,11 +1563,51 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
             }
 
             R.id.cv_beat_type_root->{
-                val list = AppDatabase.getDBInstance()?.beatDao()?.getAll() as ArrayList<BeatEntity>
+                if(!Pref.IsDistributorSelectionRequiredinAttendance){
+                  val list = AppDatabase.getDBInstance()?.beatDao()?.getAll() as ArrayList<BeatEntity>
+
+                    if (list != null && list.isNotEmpty())
+                        showBeatListDialog(list)
+                    else
+                        getBeatListApi(false)
+                }
+                else{
+                    var beatList=AppDatabase.getDBInstance()?.addShopEntryDao()?.getDistinctBeatID(assignedToDDId) as List<String>
+
+                    if(beatList.size>0){
+                        beatList = beatList.filter { it!="" }.distinct()
+                        var listFilteredBeat : ArrayList<BeatEntity> = ArrayList()
+                        doAsync {
+                            listFilteredBeat= ArrayList()
+                            for(i in 0..beatList.size-1){
+                                var obj = AppDatabase.getDBInstance()?.beatDao()?.getSingleItem(beatList.get(i)) as BeatEntity
+                                if(obj!=null){
+                                    listFilteredBeat.add(obj)
+                                }
+                                else
+                                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
+
+                            }
+                            uiThread {
+                                if (listFilteredBeat != null && listFilteredBeat.isNotEmpty())
+                                    showBeatListDialog(listFilteredBeat)
+                                else
+                                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
+                            }
+                        }
+                    }
+                    else
+                        (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
+
+                }
+
+
+            }
+
+            R.id.cv_dd_root->{
+                val list = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopNameByDD("4") as ArrayList<AddShopDBModelEntity>
                 if (list != null && list.isNotEmpty())
-                    showBeatListDialog(list)
-                else
-                    getBeatListApi(false)
+                    showDDListDialog(list)
             }
 
             R.id.rl_work_type_header -> {
@@ -1615,11 +1669,21 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         }
     }
 
+
     private fun showBeatListDialog(list: ArrayList<BeatEntity>) {
         BeatListCustomDialog.newInstance(list as ArrayList<BeatEntity>) {
             tv_beat_type.text = it.name
             mbeatId = it.beat_id!!
             Pref.SelectedBeatIDFromAttend = mbeatId
+        }.show((mContext as DashboardActivity).supportFragmentManager, "")
+
+    }
+
+    private fun showDDListDialog(list: ArrayList<AddShopDBModelEntity>) {
+        DDWiseBeatListCustomDialog.newInstance(list as ArrayList<AddShopDBModelEntity>) {
+            tv_dd.text = it.shopName
+            assignedToDDId = it.shop_id!!
+            Pref.SelectedDDIDFromAttend = assignedToDDId
         }.show((mContext as DashboardActivity).supportFragmentManager, "")
 
     }
@@ -1769,7 +1833,13 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
             if (TextUtils.isEmpty(workTypeId))
                 (mContext as DashboardActivity).showSnackMessage("Please select work type")
             else if(TextUtils.isEmpty(mbeatId) && Pref.IsBeatRouteAvailableinAttendance)
-                openDialogPopup("Hi! (${Pref.user_name})","Please select ${Pref.beatText} type")
+                if(Pref.IsDistributorSelectionRequiredinAttendance ){
+                    if(TextUtils.isEmpty(assignedToDDId)){
+                        openDialogPopup("Hi! (${Pref.user_name})","Please select ${Pref.ddText}")
+                    }else
+                        openDialogPopup("Hi! (${Pref.user_name})","Please select ${Pref.beatText} type")
+                }else
+                    openDialogPopup("Hi! (${Pref.user_name})","Please select ${Pref.beatText} type")
             else {
                 if (tv_work_type.text.contains("Field")) {
                     val list_ = AppDatabase.getDBInstance()?.routeDao()?.getAll()

@@ -17,10 +17,7 @@ import android.speech.tts.TextToSpeech
 import android.text.InputFilter
 import android.text.TextUtils
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -125,6 +122,10 @@ import com.pnikosis.materialishprogress.ProgressWheel
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import org.json.JSONArray
@@ -1596,7 +1597,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         mRouteActivityDashboardAdapter.notifyDataSetChanged()
     }
 
-    @SuppressLint("WrongConstant")
+    /*@SuppressLint("WrongConstant")
     public fun initBottomAdapter() {
 
         /*val performList = ArrayList<AddShopDBModelEntity>()
@@ -1650,8 +1651,12 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
             var pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAllByDate(AppUtils.getCurrentDateForShopActi()) as ArrayList<PjpListEntity>
 
             if(!Pref.SelectedBeatIDFromAttend.equals("-1") && Pref.IsBeatRouteAvailableinAttendance && Pref.isAddAttendence){
-
-                var shopListWithBeat = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBeatWise(Pref.SelectedBeatIDFromAttend)
+                var shopListWithBeat:Any
+                if(Pref.IsDistributorSelectionRequiredinAttendance){
+                    shopListWithBeat = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBeatWiseDD(Pref.SelectedBeatIDFromAttend,Pref.SelectedDDIDFromAttend)
+                }else{
+                    shopListWithBeat = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBeatWise(Pref.SelectedBeatIDFromAttend)
+                }
                 if(shopListWithBeat.size>0){
                     for(l in 0..shopListWithBeat.size-1){
 
@@ -1697,7 +1702,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     }
                 })
 
-            } else {
+            }
+            else {
                 rv_pjp_list.visibility = View.GONE
                 reportList.visibility = View.VISIBLE
 
@@ -1705,6 +1711,248 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     no_shop_tv.visibility = View.VISIBLE
             }
         }
+    }*/
+
+    var initBottomAdapterUpdaton = false
+
+    @SuppressLint("WrongConstant")
+    public fun initBottomAdapter() {
+        if(initBottomAdapterUpdaton){
+            return
+        }
+        /*val performList = ArrayList<AddShopDBModelEntity>()
+        val updatedPerformList = ArrayList<AddShopDBModelEntity>()
+
+        for (i in list.indices) {
+            if (i == 0)
+                performList.add(list[i])
+            else {
+                if (list[i].shop_id != list[i - 1].shop_id) {
+                    performList.add(list[i])
+                }
+            }
+        }
+
+
+        for (i in performList.indices) {
+            if (i > 4)
+                break
+
+            updatedPerformList.add(performList[i])
+        }
+
+        if (updatedPerformList.size == 1)
+            best_performing_shop_TV.text = "Best performing " + updatedPerformList.size + " shop"
+        else
+            best_performing_shop_TV.text = "Best performing " + updatedPerformList.size + " shops"*/
+
+        initBottomAdapterUpdaton=true
+
+        println("pjp_tag_insert")
+
+        val work_type_list = AppDatabase.getDBInstance()?.selectedWorkTypeDao()?.getTodaysData(AppUtils.getCurrentDate()) as ArrayList<SelectedWorkTypeEntity>
+
+        if (work_type_list != null && work_type_list.size > 0) {
+            no_shop_tv.visibility = View.GONE
+            reportList.visibility = View.VISIBLE
+            //adapter = ReportAdapter(mContext, work_type_list)
+            layoutManager = LinearLayoutManager(mContext, LinearLayout.VERTICAL, false)
+            reportList.layoutManager = layoutManager
+            reportList.adapter = TodaysWorkAdapter(mContext, work_type_list)
+            reportList.isNestedScrollingEnabled = false
+        }
+        else {
+            reportList.visibility = View.GONE
+        }
+
+        if (Pref.isAttendanceFeatureOnly)
+            getAttendanceReport(AppUtils.getCurrentDateForShopActi())
+        else {
+            //getUserPjpList(work_type_list)
+
+            //val pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAll() as ArrayList<PjpListEntity>
+            //task new updation
+            var pjpList = AppDatabase.getDBInstance()?.pjpListDao()?.getAllByDate(AppUtils.getCurrentDateForShopActi()) as ArrayList<PjpListEntity>
+
+            //Pref.IsBeatRouteAvailableinAttendance=true
+
+            if(!Pref.SelectedBeatIDFromAttend.equals("-1") && Pref.IsBeatRouteAvailableinAttendance && Pref.isAddAttendence){
+
+                scope.launch {
+                    pjpList = loadpjpWithThread(pjpList)
+                }.invokeOnCompletion {
+                    if (pjpList != null && pjpList.isNotEmpty()) {
+                        no_shop_tv.visibility = View.GONE
+                        rv_pjp_list.visibility = View.VISIBLE
+                        reportList.visibility = View.GONE
+
+                        var layoutManager: RecyclerView.LayoutManager
+                        layoutManager = LinearLayoutManager(mContext, LinearLayout.VERTICAL, false) as RecyclerView.LayoutManager
+                        rv_pjp_list.layoutManager = layoutManager
+
+                        progress_wheel.spin()
+
+                        var pjpAdapterNew = PjpAdapter(mContext, pjpList, object : PJPClickListner {
+                            override fun visitShop(shop: Any) {
+                                if (!Pref.isAddAttendence) {
+                                    (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+                                }
+                                else {
+                                    val nearbyShop: AddShopDBModelEntity = shop as AddShopDBModelEntity
+                                    (mContext as DashboardActivity).callShopVisitConfirmationDialog(nearbyShop.shopName, nearbyShop.shop_id)
+                                }
+                            }
+                        })
+                        rv_pjp_list.adapter = pjpAdapterNew
+                        progress_wheel.stopSpinning()
+                    }
+                    else {
+                        rv_pjp_list.visibility = View.GONE
+                        reportList.visibility = View.VISIBLE
+
+                        if (work_type_list == null || work_type_list.size == 0)
+                            no_shop_tv.visibility = View.VISIBLE
+                    }
+                }
+
+                /*var shopListWithBeat = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBeatWise(Pref.SelectedBeatIDFromAttend)
+                if(shopListWithBeat.size>0){
+                    doAsync {
+                        for(l in 0..shopListWithBeat.size-1){
+                            var obj :PjpListEntity = PjpListEntity()
+                            if(pjpList.size>0){
+                                obj.pjp_id=(pjpList.get(pjpList.size-1).pjp_id!!.toInt()+1).toString()
+                            }else{
+                                obj.pjp_id="1"
+                            }
+                            obj.from_time=""
+                            obj.to_time=""
+
+                            var beatName = AppDatabase.getDBInstance()?.beatDao()?.getSingleItem(shopListWithBeat.get(l).beat_id)!!.name
+
+                            obj.customer_name="${Pref.beatText}"+" : "+beatName+"\n"+"${Pref.shopText}"+" : "+shopListWithBeat.get(l).shopName
+                            obj.customer_id=shopListWithBeat.get(l).shop_id
+                            obj.location=""
+                            obj.date=AppUtils.getCurrentDateForShopActi()
+                            obj.remarks=""
+
+                            pjpList.add(obj)
+                            println("pjp_tag ${obj.pjp_id}");
+                        }
+                        uiThread {
+                            if (pjpList != null && pjpList.isNotEmpty()) {
+                                no_shop_tv.visibility = View.GONE
+                                rv_pjp_list.visibility = View.VISIBLE
+
+                                reportList.visibility = View.GONE
+
+                                rv_pjp_list.adapter = PjpAdapter(mContext, pjpList, object : PJPClickListner {
+                                    override fun visitShop(shop: Any) {
+                                        if (!Pref.isAddAttendence) {
+                                            (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+                                        }
+                                        else {
+                                            val nearbyShop: AddShopDBModelEntity = shop as AddShopDBModelEntity
+                                            (mContext as DashboardActivity).callShopVisitConfirmationDialog(nearbyShop.shopName, nearbyShop.shop_id)
+                                        }
+                                    }
+                                })
+
+                            }
+                            else {
+                                rv_pjp_list.visibility = View.GONE
+                                reportList.visibility = View.VISIBLE
+
+                                if (work_type_list == null || work_type_list.size == 0)
+                                    no_shop_tv.visibility = View.VISIBLE
+                            }
+                        }
+                    }
+                }*/
+
+            }
+            else{
+                if (pjpList != null && pjpList.isNotEmpty()) {
+                    no_shop_tv.visibility = View.GONE
+                    rv_pjp_list.visibility = View.VISIBLE
+
+                    reportList.visibility = View.GONE
+
+                    rv_pjp_list.adapter = PjpAdapter(mContext, pjpList, object : PJPClickListner {
+                        override fun visitShop(shop: Any) {
+                            if (!Pref.isAddAttendence) {
+                                (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+                            }
+                            else {
+                                val nearbyShop: AddShopDBModelEntity = shop as AddShopDBModelEntity
+                                (mContext as DashboardActivity).callShopVisitConfirmationDialog(nearbyShop.shopName, nearbyShop.shop_id)
+                            }
+                        }
+                    })
+                }
+                else {
+                    rv_pjp_list.visibility = View.GONE
+                    reportList.visibility = View.VISIBLE
+
+                    if (work_type_list == null || work_type_list.size == 0)
+                        no_shop_tv.visibility = View.VISIBLE
+                }
+            }
+        }
+
+
+        Handler().postDelayed(Runnable {
+            initBottomAdapterUpdaton = false
+        }, 10000)
+
+    }
+
+    val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    suspend fun loadpjpWithThread(pjL:ArrayList<PjpListEntity>): ArrayList<PjpListEntity>{
+
+        val res  = CoroutineScope(Dispatchers.IO).launch {
+            try {
+                //AppDatabase.getDBInstance()?.addShopEntryDao()?.updateBeat("6")
+                var shopListWithBeat:Any
+                if(Pref.IsDistributorSelectionRequiredinAttendance){
+                    shopListWithBeat = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBeatWiseDD(Pref.SelectedBeatIDFromAttend,Pref.SelectedDDIDFromAttend)
+                }else{
+                    shopListWithBeat = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBeatWise(Pref.SelectedBeatIDFromAttend)
+                }
+                if(shopListWithBeat.size>0){
+                    for(l in 0..shopListWithBeat.size-1){
+                        var obj :PjpListEntity = PjpListEntity()
+                        if(pjL.size>0){
+                            obj.pjp_id=(pjL.get(pjL.size-1).pjp_id!!.toInt()+1).toString()
+                        }else{
+                            obj.pjp_id="1"
+                        }
+                        obj.from_time=""
+                        obj.to_time=""
+
+                        var beatName = AppDatabase.getDBInstance()?.beatDao()?.getSingleItem(shopListWithBeat.get(l).beat_id)!!.name
+
+                        obj.customer_name="${Pref.beatText}"+" : "+beatName+"\n"+"${Pref.shopText}"+" : "+shopListWithBeat.get(l).shopName
+                        obj.customer_id=shopListWithBeat.get(l).shop_id
+                        obj.location=""
+                        obj.date=AppUtils.getCurrentDateForShopActi()
+                        obj.remarks=""
+
+                        pjL.add(obj)
+                        println("pjp_tag ${obj.pjp_id}");
+                    }
+                }
+
+                true
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                println("tag_ res error ${Thread.currentThread().name}")
+                false
+            }
+        }
+        res.join()
+        return pjL
+
     }
 
     private fun getUserPjpList(workTypeList: ArrayList<SelectedWorkTypeEntity>) {
@@ -2263,6 +2511,12 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
         /*API_Optimization 02-03-2022*/
         //checkToCallAssignedDDListApi()
+
+        if(AppUtils.isOnline(mContext)){
+            disableScreen()
+        }
+
+
         callUserConfigApi()   // calling instead of checkToCallAssignedDDListApi()
     }
 
@@ -3542,6 +3796,14 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 }
 
                                             }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("GPSNetworkIntervalMins", ignoreCase = true)) {
+                                                try{
+                                                    Pref.GPSNetworkIntervalMins =response.getconfigure!![i].Value!!
+                                                }catch (e: Exception) {
+                                                    e.printStackTrace()
+                                                    Pref.GPSNetworkIntervalMins = "0"
+                                                }
+                                            }
 
 
                                         }
@@ -3806,6 +4068,9 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
                                 if (configResponse.TodaysTaskText != null)
                                     Pref.TodaysTaskText=configResponse.TodaysTaskText!!
+
+                                if (configResponse.IsDistributorSelectionRequiredinAttendance != null)
+                                    Pref.IsDistributorSelectionRequiredinAttendance = configResponse.IsDistributorSelectionRequiredinAttendance!!
 
                             }
                             BaseActivity.isApiInitiated = false
@@ -4895,6 +5160,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         CustomStatic.IsSnycClickablebyOnce = false
         (mContext as DashboardActivity).iv_sync_icon.isEnabled = true
 
+        enableScreen()
         (mContext as DashboardActivity).updateUI()
     }
 
@@ -6847,6 +7113,17 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
             }
         }
+    }
+
+
+    private fun disableScreen(){
+        requireActivity().getWindow().setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private fun enableScreen(){
+        requireActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
 }

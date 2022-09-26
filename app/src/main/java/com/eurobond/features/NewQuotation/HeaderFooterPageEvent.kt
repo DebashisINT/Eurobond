@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory
 import com.eurobond.R
 import com.eurobond.app.utils.AppUtils
 import com.itextpdf.text.*
-import com.itextpdf.text.pdf.ColumnText
 import com.itextpdf.text.pdf.PdfContentByte
 import com.itextpdf.text.pdf.PdfPageEventHelper
 import com.itextpdf.text.pdf.PdfWriter
@@ -28,8 +27,9 @@ class HeaderFooterPageEvent : PdfPageEventHelper() {
 
 
 
-
+        //Hardcoded for EuroBond
         val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.ics_image_full)
+//        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
         val bitmap = Bitmap.createScaledBitmap(bm, 690, 70, true);
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
@@ -37,7 +37,7 @@ class HeaderFooterPageEvent : PdfPageEventHelper() {
         val byteArray: ByteArray = stream.toByteArray()
         try {
             img = Image.getInstance(byteArray)
-            //  img.scaleToFit(155f,90f)
+          //  img.scaleToFit(155f,90f)
             img.scalePercent(80f)
             img.alignment=Image.ALIGN_RIGHT
         } catch (e: BadElementException) {
@@ -49,8 +49,12 @@ class HeaderFooterPageEvent : PdfPageEventHelper() {
         var imgSoc:Image = Image.getInstance(img)
         //imgSoc.scaleToFit(150f,80f);
         //imgSoc.setAbsolutePosition(390f, 720f);
-        imgSoc.setAbsolutePosition(20f, 2f);
+        imgSoc.setAbsolutePosition(20f, 10f);
         var cb : PdfContentByte = writer!!.getDirectContent() as PdfContentByte
         cb.addImage(imgSoc)
+
+
+
     }
+
 }

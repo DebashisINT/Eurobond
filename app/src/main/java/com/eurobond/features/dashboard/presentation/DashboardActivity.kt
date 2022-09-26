@@ -153,10 +153,8 @@ import com.eurobond.features.localshops.LocalShopListFragment
 import com.eurobond.features.localshops.LocalShopListMapFragment
 import com.eurobond.features.localshops.NearByShopsMapFragment
 import com.eurobond.features.location.*
-import com.eurobond.features.location.model.ShopDurationRequest
-import com.eurobond.features.location.model.ShopDurationRequestData
-import com.eurobond.features.location.model.ShopRevisitStatusRequest
-import com.eurobond.features.location.model.ShopRevisitStatusRequestData
+import com.eurobond.features.location.api.LocationRepoProvider
+import com.eurobond.features.location.model.*
 import com.eurobond.features.location.shopRevisitStatus.ShopRevisitStatusRepositoryProvider
 import com.eurobond.features.location.shopdurationapi.ShopDurationRepositoryProvider
 import com.eurobond.features.login.ShopFeedbackEntity
@@ -333,8 +331,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             XLog.d("token : " + token.toString())
         })
 
-        println("load frag " + mFragType.toString() + "     " + Pref.SelectedBeatIDFromAttend.toString());
+        println("load frag " + mFragType.toString() + "     " + Pref.user_id.toString());
+        var t = LocationWizard.getLocationName(this, 22.464775, 88.3036633)
 
+        //AppDatabase.getDBInstance()!!.userLocationDataDao().updateUnknownLocationTest(AppUtils.getCurrentDateForShopActi(),"Unknown",false)
 
         if (addToStack) {
             mTransaction.add(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
@@ -343,6 +343,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             mTransaction.replace(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
             mTransaction.commitAllowingStateLoss()
         }
+
     }
 
 
@@ -2890,7 +2891,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         isClearData = false
                         if (AppUtils.isOnline(this@DashboardActivity)) {
                             Handler().postDelayed(Runnable {
-                                callShopDurationApi()
+                                //callShopDurationApi()
+                                //rectifyUnknownLoc()
+                                syncGpsNetData()
                             }, 350)
                         //loadFragment(FragType.LogoutSyncFragment, true, "")
                         } else
@@ -12374,11 +12377,98 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         simpleDialog.show()
     }
 
-    private fun callShopDurationApi() {
 
+
+    private fun syncGpsNetData() {
+        val unSyncData = AppDatabase.getDBInstance()?.newGpsStatusDao()?.getNotUploaded(false)
+        if (unSyncData == null || unSyncData.isEmpty()){
+            rectifyUnknownLoc()
+        }else{
+            progress_wheel.spin()
+            val gps_net_status_list = ArrayList<NewGpsStatusEntity>()
+            unSyncData.forEach {
+                var obj :NewGpsStatusEntity = NewGpsStatusEntity()
+                obj.apply {
+                    id=it.id
+                    date_time = it.date_time
+                    gps_service_status = it.gps_service_status
+                    network_status = it.network_status
+                }
+                gps_net_status_list.add(obj)
+            }
+
+            var sendObj : GpsNetInputModel = GpsNetInputModel()
+            sendObj.user_id = Pref.user_id!!
+            sendObj.session_token = Pref.session_token!!
+            sendObj.gps_net_status_list = gps_net_status_list
+
+            val repository = LocationRepoProvider.provideLocationRepository()
+            compositeDisposable.add(
+                repository.gpsNetInfo(sendObj)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as BaseResponse
+                        progress_wheel.stopSpinning()
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            doAsync {
+                                unSyncData.forEach {
+                                    AppDatabase.getDBInstance()?.newGpsStatusDao()?.updateIsUploadedAccordingToId(true, it.id)
+                                }
+                                uiThread {
+                                    rectifyUnknownLoc()
+                                }
+                            }
+                        }else{
+                            rectifyUnknownLoc()
+                        }
+                    }, { error ->
+                        if (error == null) {
+                            XLog.d("App Info : ERROR : " + "UNEXPECTED ERROR IN LOCATION ACTIVITY API")
+                        } else {
+                            XLog.d("App Info : ERROR : " + error.localizedMessage)
+                            error.printStackTrace()
+                        }
+                        progress_wheel.stopSpinning()
+                        rectifyUnknownLoc()
+                    })
+            )
+        }
+
+    }
+
+    fun rectifyUnknownLoc(){
         dialogHeaderProcess.text = "Syncing Important Data. Please wait..."
         val dialogYes = simpleDialogProcess.findViewById(R.id.tv_message_ok) as AppCustomTextView
         simpleDialogProcess.show()
+
+        try {
+            doAsync {
+
+                var unknownList = AppDatabase.getDBInstance()!!.userLocationDataDao().getUnknownLocation(AppUtils.getCurrentDateForShopActi(),"Unknown",false)
+                if(unknownList.size>0){
+                    for(i in 0..unknownList.size-1){
+                        var updatedLoc = LocationWizard.getLocationName(this@DashboardActivity, unknownList.get(i).latitude.toDouble(), unknownList.get(i).longitude.toDouble())
+                        if(!updatedLoc.equals("Unknown")){
+                            AppDatabase.getDBInstance()!!.userLocationDataDao().updateUnknownLocation(unknownList.get(i).locationId.toString(),updatedLoc)
+                        }
+                    }
+                }
+                uiThread {
+                    callShopDurationApi()
+                }
+            }
+
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            callShopDurationApi()
+        }
+    }
+
+    private fun callShopDurationApi() {
+        //dialogHeaderProcess.text = "Syncing Important Data. Please wait..."
+        //val dialogYes = simpleDialogProcess.findViewById(R.id.tv_message_ok) as AppCustomTextView
+        //simpleDialogProcess.show()
 
         var shopId = ""
         var previousShopVisitDateNumber = 0L
@@ -12514,8 +12604,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                             }
                         }
                         else {
-                            val shopActivity = AppDatabase.getDBInstance()!!.shopActivityDao().durationAvailableForShopList(syncedShopList[k].shop_id, true,
-                                false)
+                            AppDatabase.getDBInstance()!!.shopActivityDao().updateDurationCalculatedStatusByShopID(syncedShopList[k].shop_id.toString(),true,AppUtils.getCurrentDateForShopActi())
+                            val shopActivity = AppDatabase.getDBInstance()!!.shopActivityDao().durationAvailableForShopList(syncedShopList[k].shop_id, true, false)
 
                             shopActivity?.forEach {
                                 val shopDurationData = ShopDurationRequestData()
@@ -12649,20 +12739,31 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                             if(!revisitStatusList.isEmpty()){
                                                 callRevisitStatusUploadApi(revisitStatusList!!)
                                             }
+
+
                                             if (newShopList.size > 0) {
                                                 for (i in 0 until newShopList.size) {
                                                     AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, newShopList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(newShopList[i].visited_date!!) /*AppUtils.getCurrentDateForShopActi()*/)
                                                 }
+                                                BaseActivity.isShopActivityUpdating = false
+                                                syncShopVisitImage(newShopList)
                                             } else {
+
+                                                BaseActivity.isShopActivityUpdating = false
+
                                                 if (!Pref.isMultipleVisitEnable) {
                                                     for (i in 0 until shopDataList.size) {
                                                         AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, shopDataList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(shopDataList[i].visited_date!!) /*AppUtils.getCurrentDateForShopActi()*/)
                                                     }
+
+                                                    syncShopVisitImage(shopDataList)
                                                 }
                                                 else {
                                                     for (i in 0 until shopDataList.size) {
                                                         AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, shopDataList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(shopDataList[i].visited_date!!), shopDataList[i].start_timestamp!!)
                                                     }
+
+                                                     syncShopVisitImage(shopDataList)
                                                 }
                                             }
                                             BaseActivity.isShopActivityUpdating = false
@@ -12690,6 +12791,88 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     }
                 }
             }
+        }
+    }
+
+    private var mShopDataList: MutableList<ShopDurationRequestData>? = null
+    private fun syncShopVisitImage(shopDataList: MutableList<ShopDurationRequestData>) {
+        mShopDataList = shopDataList
+        val unSyncedList = ArrayList<ShopVisitImageModelEntity>()
+        for (i in shopDataList.indices) {
+            val unSyncedData = AppDatabase.getDBInstance()!!.shopVisitImageDao().getTodaysUnSyncedListAccordingToShopId(false, shopDataList[i].shop_id!!, shopDataList[i].visited_date!!)
+
+            if (unSyncedData != null && unSyncedData.isNotEmpty()) {
+                unSyncedList.add(unSyncedData[0])
+            }
+        }
+
+        if (unSyncedList.size > 0) {
+            i = 0
+            callShopVisitImageUploadApi(unSyncedList)
+        }
+    }
+
+    private fun callShopVisitImageUploadApi(unSyncedList: List<ShopVisitImageModelEntity>) {
+
+        try {
+            if (BaseActivity.isShopActivityUpdating)
+                return
+            BaseActivity.isShopActivityUpdating = true
+
+            val visitImageShop = ShopVisitImageUploadInputModel()
+            visitImageShop.session_token = Pref.session_token
+            visitImageShop.user_id = Pref.user_id
+            visitImageShop.shop_id = unSyncedList[i].shop_id
+            visitImageShop.visit_datetime = unSyncedList[i].visit_datetime
+
+            XLog.d("====UPLOAD REVISIT ALL IMAGE INPUT PARAMS (Logout Sync)======")
+            XLog.d("USER ID====> " + visitImageShop.user_id)
+            XLog.d("SESSION ID====> " + visitImageShop.session_token)
+            XLog.d("SHOP ID====> " + visitImageShop.shop_id)
+            XLog.d("VISIT DATE TIME=====> " + visitImageShop.visit_datetime)
+            XLog.d("IMAGE=====> " + unSyncedList[i].shop_image)
+            XLog.d("===============================================================")
+
+            val repository = ShopVisitImageUploadRepoProvider.provideAddShopRepository()
+
+            BaseActivity.compositeDisposable.add(
+                repository.visitShopWithImage(visitImageShop, unSyncedList[i].shop_image!!, mContext)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val logoutResponse = result as BaseResponse
+                        XLog.d("UPLOAD REVISIT ALL IMAGE : " + "RESPONSE : " + logoutResponse.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + logoutResponse.message)
+                        if (logoutResponse.status == NetworkConstant.SUCCESS) {
+                            AppDatabase.getDBInstance()!!.shopVisitImageDao().updateisUploaded(true, unSyncedList.get(i).shop_id!!)
+                            BaseActivity.isShopActivityUpdating = false
+                            i++
+                            if (i < unSyncedList.size)
+                                callShopVisitImageUploadApi(unSyncedList)
+                            else {
+                                i = 0
+                                //checkToCallAudioApi()
+                            }
+                        } else {
+                            progress_wheel.stopSpinning()
+                            BaseActivity.isShopActivityUpdating = false
+                            //checkToCallSyncOrder()
+                            //checkToRetryVisitButton()
+                        }
+
+                    }, { error ->
+                        progress_wheel.stopSpinning()
+                        XLog.d("UPLOAD REVISIT ALL IMAGE : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                        error.printStackTrace()
+                        BaseActivity.isShopActivityUpdating = false
+                        //checkToCallSyncOrder()
+                        //checkToRetryVisitButton()
+                    })
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            progress_wheel.stopSpinning()
+            BaseActivity.isShopActivityUpdating = false
+            //checkToCallSyncOrder()
         }
     }
 

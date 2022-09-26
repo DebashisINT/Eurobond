@@ -180,7 +180,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                     if (mNearByShopsListAdapter != null)
                         mNearByShopsListAdapter.updateAdapter(list)
                 } else {
-                    val searchedList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBySearchData(query)
+//                    val searchedList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBySearchData(query)
+                    val searchedList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBySearchDataNew(query)
+
                     getOwnShop(searchedList)
 
                     if (beatId.isNotEmpty())

@@ -6808,15 +6808,19 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
         unSyncData.forEach {
             appInfoList.add(AppInfoDataModel(it.bat_net_id!!, it.date_time!!, it.bat_status!!, it.bat_level!!, it.net_type!!,
-                    it.mob_net_type!!, it.device_model!!, it.android_version!!))
+                    it.mob_net_type!!, it.device_model!!, it.android_version!!,it.Available_Storage!!,it.Total_Storage!!,it.Power_Saver_Status))
         }
+        var totalVisitRevisitCount = AppDatabase.getDBInstance()!!.shopActivityDao().getVisitRevisitCountByDate(AppUtils.getCurrentDateForShopActi())
+        var totalVisitRevisitCountSynced = AppDatabase.getDBInstance()!!.shopActivityDao().getVisitRevisitCountByDateSyncedUnSynced(AppUtils.getCurrentDateForShopActi(),true)
+        var totalVisitRevisitCountUnSynced = AppDatabase.getDBInstance()!!.shopActivityDao().getVisitRevisitCountByDateSyncedUnSynced(AppUtils.getCurrentDateForShopActi(),false)
 
-        val appInfoInput = AppInfoInputModel(Pref.session_token!!, Pref.user_id!!, appInfoList)
+        val appInfoInput = AppInfoInputModel(Pref.session_token!!, Pref.user_id!!, appInfoList,totalVisitRevisitCount.toString(),totalVisitRevisitCountSynced.toString(),totalVisitRevisitCountUnSynced.toString())
 
         XLog.d("============App Info Input(Logout Sync)===========")
         XLog.d("session_token==========> " + appInfoInput.session_token)
         XLog.d("user_id==========> " + appInfoInput.user_id)
         XLog.d("app_info_list.size==========> " + appInfoInput.app_info_list?.size)
+        XLog.d("powerSaverStatus==========> " + Pref.PowerSaverStatus)
         XLog.d("==================================================")
 
         progress_wheel.spin()
