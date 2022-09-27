@@ -507,7 +507,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableHeader.addCell(cell2);
 
-            val cell2_1 = PdfPCell(Phrase("Color Code",font1Big))
+            val cell2_1 = PdfPCell(Phrase("Color Code/Series",font1Big))
             cell2_1.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableHeader.addCell(cell2_1);
 
