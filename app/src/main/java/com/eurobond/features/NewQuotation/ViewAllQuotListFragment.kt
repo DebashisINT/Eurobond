@@ -446,6 +446,11 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 //            cusemail.spacingAfter = 5f
 //            document.add(cusemail)
 
+            val shopPincode = Paragraph("Pincode : "+addQuotEditResult.shop_address_pincode, font)
+            shopPincode.alignment = Element.ALIGN_LEFT
+            shopPincode.spacingAfter = 5f
+            document.add(shopPincode)
+
 
             val projectName = Paragraph("Project Name : "+addQuotEditResult.project_name, font)
             projectName.alignment = Element.ALIGN_LEFT

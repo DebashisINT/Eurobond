@@ -32,6 +32,7 @@ data class ViewDetailsQuotResponse(var status: String? = null,
                                    var salesman_phone_no: String? = null,
                                    var Remarks: String? = null,
                                    var document_number: String? = null,
+                                   var shop_address_pincode: String? = null,
                                    var quotation_product_details_list: ArrayList<quotation_product_details_list>? = null
 
 )
