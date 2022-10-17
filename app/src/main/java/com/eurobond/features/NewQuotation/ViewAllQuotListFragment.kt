@@ -690,7 +690,8 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             //strip_line//bar//ics
             //Hardcoded for EuroBond
-            val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.ics_image)
+//            val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.ics_image)
+            val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.footer_icon_euro)
 //            val bm1: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.bar)
             val bitmap1 = Bitmap.createScaledBitmap(bm1, 850, 120, true)
             val stream1 = ByteArrayOutputStream()

@@ -28,7 +28,7 @@ class HeaderFooterPageEvent : PdfPageEventHelper() {
 
 
         //Hardcoded for EuroBond
-        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.ics_image_full)
+        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.footer_icon_euro)
 //        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
         val bitmap = Bitmap.createScaledBitmap(bm, 690, 70, true);
         val stream = ByteArrayOutputStream()
