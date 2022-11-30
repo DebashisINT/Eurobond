@@ -250,9 +250,21 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
         when (p0!!.id) {
             R.id.ok_TV -> {
                 iv_close_icon.isEnabled=true
-                if (Pref.RevisitRemarksMandatory && TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim()))
-                    Toaster.msgShort(mContext, getString(R.string.error_message_remarks_manadatory))
-               else if (Pref.isNextVisitDateMandatory && TextUtils.isEmpty(nextVisitDate))
+
+                var str_remarks =  ""
+                str_remarks = tv_remarks_dropdown.text.toString().trim().toString()
+
+                var msg = ""
+                    if(TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim().toString()) && Pref.isShowVisitRemarks)
+                        msg =  "Please put the remarks"
+                    else if(TextUtils.isEmpty(et_feedback.text.toString().trim()) && str_remarks.equals(""))
+                        msg = "Please put the feedback"
+
+
+                //if (Pref.RevisitRemarksMandatory && TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim()))
+                if (Pref.RevisitRemarksMandatory && !msg.equals(""))
+                    Toaster.msgShort(mContext, msg)
+                else if (Pref.isNextVisitDateMandatory && TextUtils.isEmpty(nextVisitDate))
                     Toaster.msgShort(mContext, getString(R.string.error_message_next_visit_date))
                 else if (Pref.isRecordAudioEnable && TextUtils.isEmpty(et_audio.text.toString().trim()))
                     Toaster.msgShort(mContext, getString(R.string.error_message_audio))
@@ -273,8 +285,19 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                 }
             }
             R.id.iv_close_icon -> {
-                if (Pref.RevisitRemarksMandatory && TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim()))
-                    Toaster.msgShort(mContext, getString(R.string.error_message_remarks_manadatory))
+
+                var str_remarks =  ""
+                str_remarks = tv_remarks_dropdown.text.toString().trim().toString()
+
+                var msg = ""
+                if(TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim()) && Pref.isShowVisitRemarks)
+                    msg =  "Please put the remarks"
+                else if(TextUtils.isEmpty(et_feedback.text.toString().trim()) && str_remarks.equals(""))
+                    msg = "Please put the feedback"
+
+                //if (Pref.RevisitRemarksMandatory && TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim()))
+                if (Pref.RevisitRemarksMandatory && !msg.equals(""))
+                    Toaster.msgShort(mContext, msg)
                 else{
                     dismiss()
                     mListener.onCloseClick(tv_remarks_dropdown.text.toString().trim())

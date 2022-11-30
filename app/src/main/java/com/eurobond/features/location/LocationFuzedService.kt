@@ -760,7 +760,9 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         //if (!BaseActivity.isApiInitiated)
 
-        callShopDurationApi()
+        if(AppUtils.isOnline(this)){
+            callShopDurationApi()
+        }
         //syncShopVisitImage()
 
         //callCompetetorImgUploadApi()
@@ -2261,7 +2263,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
     private fun shouldShopActivityUpdate(): Boolean {
         AppUtils.changeLanguage(this, "en")
-        return if (abs(System.currentTimeMillis() - Pref.prevShopActivityTimeStamp) > 1000 * 60 * 8) {
+        return if (abs(System.currentTimeMillis() - Pref.prevShopActivityTimeStamp) > 1000 * 60 * 10) {
             Pref.prevShopActivityTimeStamp = System.currentTimeMillis()
             changeLocale()
             true

@@ -29,6 +29,9 @@ public interface AddShopDao {
     @Query("SELECT * FROM " + SHOP_TABLE)
     List<AddShopDBModelEntity> getAll();
 
+    @Query("SELECT * FROM " + SHOP_TABLE+" where isOwnshop=:isOwnshop")
+    List<AddShopDBModelEntity> getAllOwn(Boolean isOwnshop);
+
     @Query("select distinct shop_detail.* from shop_detail inner join order_details_list on shop_detail.shop_id = order_details_list.shop_id ")
     List<AddShopDBModelEntity> getShopIdHasOrder();
 
@@ -247,6 +250,11 @@ public interface AddShopDao {
     @Query("SELECT beat_id FROM " + SHOP_TABLE+" where assigned_to_dd_id=:assigned_to_dd_id")
     List<String> getDistinctBeatID(String assigned_to_dd_id);
 
+    @Query("Select Shopowner_PAN from shop_detail where shop_id=:shopId")
+    String getPancardNumber(String shopId);
+
+    @Query("Select GSTN_Number from shop_detail where shop_id=:shopId")
+    String getGSTINNumber(String shopId);
 
 
 //    @Query("INSERT OR REPLACE INTO SHOP_TABLE (shopId,shopName,address,pinCode,ownerName,isVisited) VALUES (:id, :title, :url, COALESCE((SELECT isSubscribed FROM articles WHERE id = :id), 0));")

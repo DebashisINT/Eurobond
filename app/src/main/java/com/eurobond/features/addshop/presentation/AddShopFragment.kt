@@ -129,6 +129,9 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var rl_assign_to_dd: RelativeLayout
     private lateinit var tv_assign_to_dd: AppCustomTextView
 
+    private lateinit var GSTINNumberRL: RelativeLayout
+    private lateinit var PANNumberRL: RelativeLayout
+
     private var shopLongitude: Double = 0.0
     private var shopLatitude: Double = 0.0
     private lateinit var shop_type_RL: RelativeLayout
@@ -328,6 +331,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var whatsapp_number_EDT: AppCustomEditText
 
     private lateinit var ll_feedback: LinearLayout
+    private lateinit var tv_feedback_asterisk_mark: AppCustomTextView
 
 
 
@@ -564,6 +568,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initView(view: View) {
+        PANNumberRL = view.findViewById(R.id.PANNumberRL)
+        GSTINNumberRL = view.findViewById(R.id.GSTINNumberRL)
         assign_to_tv = view.findViewById(R.id.assign_to_tv)
         captureShopImage = view.findViewById(R.id.capture_shop_image_IV)
         shopImage = view.findViewById(R.id.shop_image_RL)
@@ -718,6 +724,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         whatsapp_number_EDT =  view.findViewById(R.id.whatsapp_number_EDT)
 
         ll_feedback =  view.findViewById(R.id.ll_feedback)
+        tv_feedback_asterisk_mark =  view.findViewById(R.id.tv_feedback_asterisk_mark)
 
 
         tv_select_beat.hint = "Select " + "${Pref.beatText}"
@@ -795,6 +802,15 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         }
             else {
             tv_beat_asterisk_mark.visibility = View.GONE
+        }
+
+        if(Pref.IsGSTINPANEnableInShop) {
+            PANNumberRL.visibility = View.VISIBLE
+            GSTINNumberRL.visibility = View.VISIBLE
+        }
+        else {
+            PANNumberRL.visibility = View.GONE
+            GSTINNumberRL.visibility = View.GONE
         }
 
 
@@ -1447,6 +1463,13 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             }
             else{
                 ll_feedback.visibility = View.GONE
+            }
+
+              if(Pref.IsFeedbackMandatoryforNewShop){
+                  tv_feedback_asterisk_mark.visibility = View.VISIBLE
+            }
+            else{
+                  tv_feedback_asterisk_mark.visibility = View.GONE
             }
 
         }
@@ -5230,6 +5253,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         }
 
 
+
         if(Pref.IsnewleadtypeforRuby && addShopData.type.equals("16")){
             ownerNumber.setText(leadContactNumber.text.toString())
             ownerName.setText(agency_name_EDT.text.toString())
@@ -5265,6 +5289,15 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_valid_phn_no), 3000)
             BaseActivity.isApiInitiated = false
             return
+        }
+
+        if (Pref.IsFeedbackMandatoryforNewShop){
+            if (TextUtils.isEmpty(feedback_EDT.text.toString().trim().toString()) && feedback_EDT.text!!.isBlank()) {
+                BaseActivity.isApiInitiated = false
+                openDialogPopup("Hi ${Pref.user_name} !","Please provide Feedback")
+                return
+            }
+
         }
 
         if (addShopData.type == "5") {
@@ -5421,6 +5454,10 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             } else
                 shopDataModel.chemist_pincode = chemist_pin_code_EDT.text.toString().trim()
 
+
+
+
+
             saveDataToDb()
             return
         }
@@ -5481,6 +5518,34 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun saveDataToDb() {
+        if(Pref.IsGSTINPANEnableInShop){
+            if (!(GSTINnumber_EDT.text!!.trim().isBlank())) {
+                if (AppUtils.isValidGSTINCardNo(GSTINnumber_EDT.text.toString())) {
+                    shopDataModel.gstN_Number = GSTINnumber_EDT.text!!.trim().toString()
+
+                } else {
+                    BaseActivity.isApiInitiated = false
+                    openDialogPopup("Hi ${Pref.user_name} !","Please provide a valid GSTIN number as per the below format\n" +
+                            "GSTIN Format : 19ABCDE1234E1ZT")
+//                    (mContext as DashboardActivity).showSnackMessage("Please use valid GSTIN Number")
+                    return
+                }
+            }
+            if (!(PANnumber_EDT.text!!.trim().isBlank())) {
+                if (AppUtils.isValidPanCardNo(PANnumber_EDT.text.toString())) {
+                    shopDataModel.shopOwner_PAN = PANnumber_EDT.text!!.trim().toString()
+
+                } else {
+                    BaseActivity.isApiInitiated = false
+                    openDialogPopup("Hi ${Pref.user_name} !","Please provide a valid PAN number as per the below format\n" +
+                            "PAN Format : ADBCE1234G")
+//                    (mContext as DashboardActivity).showSnackMessage("Please use valid PAN Number")
+                    return
+                }
+            }
+        }
+        
+
         if (shopLatitude != null && shopLongitude != null) {
             shopDataModel.shopLat = shopLatitude
             shopDataModel.shopLong = shopLongitude
@@ -5546,7 +5611,10 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         shopDataModel.visited = false
         shopDataModel.timeStamp = System.currentTimeMillis().toString()
         shopDataModel.totalVisitCount = "1"
-        shopDataModel.shop_id = Pref.user_id + "_" + System.currentTimeMillis().toString()
+
+        val random = Random()
+
+        shopDataModel.shop_id = Pref.user_id + "_" + System.currentTimeMillis().toString() +  (random.nextInt(999 - 100) + 100).toString()
         shopDataModel.user_id = Pref.user_id
         shopDataModel.lastVisitedDate = AppUtils.getCurrentDateChanged()
 //        shopDataModel.lastVisitedDate
@@ -5872,6 +5940,10 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         addShopData.isShopDuplicate=shopDataModel.isShopDuplicate
 
         addShopData.purpose=shopDataModel.purpose
+
+        /*GSTIN & PAN NUMBER*/
+        addShopData.GSTN_Number = shopDataModel.gstN_Number
+        addShopData.ShopOwner_PAN = shopDataModel.shopOwner_PAN
 
 
         addShopApi(addShopData, shopDataModel.shopImageLocalPath, shopDataModel.doc_degree)
@@ -6677,6 +6749,13 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 ll_feedback.visibility = View.GONE
             }
 
+            if(Pref.IsFeedbackMandatoryforNewShop){
+                tv_feedback_asterisk_mark.visibility = View.VISIBLE
+            }
+            else{
+                tv_feedback_asterisk_mark.visibility = View.GONE
+            }
+
             if (Pref.isAreaVisible)
                 rl_area_main.visibility = View.VISIBLE
             else
@@ -7143,6 +7222,22 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 visitRemarksPopupWindow?.showAsDropDown(tv_select_purpose, tv_select_purpose.width - visitRemarksPopupWindow?.width!!, 0)
             }
         }
+    }
+
+    fun openDialogPopup(header:String,text:String){
+        val simpleDialog = Dialog(mContext)
+        simpleDialog.setCancelable(false)
+        simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        simpleDialog.setContentView(R.layout.dialog_ok_imei)
+        val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header) as AppCustomTextView
+        val dialogBody = simpleDialog.findViewById(R.id.dialog_yes_body) as AppCustomTextView
+        dialogHeader.text = header
+        dialogBody.text = text
+        val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
+        dialogYes.setOnClickListener({ view ->
+            simpleDialog.cancel()
+        })
+        simpleDialog.show()
     }
 
 }

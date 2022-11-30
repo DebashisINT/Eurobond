@@ -6,6 +6,10 @@ import android.app.Activity
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextUtils
+import android.text.style.AbsoluteSizeSpan
 import androidx.core.content.ContextCompat
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -180,8 +184,15 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
 
         }
 
-        noShopAvailable.text = "No Registered " + Pref.shopText + " Available"
-
+//        noShopAvailable.text = "No Registered " + Pref.shopText + " Available"+"\n(Suggestion: Click on the Home icon &amp; go to Shops/Customer -> Search the Customer name whom you are Nearby -> Press 'Update Address' button &amp; check again in Nearby Shops)"
+        var text1 = "No Registered " + Pref.shopText + "Available"
+        var text2 = "\n\n(Suggestion: Click on the Home icon & go to Shops/Customer -> Search the Customer name whom you are Nearby -> Press 'Update Address' button & check again in Nearby Shops)"
+        val span1 = SpannableString(text1)
+        span1.setSpan(AbsoluteSizeSpan(46), 0, text1.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+        val span2 = SpannableString(text2)
+        span2.setSpan(AbsoluteSizeSpan(10), 0, text2.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+        val finalText: CharSequence = TextUtils.concat(span1, " ", span2)
+        noShopAvailable.text =finalText.toString()
         if(Pref.IsnewleadtypeforRuby){
             initPermissionCheck()
         }
@@ -435,7 +446,8 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
     fun getNearyShopList(location: Location) {
 
         list.clear()
-        val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().all
+        //val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().all
+        val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwn(true)
 
         val newList = java.util.ArrayList<AddShopDBModelEntity>()
 

@@ -2,9 +2,12 @@ package com.eurobond.features.NewQuotation
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import com.eurobond.R
 import com.eurobond.app.utils.AppUtils
 import com.itextpdf.text.*
+import com.itextpdf.text.pdf.ColumnText
 import com.itextpdf.text.pdf.PdfContentByte
 import com.itextpdf.text.pdf.PdfPageEventHelper
 import com.itextpdf.text.pdf.PdfWriter
@@ -28,7 +31,8 @@ class HeaderFooterPageEvent : PdfPageEventHelper() {
 
 
         //Hardcoded for EuroBond
-        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.footer_icon_euro)
+//        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.ics_image_full)
+          val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.footer_icon_euro)
 //        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
         val bitmap = Bitmap.createScaledBitmap(bm, 690, 70, true);
         val stream = ByteArrayOutputStream()

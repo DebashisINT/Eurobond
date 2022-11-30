@@ -25,7 +25,6 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -59,8 +58,6 @@ import com.eurobond.features.addAttendence.api.routeapi.RouteRepoProvider
 import com.eurobond.features.addAttendence.model.*
 import com.eurobond.features.addshop.api.typeList.TypeListRepoProvider
 import com.eurobond.features.addshop.model.BeatListResponseModel
-import com.eurobond.features.commondialogsinglebtn.CommonDialogSingleBtn
-import com.eurobond.features.commondialogsinglebtn.OnDialogClickListener
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.geofence.GeofenceService
 import com.eurobond.features.location.LocationFuzedService
@@ -71,7 +68,6 @@ import com.eurobond.features.login.model.LoginStateListDataModel
 import com.eurobond.features.newcollectionreport.PendingCollData
 import com.eurobond.features.photoReg.api.GetUserListPhotoRegProvider
 import com.eurobond.features.photoReg.model.UserFacePicUrlResponse
-import com.eurobond.features.survey.SurveyFromListDialog
 import com.eurobond.widgets.AppCustomEditText
 import com.eurobond.widgets.AppCustomTextView
 import com.elvishew.xlog.XLog
@@ -82,7 +78,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.common.InputImage
@@ -90,12 +85,10 @@ import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.itextpdf.text.pdf.PdfName.VIEW
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.doAsyncResult
 import org.jetbrains.anko.uiThread
 import org.json.JSONArray
 import org.json.JSONObject
@@ -201,6 +194,9 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         val view = inflater.inflate(R.layout.fragment_add_attendence, container, false)
         initView(view)
         initClickListener()
+
+        Pref.SelectedBeatIDFromAttend = "0"
+        Pref.SelectedDDIDFromAttend = "0"
 
         /*try {
             if (AppDatabase.getDBInstance()?.workTypeDao()?.getAll()!!.isEmpty())
@@ -1476,6 +1472,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
 
     }*/
 
+    @SuppressLint("SuspiciousIndentation", "NewApi")
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.tv_attendance_submit -> {
@@ -1572,32 +1569,41 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
                         getBeatListApi(false)
                 }
                 else{
-                    var beatList=AppDatabase.getDBInstance()?.addShopEntryDao()?.getDistinctBeatID(assignedToDDId) as List<String>
+                    var shopTypelist = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopsAccordingToType("1") as ArrayList<AddShopDBModelEntity>
+                    if(shopTypelist.size==0){
+                        val list = AppDatabase.getDBInstance()?.beatDao()?.getAll() as ArrayList<BeatEntity>
 
-                    if(beatList.size>0){
-                        beatList = beatList.filter { it!="" }.distinct()
-                        var listFilteredBeat : ArrayList<BeatEntity> = ArrayList()
-                        doAsync {
-                            listFilteredBeat= ArrayList()
-                            for(i in 0..beatList.size-1){
-                                var obj = AppDatabase.getDBInstance()?.beatDao()?.getSingleItem(beatList.get(i)) as BeatEntity
-                                if(obj!=null){
-                                    listFilteredBeat.add(obj)
+                        if (list != null && list.isNotEmpty())
+                            showBeatListDialog(list)
+                        else
+                            getBeatListApi(false)
+                    }else{
+                        var beatList=AppDatabase.getDBInstance()?.addShopEntryDao()?.getDistinctBeatID(assignedToDDId) as List<String>
+                        if(beatList.size>0){
+                            beatList = beatList.filter { it!="" }.distinct()
+                            var listFilteredBeat : ArrayList<BeatEntity> = ArrayList()
+                            doAsync {
+                                listFilteredBeat= ArrayList()
+                                for(i in 0..beatList.size-1){
+                                    var obj = BeatEntity()
+                                    try{
+                                        var obj = AppDatabase.getDBInstance()?.beatDao()?.getSingleItem(beatList.get(i)) as BeatEntity
+                                        listFilteredBeat.add(obj)
+                                    }catch (ex:Exception){
+                                        ex.printStackTrace()
+                                    }
                                 }
-                                else
-                                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
-
-                            }
-                            uiThread {
-                                if (listFilteredBeat != null && listFilteredBeat.isNotEmpty())
-                                    showBeatListDialog(listFilteredBeat)
-                                else
-                                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
+                                uiThread {
+                                    if (listFilteredBeat != null && listFilteredBeat.isNotEmpty())
+                                        showBeatListDialog(listFilteredBeat)
+                                    else
+                                        (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
+                                }
                             }
                         }
+                        else
+                            (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
                     }
-                    else
-                        (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
 
                 }
 
@@ -1605,9 +1611,19 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
             }
 
             R.id.cv_dd_root->{
-                val list = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopNameByDD("4") as ArrayList<AddShopDBModelEntity>
+                if(Pref.IsALLDDRequiredforAttendance){
+                    //based on assigned to dd
+                    val list = AppDatabase.getDBInstance()?.ddListDao()?.getAll() as ArrayList<AssignToDDEntity>
+                    if (list != null && list.isNotEmpty())
+                        showAssignDDListDialog(list)
+                }else{
+                    val list = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopNameByDD("4") as ArrayList<AddShopDBModelEntity>
                 if (list != null && list.isNotEmpty())
                     showDDListDialog(list)
+                }
+
+
+
             }
 
             R.id.rl_work_type_header -> {
@@ -1683,6 +1699,15 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         DDWiseBeatListCustomDialog.newInstance(list as ArrayList<AddShopDBModelEntity>) {
             tv_dd.text = it.shopName
             assignedToDDId = it.shop_id!!
+            Pref.SelectedDDIDFromAttend = assignedToDDId
+        }.show((mContext as DashboardActivity).supportFragmentManager, "")
+
+    }
+
+    private fun showAssignDDListDialog(list: ArrayList<AssignToDDEntity>) {
+        DDAssignedWiseBeatListCustomDialog.newInstance(list as ArrayList<AssignToDDEntity>) {
+            tv_dd.text = it.dd_name
+            assignedToDDId = it.dd_id!!
             Pref.SelectedDDIDFromAttend = assignedToDDId
         }.show((mContext as DashboardActivity).supportFragmentManager, "")
 
@@ -1832,7 +1857,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
         if (!isOnLeave) {
             if (TextUtils.isEmpty(workTypeId))
                 (mContext as DashboardActivity).showSnackMessage("Please select work type")
-            else if(TextUtils.isEmpty(mbeatId) && Pref.IsBeatRouteAvailableinAttendance)
+            else if(TextUtils.isEmpty(mbeatId) && Pref.IsBeatRouteAvailableinAttendance && false)
                 if(Pref.IsDistributorSelectionRequiredinAttendance ){
                     if(TextUtils.isEmpty(assignedToDDId)){
                         openDialogPopup("Hi! (${Pref.user_name})","Please select ${Pref.ddText}")

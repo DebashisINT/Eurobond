@@ -1,6 +1,7 @@
 package com.eurobond.features.splash.presentation
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
@@ -15,6 +16,10 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.eurobond.BuildConfig
 import com.eurobond.R
 import com.eurobond.app.NetworkConstant
@@ -60,6 +65,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
     data class PermissionDetails(var permissionName: String, var permissionTag: Int)
 
 //test
+    @SuppressLint("SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,13 +76,13 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
         // this is for test purpose timing seeting
         // AlarmReceiver.setAlarm(this, 17, 45, 2017)
 
-        FirebaseMessaging.getInstance().subscribeToTopic("newss").addOnSuccessListener(object : OnSuccessListener<Void?> {
-            override fun onSuccess(aVoid: Void?) {
-                //Toast.makeText(applicationContext, "Success", Toast.LENGTH_LONG).show()
-            }
-        })
+    /*FirebaseMessaging.getInstance().subscribeToTopic("newss").addOnSuccessListener(object : OnSuccessListener<Void?> {
+        override fun onSuccess(aVoid: Void?) {
+            //Toast.makeText(applicationContext, "Success", Toast.LENGTH_LONG).show()
+        }
+    })*/
 
-   /* val email = Intent(Intent.ACTION_SENDTO)
+    /* val email = Intent(Intent.ACTION_SENDTO)
     email.setData(Uri.parse("mailto:"))
     email.putExtra(Intent.EXTRA_EMAIL, arrayOf<String>("saheli.bhattacharjee@indusnet.co.in"))
     email.putExtra(Intent.EXTRA_SUBJECT, "sub")
@@ -84,12 +90,12 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
     //email.type = "message/rfc822"
     startActivity(Intent.createChooser(email, "Send mail..."))*/
 
-
     val receiver = ComponentName(this, AlarmBootReceiver::class.java)
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
 
         progress_wheel = findViewById(R.id.progress_wheel)
         progress_wheel.stopSpinning()
+
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -117,6 +123,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
         }
         permissionCheck()
     }
+
 
 
     private fun locDesc(){
