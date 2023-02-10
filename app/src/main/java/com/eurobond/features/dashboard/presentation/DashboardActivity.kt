@@ -12557,7 +12557,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
             //image add
             val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo)
-            val bitmap = Bitmap.createScaledBitmap(bm, 220, 90, true);
+            val bitmap = Bitmap.createScaledBitmap(bm, 180, 40, false);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
             var img: Image? = null
@@ -12591,7 +12591,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             ph1.add(Chunk("DATE: " + addQuotEditResult.quotation_date_selection!!, font))
             ph1.add(glue) // Here I add special chunk to the same phrase.
 
-            ph1.add(Chunk(addQuotEditResult.quotation_number + "                         ", font))
+            ph1.add(Chunk(addQuotEditResult.quotation_number + "               ", font))
             para.add(ph1)
             document.add(para)
 
@@ -13139,7 +13139,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
             //image add
             val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo)
-            val bitmap = Bitmap.createScaledBitmap(bm, 220, 90, true);
+            val bitmap = Bitmap.createScaledBitmap(bm, 180, 40, false);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
             var img: Image? = null
@@ -13163,7 +13163,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             ph1.add(Chunk("DATE: " + addQuotEditResult.quotation_date_selection!!, font))
             ph1.add(glue) // Here I add special chunk to the same phrase.
 
-            ph1.add(Chunk(addQuotEditResult.quotation_number + "                         ", font))
+            ph1.add(Chunk(addQuotEditResult.quotation_number + "               ", font))
             para.add(ph1)
             document.add(para)
 

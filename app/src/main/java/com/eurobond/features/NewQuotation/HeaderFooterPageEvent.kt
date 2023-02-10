@@ -55,7 +55,7 @@ class HeaderFooterPageEvent() : PdfPageEventHelper() {
         var imgSoc:Image = Image.getInstance(img)
         //imgSoc.scaleToFit(150f,80f);
         //imgSoc.setAbsolutePosition(390f, 720f);
-        imgSoc.setAbsolutePosition(20f, 10f);
+        imgSoc.setAbsolutePosition(20f, 17f);
         var cb : PdfContentByte = writer!!.getDirectContent() as PdfContentByte
 
         //footer text
@@ -70,7 +70,26 @@ class HeaderFooterPageEvent() : PdfPageEventHelper() {
         cb.addImage(imgSoc)
 
 
+        val bm1: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
+        val bitmap1 = Bitmap.createScaledBitmap(bm1, 1250, 17, false);
+        val stream1 = ByteArrayOutputStream()
+        bitmap1.compress(Bitmap.CompressFormat.PNG, 100, stream1)
+        var img1: Image? = null
+        val byteArray1: ByteArray = stream1.toByteArray()
+        try {
+            img1 = Image.getInstance(byteArray1)
+            //img.scaleToFit(200f,120f)
+            img1.scalePercent(50f)
+            img1.alignment=Image.ALIGN_RIGHT
+        } catch (e: BadElementException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
 
+        var imgSoc1:Image = Image.getInstance(img1)
+        imgSoc1.setAbsolutePosition(1f, 1f);
+        cb.addImage(imgSoc1)
     }
 
 }
