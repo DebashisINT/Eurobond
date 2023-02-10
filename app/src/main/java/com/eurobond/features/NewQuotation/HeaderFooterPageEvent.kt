@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import com.eurobond.R
 import com.eurobond.app.utils.AppUtils
+import com.eurobond.features.NewQuotation.model.ViewDetailsQuotResponse
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.ColumnText
 import com.itextpdf.text.pdf.PdfContentByte
@@ -15,7 +16,7 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 
-class HeaderFooterPageEvent : PdfPageEventHelper() {
+class HeaderFooterPageEvent() : PdfPageEventHelper() {
 
     override fun onStartPage(writer: PdfWriter?, document: Document?) {
         //super.onStartPage(writer, document)
@@ -33,16 +34,17 @@ class HeaderFooterPageEvent : PdfPageEventHelper() {
         //Hardcoded for EuroBond
 //        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.ics_image_full)
           val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.footer_icon_euro)
-//        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
-        val bitmap = Bitmap.createScaledBitmap(bm, 690, 70, true);
+        //val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
+        //val bitmap = Bitmap.createScaledBitmap(bm, 690, 70, true);
+        val bitmap = Bitmap.createScaledBitmap(bm, 950, 80, false);
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
         var img: Image? = null
         val byteArray: ByteArray = stream.toByteArray()
         try {
             img = Image.getInstance(byteArray)
-          //  img.scaleToFit(155f,90f)
-            img.scalePercent(80f)
+            //img.scaleToFit(200f,120f)
+            img.scalePercent(50f)
             img.alignment=Image.ALIGN_RIGHT
         } catch (e: BadElementException) {
             e.printStackTrace()
@@ -55,6 +57,16 @@ class HeaderFooterPageEvent : PdfPageEventHelper() {
         //imgSoc.setAbsolutePosition(390f, 720f);
         imgSoc.setAbsolutePosition(20f, 10f);
         var cb : PdfContentByte = writer!!.getDirectContent() as PdfContentByte
+
+        //footer text
+        /*var footerFinalString = "\n" +
+                "Thanks & Regards,"+"EURO PANEL PRODUCTS LIMITED\n" + "addQuotEditResult.salesman_name\n"+"Mob : " +addQuotEditResult.salesman_login_id+"\n"+
+        "Email : "+addQuotEditResult.salesman_email + "\nEURO PANEL PRODUCTS LIMITED"*/
+        var font: Font = Font(Font.FontFamily.HELVETICA, 7f, Font.BOLD)
+        var fontB1: Font = Font(Font.FontFamily.HELVETICA, 9f, Font.BOLD)
+        //ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER,  Phrase(" Thanks & Regards,",font), 100f, 77f, 0f);
+        //ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER,  Phrase("EURO PANEL PRODUCTS LIMITED",font), 100f, 70f, 0f);
+
         cb.addImage(imgSoc)
 
 

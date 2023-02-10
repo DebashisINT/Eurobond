@@ -38,7 +38,7 @@ import org.jetbrains.anko.uiThread
 /**
  * Created by Saikat on 20-09-2018.
  */
-
+// MyFirebaseMessagingService V 4.0.6 saheli 27-01-2023 For new firebase update MyFirebaseInstanceIDService is obsolated and override function onNewToken introduced
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private var messageDetails = ""
@@ -155,6 +155,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
             }else if(remoteMessage?.data?.get("type").equals("flag_status_quotation_approval")){
                 //notification.sendFCMNotificaitonQuotationapprova(applicationContext, remoteMessage)
+                println("flag_noti flag_status_quotation_approval fired")
                 notification.sendFCMNotificaitonQuotationapprova1(applicationContext, remoteMessage)
                 val intent = Intent()
                 intent.action = "FCM_ACTION_RECEIVER_quotation_approval"

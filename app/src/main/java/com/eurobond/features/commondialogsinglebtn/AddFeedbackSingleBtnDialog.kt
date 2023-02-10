@@ -1,6 +1,7 @@
 package com.eurobond.features.commondialogsinglebtn
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
@@ -28,6 +29,7 @@ import com.eurobond.app.AppDatabase
 import com.eurobond.app.NetworkConstant
 import com.eurobond.app.Pref
 import com.eurobond.app.domain.ProspectEntity
+import com.eurobond.app.domain.ShopExtraContactEntity
 import com.eurobond.app.domain.ShopVisitCompetetorModelEntity
 import com.eurobond.app.domain.VisitRemarksEntity
 import com.eurobond.app.utils.AppUtils
@@ -39,6 +41,7 @@ import com.eurobond.features.addshop.model.AddShopRequestData
 import com.eurobond.features.addshop.presentation.ProspectListDialog
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.dashboard.presentation.MeetingTypeAdapter
+import com.eurobond.features.dashboard.presentation.VisitMultiContactAdapter
 import com.eurobond.features.dashboard.presentation.VisitRemarksTypeAdapter
 import com.eurobond.features.nearbyshops.api.ShopListRepositoryProvider
 import com.eurobond.features.nearbyshops.model.ProsListResponseModel
@@ -61,6 +64,9 @@ import kotlin.collections.ArrayList
 /**
  * Created by Saikat on 31-01-2020.
  */
+// 1.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  Saheli    03/01/2023 Checking block feedback issue RevisitRemarksMandatory is true mantis 0025557
+// 2.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  Suman 20/01/2023 contact person selection mandatory if IsContactPersonSelectionRequiredinRevisit is true
+
 class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 
     private lateinit var mContext: Context
@@ -83,15 +89,18 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
     private lateinit var iv_prospect_dropdownn: AppCustomTextView
 
     private lateinit var et_approxvalue_name: AppCustomEditText
+    private lateinit var rl_multiContact: RelativeLayout
+    private lateinit var tv_multiContact: AppCustomTextView
 
 
-
-
+    private var sel_extraContName : String = ""
+    private var sel_extraContPh : String = ""
 
 
     private lateinit var tv_visit_asterisk_mark: AppCustomTextView
 
     private var visitRemarksPopupWindow: PopupWindow? = null
+    private var visitMultiContactPopupWindow: PopupWindow? = null
     private  var audioFile: File? = null
     private var nextVisitDate = ""
     private var filePath = ""
@@ -163,6 +172,17 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
         rl_prospect_main = v.findViewById(R.id.rl_prospect_main)
         iv_prospect_dropdownn = v.findViewById(R.id.iv_prospect_dropdownn)
         et_approxvalue_name =  v.findViewById(R.id.et_approxvalue_name)
+
+        rl_multiContact = v.findViewById(R.id.rl_dialog_add_feed_single_extra_contact_root)
+        tv_multiContact = v.findViewById(R.id.tv_dialog_add_feed_single_extra_contact_dropdown)
+        tv_multiContact.setOnClickListener(this)
+
+        if(Pref.IsContactPersonSelectionRequiredinRevisit){
+            rl_multiContact.visibility = View.VISIBLE
+        }else{
+            rl_multiContact.visibility = View.GONE
+        }
+
 
         /*13-12-2021*/
         shopType = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopType(mShopID).toString()
@@ -260,6 +280,10 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                     else if(TextUtils.isEmpty(et_feedback.text.toString().trim()) && str_remarks.equals(""))
                         msg = "Please put the feedback"
 
+                if(Pref.IsContactPersonSelectionRequiredinRevisit && sel_extraContName.equals("")){
+                    Toaster.msgShort(mContext, "Please select Contact Person")
+                    return
+                }
 
                 //if (Pref.RevisitRemarksMandatory && TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim()))
                 if (Pref.RevisitRemarksMandatory && !msg.equals(""))
@@ -274,13 +298,19 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                     dialogOk.isSelected = true
                     dismiss()
                     if (Pref.RevisitRemarksMandatory){
-                        mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId)
+//                        mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId)
+                        // 1.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  start
+                        if (!Pref.isShowVisitRemarks)
+                            mListener.onOkClick(et_feedback.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh)
+                        else
+                            mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh)
+                        // 1.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  end
                     }
                     else{
                         if (!Pref.isShowVisitRemarks)
-                            mListener.onOkClick(et_feedback.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId)
+                            mListener.onOkClick(et_feedback.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh)
                         else
-                            mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId)
+                            mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh)
                     }
                 }
             }
@@ -288,6 +318,11 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 
                 var str_remarks =  ""
                 str_remarks = tv_remarks_dropdown.text.toString().trim().toString()
+
+                if(Pref.IsContactPersonSelectionRequiredinRevisit && sel_extraContName.equals("")){
+                    Toaster.msgShort(mContext, "Please select Contact Person")
+                    return
+                }
 
                 var msg = ""
                 if(TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim()) && Pref.isShowVisitRemarks)
@@ -299,8 +334,9 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                 if (Pref.RevisitRemarksMandatory && !msg.equals(""))
                     Toaster.msgShort(mContext, msg)
                 else{
+                    // 9.0 DashboardActivity AppV 4.0.6 Suman 24-01-2023  Corss button with multi contact select
                     dismiss()
-                    mListener.onCloseClick(tv_remarks_dropdown.text.toString().trim())
+                    mListener.onCloseClick(tv_remarks_dropdown.text.toString().trim(),sel_extraContName,sel_extraContPh)
                 }
             }
 
@@ -361,7 +397,56 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
             R.id.rl_approxvalue_main->{
 
             }
+            R.id.tv_dialog_add_feed_single_extra_contact_dropdown ->{
+                if (visitRemarksPopupWindow != null && visitRemarksPopupWindow?.isShowing!!)
+                    visitRemarksPopupWindow?.dismiss()
+                callMultiContactDialog()
+            }
 
+        }
+    }
+
+    @SuppressLint("MissingInflatedId")
+    private fun callMultiContactDialog(){
+        var extraContL = AppDatabase.getDBInstance()?.shopExtraContactDao()?.getExtraContListByShopID(mShopID!!) as ArrayList<ShopExtraContactEntity>
+        var shopDtlsInfo = AppDatabase.getDBInstance()?.addShopEntryDao()!!.getShopDetail(mShopID)
+
+        var obj :ShopExtraContactEntity = ShopExtraContactEntity()
+        obj.apply {
+            shop_id = shopDtlsInfo.shop_id
+            contact_serial = ""
+            contact_name = shopDtlsInfo.ownerName
+            contact_number = shopDtlsInfo.ownerContactNumber
+            contact_email = shopDtlsInfo.ownerEmailId
+            contact_doa = shopDtlsInfo.dateOfAniversary
+            isUploaded = true
+        }
+        extraContL.add(obj)
+
+        if(extraContL!!.size>0){
+            val inflater = mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater?
+            val customView = inflater!!.inflate(R.layout.popup_multi_caontact, null)
+            visitMultiContactPopupWindow = PopupWindow(customView, resources.getDimensionPixelOffset(R.dimen._220sdp), RelativeLayout.LayoutParams.WRAP_CONTENT)
+            val rv_multi_contact_type_list = customView.findViewById(R.id.rv_multi_contact_type_list) as RecyclerView
+            rv_multi_contact_type_list.layoutManager = LinearLayoutManager(mContext)
+
+            visitMultiContactPopupWindow?.elevation = 200f
+            visitMultiContactPopupWindow?.isFocusable = true
+            visitMultiContactPopupWindow?.update()
+
+            rv_multi_contact_type_list.adapter = VisitMultiContactAdapter(mContext, extraContL as ArrayList<ShopExtraContactEntity>, object : VisitMultiContactAdapter.OnItemClickListener {
+                override fun onItemClick(obj: ShopExtraContactEntity) {
+                    tv_multiContact.text = obj.contact_name+" (${obj.contact_number})"
+                    sel_extraContName = obj.contact_name!!.toString()
+                    sel_extraContPh = obj.contact_number!!.toString()
+                    visitMultiContactPopupWindow?.dismiss()
+                }
+            })
+
+            if (visitMultiContactPopupWindow != null && !visitMultiContactPopupWindow?.isShowing!!) {
+                visitMultiContactPopupWindow?.showAsDropDown(tv_multiContact, tv_multiContact.width - visitMultiContactPopupWindow?.width!!, 0)
+
+            }
         }
     }
 
@@ -475,9 +560,9 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
     }
 
     interface OnOkClickListener {
-        fun onOkClick(feedback: String, nextVisitDate: String, filePath: String,approxValue:String,prosId:String)
+        fun onOkClick(feedback: String, nextVisitDate: String, filePath: String,approxValue:String,prosId:String,sel_extraContNameStr :String,sel_extraContPhStr : String)
 
-        fun onCloseClick(mfeedback: String)
+        fun onCloseClick(mfeedback: String,sel_extraContNameStr :String,sel_extraContPhStr : String)
 
         fun onClickCompetitorImg()
     }
