@@ -1014,7 +1014,14 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             val shopPincode = Paragraph("Pincode : "+addQuotEditResult.shop_address_pincode, font)
             shopPincode.alignment = Element.ALIGN_LEFT
             shopPincode.spacingAfter = 5f
-            document.add(shopPincode)
+            //document.add(shopPincode)
+            try{
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
+                if(!finalStr.contains(addQuotEditResult.shop_address_pincode.toString()))
+                    document.add(shopPincode)
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
 
 
             val projectName = Paragraph("Project Name : "+addQuotEditResult.project_name, font)
@@ -1158,16 +1165,25 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                 cellBodyDesc.setHorizontalAlignment(Element.ALIGN_CENTER);
                 tableRows.addCell(cellBodyDesc)
 
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
                 var cellBodyColor = PdfPCell(Phrase(colorCode,font1small))
+                //cellBodyColor.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cellBodyColor.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellBodyColor.verticalAlignment = Element.ALIGN_MIDDLE
                 tableRows.addCell(cellBodyColor)
 
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
                 var cellBodySqMtr = PdfPCell(Phrase(rateSqMtr,font1small))
+                //cellBodySqMtr.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cellBodySqMtr.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellBodySqMtr.verticalAlignment = Element.ALIGN_MIDDLE
                 tableRows.addCell(cellBodySqMtr)
 
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
                 var cellBodySqFt = PdfPCell(Phrase(rateSqFt,font1small))
+                //cellBodySqFt.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cellBodySqFt.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellBodySqFt.verticalAlignment = Element.ALIGN_MIDDLE
                 tableRows.addCell(cellBodySqFt)
 
 
@@ -1597,7 +1613,14 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             val shopPincode = Paragraph("Pincode : "+addQuotEditResult.shop_address_pincode, font)
             shopPincode.alignment = Element.ALIGN_LEFT
             shopPincode.spacingAfter = 5f
-            document.add(shopPincode)
+            //document.add(shopPincode)
+            try{
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
+                if(!finalStr.contains(addQuotEditResult.shop_address_pincode.toString()))
+                    document.add(shopPincode)
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
 
             val projectName = Paragraph("Project Name : "+addQuotEditResult.project_name, font)
             projectName.alignment = Element.ALIGN_LEFT
@@ -1742,16 +1765,25 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                 cellBodyDesc.setHorizontalAlignment(Element.ALIGN_CENTER);
                 tableRows.addCell(cellBodyDesc)
 
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
                 var cellBodyColor = PdfPCell(Phrase(colorCode,font1small))
+                //cellBodyColor.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cellBodyColor.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellBodyColor.verticalAlignment = Element.ALIGN_MIDDLE
                 tableRows.addCell(cellBodyColor)
 
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
                 var cellBodySqMtr = PdfPCell(Phrase(rateSqMtr,font1small))
+                //cellBodySqMtr.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cellBodySqMtr.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellBodySqMtr.verticalAlignment = Element.ALIGN_MIDDLE
                 tableRows.addCell(cellBodySqMtr)
 
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
                 var cellBodySqFt = PdfPCell(Phrase(rateSqFt,font1small))
+                //cellBodySqFt.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cellBodySqFt.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellBodySqFt.verticalAlignment = Element.ALIGN_MIDDLE
                 tableRows.addCell(cellBodySqFt)
 
 
@@ -2186,7 +2218,14 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             val shopPincode = Paragraph("Pincode : "+addQuotEditResult.shop_address_pincode, font)
             shopPincode.alignment = Element.ALIGN_LEFT
             shopPincode.spacingAfter = 5f
-            document.add(shopPincode)
+            //document.add(shopPincode)
+            try{
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
+                if(!finalStr.contains(addQuotEditResult.shop_address_pincode.toString()))
+                    document.add(shopPincode)
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
 
 
             val projectName = Paragraph("Project Name : "+addQuotEditResult.project_name, font)
@@ -2337,16 +2376,25 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                 cellBodyDesc.setHorizontalAlignment(Element.ALIGN_CENTER);
                 tableRows.addCell(cellBodyDesc)
 
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
                 var cellBodyColor = PdfPCell(Phrase(colorCode,font1small))
+                //cellBodyColor.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cellBodyColor.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellBodyColor.verticalAlignment = Element.ALIGN_MIDDLE
                 tableRows.addCell(cellBodyColor)
 
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
                 var cellBodySqMtr = PdfPCell(Phrase(rateSqMtr,font1small))
+                //cellBodySqMtr.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cellBodySqMtr.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellBodySqMtr.verticalAlignment = Element.ALIGN_MIDDLE
                 tableRows.addCell(cellBodySqMtr)
 
+                // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
                 var cellBodySqFt = PdfPCell(Phrase(rateSqFt,font1small))
+                //cellBodySqFt.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cellBodySqFt.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellBodySqFt.verticalAlignment = Element.ALIGN_MIDDLE
                 tableRows.addCell(cellBodySqFt)
 
 
