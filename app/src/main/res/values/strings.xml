@@ -80,6 +80,7 @@
     <string name="view_cart" translatable="false">View Cart</string>
     <string name="product_details" translatable="false">Product Details</string>
     <string name="search_product" translatable="false">Search Product(s)</string>
+    <string name="sel_product" translatable="false">Select Product(s)</string>
     <string name="stock_details_pp_dd" translatable="false">Stock Details - PP/DD</string>
     <string name="outstanding_details_pp_dd" translatable="false">Outstanding Details - PP/DD</string>
     <string name="outstanding_list" translatable="false">Outstanding List</string>
@@ -702,6 +703,7 @@
     <string name="product_total_order_amount" translatable="false">Total Amount (\u20B9):\u0020</string>
     <string name="total_order_amount" translatable="false">Order Amount (\u20B9):\u0020</string>
     <string name="total_order_value_with_colon" translatable="false">Total Order Value (\u20B9):\u0020</string>
+    <string name="total_value_with_colon" translatable="false">Total Value (\u20B9):\u0020</string>
     <string name="total_return_value_with_colon" translatable="false">Total Return Value (\u20B9):\u0020</string>
     <string name="total_stock_value_with_colon" translatable="false">Total Stock Value (\u20B9):\u0020</string>
     <string name="total_invoice_amount" translatable="false">Invoice Amount (\u20B9):\u0020</string>

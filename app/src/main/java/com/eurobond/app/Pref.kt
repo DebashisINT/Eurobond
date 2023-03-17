@@ -8,6 +8,7 @@ import com.marcinmoskala.kotlinpreferences.PreferenceHolder
 // Revision History
 // 1.0 Pref  AppV 4.0.6 Saheli    16/01/2023 Update beat feature
 // 2.0 Pref  AppV 4.0.6 Saheli    25/01/2023 mantis 25623
+// 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
 object Pref : PreferenceHolder() {
     var text: String? by bindToPreferenceFieldNullable()
     var num: Int by bindToPreferenceField(0, "SomeIntKey")
@@ -843,4 +844,10 @@ object Pref : PreferenceHolder() {
 
     var IsRouteStartFromAttendance: Boolean by bindToPreferenceField(false, "IsRouteStartFromAttendance")//mantis 25637
 
+    var IsShowQuotationFooterforEurobond: Boolean by bindToPreferenceField(false, "IsShowQuotationFooterforEurobond")// 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
+    var IsShowOtherInfoinShopMaster: Boolean by bindToPreferenceField(false, "IsShowOtherInfoinShopMaster") // 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
+
+    var IsVoiceEnable: Boolean by bindToPreferenceField(true, "IsVoiceEnable")
+
+    var IsAllowZeroRateOrder: Boolean by bindToPreferenceField(false, "IsAllowZeroRateOrder")
 }

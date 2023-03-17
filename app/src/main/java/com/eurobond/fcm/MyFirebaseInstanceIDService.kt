@@ -8,7 +8,7 @@ import com.eurobond.app.utils.AppUtils
 import com.eurobond.base.BaseResponse
 import com.eurobond.base.presentation.BaseActivity
 import com.eurobond.fcm.api.UpdateDeviceTokenRepoProvider
-import com.elvishew.xlog.XLog
+
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync

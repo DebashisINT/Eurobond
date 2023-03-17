@@ -4,25 +4,29 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import androidx.annotation.RequiresApi
-import com.google.android.material.textfield.TextInputLayout
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
-import androidx.core.content.ContextCompat
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.speech.RecognizerIntent
+import android.text.Editable
+import android.text.Selection
 import android.text.TextUtils
 import android.view.*
+import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.RelativeLayout
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
@@ -37,17 +41,16 @@ import com.eurobond.app.utils.FTStorageUtils
 import com.eurobond.app.utils.PermissionUtils
 import com.eurobond.app.utils.Toaster
 import com.eurobond.base.presentation.BaseActivity
-import com.eurobond.features.addshop.model.AddShopRequestData
 import com.eurobond.features.addshop.presentation.ProspectListDialog
 import com.eurobond.features.dashboard.presentation.DashboardActivity
-import com.eurobond.features.dashboard.presentation.MeetingTypeAdapter
 import com.eurobond.features.dashboard.presentation.VisitMultiContactAdapter
 import com.eurobond.features.dashboard.presentation.VisitRemarksTypeAdapter
 import com.eurobond.features.nearbyshops.api.ShopListRepositoryProvider
 import com.eurobond.features.nearbyshops.model.ProsListResponseModel
 import com.eurobond.widgets.AppCustomEditText
 import com.eurobond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
+import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -57,15 +60,17 @@ import kotlinx.android.synthetic.main.dialog_add_feedback_single_btn.*
 import kotlinx.android.synthetic.main.fragment_add_shop.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * Created by Saikat on 31-01-2020.
  */
 // 1.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  Saheli    03/01/2023 Checking block feedback issue RevisitRemarksMandatory is true mantis 0025557
 // 2.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  Suman 20/01/2023 contact person selection mandatory if IsContactPersonSelectionRequiredinRevisit is true
+// 3.0  AppV 4.0.7  AddFeedbackSingleBtnDialog  Saheli    07/01/2023 mantis 25649 add feedback using  voice
+// 4.0  AppV 4.0.7  AddFeedbackSingleBtnDialog  Saheli    13/01/2023 mantis 25649 add feedback using  voice plus text handle
 
 class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 
@@ -92,7 +97,6 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
     private lateinit var rl_multiContact: RelativeLayout
     private lateinit var tv_multiContact: AppCustomTextView
 
-
     private var sel_extraContName : String = ""
     private var sel_extraContPh : String = ""
 
@@ -109,7 +113,10 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 
     private var shopType = ""
 
+    private lateinit var iv_dialog_add_feedback_mic:ImageView // 3.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 add feedback using voice
 
+
+    private var  suffixText:String = "" // 4.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 add feedback using  voice plus text handle
 
     private val myCalendar by lazy {
         Calendar.getInstance(Locale.ENGLISH)
@@ -175,6 +182,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 
         rl_multiContact = v.findViewById(R.id.rl_dialog_add_feed_single_extra_contact_root)
         tv_multiContact = v.findViewById(R.id.tv_dialog_add_feed_single_extra_contact_dropdown)
+        iv_dialog_add_feedback_mic =  v.findViewById(R.id.iv_dialog_add_feedback_mic)// 3.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 add feedback using voice
         tv_multiContact.setOnClickListener(this)
 
         if(Pref.IsContactPersonSelectionRequiredinRevisit){
@@ -263,6 +271,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
         ll_competitorImg.setOnClickListener(this)
         rl_prospect_main.setOnClickListener(this)
         rl_approxvalue_main.setOnClickListener(this)
+        iv_dialog_add_feedback_mic.setOnClickListener(this)// 3.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 add feedback using voice
     }
 
     override fun onClick(p0: View?) {
@@ -401,6 +410,11 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                 if (visitRemarksPopupWindow != null && visitRemarksPopupWindow?.isShowing!!)
                     visitRemarksPopupWindow?.dismiss()
                 callMultiContactDialog()
+            }
+            // 3.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 add feedback using voice
+            R.id.iv_dialog_add_feedback_mic->{
+                suffixText = et_feedback.text.toString().trim() // 4.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 add feedback using  voice plus text handle
+                startVoiceInput()
             }
 
         }
@@ -602,7 +616,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                                 .subscribeOn(Schedulers.io())
                                 .subscribe({ result ->
                                     val response = result as ProsListResponseModel
-                                    XLog.d("GET PROS DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                                    Timber.d("GET PROS DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
                                     if (response.status == NetworkConstant.SUCCESS) {
                                         if (response.Prospect_list != null && response.Prospect_list!!.isNotEmpty()) {
                                             doAsync {
@@ -639,5 +653,46 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
             iv_prospect_dropdownn.text = pros.pros_name
             ProsId = pros.pros_id!!
         }.show((mContext as DashboardActivity).supportFragmentManager, "")
+    }
+
+    // 3.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 add feedback using voice
+    private fun startVoiceInput() {
+
+        val intent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"hi")
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,Locale.ENGLISH)
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hello, How can I help you?")
+        try {
+            startActivityForResult(intent, 7009)
+        } catch (a: ActivityNotFoundException) {
+            a.printStackTrace()
+        }
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == 7009){
+            try{
+            val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            var t= result!![0]
+            // 4.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 add feedback using  voice plus text handle
+            if(suffixText.length>0 && !suffixText.equals("")){
+                var setFullText = suffixText+t
+                et_feedback.setText(suffixText+t)
+                et_feedback.setSelection(setFullText.length);
+            }else{
+                var SuffixPostText = t+et_feedback.text.toString()
+                et_feedback.setText(SuffixPostText)
+                et_feedback.setSelection(SuffixPostText.length);
+            }
+            }
+            catch (ex:Exception) {
+                ex.printStackTrace()
+            }
+//            et_feedback.setText(t)
+        }
     }
 }

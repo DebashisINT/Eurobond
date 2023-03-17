@@ -42,7 +42,7 @@ import com.eurobond.features.photoReg.api.GetUserListPhotoRegProvider
 import com.eurobond.features.photoReg.model.ImageResponse
 import com.eurobond.features.survey.api.SurveyDataProvider
 import com.eurobond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers

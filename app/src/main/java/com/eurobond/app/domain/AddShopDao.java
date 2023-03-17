@@ -137,6 +137,8 @@ public interface AddShopDao {
     @Query("Select * from shop_detail where isUploaded=:isUploaded")
     List<AddShopDBModelEntity> getUnSyncedShops(Boolean isUploaded);
 
+
+
     @Query("Select * from shop_detail where owner_contact_number=:contactNum")
     List<AddShopDBModelEntity> getDuplicateShopData(String contactNum);
 

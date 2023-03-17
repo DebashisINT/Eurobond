@@ -9,7 +9,6 @@ import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
-import android.content.Context.CONNECTIVITY_SERVICE
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -17,12 +16,11 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.*
 import android.os.Build.VERSION.SDK_INT
 import android.provider.MediaStore
+import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.InputType
@@ -41,20 +39,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.eurobond.CustomStatic
 import com.eurobond.R
 import com.eurobond.app.*
-import com.eurobond.app.domain.ShopExtraContactEntity
 import com.eurobond.app.types.FragType
 import com.eurobond.app.uiaction.IntentActionable
 import com.eurobond.app.utils.*
 import com.eurobond.base.BaseResponse
 import com.eurobond.base.presentation.BaseActivity
 import com.eurobond.base.presentation.BaseFragment
-import com.eurobond.features.addshop.presentation.ShopExtraContactReq
-import com.eurobond.features.addshop.presentation.multiContactRequestData
 import com.eurobond.features.dashboard.presentation.DashboardActivity
-import com.eurobond.features.login.model.userconfig.UserConfigResponseModel
 import com.eurobond.features.myjobs.model.WIPImageSubmit
 import com.eurobond.features.photoReg.adapter.AdapterUserList
 import com.eurobond.features.photoReg.adapter.PhotoRegUserListner
@@ -67,7 +60,7 @@ import com.eurobond.widgets.AppCustomTextView
 import com.downloader.Error
 import com.downloader.OnDownloadListener
 import com.downloader.PRDownloader
-import com.elvishew.xlog.XLog
+
 import com.squareup.picasso.*
 import com.squareup.picasso.Picasso.RequestTransformer
 import com.themechangeapp.pickimage.PermissionHelper
@@ -76,8 +69,10 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_photo_registration.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
+import java.util.*
 
 
 class ProtoRegistrationFragment : BaseFragment(), View.OnClickListener {
@@ -126,7 +121,6 @@ class ProtoRegistrationFragment : BaseFragment(), View.OnClickListener {
         val view = inflater.inflate(R.layout.fragment_photo_registration, container, false)
         initView(view)
 
-
         (mContext as DashboardActivity).setSearchListener(object : SearchListener {
             override fun onSearchQueryListener(query: String) {
                 if (query.isBlank()) {
@@ -141,6 +135,11 @@ class ProtoRegistrationFragment : BaseFragment(), View.OnClickListener {
                 }
             }
         })
+
+        // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 start
+        (mContext as DashboardActivity).searchView.setVoiceIcon(R.drawable.ic_mic)
+        (mContext as DashboardActivity).searchView.setOnVoiceClickedListener({ startVoiceInput() })
+        // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 end
 
         return view
     }
@@ -162,7 +161,26 @@ class ProtoRegistrationFragment : BaseFragment(), View.OnClickListener {
             callUSerListApi()
         }, 3000)
 
+        //startVoiceInput()
+
     }
+    // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 start
+    private fun startVoiceInput() {
+        val intent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"hi")
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,Locale.ENGLISH)
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hello, How can I help you?")
+        try {
+            startActivityForResult(intent, 7009)
+        } catch (a: ActivityNotFoundException) {
+            a.printStackTrace()
+        }
+    }
+    // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 end
 
     fun loadUpdateList(){
         Handler(Looper.getMainLooper()).postDelayed({
@@ -292,7 +310,7 @@ class ProtoRegistrationFragment : BaseFragment(), View.OnClickListener {
 
     private fun getBytesForMemCache(percent: Int): Int {
         val mi: ActivityManager.MemoryInfo = ActivityManager.MemoryInfo()
-        val activityManager: ActivityManager = context!!.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val activityManager: ActivityManager = mContext!!.getSystemService(ACTIVITY_SERVICE) as ActivityManager
         activityManager.getMemoryInfo(mi)
         val availableMemory: Double = mi.availMem.toDouble()
         return (percent * availableMemory / 100).toInt()
@@ -1285,7 +1303,7 @@ class ProtoRegistrationFragment : BaseFragment(), View.OnClickListener {
             newFile = processImage.ProcessImageSelfie()
             uiThread {
                 if (newFile != null) {
-                    XLog.e("=========Image from new technique==========")
+                    Timber.e("=========Image from new technique==========")
                     val fileSize = AppUtils.getCompressImage(filePath)
                     var tyy = filePath
 
@@ -1344,7 +1362,7 @@ class ProtoRegistrationFragment : BaseFragment(), View.OnClickListener {
 
              uiThread {
                  if (newFile != null) {
-                     XLog.e("=========Image from new technique==========")
+                     Timber.e("=========Image from new technique==========")
                      //reimbursementEditPic(newFile!!.length(), newFile?.absolutePath!!)
                  } else {
                      // Image compression
@@ -1528,6 +1546,25 @@ class ProtoRegistrationFragment : BaseFragment(), View.OnClickListener {
                 }
             }
         }
+        /* if(requestCode == 7009){
+             val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+             var t= result!![0]
+             Toaster.msgShort(mContext,t)
+         }*/
+
+         if(requestCode == MaterialSearchView.REQUEST_VOICE){
+             try {
+                 val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                 var t= result!![0]
+                 (mContext as DashboardActivity).searchView.setQuery(t,false)
+             }
+             catch (ex:Exception) {
+                 ex.printStackTrace()
+             }
+
+//            tv_search_frag_order_type_list.setText(t)
+//            tv_search_frag_order_type_list.setSelection(t.length);
+         }
     }
 
 

@@ -22,7 +22,7 @@ import com.eurobond.app.utils.AppUtils;
 import com.eurobond.features.dashboard.presentation.DashboardActivity;
 import com.eurobond.features.newcollectionreport.CollectionNotiViewPagerFrag1;
 import com.eurobond.features.splash.presentation.SplashActivity;
-import com.elvishew.xlog.XLog;
+
 
 public class MonitorCollPending extends BroadcastReceiver {
     public static MediaPlayer player = null;

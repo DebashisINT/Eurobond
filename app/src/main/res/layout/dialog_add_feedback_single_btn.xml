@@ -7,6 +7,7 @@
     android:orientation="vertical"
     app:cardCornerRadius="@dimen/_10sdp">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -60,17 +61,28 @@
                     app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
 
                 <com.eurobond.widgets.AppCustomEditText
-                        android:id="@+id/et_feedback"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawablePadding="@dimen/_5sdp"
-                        android:hint="@string/type_your_feedback"
-                        android:maxLength="500"
-                        android:maxLines="7"
-                        android:textSize="@dimen/_13sdp"
-                        app:theme="@style/EvoEditTextTheme" />
+                    android:id="@+id/et_feedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/_5sdp"
+                    android:hint="@string/type_your_feedback"
+                    android:maxLength="500"
+                    android:maxLines="7"
+                    android:textSize="@dimen/_13sdp"
+                    app:theme="@style/EvoEditTextTheme" />
 
-                </com.google.android.material.textfield.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--//3.0  AppV 4.0.7  AddFeedbackSingleBtnDialog  Saheli    07/01/2023 mantis 25649 add feedback using voice-->
+
+            <ImageView
+                android:id="@+id/iv_dialog_add_feedback_mic"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:layout_marginRight="@dimen/_17sdp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_mic"/>
 
 
 

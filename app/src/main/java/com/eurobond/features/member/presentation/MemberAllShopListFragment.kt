@@ -1,9 +1,12 @@
 package com.eurobond.features.member.presentation
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.location.Location
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.text.TextUtils
@@ -17,13 +20,10 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.eurobond.CustomStatic
 import com.eurobond.MySingleton
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.eurobond.R
-import com.eurobond.app.AppDatabase
-import com.eurobond.app.NetworkConstant
-import com.eurobond.app.Pref
-import com.eurobond.app.SearchListener
+import com.eurobond.app.*
 import com.eurobond.app.domain.MemberShopEntity
 import com.eurobond.app.types.FragType
 import com.eurobond.app.utils.AppUtils
@@ -46,7 +46,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.HashMap
+import timber.log.Timber
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Created by Saikat on 28-02-2020.
@@ -54,6 +56,7 @@ import java.util.HashMap
 //Revision History
 // 1.0 MemberAllShopListFragment  AppV 4.0.6  Saheli    11/01/2023 IsAllowShopStatusUpdate
 // 2.0 MemberAllShopListFragment  AppV 4.0.6  Saheli    13/01/2023 getTeamShopList function work for size 1
+// 3.0 MemberAllShopListFragment saheli 24-02-2032 AppV 4.0.7 mantis 0025683
 class MemberAllShopListFragment : BaseFragment() {
 
     private lateinit var mContext: Context
@@ -133,8 +136,52 @@ class MemberAllShopListFragment : BaseFragment() {
         })
 
 
+        // 1.0 MicroLearningListFragment AppV 4.0.7 mantis 0025683 start
+        (mContext as DashboardActivity).searchView.setVoiceIcon(R.drawable.ic_mic)
+        (mContext as DashboardActivity).searchView.setOnVoiceClickedListener({ startVoiceInput() })
+        // 1.0 MicroLearningListFragment AppV 4.0.7 mantis 0025683 end
+
         return view
     }
+    // 1.0 MicroLearningListFragment AppV 4.0.7 mantis 0025683 start
+    private fun startVoiceInput() {
+        try {
+            val intent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            intent.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"hi")
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH)
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hello, How can I help you?")
+            try {
+                startActivityForResult(intent, MaterialSearchView.REQUEST_VOICE)
+            } catch (a: ActivityNotFoundException) {
+                a.printStackTrace()
+            }
+        }
+        catch (ex: java.lang.Exception) {
+            ex.printStackTrace()
+        }
+
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == MaterialSearchView.REQUEST_VOICE){
+            try {
+                val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                var t= result!![0]
+                (mContext as DashboardActivity).searchView.setQuery(t,false)
+            }
+            catch (ex: java.lang.Exception) {
+                ex.printStackTrace()
+            }
+
+//            tv_search_frag_order_type_list.setText(t)
+//            tv_search_frag_order_type_list.setSelection(t.length);
+        }
+    }
+    // 1.0 MicroLearningListFragment AppV 4.0.7 mantis 0025683 end
 
     private fun initView(view: View) {
         rv_team_shop_list = view.findViewById(R.id.rv_team_shop_list)
@@ -188,7 +235,7 @@ class MemberAllShopListFragment : BaseFragment() {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as TeamShopListResponseModel
-                            XLog.d("GET TEAM SHOP DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("GET TEAM SHOP DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
                             progress_wheel.stopSpinning()
                             if (response.status == NetworkConstant.SUCCESS) {
 
@@ -223,7 +270,7 @@ class MemberAllShopListFragment : BaseFragment() {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("GET TEAM SHOP DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("GET TEAM SHOP DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                             if (TextUtils.isEmpty(shopId))
@@ -276,11 +323,11 @@ class MemberAllShopListFragment : BaseFragment() {
                 if (AppUtils.mLocation!!.accuracy <= Pref.shopLocAccuracy.toFloat()) {
                     openAddressUpdateDialog(teamShop, AppUtils.mLocation!!)
                 } else {
-                    XLog.d("======Saved current location is inaccurate (Member Shop List)========")
+                    Timber.d("======Saved current location is inaccurate (Member Shop List)========")
                     getShopLatLong(teamShop)
                 }
             } else {
-                XLog.d("=====Saved current location is null (Member Shop List)======")
+                Timber.d("=====Saved current location is null (Member Shop List)======")
                 getShopLatLong(teamShop)
             }
 
@@ -466,7 +513,7 @@ class MemberAllShopListFragment : BaseFragment() {
                         }
 
                     }, { error ->
-                        XLog.d("Apply Leave Response ERROR=========> " + error.message)
+                        Timber.d("Apply Leave Response ERROR=========> " + error.message)
                         BaseActivity.isApiInitiated = false
                         progress_wheel.stopSpinning()
                         (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))

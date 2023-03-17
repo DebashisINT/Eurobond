@@ -26,11 +26,12 @@ import com.eurobond.features.chat.model.GroupUserDataModel
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.widgets.AppCustomEditText
 import com.eurobond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.io.Serializable
 
 class ChatListFragment : BaseFragment(), View.OnClickListener {
@@ -221,7 +222,7 @@ class ChatListFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as ChatListResponseModel
-                            XLog.d("Get Chat List STATUS: " + response.status)
+                            Timber.d("Get Chat List STATUS: " + response.status)
                             //loading = false
                             progress_wheel.stopSpinning()
                             if (response.status == NetworkConstant.SUCCESS) {
@@ -252,7 +253,7 @@ class ChatListFragment : BaseFragment(), View.OnClickListener {
                             /*loading = false
                             isOnPagination = false*/
                             if (error != null)
-                                XLog.d("Get Chat List ERROR: " + error.localizedMessage)
+                                Timber.d("Get Chat List ERROR: " + error.localizedMessage)
 
                             if (!isOnPagination)
                                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
@@ -290,7 +291,7 @@ class ChatListFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as BaseResponse
-                            XLog.d("Send Chat STATUS: " + response.status)
+                            Timber.d("Send Chat STATUS: " + response.status)
                             if (response.status == NetworkConstant.SUCCESS) {
                                 (mContext as DashboardActivity).isRefreshChatUserList = true
                                 progress_wheel.stopSpinning()
@@ -308,7 +309,7 @@ class ChatListFragment : BaseFragment(), View.OnClickListener {
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
                             if (error != null)
-                                XLog.d("Send Chat ERROR: " + error.localizedMessage)
+                                Timber.d("Send Chat ERROR: " + error.localizedMessage)
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
         )
@@ -337,7 +338,7 @@ class ChatListFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as BaseResponse
-                            XLog.d("Send Chat STATUS: " + response.status)
+                            Timber.d("Send Chat STATUS: " + response.status)
                             if (response.status == NetworkConstant.SUCCESS) {
                                 progress_wheel.stopSpinning()
                             }
@@ -350,7 +351,7 @@ class ChatListFragment : BaseFragment(), View.OnClickListener {
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
                             if (error != null)
-                                XLog.d("Send Chat ERROR: " + error.localizedMessage)
+                                Timber.d("Send Chat ERROR: " + error.localizedMessage)
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
         )

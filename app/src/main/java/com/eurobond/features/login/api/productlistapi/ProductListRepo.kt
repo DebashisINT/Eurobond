@@ -6,6 +6,7 @@ import com.eurobond.features.login.model.productlistmodel.ProductListOfflineResp
 import com.eurobond.features.login.model.productlistmodel.ProductListOfflineResponseModelNew
 import com.eurobond.features.login.model.productlistmodel.ProductListResponseModel
 import com.eurobond.features.login.model.productlistmodel.ProductRateListResponseModel
+import com.eurobond.features.viewAllOrder.orderOptimized.ProductRateOnlineListResponseModel
 import io.reactivex.Observable
 
 /**
@@ -19,6 +20,11 @@ class ProductListRepo(val apiService: ProductListApi) {
 
     fun getProductRateList(shop_id: String): Observable<ProductRateListResponseModel> {
         return apiService.getProductRateList(Pref.session_token!!, Pref.user_id!!, shop_id)
+    }
+
+
+    fun getProductRateListByEntity(shop_id: String): Observable<ProductRateOnlineListResponseModel> {
+        return apiService.getProductRateOnlineList(Pref.session_token!!, Pref.user_id!!, shop_id)
     }
 
     fun getProductRateOfflineList(): Observable<ProductListOfflineResponseModel> {

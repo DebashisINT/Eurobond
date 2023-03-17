@@ -63,8 +63,8 @@ import com.eurobond.features.login.*
         NewOrderGenderEntity::class, NewOrderProductEntity::class, NewOrderColorEntity::class, NewOrderSizeEntity::class, NewOrderScrOrderEntity::class, ProspectEntity::class,
         QuestionEntity::class, QuestionSubmitEntity::class, AddShopSecondaryImgEntity::class, ReturnDetailsEntity::class, ReturnProductListEntity::class, UserWiseLeaveListEntity::class, ShopFeedbackEntity::class, ShopFeedbackTempEntity::class, LeadActivityEntity::class,
         ShopDtlsTeamEntity::class, CollDtlsTeamEntity::class, BillDtlsTeamEntity::class, OrderDtlsTeamEntity::class,
-        TeamAllShopDBModelEntity::class, DistWiseOrderTblEntity::class, NewGpsStatusEntity::class,ShopExtraContactEntity::class),
-        version = 6, exportSchema = false)
+        TeamAllShopDBModelEntity::class, DistWiseOrderTblEntity::class, NewGpsStatusEntity::class,ShopExtraContactEntity::class,ProductOnlineRateTempEntity::class),
+        version = 7, exportSchema = false)
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun addShopEntryDao(): AddShopDao
@@ -200,6 +200,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun newGpsStatusDao(): NewGpsStatusDao
     abstract fun shopExtraContactDao(): ShopExtraContactDao
 
+    abstract fun productOnlineRateTempDao(): ProductOnlineRateTempDao
+
 
     companion object {
         var INSTANCE: AppDatabase? = null
@@ -210,9 +212,8 @@ abstract class AppDatabase : RoomDatabase() {
                         // allow queries on the main thread.
                         // Don't do this on a real app! See PersistenceBasicSample for an example.
                         .allowMainThreadQueries()
-                        .addMigrations(
-                            MIGRATION_1_2,MIGRATION_2_3,MIGRATION_3_4,MIGRATION_4_5,MIGRATION_5_6
-                        )
+                        .addMigrations( MIGRATION_1_2,MIGRATION_2_3,MIGRATION_3_4,MIGRATION_4_5,MIGRATION_5_6,
+                            MIGRATION_6_7)
 //                        .fallbackToDestructiveMigration()
                         .build()
             }
@@ -227,6 +228,7 @@ abstract class AppDatabase : RoomDatabase() {
             INSTANCE = null
         }
 
+
         val MIGRATION_1_2: Migration = object : Migration(1, 2){
             override fun migrate(database: SupportSQLiteDatabase) {
                 /*New create table*/
@@ -237,8 +239,6 @@ abstract class AppDatabase : RoomDatabase() {
 
             }
         }
-
-
 
         val MIGRATION_2_3: Migration = object : Migration(2, 3){
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -324,6 +324,14 @@ abstract class AppDatabase : RoomDatabase() {
 
             }}
 
+
+        val MIGRATION_6_7: Migration = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("create TABLE product_online_rate_temp_table  (id INTEGER NOT NULL PRIMARY KEY , product_id  TEXT , rate TEXT, stock_amount TEXT , stock_unit TEXT , isStockShow INTEGER NOT NULL DEFAULT 0 , isRateShow INTEGER NOT NULL DEFAULT 0) ")
+            }
+        }
+
     }
+
 
 }

@@ -28,8 +28,9 @@ import com.eurobond.features.chat.model.ChatListDataModel
 import com.eurobond.features.chat.model.ChatUserDataModel
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.login.UserLoginDataEntity
-import com.elvishew.xlog.XLog
+
 import com.google.firebase.messaging.RemoteMessage
+import timber.log.Timber
 import java.util.*
 
 
@@ -255,7 +256,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
 
             val channelName = AppUtils.notificationChannelName
 
-            XLog.e("========Notification Channel enabled (FirebaseMesagingService)=========")
+            Timber.e("========Notification Channel enabled (FirebaseMesagingService)=========")
 
             val importance = NotificationManager.IMPORTANCE_HIGH
             val notificationChannel = NotificationChannel(channelId, channelName, importance)
@@ -578,7 +579,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
         }
 
 
-        XLog.e("=================Show alarm notification (Notification)=================")
+        Timber.e("=================Show alarm notification (Notification)=================")
 
     }
 
@@ -845,7 +846,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
         }
 
 
-        XLog.e("=================Show clear data notification (Notification)=================")
+        Timber.e("=================Show clear data notification (Notification)=================")
 
     }
 
@@ -1071,7 +1072,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
 
             val channelName = AppUtils.notificationChannelName
 
-            XLog.e("========Notification Channel enabled (FirebaseMesagingService)=========")
+            Timber.e("========Notification Channel enabled (FirebaseMesagingService)=========")
 
             val importance = NotificationManager.IMPORTANCE_HIGH
             val notificationChannel = NotificationChannel(channelId, channelName, importance)
@@ -1164,7 +1165,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
 
             val channelName = AppUtils.notificationChannelName
 
-            XLog.e("========Notification Channel enabled (FirebaseMesagingService)=========")
+            Timber.e("========Notification Channel enabled (FirebaseMesagingService)=========")
 
             val importance = NotificationManager.IMPORTANCE_HIGH
             val notificationChannel = NotificationChannel(channelId, channelName, importance)
@@ -1244,7 +1245,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
 
             val channelName = AppUtils.notificationChannelName
 
-            XLog.e("========Notification Channel enabled (FirebaseMesagingService)=========")
+            Timber.e("========Notification Channel enabled (FirebaseMesagingService)=========")
 
             val importance = NotificationManager.IMPORTANCE_HIGH
             val notificationChannel = NotificationChannel(channelId, channelName, importance)

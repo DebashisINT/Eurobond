@@ -124,7 +124,10 @@ class ConfigFetchResponseModel : BaseResponse() {
     var isExpenseFeatureAvailable:Boolean?=null//mantis 25607
     var IsRouteStartFromAttendance:Boolean?=null
 
+    var IsShowQuotationFooterforEurobond:Boolean?=null
+    var IsShowOtherInfoinShopMaster:Boolean?=null
 
+    var IsAllowZeroRateOrder: Boolean? = null
 
 
 

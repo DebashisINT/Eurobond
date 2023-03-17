@@ -25,6 +25,8 @@ import com.eurobond.app.NetworkConstant
 import com.eurobond.app.Pref
 import com.eurobond.app.uiaction.DisplayAlert
 import com.eurobond.app.utils.AppUtils
+import com.eurobond.app.utils.FileLoggingTree
+import com.eurobond.app.utils.FileLoggingTree.fileDelete
 import com.eurobond.app.utils.PermissionUtils
 import com.eurobond.app.utils.Toaster
 import com.eurobond.base.presentation.BaseActivity
@@ -38,11 +40,16 @@ import com.eurobond.features.login.presentation.LoginActivity
 import com.eurobond.features.splash.presentation.api.VersionCheckingRepoProvider
 import com.eurobond.features.splash.presentation.model.VersionCheckingReponseModel
 import com.eurobond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_splash.*
+import kotlinx.android.synthetic.main.fragment_new_order_screen_activity.*
 import net.alexandroid.gps.GpsStatusDetector
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
+import timber.log.Timber
+import java.io.File
 import java.util.*
 import kotlin.system.exitProcess
 
@@ -50,7 +57,8 @@ import kotlin.system.exitProcess
 /**
  * Created by Pratishruti on 26-10-2017.
  */
-// saheli
+// Revision History
+// 1.0 SplashActivity AppV 4.0.7 Saheli    02/03/2023 Timber Log Implementation
 class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBack {
 
     private var isLoginLoaded: Boolean = false
@@ -68,6 +76,24 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+
+   /* var fir:File = File(applicationContext.filesDir,"OPLOG")
+    val filename = "OPLOG"
+    val fileContents = "Hello world! ${AppUtils.getCurrentDateTime()}"
+    applicationContext.openFileOutput(filename, Context.MODE_PRIVATE).use {
+        it.write(fileContents.toByteArray())
+    }
+    applicationContext.deleteFile(filename)
+
+    applicationContext.openFileOutput(filename, Context.MODE_PRIVATE).use {
+        it.write(fileContents.toByteArray())
+    }*/
+
+    /*FileLoggingTree.context = this.applicationContext*/
+
+    Timber.plant(Timber.DebugTree())
+    Timber.plant(FileLoggingTree())
+
 
     //startActivity( Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS))
 
@@ -201,10 +227,14 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
         permList = (permList + permListDenied).toMutableList()
 
         for(i in 0..permList.size-1){
-            XLog.d("Permission Name"+permList.get(i).permissionName + " Status : Granted")
+            // 1.0 SplashActivity AppV 4.0.7 Timber Log Implementation
+//            XLog.d("Permission Name"+permList.get(i).permissionName + " Status : Granted")
+            Timber.d("Permission Name"+permList.get(i).permissionName + " Status : Granted")
         }
         for(i in 0..permListDenied.size-1){
-            XLog.d("Permission Name"+permListDenied.get(i).permissionName + " Status : Denied")
+            // 1.0 SplashActivity AppV 4.0.7 Timber Log Implementation
+//            XLog.d("Permission Name"+permListDenied.get(i).permissionName + " Status : Denied")
+            Timber.d("Permission Name"+permListDenied.get(i).permissionName + " Status : Denied")
         }
     }
 
@@ -325,18 +355,26 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
                         .subscribe({ result ->
                             progress_wheel.stopSpinning()
                             val response = result as VersionCheckingReponseModel
-
-                            XLog.d("VERSION CHECKING RESPONSE: " + "STATUS: " + response.status + ", MESSAGE:" + result.message)
+                            // 1.0 SplashActivity AppV 4.0.7 Timber Log Implementation
+//                            XLog.d("VERSION CHECKING RESPONSE: " + "STATUS: " + response.status + ", MESSAGE:" + result.message)
+                            Timber.d("VERSION CHECKING RESPONSE: " + "STATUS: " + response.status + ", MESSAGE:" + result.message)
 
                             if (response.status == NetworkConstant.SUCCESS) {
 
-                                XLog.d("===========VERSION CHECKING SUCCESS RESPONSE===========")
+                             /*   XLog.d("===========VERSION CHECKING SUCCESS RESPONSE===========")
                                 XLog.d("min version=====> " + response.min_req_version)
                                 XLog.d("store version=====> " + response.play_store_version)
                                 XLog.d("mandatory msg======> " + response.mandatory_msg)
                                 XLog.d("optional msg=====> " + response.optional_msg)
                                 XLog.d("apk url======> " + response.apk_url)
-                                XLog.d("=======================================================")
+                                XLog.d("=======================================================")*/
+                                Timber.d("===========VERSION CHECKING SUCCESS RESPONSE===========")
+                                Timber.d("min version=====> " + response.min_req_version)
+                                Timber.d("store version=====> " + response.play_store_version)
+                                Timber.d("mandatory msg======> " + response.mandatory_msg)
+                                Timber.d("optional msg=====> " + response.optional_msg)
+                                Timber.d("apk url======> " + response.apk_url)
+                                Timber.d("=======================================================")
 
                                 versionChecking(response)
                                 //goToNextScreen()
@@ -347,7 +385,8 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
 
                         }, { error ->
                             isApiInitiated = false
-                            XLog.d("VERSION CHECKING ERROR: " + "MESSAGE:" + error.message)
+//                            XLog.d("VERSION CHECKING ERROR: " + "MESSAGE:" + error.message)
+                            Timber.d("VERSION CHECKING ERROR: " + "MESSAGE:" + error.message) // 1.0 SplashActivity AppV 4.0.7 Timber Log Implementation
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
                             goToNextScreen()

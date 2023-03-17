@@ -57,6 +57,13 @@ interface ShopActivityDao {
     @Query("Select * from shop_activity where shopid=:shopId and date=:date")
     fun getShopForDay(shopId: String, date: String): List<ShopActivityEntity>
 
+    @Query("Select * from shop_activity where shopid=:shopId and date=:date and isUploaded=:isUploaded  and isDurationCalculated=:isDurationCalculated")
+    fun getShopForDayIsupload(shopId: String, date: String,isUploaded:Boolean,isDurationCalculated: Boolean): List<ShopActivityEntity>
+
+
+    @Query("Select * from shop_activity where  date=:date and isUploaded=:isUploaded and isDurationCalculated=:isDurationCalculated")
+    fun getShopForDayISDurationcal(date: String,isUploaded:Boolean,isDurationCalculated: Boolean): List<ShopActivityEntity>
+
     @Query("Select * from shop_activity where shopid=:shopId and date=:date and isUploaded=:isUploaded")
     fun getShopForDayisUploaded(shopId: String, date: String,isUploaded:Boolean): List<ShopActivityEntity>
 

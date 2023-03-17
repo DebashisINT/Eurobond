@@ -147,5 +147,7 @@ public interface AppConstant {
 
     String SHOP_EXTRA_CONTACT = "shop_extra_contact";
 
+    String PRODUCT_ONLINE_RATE_TEMP_TABLE = "product_online_rate_temp_table";
+
 
 }

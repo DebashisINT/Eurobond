@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.exp_popup_window_list_item.view.*
 import kotlinx.android.synthetic.main.row_dialog_new_order_gender.view.*
 import kotlinx.android.synthetic.main.row_dialog_new_order_gender.view.tv_row_dialog_new_order_gender
 import kotlinx.android.synthetic.main.row_dialog_tax.view.*
-// created 1.0 CustomerListDialog AppV 4.0.6 mantis 000011 search issue on pjpadded customer
+// created 1.0 CustomerListDialog AppV 4.0.6 mantis 25644 search issue on pjpadded customer
 class Customer2Adapter(private var context:Context, private var msalesmanList: ArrayList<CustomerDataModel>, private val listner: CustomerOnClick):
   RecyclerView.Adapter<Customer2Adapter.ViewHolder>(), Filterable {
     private var arrayList_bean: ArrayList<CustomerDataModel>? = ArrayList()

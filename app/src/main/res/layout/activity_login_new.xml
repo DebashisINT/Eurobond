@@ -46,8 +46,8 @@
 
                 <ImageView
                     android:id="@+id/logo_new"
-                    android:layout_width="@dimen/_175sdp"
-                    android:layout_height="@dimen/_88sdp"
+                    android:layout_width="@dimen/_155sdp"
+                    android:layout_height="@dimen/_68sdp"
                     android:src="@drawable/breezelogo"
                     android:layout_marginTop="@dimen/_30sdp"
                     android:layout_centerHorizontal="true"
@@ -67,8 +67,8 @@
                     android:textColor="#287fb2"
                     android:text="@string/name_filed_managenent_system"
                     android:textSize="@dimen/_12sdp"
-                    android:visibility="gone"
-                    android:layout_marginTop="@dimen/_10sdp"/>
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:visibility="gone"/>
 
                 <com.eurobond.widgets.AppCustomTextView
                     android:id="@+id/app_title_TV"

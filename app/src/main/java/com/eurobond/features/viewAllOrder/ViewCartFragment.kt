@@ -16,11 +16,14 @@ import android.widget.RelativeLayout
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
 import com.eurobond.app.Pref
+import com.eurobond.app.domain.AddShopDBModelEntity
 import com.eurobond.app.domain.OrderDetailsListEntity
 import com.eurobond.app.uiaction.IntentActionable
 import com.eurobond.app.utils.AppUtils
 import com.eurobond.base.presentation.BaseFragment
 import com.eurobond.features.dashboard.presentation.DashboardActivity
+import com.eurobond.features.location.LocationWizard
+import com.eurobond.features.viewAllOrder.orderOptimized.OrderProductCartFrag
 import com.eurobond.widgets.AppCustomTextView
 
 /**
@@ -98,7 +101,24 @@ class ViewCartFragment : BaseFragment() {
         tv_total_order_value = view.findViewById(R.id.tv_total_order_value)
         tv_shop_name = view.findViewById(R.id.tv_shop_name)
 
-        val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(orderDetails?.shop_id)
+        //assignedto_dd map in shop begin
+        var shop = AddShopDBModelEntity()
+        try {
+             shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(orderDetails?.shop_id)
+        }catch (ex:Exception){
+                /*var objDD = orderDetails?.shop_id?.let {
+                    AppDatabase.getDBInstance()?.ddListDao()?.getSingleValue(
+                        it
+                    )
+                }
+            shop.shop_id = objDD!!.dd_id
+            shop.shopName = objDD.dd_name
+            shop.shopLat = objDD.dd_latitude!!.toDouble()
+            shop.shopLong = objDD.dd_longitude!!.toDouble()
+            shop.address = LocationWizard.getLocationName(mContext, objDD.dd_latitude!!.toDouble(),   objDD.dd_longitude!!.toDouble())
+            shop.isUploaded = true
+            shop.type = "4"*/
+        }
         tv_shop_name.text = shop.shopName
 
         tv_order_id = view.findViewById(R.id.tv_order_id)

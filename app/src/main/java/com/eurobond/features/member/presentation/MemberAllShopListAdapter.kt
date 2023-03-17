@@ -107,8 +107,7 @@ class MemberAllShopListAdapter(private val context: Context, private val teamSho
                 else
                     last_visited_date_TV.text = "N.A."
 
-                val drawable = TextDrawable.builder()
-                        .buildRoundRect(teamShopList[adapterPosition].shop_name.trim().toUpperCase().take(1), ColorGenerator.MATERIAL.randomColor, 120)
+                val drawable = TextDrawable.builder().buildRoundRect(teamShopList[adapterPosition].shop_name.trim().toUpperCase().take(1), ColorGenerator.MATERIAL.randomColor, 120)
 
                 shop_IV.setImageDrawable(drawable)
 

@@ -2,11 +2,9 @@ package com.eurobond.features.NewQuotation
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import com.eurobond.R
+import com.eurobond.app.Pref
 import com.eurobond.app.utils.AppUtils
-import com.eurobond.features.NewQuotation.model.ViewDetailsQuotResponse
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.ColumnText
 import com.itextpdf.text.pdf.PdfContentByte
@@ -15,10 +13,32 @@ import com.itextpdf.text.pdf.PdfWriter
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
+// 1.0 HeaderFooterPageEvent  AppV 4.0.7  Suman 27/02/2023 footer image with text mantis 25705
 
-class HeaderFooterPageEvent() : PdfPageEventHelper() {
+class HeaderFooterPageEvent(var companyN:String,var salesmanN:String,var salesmanDegin:String,var salesPh:String,var salesEmail:String) : PdfPageEventHelper() {
+
 
     override fun onStartPage(writer: PdfWriter?, document: Document?) {
+        var bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.breezelogo)
+        val bitmap = Bitmap.createScaledBitmap(bm, 180, 50, true);
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        var img: Image? = null
+        val byteArray: ByteArray = stream.toByteArray()
+        try {
+            img = Image.getInstance(byteArray)
+            img.scalePercent(50f)
+            img.alignment=Image.ALIGN_RIGHT
+        } catch (e: BadElementException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        var imgSoc:Image = Image.getInstance(img)
+        imgSoc.setAbsolutePosition(document!!.right()-110f, document.top()-1f);
+        var cb : PdfContentByte = writer!!.getDirectContent() as PdfContentByte
+        cb.addImage(imgSoc)
+
         //super.onStartPage(writer, document)
         //ColumnText.showTextAligned(writer!!.getDirectContent(), Element.ALIGN_CENTER,  Phrase("Top Left"), 30f, 800f, 0f);
         //ColumnText.showTextAligned(writer!!.getDirectContent(), Element.ALIGN_CENTER,  Phrase("Top Right"), 550f, 800f, 0f);
@@ -29,21 +49,24 @@ class HeaderFooterPageEvent() : PdfPageEventHelper() {
         //ColumnText.showTextAligned(writer!!.getDirectContent(), Element.ALIGN_CENTER,  Phrase(""), 110f, 30f, 0f);
         //ColumnText.showTextAligned(writer!!.getDirectContent(), Element.ALIGN_CENTER,  Phrase("page " + document!!.getPageNumber()), 550f, 30f, 0f);
 
-
-
         //Hardcoded for EuroBond
 //        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.ics_image_full)
-          val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.footer_icon_euro)
-        //val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
-        //val bitmap = Bitmap.createScaledBitmap(bm, 690, 70, true);
-        val bitmap = Bitmap.createScaledBitmap(bm, 950, 80, false);
+//          val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.footer_icon_euro)
+        var bm: Bitmap
+        if(Pref.IsShowQuotationFooterforEurobond){
+            bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.footer_icon_euro)
+        }else{
+            bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
+        }
+
+        val bitmap = Bitmap.createScaledBitmap(bm, 950, 80, true);
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
         var img: Image? = null
         val byteArray: ByteArray = stream.toByteArray()
         try {
             img = Image.getInstance(byteArray)
-            //img.scaleToFit(200f,120f)
+          //  img.scaleToFit(155f,90f)
             img.scalePercent(50f)
             img.alignment=Image.ALIGN_RIGHT
         } catch (e: BadElementException) {
@@ -51,24 +74,12 @@ class HeaderFooterPageEvent() : PdfPageEventHelper() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-
         var imgSoc:Image = Image.getInstance(img)
-        //imgSoc.scaleToFit(150f,80f);
-        //imgSoc.setAbsolutePosition(390f, 720f);
-        imgSoc.setAbsolutePosition(20f, 17f);
+        imgSoc.setAbsolutePosition(15f, 10f);
         var cb : PdfContentByte = writer!!.getDirectContent() as PdfContentByte
-
-        //footer text
-        /*var footerFinalString = "\n" +
-                "Thanks & Regards,"+"EURO PANEL PRODUCTS LIMITED\n" + "addQuotEditResult.salesman_name\n"+"Mob : " +addQuotEditResult.salesman_login_id+"\n"+
-        "Email : "+addQuotEditResult.salesman_email + "\nEURO PANEL PRODUCTS LIMITED"*/
-        var font: Font = Font(Font.FontFamily.HELVETICA, 7f, Font.BOLD)
-        var fontB1: Font = Font(Font.FontFamily.HELVETICA, 9f, Font.BOLD)
-        //ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER,  Phrase(" Thanks & Regards,",font), 100f, 77f, 0f);
-        //ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER,  Phrase("EURO PANEL PRODUCTS LIMITED",font), 100f, 70f, 0f);
-
-        cb.addImage(imgSoc)
-
+        if(Pref.IsShowQuotationFooterforEurobond){
+            cb.addImage(imgSoc)
+        }
 
         val bm1: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
         val bitmap1 = Bitmap.createScaledBitmap(bm1, 1250, 17, false);
@@ -90,6 +101,46 @@ class HeaderFooterPageEvent() : PdfPageEventHelper() {
         var imgSoc1:Image = Image.getInstance(img1)
         imgSoc1.setAbsolutePosition(1f, 1f);
         cb.addImage(imgSoc1)
+
+
+
+/*
+        ////footer text
+        var font: Font = Font(Font.FontFamily.HELVETICA, 8f, Font.BOLD)
+        var xAxisSpace = 35f//(document!!.right() - document.left()) / 1 + document.leftMargin()
+        var yAxisSpace = 12f
+        var lineSpace = 3f
+        val footer1 = Phrase("Thanks & Regards", font)
+        val footer2 = Phrase(companyN, font)
+        val footer3 = Phrase(salesmanN, font)
+        val footer4 = Phrase(salesmanDegin, font)
+        val footer5 = Paragraph("Mob : " +  salesPh, font)
+        val footer6 = Paragraph("Email : " +  salesEmail, font)
+        ColumnText.showTextAligned(cb, Element.ALIGN_LEFT,
+            footer1,
+            xAxisSpace,
+            yAxisSpace*6+lineSpace+40f, 0f);
+        ColumnText.showTextAligned(cb, Element.ALIGN_LEFT,
+            footer2,
+            xAxisSpace,
+            yAxisSpace*5+lineSpace+40f, 0f);
+        ColumnText.showTextAligned(cb, Element.ALIGN_LEFT,
+            footer3,
+            xAxisSpace,
+            yAxisSpace*4+lineSpace+40f, 0f);
+        ColumnText.showTextAligned(cb, Element.ALIGN_LEFT,
+            footer4,
+            xAxisSpace,
+            yAxisSpace*3+lineSpace+40f, 0f);
+        ColumnText.showTextAligned(cb, Element.ALIGN_LEFT,
+            footer5,
+            xAxisSpace,
+            yAxisSpace*2+lineSpace+40f, 0f);
+        ColumnText.showTextAligned(cb, Element.ALIGN_LEFT,
+            footer6,
+            xAxisSpace,
+            yAxisSpace*1+lineSpace+40f, 0f);
+*/
     }
 
 }

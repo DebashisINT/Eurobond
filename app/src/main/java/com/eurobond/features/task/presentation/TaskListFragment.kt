@@ -32,12 +32,13 @@ import com.eurobond.features.task.api.TaskRepoProvider
 import com.eurobond.features.task.model.AddTaskInputModel
 import com.eurobond.features.task.model.TaskListResponseModel
 import com.eurobond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.util.*
 
 /**
@@ -127,7 +128,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as TaskListResponseModel
-                            XLog.d("TASK LIST: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("TASK LIST: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
 
                             if (response.status == NetworkConstant.SUCCESS) {
 
@@ -163,7 +164,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("TASK LIST: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("TASK LIST: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
@@ -270,11 +271,11 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
             return
         }
 
-        XLog.d("==============Delete Task Input Params (Task List)====================")
-        XLog.d("user_id=======> " + Pref.user_id)
-        XLog.d("session_token=======> " + Pref.session_token)
-        XLog.d("task_id=======> " + task.task_id)
-        XLog.d("===================================================================")
+        Timber.d("==============Delete Task Input Params (Task List)====================")
+        Timber.d("user_id=======> " + Pref.user_id)
+        Timber.d("session_token=======> " + Pref.session_token)
+        Timber.d("task_id=======> " + task.task_id)
+        Timber.d("===================================================================")
 
         progress_wheel.spin()
         val repository = TaskRepoProvider.taskRepoProvider()
@@ -284,7 +285,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as BaseResponse
-                            XLog.d("DELETE TASK: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("DELETE TASK: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
 
                             progress_wheel.stopSpinning()
 
@@ -304,7 +305,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("DELETE TASK: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("DELETE TASK: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
@@ -317,16 +318,16 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
             return
         }
 
-        XLog.d("==============Sync Task Input Params (Task List)====================")
-        XLog.d("user_id=======> " + Pref.user_id)
-        XLog.d("session_token=======> " + Pref.session_token)
-        XLog.d("date=======> " + task.date)
-        XLog.d("task_id=======> " + task.task_id)
-        XLog.d("task_name=======> " + task.task_name)
-        XLog.d("details=======> " + task.details)
-        XLog.d("isCompleted=======> " + task.isCompleted)
-        XLog.d("eventId=======> " + task.eventId)
-        XLog.d("===================================================================")
+        Timber.d("==============Sync Task Input Params (Task List)====================")
+        Timber.d("user_id=======> " + Pref.user_id)
+        Timber.d("session_token=======> " + Pref.session_token)
+        Timber.d("date=======> " + task.date)
+        Timber.d("task_id=======> " + task.task_id)
+        Timber.d("task_name=======> " + task.task_name)
+        Timber.d("details=======> " + task.details)
+        Timber.d("isCompleted=======> " + task.isCompleted)
+        Timber.d("eventId=======> " + task.eventId)
+        Timber.d("===================================================================")
 
         val taskInput = AddTaskInputModel(Pref.session_token!!, Pref.user_id!!, task.task_id!!, task.date!!, task.task_name!!,
                 task.details!!, task.isCompleted, task.eventId)
@@ -339,7 +340,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as BaseResponse
-                            XLog.d("ADD TASK: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("ADD TASK: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
 
                             progress_wheel.stopSpinning()
 
@@ -353,7 +354,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("ADD TASK: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("ADD TASK: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
@@ -379,7 +380,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
             AppDatabase.getDBInstance()?.taskDao()?.updateIsCompleted(true, task.task_id!!)
 
         if (!task.isUploaded) {
-            XLog.d("============UnSync Task at Status change time (Task List)===========")
+            Timber.d("============UnSync Task at Status change time (Task List)===========")
             (mContext as DashboardActivity).showSnackMessage("Task status updated successfully")
             initAdapter()
             return
@@ -393,12 +394,12 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
             return
         }
 
-        XLog.d("============Update Task Status Input Params (Task List)===========")
-        XLog.d("user_id=======> " + Pref.user_id)
-        XLog.d("session_token=======> " + Pref.session_token)
-        XLog.d("task_id=======> " + task.task_id)
-        XLog.d("isCompleted=======> " + task.isCompleted)
-        XLog.d("===================================================================")
+        Timber.d("============Update Task Status Input Params (Task List)===========")
+        Timber.d("user_id=======> " + Pref.user_id)
+        Timber.d("session_token=======> " + Pref.session_token)
+        Timber.d("task_id=======> " + task.task_id)
+        Timber.d("isCompleted=======> " + task.isCompleted)
+        Timber.d("===================================================================")
 
         progress_wheel.spin()
         val repository = TaskRepoProvider.taskRepoProvider()
@@ -408,7 +409,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as BaseResponse
-                            XLog.d("UPDATE TASK STATUS: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("UPDATE TASK STATUS: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
 
                             progress_wheel.stopSpinning()
 
@@ -423,7 +424,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("UPDATE TASK STATUS: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("UPDATE TASK STATUS: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage("Task status updated successfully")
                             initAdapter()
@@ -437,12 +438,12 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
             return
         }
 
-        XLog.d("============Sync Update Task Status Input Params (Task List)===========")
-        XLog.d("user_id=======> " + Pref.user_id)
-        XLog.d("session_token=======> " + Pref.session_token)
-        XLog.d("task_id=======> " + task.task_id)
-        XLog.d("isCompleted=======> " + task.isCompleted)
-        XLog.d("========================================================================")
+        Timber.d("============Sync Update Task Status Input Params (Task List)===========")
+        Timber.d("user_id=======> " + Pref.user_id)
+        Timber.d("session_token=======> " + Pref.session_token)
+        Timber.d("task_id=======> " + task.task_id)
+        Timber.d("isCompleted=======> " + task.isCompleted)
+        Timber.d("========================================================================")
 
         progress_wheel.spin()
         val repository = TaskRepoProvider.taskRepoProvider()
@@ -452,7 +453,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as BaseResponse
-                            XLog.d("UPDATE TASK STATUS: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("UPDATE TASK STATUS: " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
 
                             progress_wheel.stopSpinning()
                             (mContext as DashboardActivity).showSnackMessage(response.message!!)
@@ -464,7 +465,7 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("UPDATE TASK STATUS: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("UPDATE TASK STATUS: " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })

@@ -58,7 +58,7 @@ import com.eurobond.faceRec.env.ImageUtils;
 import com.eurobond.faceRec.env.Logger;
 import com.eurobond.faceRec.tflite.SimilarityClassifier;
 import com.eurobond.faceRec.tracking.MultiBoxTracker;
-import com.elvishew.xlog.XLog;
+;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.mlkit.vision.common.InputImage;
@@ -76,6 +76,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static java.sql.DriverManager.println;
+
+import timber.log.Timber;
 
 /**
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
@@ -650,8 +652,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             upperLi=1.0f;
           }
 //          if (conf>0.78f && conf < 1.0f) {
-          XLog.d("DetectorActivity face _conf CustomStatic.FaceDetectionAccuracyLower : "+CustomStatic.FaceDetectionAccuracyLower.toString());
-          XLog.d("DetectorActivity face _conf lowerLi: "+lowerLi.toString() + " upperLi : "+upperLi.toString()+" conf: "+String.valueOf(conf));
+          Timber.d("DetectorActivity face _conf CustomStatic.FaceDetectionAccuracyLower : "+CustomStatic.FaceDetectionAccuracyLower.toString());
+          Timber.d("DetectorActivity face _conf lowerLi: "+lowerLi.toString() + " upperLi : "+upperLi.toString()+" conf: "+String.valueOf(conf));
           if (conf>lowerLi && conf < 1.0f) {
             //if (conf>lowerLi && conf < upperLi) {
           //if (conf >0.6f && conf < 1.0f) {  //  it will toughen the matching process which will create problem in real life

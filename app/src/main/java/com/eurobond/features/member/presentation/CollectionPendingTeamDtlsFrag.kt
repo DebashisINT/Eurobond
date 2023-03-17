@@ -34,7 +34,7 @@ import com.eurobond.features.shopdetail.presentation.model.addcollection.AddColl
 import com.eurobond.features.viewAllOrder.api.addorder.AddOrderRepoProvider
 import com.eurobond.features.viewAllOrder.model.AddOrderInputParamsModel
 import com.eurobond.features.viewAllOrder.model.AddOrderInputProductList
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers

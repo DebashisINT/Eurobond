@@ -65,7 +65,8 @@ class NewDateWiseOrderListAdapter(context: Context, userLocationDataEntity: Arra
                 itemView.total_visited_value_TV.text = userLocationDataEntity[adapterPosition].order_id
                 if (!TextUtils.isEmpty(userLocationDataEntity[adapterPosition].date))
                     itemView.tv_order_date.text = AppUtils.convertDateTimeToCommonFormat(userLocationDataEntity[adapterPosition].date!!)
-                val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(userLocationDataEntity[adapterPosition].shop_id)
+
+                var shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(userLocationDataEntity[adapterPosition].shop_id)
                 itemView.myshop_name_TV.text = shop?.shopName
                 itemView.myshop_address_TV.text = shop?.address
                 val list = AppDatabase.getDBInstance()!!.orderProductListDao().getDataAccordingToOrderId(userLocationDataEntity[adapterPosition].order_id!!) as ArrayList<OrderProductListEntity>
@@ -88,6 +89,9 @@ class NewDateWiseOrderListAdapter(context: Context, userLocationDataEntity: Arra
                             listener.onSyncClick(adapterPosition)
                         })
                     }
+                }else{
+                    //assignedto_dd map in shop begin
+                    //itemView.sync_icon.setImageResource(R.drawable.ic_registered_shop_sync)
                 }
 
                 var totalAmount = 0.0

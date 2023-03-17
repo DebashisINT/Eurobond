@@ -41,7 +41,7 @@ import com.eurobond.app.Pref
 import com.eurobond.features.location.LocationWizard
 import com.eurobond.features.login.model.LoginStateListDataModel
 import com.eurobond.features.login.model.productlistmodel.ProductRateDataModel
-import com.elvishew.xlog.XLog
+
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.gson.Gson
@@ -50,6 +50,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.WriterException
 import com.google.zxing.qrcode.QRCodeWriter
 import org.apache.commons.lang3.StringEscapeUtils
+import timber.log.Timber
 import java.io.*
 import java.math.BigDecimal
 import java.sql.Timestamp
@@ -696,11 +697,11 @@ class AppUtils {
                 sHours = "5"
             }
 
-            XLog.e("====CALCULATE DURATION (AppUtils)=====")
-            XLog.e("Hours Spent====> $sHours")
+            Timber.e("====CALCULATE DURATION (AppUtils)=====")
+            Timber.e("Hours Spent====> $sHours")
 
             val duration = "$sHours:$sMinute:$sSecond"
-            XLog.e("Duration Spent====> $duration")
+            Timber.e("Duration Spent====> $duration")
 
             return duration*/
 
@@ -765,11 +766,11 @@ class AppUtils {
                 sHours = "5"
             }
 
-            XLog.e("====CALCULATE DURATION (AppUtils)=====")
-            XLog.e("Hours Spent====> $sHours")
+            Timber.e("====CALCULATE DURATION (AppUtils)=====")
+            Timber.e("Hours Spent====> $sHours")
 
             /*try {
-                XLog.e("Minutes Spent====> $sMinute")
+                Timber.e("Minutes Spent====> $sMinute")
                 sMinute.toInt()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -777,7 +778,7 @@ class AppUtils {
             }*/
 
             val duration = "$sHours:$sMinute:$sSecond"
-            XLog.e("Duration Spent====> $duration")
+            Timber.e("Duration Spent====> $duration")
 
             return duration
         }
@@ -2066,9 +2067,9 @@ class AppUtils {
         fun getCompressImage(filePath: String): Long {
             val file = File(filePath)
 
-            //XLog.e("Dashboard", "image file size before compression=======> " + file.length())
+            //Timber.e("Dashboard", "image file size before compression=======> " + file.length())
 
-            XLog.e("Dashboard: image file size before compression=======> " + file.length())
+            Timber.e("Dashboard: image file size before compression=======> " + file.length())
 
             try {
                 val bitmapImage = BitmapFactory.decodeFile(filePath)
@@ -2088,20 +2089,20 @@ class AppUtils {
                 fos.flush()
                 fos.close()
 
-                XLog.e("Dashboard: image file path======> $filePath")
-                XLog.e("Dashboard: image file size after compression=======> " + file.length())
+                Timber.e("Dashboard: image file path======> $filePath")
+                Timber.e("Dashboard: image file size after compression=======> " + file.length())
                 return file.length()
             } catch (e: FileNotFoundException) {
                 // TODO Auto-generated catch block
                 e.printStackTrace()
-                XLog.e("Dashboard: " + e.localizedMessage)
+                Timber.e("Dashboard: " + e.localizedMessage)
             } catch (e: IOException) {
                 // TODO Auto-generated catch block
                 e.printStackTrace()
-                XLog.e("Dashboard: " + e.localizedMessage)
+                Timber.e("Dashboard: " + e.localizedMessage)
             } catch (e: Exception) {
                 e.printStackTrace()
-                XLog.e("Dashboard: " + e.localizedMessage)
+                Timber.e("Dashboard: " + e.localizedMessage)
             }
             return 0
         }
