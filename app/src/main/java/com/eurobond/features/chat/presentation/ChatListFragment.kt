@@ -108,9 +108,9 @@ class ChatListFragment : BaseFragment(), View.OnClickListener {
             loading = true
             getChatList()
         }
-        else
+        else {
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
-
+        }
         return view
     }
 
@@ -232,9 +232,9 @@ class ChatListFragment : BaseFragment(), View.OnClickListener {
                                     chatAdapter?.refreshList(response.chat_list!!)
                                     //rv_chat_list.scrollToPosition(chatAdapter?.chatList!!.size - 1)
                                 }
-                                else
+                                else {
                                     chatAdapter?.refreshListForPagination(response.chat_list!!)
-
+                                }
                                 val notificationManager = mContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                                 response.chat_list?.forEach {
                                     notificationManager.cancel((toID + "#" + it.id).hashCode())
@@ -266,10 +266,12 @@ class ChatListFragment : BaseFragment(), View.OnClickListener {
         when(v?.id) {
             R.id.tv_send_btn -> {
                 AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
-                if (TextUtils.isEmpty(et_msg.text.toString().trim()))
+                if (TextUtils.isEmpty(et_msg.text.toString().trim())) {
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_msg))
-                else
+                }
+                else {
                     sendChat()
+                }
             }
         }
     }

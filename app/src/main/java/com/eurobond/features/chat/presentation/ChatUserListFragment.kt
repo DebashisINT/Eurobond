@@ -128,8 +128,9 @@ class ChatUserListFragment : BaseFragment(), View.OnClickListener {
             if (i == 0) {
                 programFab1.setImageResource(R.drawable.ic_tick_float_icon)
                 programFab1.colorNormal = mContext.resources.getColor(R.color.delivery_status_green)
-            } else if (i == 1)
+            } else if (i == 1) {
                 programFab2.setImageResource(R.drawable.ic_tick_float_icon_gray)
+            }
         }
     }
 
@@ -232,9 +233,9 @@ class ChatUserListFragment : BaseFragment(), View.OnClickListener {
                 val name = it.name.substring(0, it.name.indexOf("("))
                 (mContext as DashboardActivity).userName = name
             }
-            else
+            else {
                 (mContext as DashboardActivity).userName = it.name
-
+            }
             (mContext as DashboardActivity).isGrp = it.isGroup
             (mContext as DashboardActivity).grpId = it.id
             (mContext as DashboardActivity).loadFragment(FragType.ChatListFragment, true, it)

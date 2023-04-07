@@ -71,6 +71,7 @@ import java.util.*
 // 2.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  Suman 20/01/2023 contact person selection mandatory if IsContactPersonSelectionRequiredinRevisit is true
 // 3.0  AppV 4.0.7  AddFeedbackSingleBtnDialog  Saheli    07/01/2023 mantis 25649 add feedback using  voice
 // 4.0  AppV 4.0.7  AddFeedbackSingleBtnDialog  Saheli    13/01/2023 mantis 25649 add feedback using  voice plus text handle
+// 5.0  AppV 4.0.7  AddFeedbackSingleBtnDialog  Saheli    22/01/2023 mantis 25649 modified due to UI problem
 
 class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 
@@ -218,6 +219,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
         if (Pref.isShowVisitRemarks) {
             rl_remarks.visibility = View.VISIBLE
             til_feedback.visibility = View.GONE
+            iv_dialog_add_feedback_mic.visibility = View.GONE //5.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 modified due to UI problem
         }
         else {
             rl_remarks.visibility = View.GONE

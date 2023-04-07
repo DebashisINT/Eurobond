@@ -121,10 +121,12 @@ class ApplyLeaveFragment : BaseFragment(), View.OnClickListener, DatePickerDialo
 
         openDateRangeCalendar()
 
-        if (Pref.willLeaveApprovalEnable)
+        if (Pref.willLeaveApprovalEnable) {
             tv_submit.text = getString(R.string.send_for_approval)
-        else
+        }
+        else {
             tv_submit.text = getString(R.string.submit_button_text)
+        }
     }
 
     private fun openDateRangeCalendar() {
@@ -185,10 +187,12 @@ class ApplyLeaveFragment : BaseFragment(), View.OnClickListener, DatePickerDialo
                                             progress_wheel.stopSpinning()
                                         }
                                     }
-                                } else
+                                } else {
                                     progress_wheel.stopSpinning()
-                            } else
+                                }
+                            } else {
                                 progress_wheel.stopSpinning()
+                            }
                         }, { error ->
                             progress_wheel.stopSpinning()
                             (mContext as DashboardActivity).showSnackMessage("ERROR")
@@ -240,12 +244,15 @@ class ApplyLeaveFragment : BaseFragment(), View.OnClickListener, DatePickerDialo
     }
 
     private fun visibilityCheck() {
-        if (TextUtils.isEmpty(leaveId))
+        if (TextUtils.isEmpty(leaveId)) {
             (mContext as DashboardActivity).showSnackMessage("Please select leave type")
-        else if (TextUtils.isEmpty(startDate) || TextUtils.isEmpty(endDate))
+        }
+        else if (TextUtils.isEmpty(startDate) || TextUtils.isEmpty(endDate)) {
             (mContext as DashboardActivity).showSnackMessage("Please select date range")
-        else if (Pref.willLeaveApprovalEnable && TextUtils.isEmpty(et_leave_reason_text.text.toString().trim()))
+        }
+        else if (Pref.willLeaveApprovalEnable && TextUtils.isEmpty(et_leave_reason_text.text.toString().trim())) {
             (mContext as DashboardActivity).showSnackMessage("Please enter reason")
+        }
         else{
             //callLeaveApprovalApi()
             calculateDaysForLeave()
@@ -362,20 +369,26 @@ class ApplyLeaveFragment : BaseFragment(), View.OnClickListener, DatePickerDialo
 
         var tt=AppUtils.getCurrentDateTime()
 
-        if (TextUtils.isEmpty(Pref.current_latitude))
+        if (TextUtils.isEmpty(Pref.current_latitude)) {
             leaveApproval.leave_lat = "0.0"
-        else
+        }
+        else {
             leaveApproval.leave_lat = Pref.current_latitude
+        }
 
-        if (TextUtils.isEmpty(Pref.current_longitude))
+        if (TextUtils.isEmpty(Pref.current_longitude)) {
             leaveApproval.leave_long = "0.0"
-        else
+        }
+        else {
             leaveApproval.leave_long = Pref.current_longitude
+        }
 
-        if (TextUtils.isEmpty(Pref.current_latitude))
+        if (TextUtils.isEmpty(Pref.current_latitude)) {
             leaveApproval.leave_add = ""
-        else
+        }
+        else {
             leaveApproval.leave_add = LocationWizard.getLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
+        }
 
 
         if (!TextUtils.isEmpty(et_leave_reason_text.text.toString().trim()))

@@ -89,9 +89,6 @@ class NewDateWiseOrderListAdapter(context: Context, userLocationDataEntity: Arra
                             listener.onSyncClick(adapterPosition)
                         })
                     }
-                }else{
-                    //assignedto_dd map in shop begin
-                    //itemView.sync_icon.setImageResource(R.drawable.ic_registered_shop_sync)
                 }
 
                 var totalAmount = 0.0

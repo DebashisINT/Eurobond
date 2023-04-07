@@ -80,6 +80,12 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
         super.onAttach(context)
         mContext = context
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        progrwss_wheel.stopSpinning()
+    }
+
     companion object {
         var finalOrderDataList: ArrayList<FinalOrderData> = ArrayList()
         var shop_id: String = ""

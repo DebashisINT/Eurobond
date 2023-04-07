@@ -98,10 +98,15 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
 
             if(prooductList.get(adapterPosition).submitedQty.equals("-1")){
                 itemView.tv_row_ord_opti_product_list_qty.setText("")
+                if(!Pref.IsViewMRPInOrder && !Pref.IsDiscountInOrder){
+                    itemView.tv_row_ord_opti_product_list_rate.setText(prooductList.get(adapterPosition).rate)
+                }
                 itemView.tv_row_ord_opti_product_list_add_text.text = "Add"
                 itemView.ll_row_ord_opti_product_list_add_text_root.background.setTint(mContext.getResources().getColor(R.color.color_custom_blue))
                 itemView.iv_row_ord_opti_product_list_add_img.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.icon_shopping))
-            }else{itemView.tv_row_ord_opti_product_list_qty.setText(prooductList.get(adapterPosition).submitedQty)
+            }else{
+                itemView.tv_row_ord_opti_product_list_qty.setText(prooductList.get(adapterPosition).submitedQty)
+                itemView.tv_row_ord_opti_product_list_rate.setText(finalOrderDataList.filter { it.product_id.equals(prooductList.get(adapterPosition).product_id) }.first().rate.toString())
                 itemView.tv_row_ord_opti_product_list_add_text.text = "Added"
                 itemView.ll_row_ord_opti_product_list_add_text_root.background.setTint(mContext.getResources().getColor(R.color.color_custom_green))
                 itemView.iv_row_ord_opti_product_list_add_img.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_tick_nw))
@@ -143,7 +148,7 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
                         finalOrderDataList.filter { it.product_id.equals(prooductList.get(adapterPosition).product_id)}.first().product_discount_show=changingDisc
                     }
                     ToasterMiddle.msgShort(mContext,"Product updated.")
-                    notifyDataSetChanged()
+                    //notifyDataSetChanged()
                 }else{
                     var obj = FinalOrderData()
                     obj.apply {
@@ -163,8 +168,11 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
                     finalOrderDataList.add(obj)
                     prooductList.get(adapterPosition).submitedQty = obj.qty
 
+                    itemView.tv_row_ord_opti_product_list_add_text.text = "Added"
+                    itemView.ll_row_ord_opti_product_list_add_text_root.background.setTint(mContext.getResources().getColor(R.color.color_custom_green))
+
                     ToasterMiddle.msgShort(mContext,prooductList.get(adapterPosition).product_name + " added.")
-                    notifyDataSetChanged()
+                    //notifyDataSetChanged()
                 }
                 listner.onProductAddClick(finalOrderDataList.size,finalOrderDataList.sumOf { it.rate.toDouble() * it.qty.toDouble() })
             }
@@ -192,6 +200,15 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
             itemView.tv_row_ord_opti_product_list_rate.setOnFocusChangeListener(object :View.OnFocusChangeListener{
                 override fun onFocusChange(v: View?, hasFocus: Boolean) {
                     if(hasFocus){
+                        try{
+                            var prevRateText = itemView.tv_row_ord_opti_product_list_rate.text.toString()
+                            if(prevRateText.toDouble() == 0.0){
+                                itemView.tv_row_ord_opti_product_list_rate.setText("")
+                            }
+                        }catch (ex:Exception){
+                            ex.printStackTrace()
+                        }
+
                         itemView.tv_row_ord_opti_product_list_rate.addTextChangedListener(
                             CustomSpecialTextWatcher1(itemView.tv_row_ord_opti_product_list_rate, 5, 2, object : CustomSpecialTextWatcher1.GetCustomTextChangeListener {
                                 override fun beforeTextChange(text: String) {
@@ -199,6 +216,7 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
                                 }
 
                                 override fun customTextChange(text: String) {
+
                                 }
                             })
                         )

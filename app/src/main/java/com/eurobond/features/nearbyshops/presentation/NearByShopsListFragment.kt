@@ -242,6 +242,7 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun getOwnShop(allShopList: MutableList<AddShopDBModelEntity>) {
+        progress_wheel.spin()
         val newList = java.util.ArrayList<AddShopDBModelEntity>()
 
         for (i in allShopList.indices) {
@@ -250,28 +251,8 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 newList.add(allShopList[i])
         }
 
-        //assignedto_dd map in shop begin
-        /*try {
-            var assignToDDList = AppDatabase.getDBInstance()?.ddListDao()?.getAll()
-            if(assignToDDList!!.size > 0){
-                for(l in 0..assignToDDList.size-1){
-                    var obj = AddShopDBModelEntity()
-                    obj.shop_id = assignToDDList!!.get(l).dd_id
-                    obj.shopName = assignToDDList.get(l).dd_name
-                    obj.shopLat = assignToDDList.get(l).dd_latitude!!.toDouble()
-                    obj.shopLong = assignToDDList.get(l).dd_longitude!!.toDouble()
-                    obj.address = LocationWizard.getLocationName(mContext, obj.shopLat.toDouble(),  obj.shopLong .toDouble())
-                    obj.isUploaded = true
-                    obj.type = "4"
-                    newList.add(obj)
-                }
-            }
-        }catch (ex:Exception){
-            ex.printStackTrace()
-        }*/
-        //assignedto_dd map in shop end
-
         list = newList
+        progress_wheel.stopSpinning()
     }
 
     private fun callMarketingCategoryListApi() {
@@ -417,73 +398,99 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
             shopObj.assigned_to_pp_id = shop_list[i].assigned_to_pp_id
             //shopObj.lastVisitedDate = AppUtils.getCurrentDate()
 
-            if (shop_list[i].last_visit_date!!.contains("."))
-                shopObj.lastVisitedDate = AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!.split(".")[0])
-            else
+            if (shop_list[i].last_visit_date!!.contains(".")) {
+                shopObj.lastVisitedDate =
+                    AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!.split(".")[0])
+            }
+            else {
                 shopObj.lastVisitedDate = AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!)
-
-            if (shopObj.lastVisitedDate == AppUtils.getCurrentDateChanged())
+            }
+            if (shopObj.lastVisitedDate == AppUtils.getCurrentDateChanged()) {
                 shopObj.visited = true
-            else
+                }
+            else {
                 shopObj.visited = false
+                }
 
             shopObj.is_otp_verified = shop_list[i].is_otp_verified
             shopObj.added_date = shop_list[i].added_date
 
-            if (shop_list[i].amount == null || shop_list[i].amount == "0.00")
+            if (shop_list[i].amount == null || shop_list[i].amount == "0.00") {
                 shopObj.amount = ""
-            else
+                }
+            else {
                 shopObj.amount = shop_list[i].amount
+                }
 
-            if (shop_list[i].entity_code == null)
+            if (shop_list[i].entity_code == null) {
                 shopObj.entity_code = ""
-            else
+                }
+            else {
                 shopObj.entity_code = shop_list[i].entity_code
+                }
 
-            if (shop_list[i].area_id == null)
+            if (shop_list[i].area_id == null) {
                 shopObj.area_id = ""
-            else
+                }
+            else {
                 shopObj.area_id = shop_list[i].area_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].model_id))
+            if (TextUtils.isEmpty(shop_list[i].model_id)) {
                 shopObj.model_id = ""
-            else
+                }
+            else {
                 shopObj.model_id = shop_list[i].model_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].primary_app_id))
+            if (TextUtils.isEmpty(shop_list[i].primary_app_id)) {
                 shopObj.primary_app_id = ""
-            else
+                }
+            else {
                 shopObj.primary_app_id = shop_list[i].primary_app_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].secondary_app_id))
+            if (TextUtils.isEmpty(shop_list[i].secondary_app_id)) {
                 shopObj.secondary_app_id = ""
-            else
+                }
+            else {
                 shopObj.secondary_app_id = shop_list[i].secondary_app_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].lead_id))
+            if (TextUtils.isEmpty(shop_list[i].lead_id)) {
                 shopObj.lead_id = ""
-            else
+                }
+            else {
                 shopObj.lead_id = shop_list[i].lead_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].stage_id))
+            if (TextUtils.isEmpty(shop_list[i].stage_id)) {
                 shopObj.stage_id = ""
-            else
+                }
+            else {
                 shopObj.stage_id = shop_list[i].stage_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].funnel_stage_id))
+            if (TextUtils.isEmpty(shop_list[i].funnel_stage_id)) {
                 shopObj.funnel_stage_id = ""
-            else
+                }
+            else {
                 shopObj.funnel_stage_id = shop_list[i].funnel_stage_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].booking_amount))
+            if (TextUtils.isEmpty(shop_list[i].booking_amount)) {
                 shopObj.booking_amount = ""
-            else
+                }
+            else {
                 shopObj.booking_amount = shop_list[i].booking_amount
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].type_id))
+            if (TextUtils.isEmpty(shop_list[i].type_id)) {
                 shopObj.type_id = ""
-            else
+                }
+            else {
                 shopObj.type_id = shop_list[i].type_id
+                }
 
             shopObj.family_member_dob = shop_list[i].family_member_dob
             shopObj.director_name = shop_list[i].director_name
@@ -510,60 +517,80 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
             shopObj.assistant_doa = shop_list[i].assistant_doa
             shopObj.assistant_family_dob = shop_list[i].assistant_family_dob
 
-            if (TextUtils.isEmpty(shop_list[i].entity_id))
+            if (TextUtils.isEmpty(shop_list[i].entity_id)) {
                 shopObj.entity_id = ""
-            else
+                }
+            else {
                 shopObj.entity_id = shop_list[i].entity_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].party_status_id))
+            if (TextUtils.isEmpty(shop_list[i].party_status_id)) {
                 shopObj.party_status_id = ""
-            else
+                }
+            else {
                 shopObj.party_status_id = shop_list[i].party_status_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].retailer_id))
+            if (TextUtils.isEmpty(shop_list[i].retailer_id)) {
                 shopObj.retailer_id = ""
-            else
+                }
+            else {
                 shopObj.retailer_id = shop_list[i].retailer_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].dealer_id))
+            if (TextUtils.isEmpty(shop_list[i].dealer_id)) {
                 shopObj.dealer_id = ""
-            else
+                }
+            else {
                 shopObj.dealer_id = shop_list[i].dealer_id
-
-            if (TextUtils.isEmpty(shop_list[i].beat_id))
+            }
+            if (TextUtils.isEmpty(shop_list[i].beat_id)) {
                 shopObj.beat_id = ""
-            else
+                }
+            else {
                 shopObj.beat_id = shop_list[i].beat_id
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].account_holder))
+            if (TextUtils.isEmpty(shop_list[i].account_holder)) {
                 shopObj.account_holder = ""
-            else
+                }
+            else {
                 shopObj.account_holder = shop_list[i].account_holder
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].account_no))
+            if (TextUtils.isEmpty(shop_list[i].account_no)) {
                 shopObj.account_no = ""
-            else
+                }
+            else {
                 shopObj.account_no = shop_list[i].account_no
+                }
 
-            if (TextUtils.isEmpty(shop_list[i].bank_name))
+            if (TextUtils.isEmpty(shop_list[i].bank_name)) {
                 shopObj.bank_name = ""
-            else
+                }
+            else {
                 shopObj.bank_name = shop_list[i].bank_name
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].ifsc_code))
+            if (TextUtils.isEmpty(shop_list[i].ifsc_code)) {
                 shopObj.ifsc_code = ""
-            else
+                }
+            else {
                 shopObj.ifsc_code = shop_list[i].ifsc_code
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].upi))
+            if (TextUtils.isEmpty(shop_list[i].upi)) {
                 shopObj.upi_id = ""
-            else
+            }
+            else {
                 shopObj.upi_id = shop_list[i].upi
-
-            if (TextUtils.isEmpty(shop_list[i].assigned_to_shop_id))
+            }
+            if (TextUtils.isEmpty(shop_list[i].assigned_to_shop_id)) {
                 shopObj.assigned_to_shop_id = ""
-            else
+                }
+            else {
                 shopObj.assigned_to_shop_id = shop_list[i].assigned_to_shop_id
+                }
 
             shopObj.project_name=shop_list[i].project_name
             shopObj.landline_number=shop_list[i].landline_number
@@ -673,10 +700,12 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
             if (i == 0) {
                 programFab1.setImageResource(R.drawable.ic_tick_float_icon)
                 programFab1.colorNormal = mContext.resources.getColor(R.color.delivery_status_green)
-            } else if (i == 1)
+            } else if (i == 1) {
                 programFab2.setImageResource(R.drawable.ic_tick_float_icon_gray)
-            else
+                }
+            else {
                 programFab3.setImageResource(R.drawable.ic_tick_float_icon_gray)
+                }
 
         }
 
@@ -803,8 +832,12 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                 if(status.equals("Inactive")){
                                     AppDatabase.getDBInstance()!!.addShopEntryDao().updateShopStatus(obj.shop_id,"0")
                                     AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsEditUploaded(0,obj.shop_id)
-                                    if(AppUtils.isOnline(mContext))
-                                        convertToReqAndApiCallForShopStatus(AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(obj.shop_id!!))
+                                    if(AppUtils.isOnline(mContext)) {
+                                        convertToReqAndApiCallForShopStatus(
+                                            AppDatabase.getDBInstance()!!.addShopEntryDao()
+                                                .getShopByIdN(obj.shop_id!!)
+                                        )
+                                    }
                                     else{
                                         (mContext as DashboardActivity).showSnackMessage("Status updated successfully")
                                         initAdapter()
@@ -1021,10 +1054,12 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 if (list[position].isUploaded) {
                     val stageList = AppDatabase.getDBInstance()?.stageDao()?.getAll() as ArrayList<StageEntity>
 
-                    if (stageList == null || stageList.isEmpty())
+                    if (stageList == null || stageList.isEmpty()) {
                         geStageApi(position)
-                    else
+                        }
+                    else {
                         showStageDialog(stageList, position)
+                    }
                 } else {
                     /*if (Pref.isReplaceShopText)
                         (mContext as DashboardActivity).showSnackMessage("Please sync this customer first.")
@@ -1106,8 +1141,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                         } catch (e: Exception) {
                                             e.printStackTrace()
                                         }
-                                    } else
+                                    } else {
                                         (mContext as DashboardActivity).showSnackMessage("Pdf can not be sent.")
+                                        }
                                 }
                             })
                 }
@@ -1129,8 +1165,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
-                    } else
+                    } else {
                         (mContext as DashboardActivity).showSnackMessage("Pdf can not be sent.")
+                        }
                 }
             }
 
@@ -1138,8 +1175,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 floating_fab.close(true)
                 try {
 
-                    if (!Pref.isAddAttendence)
+                    if (!Pref.isAddAttendence) {
                         (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+                    }
                     else {
                         if(Pref.IsCollectionOrderWise){
                             (mContext as DashboardActivity).loadFragment(FragType.NewOrderListFragment, true, "")
@@ -1278,10 +1316,12 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                     }
 
                     override fun onRightClick(editableData: String, selectedTypeId: String) {
-                        if (list[position].isUploaded)
+                        if (list[position].isUploaded) {
                             updatePartyStatus(selectedTypeId, editableData, list[position])
-                        else
+                        }
+                        else {
                             (mContext as DashboardActivity).showSnackMessage("Please sync this " + Pref.shopText + " first.")
+                            }
                     }
                 }).show((mContext as DashboardActivity).supportFragmentManager, "")
             }
@@ -1294,10 +1334,12 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                     }
 
                     override fun onRightClick(accountHolder: String, accountNo: String, bankName: String, ifsc: String, upi: String) {
-                        if (list[position].isUploaded)
+                        if (list[position].isUploaded) {
                             updateBankDetails(accountHolder, accountNo, bankName, ifsc, upi, list[position])
-                        else
+                        }
+                        else {
                             (mContext as DashboardActivity).showSnackMessage("Please sync this " + Pref.shopText + " first.")
+                            }
                     }
                 }).show((mContext as DashboardActivity).supportFragmentManager, "")
 
@@ -2166,19 +2208,23 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
             if (sList != null && sList.isNotEmpty())
                 shopDurationData.total_visit_count = sList[0].totalVisitCount
 
-            if (!TextUtils.isEmpty(shopActivity.feedback))
+            if (!TextUtils.isEmpty(shopActivity.feedback)) {
                 shopDurationData.feedback = shopActivity.feedback
-            else
+                }
+            else {
                 shopDurationData.feedback = ""
+                }
 
             shopDurationData.isFirstShopVisited = shopActivity.isFirstShopVisited
             shopDurationData.distanceFromHomeLoc = shopActivity.distance_from_home_loc
             shopDurationData.next_visit_date = shopActivity.next_visit_date
 
-            if (!TextUtils.isEmpty(shopActivity.early_revisit_reason))
+            if (!TextUtils.isEmpty(shopActivity.early_revisit_reason)) {
                 shopDurationData.early_revisit_reason = shopActivity.early_revisit_reason
-            else
+                }
+            else {
                 shopDurationData.early_revisit_reason = ""
+                }
 
             shopDurationData.device_model = shopActivity.device_model
             shopDurationData.android_version = shopActivity.android_version
@@ -2202,20 +2248,25 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 shopDurationData.updated_on = ""
             }
 
-            if (!TextUtils.isEmpty(shopActivity.pros_id!!))
+            if (!TextUtils.isEmpty(shopActivity.pros_id!!)) {
                 shopDurationData.pros_id = shopActivity.pros_id!!
-            else
+                }
+            else {
                 shopDurationData.pros_id = ""
-
-            if (!TextUtils.isEmpty(shopActivity.agency_name!!))
-                shopDurationData.agency_name =shopActivity.agency_name!!
-            else
+            }
+            if (!TextUtils.isEmpty(shopActivity.agency_name!!)) {
+                shopDurationData.agency_name = shopActivity.agency_name!!
+            }
+            else {
                 shopDurationData.agency_name = ""
-
-            if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value))
-                shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
-            else
+            }
+            if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value)) {
+                shopDurationData.approximate_1st_billing_value =
+                    shopActivity.approximate_1st_billing_value!!
+            }
+            else {
                 shopDurationData.approximate_1st_billing_value = ""
+                }
             //duration garbage fix
             try{
                 if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
@@ -2263,19 +2314,23 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 if (sList != null && sList.isNotEmpty())
                     shopDurationData.total_visit_count = sList[0].totalVisitCount
 
-                if (!TextUtils.isEmpty(shopActivity.feedback))
+                if (!TextUtils.isEmpty(shopActivity.feedback)) {
                     shopDurationData.feedback = shopActivity.feedback
-                else
+                    }
+                else {
                     shopDurationData.feedback = ""
+                    }
 
                 shopDurationData.isFirstShopVisited = shopActivity.isFirstShopVisited
                 shopDurationData.distanceFromHomeLoc = shopActivity.distance_from_home_loc
                 shopDurationData.next_visit_date = shopActivity.next_visit_date
 
-                if (!TextUtils.isEmpty(shopActivity.early_revisit_reason))
+                if (!TextUtils.isEmpty(shopActivity.early_revisit_reason)) {
                     shopDurationData.early_revisit_reason = shopActivity.early_revisit_reason
-                else
+                    }
+                else {
                     shopDurationData.early_revisit_reason = ""
+                }
 
                 shopDurationData.device_model = shopActivity.device_model
                 shopDurationData.android_version = shopActivity.android_version
@@ -2299,20 +2354,27 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                     shopDurationData.updated_on = ""
                 }
 
-                if (!TextUtils.isEmpty(shopActivity.pros_id!!))
+                if (!TextUtils.isEmpty(shopActivity.pros_id!!)) {
                     shopDurationData.pros_id = shopActivity.pros_id!!
-                else
+                    }
+                else {
                     shopDurationData.pros_id = ""
+                    }
 
-                if (!TextUtils.isEmpty(shopActivity.agency_name!!))
-                    shopDurationData.agency_name =shopActivity.agency_name!!
-                else
+                if (!TextUtils.isEmpty(shopActivity.agency_name!!)) {
+                    shopDurationData.agency_name = shopActivity.agency_name!!
+                }
+                else {
                     shopDurationData.agency_name = ""
+                    }
 
-                if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value))
-                    shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
-                else
+                if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value)) {
+                    shopDurationData.approximate_1st_billing_value =
+                        shopActivity.approximate_1st_billing_value!!
+                }
+                else {
                     shopDurationData.approximate_1st_billing_value = ""
+                    }
                 //duration garbage fix
                 try{
                     if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
@@ -2672,8 +2734,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                 isAddressUpdated: Boolean, doc_degree: String?) {
 
         if (!AppUtils.isOnline(mContext)) {
-            if (isSync)
+            if (isSync) {
                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
+                }
             else {
                 if (isAddressUpdated) {
                     (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
@@ -2681,8 +2744,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                     initAdapter()
                     sendNotification(addShopReqData.shop_id!!)
                 }
-                else
+                else {
                     (mContext as DashboardActivity).showSnackMessage("Stage updated successfully")
+                    }
             }
             return
         }
@@ -2774,16 +2838,18 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                 if (addShopResult.status == NetworkConstant.SUCCESS) {
                                     AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsEditUploaded(1, addShopReqData.shop_id)
                                     progress_wheel.stopSpinning()
-                                    if (isSync)
+                                    if (isSync) {
                                         (mContext as DashboardActivity).showSnackMessage("Synced successfully")
+                                    }
                                     else {
                                         if (isAddressUpdated) {
                                             (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
 
                                             initAdapter()
                                             sendNotification(addShopReqData.shop_id!!)
-                                        } else
+                                        } else {
                                             (mContext as DashboardActivity).showSnackMessage("Stage updated successfully")
+                                            }
                                         //initAdapter()
                                     }
 
@@ -2805,8 +2871,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                 } else {
                                     progress_wheel.stopSpinning()
 
-                                    if (isSync)
+                                    if (isSync) {
                                         (mContext as DashboardActivity).showSnackMessage(getString(R.string.unable_to_sync))
+                                        }
                                     else {
                                         if (isAddressUpdated) {
                                             (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
@@ -2824,16 +2891,18 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                 BaseActivity.isApiInitiated = false
                                 progress_wheel.stopSpinning()
 
-                                if (isSync)
+                                if (isSync) {
                                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.unable_to_sync))
+                                    }
                                 else {
                                     if (isAddressUpdated) {
                                         (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
 
                                         initAdapter()
                                         sendNotification(addShopReqData.shop_id!!)
-                                    } else
+                                    } else {
                                         (mContext as DashboardActivity).showSnackMessage("Stage updated successfully")
+                                    }
                                     //initAdapter()
                                 }
                             })
@@ -2851,16 +2920,18 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                 if (addShopResult.status == NetworkConstant.SUCCESS) {
                                     AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsEditUploaded(1, addShopReqData.shop_id)
                                     progress_wheel.stopSpinning()
-                                    if (isSync)
+                                    if (isSync) {
                                         (mContext as DashboardActivity).showSnackMessage("Synced successfully")
+                                        }
                                     else {
                                         if (isAddressUpdated) {
                                             (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
 
                                             initAdapter()
                                             sendNotification(addShopReqData.shop_id!!)
-                                        } else
+                                        } else {
                                             (mContext as DashboardActivity).showSnackMessage("Stage updated successfully")
+                                            }
                                         //initAdapter()
                                     }
 
@@ -2882,16 +2953,18 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                 } else {
                                     progress_wheel.stopSpinning()
 
-                                    if (isSync)
+                                    if (isSync) {
                                         (mContext as DashboardActivity).showSnackMessage(getString(R.string.unable_to_sync))
+                                        }
                                     else {
                                         if (isAddressUpdated) {
                                             (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
 
                                             initAdapter()
                                             sendNotification(addShopReqData.shop_id!!)
-                                        } else
+                                        } else {
                                             (mContext as DashboardActivity).showSnackMessage("Stage updated successfully")
+                                            }
                                         //initAdapter()
                                     }
                                 }
@@ -2901,16 +2974,18 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                 BaseActivity.isApiInitiated = false
                                 progress_wheel.stopSpinning()
 
-                                if (isSync)
+                                if (isSync) {
                                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.unable_to_sync))
+                                    }
                                 else {
                                     if (isAddressUpdated) {
                                         (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
 
                                         initAdapter()
                                         sendNotification(addShopReqData.shop_id!!)
-                                    } else
+                                    } else {
                                         (mContext as DashboardActivity).showSnackMessage("Stage updated successfully")
+                                        }
                                     //initAdapter()
                                 }
                             })

@@ -2,18 +2,21 @@ package com.eurobond.features.login.api.productlistapi
 
 import com.eurobond.app.Pref
 import com.eurobond.app.domain.ProductListEntity
+import com.eurobond.app.utils.AppUtils
 import com.eurobond.features.login.model.productlistmodel.ProductListOfflineResponseModel
 import com.eurobond.features.login.model.productlistmodel.ProductListOfflineResponseModelNew
 import com.eurobond.features.login.model.productlistmodel.ProductListResponseModel
 import com.eurobond.features.login.model.productlistmodel.ProductRateListResponseModel
 import com.eurobond.features.viewAllOrder.orderOptimized.ProductRateOnlineListResponseModel
 import io.reactivex.Observable
+import timber.log.Timber
 
 /**
  * Created by Saikat on 20-11-2018.
  */
 class ProductListRepo(val apiService: ProductListApi) {
     fun getProductList(session_token: String, user_id: String, last_update_date: String): Observable<ProductListResponseModel> {
+        Timber.d("ProductListRepo hit ${Pref.isOrderShow} ${Pref.IsShowQuotationFooterforEurobond}" +  "Time : " + AppUtils.getCurrentDateTime())
         return apiService.getProductList(session_token, user_id, last_update_date)
     }
 

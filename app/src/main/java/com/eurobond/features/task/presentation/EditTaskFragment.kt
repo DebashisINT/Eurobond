@@ -130,18 +130,22 @@ class EditTaskFragment : BaseFragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.tv_submit_btn -> {
-                if (TextUtils.isEmpty(selectedDate))
+                if (TextUtils.isEmpty(selectedDate)) {
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_date))
-                else if (TextUtils.isEmpty(et_task.text.toString().trim()))
+                }
+                else if (TextUtils.isEmpty(et_task.text.toString().trim())) {
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_task))
+                }
                 else {
                     task?.task_name = et_task.text.toString().trim()
                     task?.details = et_details.text.toString().trim()
 
-                    if (!task?.isUploaded!!)
+                    if (!task?.isUploaded!!) {
                         saveData()
-                    else
+                    }
+                    else {
                         callEdiTaskApi()
+                    }
                 }
             }
 
@@ -221,10 +225,12 @@ class EditTaskFragment : BaseFragment(), View.OnClickListener {
     private fun saveData() {
         AppDatabase.getDBInstance()?.taskDao()?.updateTask(task!!)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             initPermissionCheck()
-        else
+        }
+        else {
             editEventToCalender()
+        }
 
         if (!AppUtils.isOnline(mContext)) {
             (mContext as DashboardActivity).showSnackMessage("Task edited successfully")
@@ -312,10 +318,12 @@ class EditTaskFragment : BaseFragment(), View.OnClickListener {
 
                             if (response.status == NetworkConstant.SUCCESS) {
 
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                     initPermissionCheck()
-                                else
+                                }
+                                else {
                                     editEventToCalender()
+                                }
 
                                 AppDatabase.getDBInstance()?.taskDao()?.updateTask(task!!)
                                 (mContext as DashboardActivity).showSnackMessage(response.message!!)

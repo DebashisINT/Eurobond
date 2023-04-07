@@ -130,5 +130,6 @@
     <color name="custom_sky_light">#4FCFF3FB</color>
     <color name="color_light_sky">#dde7f1</color>
     <color name="color_custom_blue">#0f4990</color>
+    <color name="color_transparent_blue">#C8F0F8FF</color>
 
 </resources>

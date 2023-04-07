@@ -8,7 +8,7 @@
 
     <ImageView
         android:id="@+id/logo_new"
-        android:layout_width="@dimen/_185sdp"
+        android:layout_width="@dimen/_165sdp"
         android:layout_height="@dimen/_70sdp"
         android:src="@drawable/breezelogo"
         android:layout_marginTop="@dimen/_170sdp"
@@ -26,8 +26,8 @@
         android:text="@string/name_filed_managenent_system"
         android:textColor="#287fb2"
         android:textSize="@dimen/_12sdp"
-        android:textStyle="bold"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:textStyle="bold" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/alert_splash_snack_bar"

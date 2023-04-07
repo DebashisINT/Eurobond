@@ -101,23 +101,12 @@ class ViewCartFragment : BaseFragment() {
         tv_total_order_value = view.findViewById(R.id.tv_total_order_value)
         tv_shop_name = view.findViewById(R.id.tv_shop_name)
 
-        //assignedto_dd map in shop begin
+
         var shop = AddShopDBModelEntity()
         try {
              shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(orderDetails?.shop_id)
         }catch (ex:Exception){
-                /*var objDD = orderDetails?.shop_id?.let {
-                    AppDatabase.getDBInstance()?.ddListDao()?.getSingleValue(
-                        it
-                    )
-                }
-            shop.shop_id = objDD!!.dd_id
-            shop.shopName = objDD.dd_name
-            shop.shopLat = objDD.dd_latitude!!.toDouble()
-            shop.shopLong = objDD.dd_longitude!!.toDouble()
-            shop.address = LocationWizard.getLocationName(mContext, objDD.dd_latitude!!.toDouble(),   objDD.dd_longitude!!.toDouble())
-            shop.isUploaded = true
-            shop.type = "4"*/
+            ex.printStackTrace()
         }
         tv_shop_name.text = shop.shopName
 

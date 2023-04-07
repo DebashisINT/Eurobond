@@ -296,6 +296,7 @@
     <string name="price_txt" translatable="false">20.00</string>V
     <string name="total_txt" translatable="false">2000.00</string>
     <string name="total_items" translatable="false">Total item(s):</string>
+    <string name="total_qtys" translatable="false">Total Qty(s):</string>
     <string name="total_amount" translatable="false">Total Amount:</string>
     <string name="order_items" translatable="false">Order item(s):</string>
     <string name="return_items" translatable="false">Return item(s):</string>

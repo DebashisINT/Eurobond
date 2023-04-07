@@ -103,6 +103,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val body = remoteMessage?.data?.get("body")
         val tag = remoteMessage?.data?.get("flag")
 
+        Timber.d("quto_mail FCM class tag ${remoteMessage?.data?.get("type")}")
+
         val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
 
         if (!TextUtils.isEmpty(body)) {
@@ -155,6 +157,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 intent.action = "FCM_ACTION_RECEIVER_LEAVE_STATUS"
                 LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
             }else if(remoteMessage?.data?.get("type").equals("flag_status_quotation_approval")){
+                Timber.d("quto_mail FCM class...")
                 //notification.sendFCMNotificaitonQuotationapprova(applicationContext, remoteMessage)
                 notification.sendFCMNotificaitonQuotationapprova1(applicationContext, remoteMessage)
                 val intent = Intent()

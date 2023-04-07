@@ -76,6 +76,7 @@ import java.lang.Math.abs
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 
 /**
@@ -903,8 +904,6 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 }
             }
         }
-
-        Timber.e("Temp Distance for accurate=> $tempDistance")
 
         lastLat = location.latitude
         lastLng = location.longitude
@@ -3331,8 +3330,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                         uploadNewShopVisit(shopDurationApiReqForNewShop,newShopList,shopDataList as ArrayList<ShopDurationRequestData>)
                     }
                     Handler().postDelayed(Runnable {
-                        if(shopDurationApiReqForOldShop.shop_list!!.size>0){
-                            compositeDisposable.add(
+                        if(shopDurationApiReqForOldShop.shop_list!!.size>0){ compositeDisposable.add(
                                 repository.shopDuration(shopDurationApiReq)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribeOn(Schedulers.io())
@@ -3342,16 +3340,37 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                                         Timber.d("callShopDurationApi : RESPONSE " + result.status)
                                         if (result.status == NetworkConstant.SUCCESS) {
 
+                                         var responseList = result.shop_list!!
                                             //callCompetetorImgUploadApi()
 
                                             if (!revisitStatusList.isEmpty()) {
                                                 callRevisitStatusUploadApi(revisitStatusList!!)
                                             }
 
+                                            var a = newShopList
+                                            var b = responseList
+
                                             if (newShopList.size > 0) {
+                                                println("loc_service ${newShopList.size}")
                                                 for (i in 0 until newShopList.size) {
                                                     callCompetetorImgUploadApi(newShopList[i].shop_id!!)
-                                                    AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, newShopList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(newShopList[i].visited_date!!) /*AppUtils.getCurrentDateForShopActi()*/)
+                                                    // 200/205 13-03-2023 mantis 0001
+                                                  try{
+                                                        newShopList[i].IsShopUpdate = responseList!!.filter { it.shopid.equals(newShopList[i].shop_id) }.first().IsShopUpdate
+                                                      println("loc_service ${newShopList[i].shop_id} ${newShopList[i].IsShopUpdate}")
+                                                      if(newShopList.get(i).IsShopUpdate!!)
+                                                        {
+                                                            AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, newShopList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(newShopList[i].visited_date!!))
+                                                            var testObj = AppDatabase.getDBInstance()!!.shopActivityDao().getShopForDay(newShopList[i].shop_id!!, AppUtils.getCurrentDateForShopActi()).get(0)
+                                                            println("loc_service room_update ${testObj.shopid} ${testObj.isUploaded}")
+                                                        }
+                                                    }
+                                                    catch(ex:Exception){
+                                                        ex.printStackTrace()
+                                                        println("loc_service catch ${ex.localizedMessage}")
+                                                        AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, newShopList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(newShopList[i].visited_date!!) /*AppUtils.getCurrentDateForShopActi()*/)
+                                                    }
+
                                                 }
                                                 syncShopVisitImage(newShopList)
                                             } else {
@@ -3410,9 +3429,26 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 //                    XLog.d("callShopDurationApi : RESPONSE " + result.status)
                     Timber.d("callShopDurationApi : RESPONSE " + result.status)
                     if (result.status == NetworkConstant.SUCCESS) {
+                        var responseList = result.shop_list!!
                         if (newShopList.size > 0) {
                             for (i in 0 until newShopList.size) {
-                                AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, newShopList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(newShopList[i].visited_date!!) /*AppUtils.getCurrentDateForShopActi()*/)
+                                // 200/205 13-03-2023 mantis 0001
+                              try{
+                                  newShopList.get(i).IsShopUpdate = responseList!!.filter { it.shopid.equals(newShopList.get(i).shop_id) }.first().IsShopUpdate
+                                  println("loc_service new shop 1 ${newShopList[i].shop_id} ${newShopList[i].IsShopUpdate}")
+                                  if(newShopList.get(i).IsShopUpdate!!)
+                                    {
+                                        AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, newShopList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(newShopList[i].visited_date!!) )//*AppUtils.getCurrentDateForShopActi()*//*)
+                                        var testObj = AppDatabase.getDBInstance()!!.shopActivityDao().getShopForDay(newShopList[i].shop_id!!, AppUtils.getCurrentDateForShopActi()).get(0)
+                                        println("loc_service room_update new ${testObj.shopid} ${testObj.isUploaded}")
+                                    }
+                                }
+                                catch(ex:Exception){
+                                    AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, newShopList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(newShopList[i].visited_date!!) /*AppUtils.getCurrentDateForShopActi()*/)
+                                  ex.printStackTrace()
+                            }
+
+
                             }
                             BaseActivity.isShopActivityUpdating = false
                         }
@@ -4332,26 +4368,31 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         if (distance * 1000 > autoRevDistance) {
             val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().all
+
             if (allShopList != null && allShopList.size > 0) {
                 for (i in 0 until allShopList.size) {
                     val shopLat: Double = allShopList[i].shopLat
                     val shopLong: Double = allShopList[i].shopLong
-                    if (shopLat != null && shopLong != null) {
+
+                    if (shopLat != null && shopLong != null ) {
                         val shopLocation = Location("")
                         shopLocation.latitude = shopLat
                         shopLocation.longitude = shopLong
                         shop_id = allShopList[i].shop_id
                         val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(AppUtils.mLocation, shopLocation, autoRevDistance.toInt())
-                        println("autorev ${allShopList[i].shopName}  $isShopNearby")
                         if (isShopNearby) {
                             val shopActivityList = AppDatabase.getDBInstance()!!.shopActivityDao().getShopForDay(allShopList[i].shop_id, AppUtils.getCurrentDateForShopActi())
                             if (shopActivityList == null || shopActivityList.isEmpty()) {
 
                                 shopCodeListNearby.add(shop_id)
 
+                                println("autorev ${shopCodeListNearby.size}  $isShopNearby")
                             } else
                                 Timber.e("==" + allShopList[i].shopName + " is visiting now normally (Loc Fuzed Service)==")
                         }
+                    }
+                    if(shopCodeListNearby.size==45){
+                        break
                     }
                 }
                 println("autorev total nearby size ${shopCodeListNearby.size}")

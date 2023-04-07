@@ -1,6 +1,7 @@
 package com.eurobond.base.presentation
 
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.*
 import android.app.job.JobInfo
@@ -1242,6 +1243,7 @@ fun clearDataOnLogoutSync() {
     }
 }
 
+@SuppressLint("MissingSuperCall")
 override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
     permissionUtils?.onRequestPermissionsResult(requestCode, permissions, grantResults)
 }
@@ -1265,14 +1267,18 @@ override fun onDestroy() {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 fun startMonitorService() {
     if (!isMonitorServiceRunning()) {
-//        XLog.d("MonitorService Started : " + " Time :" + AppUtils.getCurrentDateTime())
-        Timber.d("MonitorService Started : " + " Time :" + AppUtils.getCurrentDateTime())
-        val intent = Intent(applicationContext, MonitorService::class.java)
-        intent.action = CustomConstants.START_MONITOR_SERVICE
-        startService(intent)
-        //Toast.makeText(this, "Loc service started", Toast.LENGTH_SHORT).show()
+        try{
+            //        XLog.d("MonitorService Started : " + " Time :" + AppUtils.getCurrentDateTime())
+            Timber.d("MonitorService Started : " + " Time :" + AppUtils.getCurrentDateTime())
+            val intent = Intent(applicationContext, MonitorService::class.java)
+            intent.action = CustomConstants.START_MONITOR_SERVICE
+            startService(intent)
+            //Toast.makeText(this, "Loc service started", Toast.LENGTH_SHORT).show()
+        }catch (ex:Exception){
+            Timber.d("MonitorService Start error ${ex.localizedMessage} : " + " Time :" + AppUtils.getCurrentDateTime())
+            ex.printStackTrace()
+        }
     }
-
 }
 
 fun stopLocationService() {
@@ -1307,6 +1313,7 @@ val revisitStatusList : MutableList<ShopRevisitStatusRequestData> = ArrayList()
     private var j: Int = 0
    lateinit var ShopActivityEntityListNew: List<ShopActivityEntity>
 
+    @SuppressLint("SuspiciousIndentation")
     private fun uploadShopRevisitData(){
         //AppDatabase.getDBInstance()!!.shopActivityDao().xtest(false,"2021-11-27")
         //AppDatabase.getDBInstance()!!.shopActivityDao().xtest1(false,"2021-11-27")

@@ -84,15 +84,19 @@ class MicroLearningListFragment : BaseFragment() {
         (mContext as DashboardActivity).setSearchListener(object : SearchListener {
             override fun onSearchQueryListener(query: String) {
                 if (query.isBlank()) {
-                    if (rv_micro_learning_list.visibility == View.VISIBLE)
+                    if (rv_micro_learning_list.visibility == View.VISIBLE) {
                         microLearningAdapter?.refreshList(list!!)
-                    else if (rv_category_list.visibility == View.VISIBLE)
+                    }
+                    else if (rv_category_list.visibility == View.VISIBLE) {
                         categoryAdapter?.refreshList(categoryList)
+                    }
                 } else {
-                    if (rv_micro_learning_list.visibility == View.VISIBLE)
+                    if (rv_micro_learning_list.visibility == View.VISIBLE) {
                         microLearningAdapter?.filter?.filter(query)
-                    else if (rv_category_list.visibility == View.VISIBLE)
+                    }
+                    else if (rv_category_list.visibility == View.VISIBLE) {
                         categoryAdapter?.filter?.filter(query)
+                    }
                 }
             }
         })

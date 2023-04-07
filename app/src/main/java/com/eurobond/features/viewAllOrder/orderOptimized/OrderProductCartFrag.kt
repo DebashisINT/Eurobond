@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.eurobond.CustomStatic
 import com.eurobond.R
 import com.eurobond.app.AppDatabase
 import com.eurobond.app.NetworkConstant
@@ -98,20 +99,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
 
         llPlaceOrder.setOnClickListener(this)
 
-        //assignedto_dd map in shop begin
-        try {
-            shopDtls = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shop_id)
-        }catch (ex:Exception){
-           /* var objDD =  AppDatabase.getDBInstance()?.ddListDao()?.getSingleValue(shop_id)
-            shopDtls.shop_id = objDD!!.dd_id
-            shopDtls.shopName = objDD.dd_name
-            shopDtls.shopLat = objDD.dd_latitude!!.toDouble()
-            shopDtls.shopLong = objDD.dd_longitude!!.toDouble()
-            shopDtls.address = LocationWizard.getLocationName(mContext, objDD.dd_latitude!!.toDouble(),   objDD.dd_longitude!!.toDouble())
-            shopDtls.isUploaded = true
-            shopDtls.type = "4"*/
-        }
-
+        shopDtls = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shop_id)
 
         try{
             var qtyRectify:Double = String.format("%.3f",OrderProductListFrag.finalOrderDataList!!.sumByDouble { it.qty.toDouble() }).toDouble()
@@ -431,6 +419,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
         bodyTv.text = msg
         okTV.setOnClickListener({ view ->
             simpleDialog.cancel()
+            CustomStatic.IsBackFromNewOptiCart=true
             (mContext as DashboardActivity).loadFragment(FragType.ViewAllOrderListFragment,false,shopDtls)
         })
         simpleDialog.show()

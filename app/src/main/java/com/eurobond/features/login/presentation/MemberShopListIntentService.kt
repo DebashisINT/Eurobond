@@ -28,7 +28,7 @@ class MemberShopListIntentService : IntentService("") {
         if (list == null || list.isEmpty()) {
             Pref.isOfflineShopSaved = false
             Timber.e("==============call offline member shop api(Service)==============")
-
+            Timber.d("PJP api callMemberShopListApi MemberShopListIntentService call")
             val repository = TeamRepoProvider.teamRepoProvider()
             BaseActivity.compositeDisposable.add(
                     repository.offlineTeamShopList("")

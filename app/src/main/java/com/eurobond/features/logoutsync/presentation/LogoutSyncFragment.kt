@@ -311,15 +311,19 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     AppDatabase.getDBInstance()!!.shopActivityDao().updateOutTime(AppUtils.getCurrentTimeWithMeredian(), shopActivityList[i].shopid!!, AppUtils.getCurrentDateForShopActi(), shopActivityList[i].startTimeStamp)
                     AppDatabase.getDBInstance()!!.shopActivityDao().updateOutLocation(LocationWizard.getNewLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble()), shopActivityList[i].shopid!!, AppUtils.getCurrentDateForShopActi(), shopActivityList[i].startTimeStamp)
 
-                    val netStatus = if (AppUtils.isOnline(mContext))
+                    val netStatus = if (AppUtils.isOnline(mContext)) {
                         "Online"
-                    else
+                        }
+                    else {
                         "Offline"
+                        }
 
-                    val netType = if (AppUtils.getNetworkType(mContext).equals("wifi", ignoreCase = true))
+                    val netType = if (AppUtils.getNetworkType(mContext).equals("wifi", ignoreCase = true)) {
                         AppUtils.getNetworkType(mContext)
-                    else
+                        }
+                    else {
                         "Mobile ${AppUtils.mobNetType(mContext)}"
+                        }
 
                     if (!Pref.isMultipleVisitEnable) {
                         AppDatabase.getDBInstance()!!.shopActivityDao().updateDeviceStatusReason(AppUtils.getDeviceName(), AppUtils.getAndroidVersion(),
@@ -563,10 +567,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 addOrder.patient_no = ""
                 addOrder.remarks = ""
 
-                if (!TextUtils.isEmpty(Pref.latitude) && !TextUtils.isEmpty(Pref.longitude))
+                if (!TextUtils.isEmpty(Pref.latitude) && !TextUtils.isEmpty(Pref.longitude)) {
                     addOrder.address = LocationWizard.getLocationName(mContext, Pref.latitude!!.toDouble(), Pref.longitude!!.toDouble())
-                else
+                }
+                else {
                     addOrder.address = ""
+                    }
 
                 val productList = ArrayList<AddOrderInputProductList>()
                 for(i in 0..newOrderRoomDataListttt.size-1){
@@ -938,10 +944,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     checkToCallSyncEditShop()
                 }
 
-            } else
+            } else {
                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
-        } else
+                }
+        } else {
             checkToCallSyncOrder()
+            }
     }
 
     private fun initView(view: View) {
@@ -1060,8 +1068,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
         rl_stock.apply {
             visibility = if (Pref.willStockShow)
                 View.VISIBLE
-            else
+            else 
                 View.GONE
+
         }
 
         meeting_sync_tv.text = Pref.meetingText
@@ -1199,13 +1208,16 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
         animateSyncImage(doc_sync_img)
         animateSyncImage(addReturnSyncImg)
 
-        if ((mContext as DashboardActivity).isChangedPassword)
+        if ((mContext as DashboardActivity).isChangedPassword) {
             tv_logout.visibility = View.GONE
+        }
         else {
-            if ((mContext as DashboardActivity).isClearData)
+            if ((mContext as DashboardActivity).isClearData) {
                 tv_logout.visibility = View.GONE
-            else
+            }
+            else {
                 tv_logout.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -1303,25 +1315,33 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             addShopData.lead_contact_number = mAddShopDBModelEntity.ownerContactNumber
         }
 
-        if (!TextUtils.isEmpty(mAddShopDBModelEntity.project_name))
-            addShopData.project_name=mAddShopDBModelEntity.project_name
-        else
-            addShopData.project_name=""
+        if (!TextUtils.isEmpty(mAddShopDBModelEntity.project_name)) {
+            addShopData.project_name = mAddShopDBModelEntity.project_name
+        }
+        else {
+            addShopData.project_name = ""
+        }
 
-        if (!TextUtils.isEmpty(mAddShopDBModelEntity.landline_number))
-            addShopData.landline_number=mAddShopDBModelEntity.landline_number
-        else
-            addShopData.landline_number=""
+        if (!TextUtils.isEmpty(mAddShopDBModelEntity.landline_number)) {
+            addShopData.landline_number = mAddShopDBModelEntity.landline_number
+        }
+        else {
+            addShopData.landline_number = ""
+        }
 
-        if (!TextUtils.isEmpty(mAddShopDBModelEntity.alternateNoForCustomer))
-            addShopData.alternateNoForCustomer=mAddShopDBModelEntity.alternateNoForCustomer
-        else
-            addShopData.alternateNoForCustomer=""
+        if (!TextUtils.isEmpty(mAddShopDBModelEntity.alternateNoForCustomer)) {
+            addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
+        }
+        else {
+            addShopData.alternateNoForCustomer = ""
+        }
 
-        if (!TextUtils.isEmpty(mAddShopDBModelEntity.whatsappNoForCustomer))
-            addShopData.whatsappNoForCustomer=mAddShopDBModelEntity.whatsappNoForCustomer
-        else
-            addShopData.whatsappNoForCustomer=""
+        if (!TextUtils.isEmpty(mAddShopDBModelEntity.whatsappNoForCustomer)) {
+            addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+        }
+        else {
+            addShopData.whatsappNoForCustomer = ""
+        }
 
         // duplicate shop api call
         addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
@@ -1672,19 +1692,23 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             if (sList != null && sList.isNotEmpty())
                 shopDurationData.total_visit_count = sList[0].totalVisitCount
 
-            if (!TextUtils.isEmpty(shopActivity.feedback))
+            if (!TextUtils.isEmpty(shopActivity.feedback)) {
                 shopDurationData.feedback = shopActivity.feedback
-            else
+                }
+            else {
                 shopDurationData.feedback = ""
+                }
 
             shopDurationData.isFirstShopVisited = shopActivity.isFirstShopVisited
             shopDurationData.distanceFromHomeLoc = shopActivity.distance_from_home_loc
             shopDurationData.next_visit_date = shopActivity.next_visit_date
 
-            if (!TextUtils.isEmpty(shopActivity.early_revisit_reason))
+            if (!TextUtils.isEmpty(shopActivity.early_revisit_reason)) {
                 shopDurationData.early_revisit_reason = shopActivity.early_revisit_reason
-            else
+                }
+            else {
                 shopDurationData.early_revisit_reason = ""
+                }
 
             shopDurationData.device_model = shopActivity.device_model
             shopDurationData.android_version = shopActivity.android_version
@@ -1707,20 +1731,27 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             }
 
 
-            if (!TextUtils.isEmpty(shopActivity.pros_id!!))
+            if (!TextUtils.isEmpty(shopActivity.pros_id!!)) {
                 shopDurationData.pros_id = shopActivity.pros_id!!
-            else
+            }
+            else {
                 shopDurationData.pros_id = ""
+                }
 
-            if (!TextUtils.isEmpty(shopActivity.agency_name!!))
-                shopDurationData.agency_name =shopActivity.agency_name!!
-            else
+            if (!TextUtils.isEmpty(shopActivity.agency_name!!)) {
+                shopDurationData.agency_name = shopActivity.agency_name!!
+            }
+            else {
                 shopDurationData.agency_name = ""
+                }
 
-            if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value))
-                shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
-            else
+            if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value)) {
+                shopDurationData.approximate_1st_billing_value =
+                    shopActivity.approximate_1st_billing_value!!
+            }
+            else {
                 shopDurationData.approximate_1st_billing_value = ""
+                }
             //duration garbage fix
             try{
                 if(shopDurationData.spent_duration!!.contains("-") || shopDurationData.spent_duration!!.length != 8)
@@ -1767,19 +1798,23 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 if (sList != null && sList.isNotEmpty())
                     shopDurationData.total_visit_count = sList[0].totalVisitCount
 
-                if (!TextUtils.isEmpty(shopActivity.feedback))
+                if (!TextUtils.isEmpty(shopActivity.feedback)) {
                     shopDurationData.feedback = shopActivity.feedback
-                else
+                }
+                else{
                     shopDurationData.feedback = ""
+                }
 
                 shopDurationData.isFirstShopVisited = shopActivity.isFirstShopVisited
                 shopDurationData.distanceFromHomeLoc = shopActivity.distance_from_home_loc
                 shopDurationData.next_visit_date = shopActivity.next_visit_date
 
-                if (!TextUtils.isEmpty(shopActivity.early_revisit_reason))
+                if (!TextUtils.isEmpty(shopActivity.early_revisit_reason)) {
                     shopDurationData.early_revisit_reason = shopActivity.early_revisit_reason
-                else
+                }
+                else {
                     shopDurationData.early_revisit_reason = ""
+                    }
 
                 shopDurationData.device_model = shopActivity.device_model
                 shopDurationData.android_version = shopActivity.android_version
@@ -1803,20 +1838,27 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 }
 
 
-                if (!TextUtils.isEmpty(shopActivity.pros_id!!))
+                if (!TextUtils.isEmpty(shopActivity.pros_id!!)) {
                     shopDurationData.pros_id = shopActivity.pros_id!!
-                else
+                }
+                else {
                     shopDurationData.pros_id = ""
+                    }
 
-                if (!TextUtils.isEmpty(shopActivity.agency_name!!))
-                    shopDurationData.agency_name =shopActivity.agency_name!!
-                else
+                if (!TextUtils.isEmpty(shopActivity.agency_name!!)) {
+                    shopDurationData.agency_name = shopActivity.agency_name!!
+                }
+                else {
                     shopDurationData.agency_name = ""
+                    }
 
-                if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value))
-                    shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
-                else
+                if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value)) {
+                    shopDurationData.approximate_1st_billing_value =
+                        shopActivity.approximate_1st_billing_value!!
+                }
+                else {
                     shopDurationData.approximate_1st_billing_value = ""
+                    }
 
                 //duration garbage fix
                 try{
@@ -1896,8 +1938,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
             if (!isRetryShop) {
                 checkToCallSyncOrder()
-            } else
+            } else {
                 isRetryShop = false
+            }
         }
 
     }
@@ -1986,10 +2029,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
         addShopData.actual_address = mAddShopDBModelEntity.actual_address
 
         /*14-12-2021*/
-        if (addShopData.agency_name!=null && !addShopData.agency_name.equals(""))
-            addShopData.agency_name =addShopData.agency_name!!
-        else
+        if (addShopData.agency_name!=null && !addShopData.agency_name.equals("")) {
+            addShopData.agency_name = addShopData.agency_name!!
+        }
+        else {
             addShopData.agency_name = ""
+            }
 
        /*11-02-2022*/
         addShopData.landline_number = mAddShopDBModelEntity.landline_number
@@ -1997,15 +2042,19 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
         addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
 
         /*GSTIN & PAN NUMBER*/
-        if (addShopData.GSTN_Number!=null && !addShopData.GSTN_Number.equals(""))
-            mAddShopDBModelEntity.gstN_Number =addShopData.GSTN_Number!!
-        else
+        if (addShopData.GSTN_Number!=null && !addShopData.GSTN_Number.equals("")) {
+            mAddShopDBModelEntity.gstN_Number = addShopData.GSTN_Number!!
+        }
+        else {
             mAddShopDBModelEntity.gstN_Number = ""
+            }
 
-        if (addShopData.ShopOwner_PAN!=null && !addShopData.ShopOwner_PAN.equals(""))
-            mAddShopDBModelEntity.shopOwner_PAN =addShopData.ShopOwner_PAN!!
-        else
+        if (addShopData.ShopOwner_PAN!=null && !addShopData.ShopOwner_PAN.equals("")) {
+            mAddShopDBModelEntity.shopOwner_PAN = addShopData.ShopOwner_PAN!!
+        }
+        else {
             mAddShopDBModelEntity.shopOwner_PAN = ""
+            }
 
 
         Timber.d("=====SyncEditShop Input Params (Logout sync)======")
@@ -2100,8 +2149,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         } else {
 
                                             val list_ = AppDatabase.getDBInstance()!!.addShopEntryDao().getUnsyncEditShop(0, true)
-                                            if (list_ != null && list_.size > 0)
+                                            if (list_ != null && list_.size > 0) {
                                                 tv_shop_retry.visibility = View.VISIBLE
+                                            }
                                             else {
                                                 tv_shop_retry.visibility = View.GONE
                                                 addShopTickImg.visibility = View.VISIBLE
@@ -2112,8 +2162,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                         if (!isRetryShop) {
                                             checkToCallSyncOrder()
-                                        } else
+                                        } else {
                                             isRetryShop = false
+                                            }
                                     }
 
 
@@ -2138,8 +2189,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         i = 0
                                         if (!isRetryShop) {
                                             checkToCallSyncOrder()
-                                        } else
+                                        } else {
                                             isRetryShop = false
+                                        }
                                     }
                                 }
                                 BaseActivity.isApiInitiated = false
@@ -2163,8 +2215,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     i = 0
                                     if (!isRetryShop) {
                                         checkToCallSyncOrder()
-                                    } else
+                                    } else {
                                         isRetryShop = false
+                                        }
                                 }
                             })
             )
@@ -2194,8 +2247,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         } else {
 
                                             val list_ = AppDatabase.getDBInstance()!!.addShopEntryDao().getUnsyncEditShop(0, true)
-                                            if (list_ != null && list_.size > 0)
+                                            if (list_ != null && list_.size > 0) {
                                                 tv_shop_retry.visibility = View.VISIBLE
+                                                }
                                             else {
                                                 tv_shop_retry.visibility = View.GONE
                                                 addShopTickImg.visibility = View.VISIBLE
@@ -2206,8 +2260,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                         if (!isRetryShop) {
                                             checkToCallSyncOrder()
-                                        } else
+                                        } else {
                                             isRetryShop = false
+                                            }
                                     }
 
 
@@ -2232,8 +2287,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         i = 0
                                         if (!isRetryShop) {
                                             checkToCallSyncOrder()
-                                        } else
+                                        } else {
                                             isRetryShop = false
+                                        }
                                     }
                                 }
                                 BaseActivity.isApiInitiated = false
@@ -2257,8 +2313,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     i = 0
                                     if (!isRetryShop) {
                                         checkToCallSyncOrder()
-                                    } else
+                                    } else {
                                         isRetryShop = false
+                                    }
                                 }
                             })
             )
@@ -2290,23 +2347,28 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     addOrderTickImg.visibility = View.VISIBLE
                     addOrderSyncImg.visibility = View.GONE
 
-                    if (!isRetryOrder)
+                    if (!isRetryOrder) {
                         checkToGpsStatus()
-                    else
+                    }
+                    else {
                         isRetryOrder = false
+                        }
                 }
             } else {
                 stopAnimation(addOrderSyncImg)
                 addOrderTickImg.visibility = View.VISIBLE
                 addOrderSyncImg.visibility = View.GONE
 
-                if (!isRetryOrder)
+                if (!isRetryOrder) {
                     checkToGpsStatus()
-                else
+                    }
+                else {
                     isRetryOrder = false
+                    }
             }
-        } else
+        } else {
             checkToGpsStatus()
+            }
     }
 
     //===================================================Add Order==============================================================//
@@ -2330,63 +2392,83 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
         addOrder.latitude = order.order_lat
         addOrder.longitude = order.order_long
 
-        if (order.scheme_amount != null)
+        if (order.scheme_amount != null) {
             addOrder.scheme_amount = order.scheme_amount
-        else
+        }
+        else {
             addOrder.scheme_amount = ""
+            }
 
-        if (order.remarks != null)
+        if (order.remarks != null) {
             addOrder.remarks = order.remarks
-        else
+            }
+        else {
             addOrder.remarks = ""
+            }
 
-        if (order.patient_name != null)
+        if (order.patient_name != null) {
             addOrder.patient_name = order.patient_name
-        else
+        }
+        else {
             addOrder.patient_name = ""
+            }
 
-        if (order.patient_address != null)
+        if (order.patient_address != null) {
             addOrder.patient_address = order.patient_address
-        else
+            }
+        else {
             addOrder.patient_address = ""
+            }
 
-        if (order.patient_no != null)
+        if (order.patient_no != null) {
             addOrder.patient_no = order.patient_no
-        else
+            }
+        else {
             addOrder.patient_no = ""
+            }
 
         val shopActivity = AppDatabase.getDBInstance()!!.shopActivityDao().getShopActivityForId(order.shop_id!!)
         if (shopActivity != null) {
             if (shopActivity.isVisited && !shopActivity.isDurationCalculated && shopActivity.date == AppUtils.getCurrentDateForShopActi()) {
                 val shopDetail = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(order.shop_id)
 
-                if (!TextUtils.isEmpty(shopDetail.address))
+                if (!TextUtils.isEmpty(shopDetail.address)) {
                     addOrder.address = shopDetail.address
-                else
+                }
+                else {
                     addOrder.address = ""
+                    }
             } else {
-                if (!TextUtils.isEmpty(order.order_lat) && !TextUtils.isEmpty(order.order_long))
+                if (!TextUtils.isEmpty(order.order_lat) && !TextUtils.isEmpty(order.order_long)) {
                     addOrder.address = LocationWizard.getLocationName(mContext, order.order_lat!!.toDouble(), order.order_long!!.toDouble())
-                else
+                }
+                else {
                     addOrder.address = ""
+                    }
             }
         } else {
-            if (!TextUtils.isEmpty(order.order_lat) && !TextUtils.isEmpty(order.order_long))
+            if (!TextUtils.isEmpty(order.order_lat) && !TextUtils.isEmpty(order.order_long)){
                 addOrder.address = LocationWizard.getLocationName(mContext, order.order_lat!!.toDouble(), order.order_long!!.toDouble())
-            else
+                }
+            else {
                 addOrder.address = ""
+                }
         }
 
         /*06-01-2022*/
-        if (order.Hospital != null)
+        if (order.Hospital != null) {
             addOrder.Hospital = order.Hospital
-        else
+            }
+        else {
             addOrder.Hospital = ""
+        }
 
-        if (order.Email_Address != null)
+        if (order.Email_Address != null) {
             addOrder.Email_Address = order.Email_Address
-        else
+            }
+        else {
             addOrder.Email_Address = ""
+            }
 
 
         val list = AppDatabase.getDBInstance()!!.orderProductListDao().getDataAccordingToShopAndOrderId(order.order_id!!, order.shop_id!!)
@@ -2461,10 +2543,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                         progress_wheel.stopSpinning()
                                         i = 0
-                                        if (!isRetryOrder)
+                                        if (!isRetryOrder) {
                                             checkToGpsStatus()
-                                        else
+                                        }
+                                        else {
                                             isRetryOrder = false
+                                            }
                                     }
                                 } else {
                                     //progress_wheel.stopSpinning()
@@ -2481,10 +2565,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                         progress_wheel.stopSpinning()
                                         i = 0
-                                        if (!isRetryOrder)
+                                        if (!isRetryOrder) {
                                             checkToGpsStatus()
-                                        else
+                                            }
+                                        else {
                                             isRetryOrder = false
+                                            }
                                     }
                                 }
 
@@ -2511,10 +2597,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                     progress_wheel.stopSpinning()
                                     i = 0
-                                    if (!isRetryOrder)
+                                    if (!isRetryOrder) {
                                         checkToGpsStatus()
-                                    else
+                                        }
+                                    else {
                                         isRetryOrder = false
+                                        }
                                 }
                             })
             )
@@ -2564,10 +2652,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                         progress_wheel.stopSpinning()
                                         i = 0
-                                        if (!isRetryOrder)
+                                        if (!isRetryOrder) {
                                             checkToGpsStatus()
-                                        else
+                                        }
+                                        else {
                                             isRetryOrder = false
+                                            }
                                     }
                                 } else {
                                     //progress_wheel.stopSpinning()
@@ -2584,10 +2674,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                         progress_wheel.stopSpinning()
                                         i = 0
-                                        if (!isRetryOrder)
+                                        if (!isRetryOrder) {
                                             checkToGpsStatus()
-                                        else
+                                            }
+                                        else {
                                             isRetryOrder = false
+                                            }
                                     }
                                 }
 
@@ -2614,10 +2706,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                     progress_wheel.stopSpinning()
                                     i = 0
-                                    if (!isRetryOrder)
+                                    if (!isRetryOrder) {
                                         checkToGpsStatus()
-                                    else
+                                        }
+                                    else {
                                         isRetryOrder = false
+                                        }
                                 }
                             })
             )
@@ -2639,10 +2733,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             gpsSyncImg.visibility = View.GONE
 
 
-            if (!isRetryGps)
+            if (!isRetryGps) {
                 checkToCallCollectionApi()
-            else
+            }
+            else {
                 isRetryGps = false
+                }
         }
     }
 
@@ -2817,8 +2913,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             //(mContext as DashboardActivity).showSnackMessage("Gps sync succesful")
                             stopAnimation(gpsSyncImg)
                             val list_ = AppDatabase.getDBInstance()!!.gpsStatusDao().getDataSyncStateWise(false)
-                            if (list_ != null && list_.isNotEmpty())
+                            if (list_ != null && list_.isNotEmpty()) {
                                 tv_gps_retry.visibility = View.VISIBLE
+                                }
                             else {
                                 tv_gps_retry.visibility = View.GONE
                                 gpsTickImg.visibility = View.VISIBLE
@@ -2829,10 +2926,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             i = 0
                             progress_wheel.stopSpinning()
                             //calllogoutApi(Pref.user_id!!, Pref.session_token!!)
-                            if (!isRetryGps)
+                            if (!isRetryGps) {
                                 checkToCallCollectionApi()
-                            else
+                                }
+                            else {
                                 isRetryGps = false
+                            }
 //                        }
 
                     } else {
@@ -2850,10 +2949,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             i = 0
                             progress_wheel.stopSpinning()
                             //calllogoutApi(Pref.user_id!!, Pref.session_token!!)
-                            if (!isRetryGps)
+                            if (!isRetryGps) {
                                 checkToCallCollectionApi()
-                            else
+                            }
+                            else {
                                 isRetryGps = false
+                                }
 //                        }
 
                     }
@@ -2876,10 +2977,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         i = 0
                         progress_wheel.stopSpinning()
                         //calllogoutApi(Pref.user_id!!, Pref.session_token!!)
-                        if (!isRetryGps)
+                        if (!isRetryGps) {
                             checkToCallCollectionApi()
-                        else
+                        }
+                        else {
                             isRetryGps = false
+                            }
 //                    }
                 })
         )
@@ -2917,23 +3020,28 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     collectionTickImg.visibility = View.VISIBLE
                     collectionSyncImg.visibility = View.GONE
 
-                    if (!isRetryCollection)
+                    if (!isRetryCollection) {
                         checkToCallVisitShopApi()
-                    else
+                        }
+                    else {
                         isRetryCollection = false
+                        }
                 }
             } else {
                 stopAnimation(collectionSyncImg)
                 collectionTickImg.visibility = View.VISIBLE
                 collectionSyncImg.visibility = View.GONE
 
-                if (!isRetryCollection)
+                if (!isRetryCollection) {
                     checkToCallVisitShopApi()
-                else
+                    }
+                else {
                     isRetryCollection = false
+                    }
             }
-        } else
+        } else {
             checkToCallVisitShopApi()
+            }
     }
 
 
@@ -3040,10 +3148,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         collectionSyncImg.visibility = View.GONE
 
                                         i = 0
-                                        if (!isRetryCollection)
+                                        if (!isRetryCollection) {
                                             checkToCallVisitShopApi()
-                                        else
+                                        }
+                                        else {
                                             isRetryCollection = false
+                                            }
                                     }
                                 } else {
                                     i++
@@ -3061,10 +3171,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         collectionSyncImg.visibility = View.GONE
 
                                         i = 0
-                                        if (!isRetryCollection)
+                                        if (!isRetryCollection) {
                                             checkToCallVisitShopApi()
-                                        else
+                                        }
+                                        else {
                                             isRetryCollection = false
+                                            }
                                     }
                                 }
                             }, { error ->
@@ -3090,10 +3202,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     collectionSyncImg.visibility = View.GONE
 
                                     i = 0
-                                    if (!isRetryCollection)
+                                    if (!isRetryCollection) {
                                         checkToCallVisitShopApi()
-                                    else
+                                    }
+                                    else {
                                         isRetryCollection = false
+                                        }
                                 }
                             })
             )
@@ -3149,10 +3263,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         collectionSyncImg.visibility = View.GONE
 
                                         i = 0
-                                        if (!isRetryCollection)
+                                        if (!isRetryCollection) {
                                             checkToCallVisitShopApi()
-                                        else
+                                        }
+                                        else {
                                             isRetryCollection = false
+                                            }
                                     }
                                 } else {
                                     i++
@@ -3169,10 +3285,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         collectionSyncImg.visibility = View.GONE
 
                                         i = 0
-                                        if (!isRetryCollection)
+                                        if (!isRetryCollection) {
                                             checkToCallVisitShopApi()
-                                        else
+                                        }
+                                        else {
                                             isRetryCollection = false
+                                            }
                                     }
                                 }
                             }, { error ->
@@ -3198,10 +3316,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     collectionSyncImg.visibility = View.GONE
 
                                     i = 0
-                                    if (!isRetryCollection)
+                                    if (!isRetryCollection) {
                                         checkToCallVisitShopApi()
-                                    else
+                                        }
+                                    else {
                                         isRetryCollection = false
+                                        }
                                 }
                             })
             )
@@ -3265,19 +3385,24 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         shopVisitDate = shopActivity.date!!
                         previousShopVisitDateNumber = currentShopVisitDateNumber
 
-                        if (!TextUtils.isEmpty(shopActivity.feedback))
+                        if (!TextUtils.isEmpty(shopActivity.feedback)) {
                             shopDurationData.feedback = shopActivity.feedback
-                        else
+                        }
+                        else {
                             shopDurationData.feedback = ""
+                            }
 
                         shopDurationData.isFirstShopVisited = shopActivity.isFirstShopVisited
                         shopDurationData.distanceFromHomeLoc = shopActivity.distance_from_home_loc
                         shopDurationData.next_visit_date = shopActivity.next_visit_date
 
-                        if (!TextUtils.isEmpty(shopActivity.early_revisit_reason))
-                            shopDurationData.early_revisit_reason = shopActivity.early_revisit_reason
-                        else
+                        if (!TextUtils.isEmpty(shopActivity.early_revisit_reason)) {
+                            shopDurationData.early_revisit_reason =
+                                shopActivity.early_revisit_reason
+                        }
+                        else {
                             shopDurationData.early_revisit_reason = ""
+                            }
 
                         shopDurationData.device_model = shopActivity.device_model
                         shopDurationData.android_version = shopActivity.android_version
@@ -3296,20 +3421,26 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         //shopDurationData.updated_on = shopActivity.updated_on!!
                         shopDurationData.updated_on = AppUtils.getCurrentDateForShopActi()
 
-                        if (shopActivity.pros_id!=null && !shopActivity.pros_id.equals(""))
+                        if (shopActivity.pros_id!=null && !shopActivity.pros_id.equals("")) {
                             shopDurationData.pros_id = shopActivity.pros_id!!
-                        else
+                            }
+                        else {
                             shopDurationData.pros_id = ""
+                            }
 
-                        if (shopActivity.agency_name!=null && !shopActivity.agency_name.equals(""))
-                            shopDurationData.agency_name =shopActivity.agency_name!!
-                        else
+                        if (shopActivity.agency_name!=null && !shopActivity.agency_name.equals("")) {
+                            shopDurationData.agency_name = shopActivity.agency_name!!
+                        }
+                        else {
                             shopDurationData.agency_name = ""
+                        }
 
-                        if (shopActivity.approximate_1st_billing_value!=null && !shopActivity.approximate_1st_billing_value.equals(""))
+                        if (shopActivity.approximate_1st_billing_value!=null && !shopActivity.approximate_1st_billing_value.equals("")) {
                             shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
-                        else
+                        }
+                        else {
                             shopDurationData.approximate_1st_billing_value = ""
+                        }
 
                         //duration garbage fix
                         try{
@@ -3360,20 +3491,24 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             it.distance_travelled = "0.0"
                         shopDurationData.distance_travelled = it.distance_travelled
 
-                        if (!TextUtils.isEmpty(it.feedback))
+                        if (!TextUtils.isEmpty(it.feedback)) {
                             shopDurationData.feedback = it.feedback
-                        else
+                            }
+                        else {
                             shopDurationData.feedback = ""
+                        }
 
                         shopDurationData.isFirstShopVisited = it.isFirstShopVisited
                         shopDurationData.distanceFromHomeLoc = it.distance_from_home_loc
 
                         shopDurationData.next_visit_date = it.next_visit_date
 
-                        if (!TextUtils.isEmpty(it.early_revisit_reason))
+                        if (!TextUtils.isEmpty(it.early_revisit_reason)) {
                             shopDurationData.early_revisit_reason = it.early_revisit_reason
-                        else
+                            }
+                        else {
                             shopDurationData.early_revisit_reason = ""
+                            }
 
                         shopDurationData.device_model = it.device_model
                         shopDurationData.android_version = it.android_version
@@ -3393,20 +3528,27 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         shopDurationData.updated_on = AppUtils.getCurrentDateForShopActi()
 
 
-                        if (it.pros_id!=null && !it.pros_id.equals(""))
+                        if (it.pros_id!=null && !it.pros_id.equals("")) {
                             shopDurationData.pros_id = it.pros_id!!
-                        else
+                        }
+                        else {
                             shopDurationData.pros_id = ""
+                            }
 
-                        if (it.agency_name!=null && !it.agency_name.equals(""))
-                            shopDurationData.agency_name =it.agency_name!!
-                        else
+                        if (it.agency_name!=null && !it.agency_name.equals("")) {
+                            shopDurationData.agency_name = it.agency_name!!
+                        }
+                        else {
                             shopDurationData.agency_name = ""
+                            }
 
-                        if (it.approximate_1st_billing_value!=null && !it.approximate_1st_billing_value.equals(""))
-                            shopDurationData.approximate_1st_billing_value = it.approximate_1st_billing_value!!
-                        else
+                        if (it.approximate_1st_billing_value!=null && !it.approximate_1st_billing_value.equals("")) {
+                            shopDurationData.approximate_1st_billing_value =
+                                it.approximate_1st_billing_value!!
+                        }
+                        else {
                             shopDurationData.approximate_1st_billing_value = ""
+                            }
 
                         //duration garbage fix
                         try{
@@ -3471,8 +3613,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             i = 0
                             BaseActivity.isShopActivityUpdating = false
                             callShopVisitAudioUploadApi(unSyncedAudioList)
-                        } else
+                        } else {
                             checkToRetryVisitButton()
+                        }
                     }
                 } else {
 
@@ -3794,8 +3937,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             if (unSyncAudioList.isNotEmpty()) {
                 i = 0
                 callShopVisitAudioUploadApi(unSyncAudioList)
-            } else
+            } else {
                 checkToRetryVisitButton()
+            }
         }
     }
 
@@ -3830,12 +3974,16 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         shopDurationData.spent_duration = shopActivity?.duration_spent
                         shopDurationData.visited_date = shopActivity?.visited_date
                         shopDurationData.visited_time = shopActivity?.visited_date
-                        if (AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopActivity?.shopid) != null)
-                            shopDurationData.total_visit_count = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopActivity?.shopid).totalVisitCount
-                        else
+                        if (AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopActivity?.shopid) != null) {
+                            shopDurationData.total_visit_count =
+                                AppDatabase.getDBInstance()!!.addShopEntryDao()
+                                    .getShopByIdN(shopActivity?.shopid).totalVisitCount
+                        } else {
                             shopDurationData.total_visit_count = "1"
-                        shopDurationData.shop_revisit_uniqKey=shopActivity?.shop_revisit_uniqKey
-                        shopDataList.add(shopDurationData)
+                        }
+                            shopDurationData.shop_revisit_uniqKey =
+                                shopActivity?.shop_revisit_uniqKey
+                            shopDataList.add(shopDurationData)
                     }
                 }
                 else {
@@ -3847,10 +3995,13 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         shopDurationData.spent_duration = it.duration_spent
                         shopDurationData.visited_date = it.visited_date
                         shopDurationData.visited_time = it.visited_date
-                        if (AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(it.shopid) != null)
-                            shopDurationData.total_visit_count = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(it.shopid).totalVisitCount
-                        else
+                        if (AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(it.shopid) != null) {
+                            shopDurationData.total_visit_count =
+                                AppDatabase.getDBInstance()!!.addShopEntryDao()
+                                    .getShopByIdN(it.shopid).totalVisitCount
+                        }else {
                             shopDurationData.total_visit_count = "1"
+                            }
                         shopDurationData.shop_revisit_uniqKey=it?.shop_revisit_uniqKey
                         shopDataList.add(shopDurationData)
                     }
@@ -3869,10 +4020,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     if (unSyncedList != null && unSyncedList.isNotEmpty()) {
                         tv_revisit_retry.visibility = View.VISIBLE
 
-                        if (!isRetryVisit)
+                        if (!isRetryVisit) {
                             checkToCallBillingApi()
-                        else
+                        }
+                        else {
                             isRetryVisit = true
+                        }
 
                     } else {
                         val unSyncAudioList = ArrayList<ShopVisitAudioEntity>()
@@ -3886,45 +4039,55 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         if (unSyncAudioList.isNotEmpty()) {
                             tv_revisit_retry.visibility = View.VISIBLE
 
-                            if (!isRetryVisit)
+                            if (!isRetryVisit) {
                                 checkToCallBillingApi()
-                            else
+                            }
+                            else {
                                 isRetryVisit = true
+                                }
                         } else {
                             tv_revisit_retry.visibility = View.GONE
                             revisitTickImg.visibility = View.VISIBLE
 
-                            if (!isRetryVisit)
+                            if (!isRetryVisit) {
                                 checkToCallBillingApi()
-                            else
+                                }
+                            else {
                                 isRetryVisit = true
+                                }
                         }
                     }
                 } else {
                     tv_revisit_retry.visibility = View.GONE
                     revisitTickImg.visibility = View.VISIBLE
 
-                    if (!isRetryVisit)
+                    if (!isRetryVisit) {
                         checkToCallBillingApi()
-                    else
+                        }
+                    else {
                         isRetryVisit = true
+                        }
                 }
             } else {
                 tv_revisit_retry.visibility = View.VISIBLE
 
-                if (!isRetryVisit)
+                if (!isRetryVisit) {
                     checkToCallBillingApi()
-                else
+                    }
+                else {
                     isRetryVisit = true
+                }
             }
         } else {
             tv_revisit_retry.visibility = View.GONE
             revisitTickImg.visibility = View.VISIBLE
 
-            if (!isRetryVisit)
+            if (!isRetryVisit) {
                 checkToCallBillingApi()
-            else
+            }
+            else {
                 isRetryVisit = true
+                }
         }
     }
 
@@ -4007,8 +4170,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
         if (unSyncAudioList.isNotEmpty()) {
             i = 0
             callShopVisitAudioUploadApi(unSyncAudioList)
-        } else
+        } else {
             checkToRetryVisitButton()
+        }
     }
 
 
@@ -4048,8 +4212,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     AppDatabase.getDBInstance()!!.shopVisitAudioDao().updateisUploaded(true, unSyncedList.get(i).shop_id!!)
                                     BaseActivity.isShopActivityUpdating = false
                                     i++
-                                    if (i < unSyncedList.size)
+                                    if (i < unSyncedList.size) {
                                         callShopVisitAudioUploadApi(unSyncedList)
+                                    }
                                     else {
 
                                         checkToRetryVisitButton()
@@ -4097,10 +4262,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             tv_bill_retry.visibility = View.GONE
             bill_sync_img.visibility = View.GONE
 
-            if (!isBiilingEntry)
+            if (!isBiilingEntry) {
                 checkToCallAddStockApi()
-            else
+                }
+            else {
                 isBiilingEntry = false
+            }
         }
     }
 
@@ -4186,8 +4353,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     } else {
                                         stopAnimation(bill_sync_img)
                                         val list_ = AppDatabase.getDBInstance()!!.billingDao().getDataSyncWise(false)
-                                        if (list_ != null && list_.isNotEmpty())
+                                        if (list_ != null && list_.isNotEmpty()) {
                                             tv_bill_retry.visibility = View.VISIBLE
+                                        }
                                         else {
                                             tv_bill_retry.visibility = View.GONE
                                             bill_tick_img.visibility = View.VISIBLE
@@ -4196,10 +4364,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                         i = 0
                                         progress_wheel.stopSpinning()
-                                        if (!isBiilingEntry)
+                                        if (!isBiilingEntry) {
                                             checkToCallAddStockApi()
-                                        else
+                                            }
+                                        else {
                                             isBiilingEntry = false
+                                            }
                                     }
                                 } else {
                                     i++
@@ -4211,10 +4381,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         bill_sync_img.visibility = View.GONE
                                         i = 0
                                         progress_wheel.stopSpinning()
-                                        if (!isBiilingEntry)
+                                        if (!isBiilingEntry) {
                                             checkToCallAddStockApi()
-                                        else
+                                            }
+                                        else {
                                             isBiilingEntry = false
+                                        }
                                     }
                                 }
 
@@ -4234,10 +4406,13 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     bill_sync_img.visibility = View.GONE
                                     i = 0
                                     progress_wheel.stopSpinning()
-                                    if (!isBiilingEntry)
+                                    if (!isBiilingEntry) {
                                         checkToCallAddStockApi()
-                                    else
+                                        }
+
+                                    else {
                                         isBiilingEntry = false
+                                        }
                                 }
 
                             })
@@ -4263,8 +4438,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     } else {
                                         stopAnimation(bill_sync_img)
                                         val list_ = AppDatabase.getDBInstance()!!.billingDao().getDataSyncWise(false)
-                                        if (list_ != null && list_.isNotEmpty())
+                                        if (list_ != null && list_.isNotEmpty()) {
                                             tv_bill_retry.visibility = View.VISIBLE
+                                            }
                                         else {
                                             tv_bill_retry.visibility = View.GONE
                                             bill_tick_img.visibility = View.VISIBLE
@@ -4273,10 +4449,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                         i = 0
                                         progress_wheel.stopSpinning()
-                                        if (!isBiilingEntry)
+                                        if (!isBiilingEntry) {
                                             checkToCallAddStockApi()
-                                        else
+                                            }
+                                        else {
                                             isBiilingEntry = false
+                                            }
                                     }
                                 } else {
                                     i++
@@ -4288,10 +4466,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         bill_sync_img.visibility = View.GONE
                                         i = 0
                                         progress_wheel.stopSpinning()
-                                        if (!isBiilingEntry)
+                                        if (!isBiilingEntry) {
                                             checkToCallAddStockApi()
-                                        else
+                                        }
+                                        else {
                                             isBiilingEntry = false
+                                            }
                                     }
                                 }
 
@@ -4311,10 +4491,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     bill_sync_img.visibility = View.GONE
                                     i = 0
                                     progress_wheel.stopSpinning()
-                                    if (!isBiilingEntry)
+                                    if (!isBiilingEntry) {
                                         checkToCallAddStockApi()
-                                    else
+                                    }
+                                    else {
                                         isBiilingEntry = false
+                                    }
                                 }
 
                             })
@@ -4336,13 +4518,16 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 tv_stock_retry.visibility = View.GONE
                 stock_sync_img.visibility = View.GONE
 
-                if (!isRetryStock)
+                if (!isRetryStock) {
                     checkToCallMeetingApi()
-                else
+                    }
+                else {
                     isRetryStock = false
+                    }
             }
-        } else
+        } else {
             checkToCallMeetingApi()
+        }
     }
 
     //===============================================Add Stock============================================================//
@@ -4363,21 +4548,29 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             if (shopActivity.isVisited && !shopActivity.isDurationCalculated && shopActivity.date == AppUtils.getCurrentDateForShopActi()) {
                 val shopDetail = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(addStock.shop_id)
 
-                if (!TextUtils.isEmpty(shopDetail.address))
+                if (!TextUtils.isEmpty(shopDetail.address)) {
                     addStock.address = shopDetail.address
-                else
+                }
+                else {
                     addStock.address = ""
+                }
             } else {
-                if (!TextUtils.isEmpty(stockDetailsListEntity.stock_lat) && !TextUtils.isEmpty(stockDetailsListEntity.stock_long))
+                if (!TextUtils.isEmpty(stockDetailsListEntity.stock_lat) && !TextUtils.isEmpty(stockDetailsListEntity.stock_long)) {
                     addStock.address = LocationWizard.getLocationName(mContext, stockDetailsListEntity.stock_lat!!.toDouble(), stockDetailsListEntity.stock_long!!.toDouble())
-                else
+                }else {
                     addStock.address = ""
+                    }
             }
         } else {
-            if (!TextUtils.isEmpty(stockDetailsListEntity.stock_lat) && !TextUtils.isEmpty(stockDetailsListEntity.stock_long))
-                addStock.address = LocationWizard.getLocationName(mContext, stockDetailsListEntity.stock_lat!!.toDouble(), stockDetailsListEntity.stock_long!!.toDouble())
-            else
+            if (!TextUtils.isEmpty(stockDetailsListEntity.stock_lat) && !TextUtils.isEmpty(stockDetailsListEntity.stock_long)) {
+                addStock.address = LocationWizard.getLocationName(
+                    mContext,
+                    stockDetailsListEntity.stock_lat!!.toDouble(),
+                    stockDetailsListEntity.stock_long!!.toDouble()
+                )
+            }else {
                 addStock.address = ""
+                }
         }
 
         val addShop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(stockDetailsListEntity.shop_id)
@@ -4420,8 +4613,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             } else {
                                 stopAnimation(stock_sync_img)
                                 val list_ = AppDatabase.getDBInstance()!!.stockDetailsListDao().getUnsyncedData(false)
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_stock_retry.visibility = View.VISIBLE
+                                    }
                                 else {
                                     tv_stock_retry.visibility = View.GONE
                                     stock_tick_img.visibility = View.VISIBLE
@@ -4431,10 +4625,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 i = 0
                                 progress_wheel.stopSpinning()
 
-                                if (!isRetryStock)
+                                if (!isRetryStock) {
                                     checkToCallMeetingApi()
-                                else
+                                    }
+                                else {
                                     isRetryStock = false
+                                    }
                             }
 
 
@@ -4449,8 +4645,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             } else {
                                 stopAnimation(stock_sync_img)
                                 val list_ = AppDatabase.getDBInstance()!!.stockDetailsListDao().getUnsyncedData(false)
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_stock_retry.visibility = View.VISIBLE
+                                }
                                 else {
                                     tv_stock_retry.visibility = View.GONE
                                     stock_tick_img.visibility = View.VISIBLE
@@ -4460,10 +4657,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 i = 0
                                 progress_wheel.stopSpinning()
 
-                                if (!isRetryStock)
+                                if (!isRetryStock) {
                                     checkToCallMeetingApi()
-                                else
+                                    }
+                                else {
                                     isRetryStock = false
+                                }
                             }
                         })
         )
@@ -4486,16 +4685,20 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 tv_meeting_retry.visibility = View.GONE
                 meeting_sync_img.visibility = View.GONE
 
-                if (!isRetryMeeting)
+                if (!isRetryMeeting) {
                     checkToCallAddQuotApi()
-                else
+                }
+                else {
                     isRetryMeeting = false
+                }
             }
         } else {
-            if (!isRetryMeeting)
+            if (!isRetryMeeting) {
                 checkToCallAddQuotApi()
-            else
+                }
+            else {
                 isRetryMeeting = false
+            }
         }
     }
 
@@ -4514,10 +4717,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 meeting_sync_img.visibility = View.GONE
                 //tv_logout.isEnabled = true
 
-                if (!isRetryMeeting)
+                if (!isRetryMeeting) {
                     checkToCallAddQuotApi()
-                else
+                }
+                else {
                     isRetryMeeting = false
+                    }
             }
 
             return
@@ -4577,10 +4782,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                         tv_meeting_retry.visibility = View.GONE
                                         meeting_sync_img.visibility = View.GONE
 
-                                        if (!isRetryMeeting)
+                                        if (!isRetryMeeting) {
                                             checkToCallAddQuotApi()
-                                        else
+                                        }
+                                        else {
                                             isRetryMeeting = false
+                                        }
                                     }
                                 }
                             } else {
@@ -4589,10 +4796,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 tv_meeting_retry.visibility = View.VISIBLE
                                 meeting_sync_img.visibility = View.GONE
 
-                                if (!isRetryMeeting)
+                                if (!isRetryMeeting) {
                                     checkToCallAddQuotApi()
-                                else
+                                }
+                                else {
                                     isRetryMeeting = false
+                                }
                             }
 
                         }, { error ->
@@ -4703,8 +4912,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             } else {
                                 stopAnimation(quot_sync_img)
                                 val list_ = AppDatabase.getDBInstance()?.quotDao()?.getQuotSyncWise(false)
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_quot_retry.visibility = View.VISIBLE
+                                    }
                                 else {
                                     tv_quot_retry.visibility = View.GONE
                                     quot_tick_img.visibility = View.VISIBLE
@@ -4729,8 +4939,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             } else {
                                 stopAnimation(quot_sync_img)
                                 val list_ = AppDatabase.getDBInstance()?.quotDao()?.getQuotSyncWise(false)
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_quot_retry.visibility = View.VISIBLE
+                                    }
                                 else {
                                     tv_quot_retry.visibility = View.GONE
                                     quot_tick_img.visibility = View.VISIBLE
@@ -4769,10 +4980,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 tv_quot_retry.visibility = View.GONE
                 quot_sync_img.visibility = View.GONE
 
-                if (!isRetryQuotation)
+                if (!isRetryQuotation) {
                     checkToCallUpdateAddress()
-                else
+                    }
+                else {
                     isRetryQuotation = false
+                }
             }
         } else {
             stopAnimation(quot_sync_img)
@@ -4780,10 +4993,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             tv_quot_retry.visibility = View.GONE
             quot_sync_img.visibility = View.GONE
 
-            if (!isRetryQuotation)
+            if (!isRetryQuotation) {
                 checkToCallUpdateAddress()
-            else
+                }
+            else {
                 isRetryQuotation = false
+                }
         }
     }
 
@@ -4846,8 +5061,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             } else {
                                 stopAnimation(quot_sync_img)
                                 val list_ = AppDatabase.getDBInstance()?.quotDao()?.getQuotSyncWise(false)
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_quot_retry.visibility = View.VISIBLE
+                                }
                                 else {
                                     tv_quot_retry.visibility = View.GONE
                                     quot_tick_img.visibility = View.VISIBLE
@@ -4857,10 +5073,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 i = 0
                                 progress_wheel.stopSpinning()
 
-                                if (!isRetryQuotation)
+                                if (!isRetryQuotation) {
                                     checkToCallUpdateAddress()
-                                else
+                                    }
+                                else {
                                     isRetryQuotation = false
+                                    }
                             }
 
 
@@ -4875,8 +5093,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             } else {
                                 stopAnimation(quot_sync_img)
                                 val list_ = AppDatabase.getDBInstance()?.quotDao()?.getQuotSyncWise(false)
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_quot_retry.visibility = View.VISIBLE
+                                }
                                 else {
                                     tv_quot_retry.visibility = View.GONE
                                     quot_tick_img.visibility = View.VISIBLE
@@ -4886,10 +5105,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 i = 0
                                 progress_wheel.stopSpinning()
 
-                                if (!isRetryQuotation)
+                                if (!isRetryQuotation) {
                                     checkToCallUpdateAddress()
-                                else
+                                    }
+                                else {
                                     isRetryQuotation = false
+                                }
                             }
                         })
         )
@@ -4908,10 +5129,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 tv_team_retry.visibility = View.GONE
                 team_sync_img.visibility = View.GONE
 
-                if (!isRetryTeamShop)
+                if (!isRetryTeamShop) {
                     checkToCallTimesheet()
-                else
+                }
+                else {
                     isRetryTeamShop = false
+                }
             }
         } else {
             stopAnimation(team_sync_img)
@@ -4919,10 +5142,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             tv_team_retry.visibility = View.GONE
             team_sync_img.visibility = View.GONE
 
-            if (!isRetryTeamShop)
+            if (!isRetryTeamShop) {
                 checkToCallTimesheet()
-            else
+                }
+            else {
                 isRetryTeamShop = false
+                }
         }
     }
 
@@ -4970,8 +5195,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             } else {
                                 stopAnimation(team_sync_img)
                                 val list_ = AppDatabase.getDBInstance()?.memberShopDao()?.getShopSyncWise(false)
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_team_retry.visibility = View.VISIBLE
+                                    }
                                 else {
                                     tv_team_retry.visibility = View.GONE
                                     team_tick_img.visibility = View.VISIBLE
@@ -4981,10 +5207,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 i = 0
                                 progress_wheel.stopSpinning()
 
-                                if (!isRetryTeamShop)
+                                if (!isRetryTeamShop) {
                                     checkToCallTimesheet()
-                                else
+                                }
+                                else {
                                     isRetryTeamShop = false
+                                    }
                             }
 
 
@@ -4999,8 +5227,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             } else {
                                 stopAnimation(team_sync_img)
                                 val list_ = AppDatabase.getDBInstance()?.memberShopDao()?.getShopSyncWise(false)
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_team_retry.visibility = View.VISIBLE
+                                }
                                 else {
                                     tv_team_retry.visibility = View.GONE
                                     team_tick_img.visibility = View.VISIBLE
@@ -5010,10 +5239,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 i = 0
                                 progress_wheel.stopSpinning()
 
-                                if (!isRetryTeamShop)
+                                if (!isRetryTeamShop) {
                                     checkToCallTimesheet()
-                                else
+                                    }
+                                else {
                                     isRetryTeamShop = false
+                                }
                             }
                         })
         )
@@ -5033,10 +5264,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 tv_timesheet_retry.visibility = View.GONE
                 timesheet_sync_img.visibility = View.GONE
 
-                if (!isRetryTimesheet)
+                if (!isRetryTimesheet) {
                     checkToCallTask()
-                else
+                    }
+                else {
                     isRetryTimesheet = false
+                }
             }
         } else {
             stopAnimation(timesheet_sync_img)
@@ -5044,10 +5277,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             tv_timesheet_retry.visibility = View.GONE
             timesheet_sync_img.visibility = View.GONE
 
-            if (!isRetryTimesheet)
+            if (!isRetryTimesheet) {
                 checkToCallTask()
-            else
+                }
+            else {
                 isRetryTimesheet = false
+            }
         }
     }
 
@@ -5094,8 +5329,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 } else {
                                     stopAnimation(timesheet_sync_img)
                                     val list_ = AppDatabase.getDBInstance()?.timesheetDao()?.getTimesheetSyncWise(false)
-                                    if (list_ != null && list_.isNotEmpty())
+                                    if (list_ != null && list_.isNotEmpty()) {
                                         tv_timesheet_retry.visibility = View.VISIBLE
+                                    }
                                     else {
                                         tv_timesheet_retry.visibility = View.GONE
                                         timesheet_tick_img.visibility = View.VISIBLE
@@ -5105,10 +5341,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     i = 0
                                     progress_wheel.stopSpinning()
 
-                                    if (!isRetryTimesheet)
+                                    if (!isRetryTimesheet) {
                                         checkToCallTask()
-                                    else
+                                    }
+                                    else {
                                         isRetryTimesheet = false
+                                        }
                                 }
 
 
@@ -5123,8 +5361,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 } else {
                                     stopAnimation(timesheet_sync_img)
                                     val list_ = AppDatabase.getDBInstance()?.timesheetDao()?.getTimesheetSyncWise(false)
-                                    if (list_ != null && list_.isNotEmpty())
+                                    if (list_ != null && list_.isNotEmpty()) {
                                         tv_timesheet_retry.visibility = View.VISIBLE
+                                    }
                                     else {
                                         tv_timesheet_retry.visibility = View.GONE
                                         timesheet_tick_img.visibility = View.VISIBLE
@@ -5134,10 +5373,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     i = 0
                                     progress_wheel.stopSpinning()
 
-                                    if (!isRetryTimesheet)
+                                    if (!isRetryTimesheet) {
                                         checkToCallTask()
-                                    else
+                                    }
+                                    else {
                                         isRetryTimesheet = false
+                                        }
                                 }
                             })
             )
@@ -5162,8 +5403,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 } else {
                                     stopAnimation(timesheet_sync_img)
                                     val list_ = AppDatabase.getDBInstance()?.timesheetDao()?.getTimesheetSyncWise(false)
-                                    if (list_ != null && list_.isNotEmpty())
+                                    if (list_ != null && list_.isNotEmpty()) {
                                         tv_timesheet_retry.visibility = View.VISIBLE
+                                    }
                                     else {
                                         tv_timesheet_retry.visibility = View.GONE
                                         timesheet_tick_img.visibility = View.VISIBLE
@@ -5173,10 +5415,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     i = 0
                                     progress_wheel.stopSpinning()
 
-                                    if (!isRetryTimesheet)
+                                    if (!isRetryTimesheet) {
                                         checkToCallTask()
-                                    else
+                                    }
+                                    else {
                                         isRetryTimesheet = false
+                                        }
                                 }
 
 
@@ -5191,8 +5435,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 } else {
                                     stopAnimation(timesheet_sync_img)
                                     val list_ = AppDatabase.getDBInstance()?.timesheetDao()?.getTimesheetSyncWise(false)
-                                    if (list_ != null && list_.isNotEmpty())
+                                    if (list_ != null && list_.isNotEmpty()) {
                                         tv_timesheet_retry.visibility = View.VISIBLE
+                                    }
                                     else {
                                         tv_timesheet_retry.visibility = View.GONE
                                         timesheet_tick_img.visibility = View.VISIBLE
@@ -5202,10 +5447,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                     i = 0
                                     progress_wheel.stopSpinning()
 
-                                    if (!isRetryTimesheet)
+                                    if (!isRetryTimesheet) {
                                         checkToCallTask()
-                                    else
+                                        }
+                                    else {
                                         isRetryTimesheet = false
+                                        }
                                 }
                             })
             )
@@ -5233,10 +5480,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     tv_task_retry.visibility = View.GONE
                     task_sync_img.visibility = View.GONE
 
-                    if (!isRetryTask)
+                    if (!isRetryTask) {
                         checkToCallDocument()
-                    else
+                        }
+                    else {
                         isRetryTask = false
+                    }
                 }
             }
         } else {
@@ -5245,10 +5494,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             tv_task_retry.visibility = View.GONE
             task_sync_img.visibility = View.GONE
 
-            if (!isRetryTask)
+            if (!isRetryTask) {
                 checkToCallDocument()
-            else
+                }
+            else {
                 isRetryTask = false
+                }
         }
     }
     //========================================================Task================================================================//
@@ -5301,41 +5552,48 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                             statusList.add(it)
                                     }
 
-                                    if (statusList.isNotEmpty())
+                                    if (statusList.isNotEmpty()) {
                                         callStatusUpdateApi(statusList[i], statusList)
+                                        }
                                     else {
                                         stopAnimation(task_sync_img)
                                         val list = AppDatabase.getDBInstance()?.taskDao()?.getTaskSyncWise(false)
-                                        if (list != null && list.isNotEmpty())
+                                        if (list != null && list.isNotEmpty()) {
                                             tv_task_retry.visibility = View.VISIBLE
+                                        }
                                         else {
                                             tv_task_retry.visibility = View.GONE
                                             task_tick_img.visibility = View.VISIBLE
                                         }
                                         task_sync_img.visibility = View.GONE
 
-                                        if (!isRetryTask)
+                                        if (!isRetryTask) {
                                             checkToCallDocument()
-                                        else
+                                        }
+                                        else {
                                             isRetryTask = false
+                                            }
                                     }
                                 }
                                 else {
                                     stopAnimation(task_sync_img)
 
                                     val list = AppDatabase.getDBInstance()?.taskDao()?.getTaskSyncWise(false)
-                                    if (list != null && list.isNotEmpty())
+                                    if (list != null && list.isNotEmpty()) {
                                         tv_task_retry.visibility = View.VISIBLE
+                                        }
                                     else {
                                         tv_task_retry.visibility = View.GONE
                                         task_tick_img.visibility = View.VISIBLE
                                     }
                                     task_sync_img.visibility = View.GONE
 
-                                    if (!isRetryTask)
+                                    if (!isRetryTask) {
                                         checkToCallDocument()
-                                    else
+                                    }
+                                    else {
                                         isRetryTask = false
+                                        }
                                 }
                             }
 
@@ -5361,38 +5619,45 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                             statusList.add(it)
                                     }
 
-                                    if (statusList.isNotEmpty())
+                                    if (statusList.isNotEmpty()) {
                                         callStatusUpdateApi(statusList[i], statusList)
+                                        }
                                     else {
                                         val list = AppDatabase.getDBInstance()?.taskDao()?.getTaskSyncWise(false)
-                                        if (list != null && list.isNotEmpty())
+                                        if (list != null && list.isNotEmpty()) {
                                             tv_task_retry.visibility = View.VISIBLE
+                                        }
                                         else {
                                             tv_task_retry.visibility = View.GONE
                                             task_tick_img.visibility = View.VISIBLE
                                         }
                                         task_sync_img.visibility = View.GONE
 
-                                        if (!isRetryTask)
+                                        if (!isRetryTask) {
                                             checkToCallDocument()
-                                        else
+                                            }
+                                        else {
                                             isRetryTask = false
+                                        }
                                     }
                                 }
                                 else {
                                     val list = AppDatabase.getDBInstance()?.taskDao()?.getTaskSyncWise(false)
-                                    if (list != null && list.isNotEmpty())
+                                    if (list != null && list.isNotEmpty()) {
                                         tv_task_retry.visibility = View.VISIBLE
+                                        }
                                     else {
                                         tv_task_retry.visibility = View.GONE
                                         task_tick_img.visibility = View.VISIBLE
                                     }
                                     task_sync_img.visibility = View.GONE
 
-                                    if (!isRetryTask)
+                                    if (!isRetryTask) {
                                         checkToCallDocument()
-                                    else
+                                    }
+                                    else {
                                         isRetryTask = false
+                                        }
                                 }
                             }
 
@@ -5431,8 +5696,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 stopAnimation(task_sync_img)
                                 val list_ = AppDatabase.getDBInstance()?.taskDao()?.getTaskStatusWise(0)
 
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_task_retry.visibility = View.VISIBLE
+                                }
                                 else {
                                     tv_task_retry.visibility = View.GONE
                                     task_tick_img.visibility = View.VISIBLE
@@ -5442,10 +5708,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 i = 0
                                 progress_wheel.stopSpinning()
 
-                                if (!isRetryTask)
+                                if (!isRetryTask) {
                                     checkToCallDocument()
-                                else
+                                    }
+                                else {
                                     isRetryTask = false
+                                }
                             }
 
                         }, { error ->
@@ -5460,8 +5728,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 stopAnimation(task_sync_img)
                                 val list_ = AppDatabase.getDBInstance()?.taskDao()?.getTaskStatusWise(0)
 
-                                if (list_ != null && list_.isNotEmpty())
+                                if (list_ != null && list_.isNotEmpty()) {
                                     tv_task_retry.visibility = View.VISIBLE
+                                }
                                 else {
                                     tv_task_retry.visibility = View.GONE
                                     task_tick_img.visibility = View.VISIBLE
@@ -5471,10 +5740,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 i = 0
                                 progress_wheel.stopSpinning()
 
-                                if (!isRetryTask)
+                                if (!isRetryTask) {
                                     checkToCallDocument()
-                                else
+                                    }
+                                else {
                                     isRetryTask = false
+                                }
                             }
 
                         })
@@ -5486,19 +5757,22 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
     private fun checkToCallDocument() {
         if (Pref.isDocumentRepoShow) {
             val list = AppDatabase.getDBInstance()?.documentListDao()?.getDocSyncWise(false)
-            if (list != null && list.isNotEmpty())
+            if (list != null && list.isNotEmpty()) {
                 callAddDocumentApi(list)
+                }
             else {
                 stopAnimation(doc_sync_img)
                 doc_tick_img.visibility = View.VISIBLE
                 tv_doc_retry.visibility = View.GONE
                 doc_sync_img.visibility = View.GONE
 
-                if (!isRetryDocument)
+                if (!isRetryDocument) {
                     //checkToCallActivity() // sam comm 05-07-21
                     callShopProductStockApi()
-                else
+                }
+                else {
                     isRetryDocument = false
+                }
             }
         } else {
             stopAnimation(doc_sync_img)
@@ -5506,11 +5780,13 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             tv_doc_retry.visibility = View.GONE
             doc_sync_img.visibility = View.GONE
 
-            if (!isRetryDocument)
+            if (!isRetryDocument) {
                 //checkToCallActivity() // sam comm 05-07-21
-            callShopProductStockApi()
-            else
+                callShopProductStockApi()
+            }
+            else {
                 isRetryDocument = false
+            }
         }
     }
 
@@ -5546,11 +5822,13 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             tv_doc_retry.visibility = View.GONE
                             doc_sync_img.visibility = View.GONE
 
-                            if (!isRetryDocument)
+                            if (!isRetryDocument) {
                                 //checkToCallActivity() // sam comm 05-07-21
-                            callShopProductStockApi()
-                            else
+                                callShopProductStockApi()
+                            }
+                            else {
                                 isRetryDocument = false
+                            }
 
                         }, { error ->
                             error.printStackTrace()
@@ -5562,11 +5840,13 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             tv_doc_retry.visibility = View.GONE
                             doc_sync_img.visibility = View.GONE
 
-                            if (!isRetryDocument)
+                            if (!isRetryDocument) {
                                 //checkToCallActivity() // sam comm 05-07-21
-                            callShopProductStockApi()
-                            else
+                                callShopProductStockApi()
+                            }
+                            else {
                                 isRetryDocument = false
+                            }
                         })
         )
     }
@@ -6093,16 +6373,19 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 } else {
                                     stopAnimation(activity_sync_img)
                                     val list_ = AppDatabase.getDBInstance()?.activDao()?.getDataSyncWise(false)
-                                    if (list_ != null && list_.isNotEmpty())
+                                    if (list_ != null && list_.isNotEmpty()) {
                                         tv_activity_retry.visibility = View.VISIBLE
+                                        }
                                     else {
                                         val chemistList = AppDatabase.getDBInstance()!!.addChemistDao().getDataSyncWise(false)
-                                        if (chemistList != null && chemistList.isNotEmpty())
+                                        if (chemistList != null && chemistList.isNotEmpty()) {
                                             tv_activity_retry.visibility = View.VISIBLE
+                                        }
                                         else {
                                             val doctorList = AppDatabase.getDBInstance()!!.addDocDao().getDataSyncWise(false)
-                                            if (doctorList != null && doctorList.isNotEmpty())
+                                            if (doctorList != null && doctorList.isNotEmpty()) {
                                                 tv_activity_retry.visibility = View.VISIBLE
+                                                }
                                             else {
                                                 tv_activity_retry.visibility = View.GONE
                                                 activity_tick_img.visibility = View.VISIBLE
@@ -6580,13 +6863,16 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 val currentTimeInLong = AppUtils.convertTimeWithMeredianToLong(AppUtils.getCurrentTimeWithMeredian())
                 val approvedOutTimeInLong = AppUtils.convertTimeWithMeredianToLong(Pref.approvedOutTime)
 
-                if (currentTimeInLong < approvedOutTimeInLong)
+                if (currentTimeInLong < approvedOutTimeInLong) {
                     showLogoutLocReasonDialog()
-                else
+                }
+                else {
                     logoutYesClick()
+                }
             }
-            else
+            else {
                 logoutYesClick()
+                }
         }else{
 
             CommonDialog.getInstance(AppUtils.hiFirstNameText()+"!", getString(R.string.confirm_logout), getString(R.string.cancel), getString(R.string.ok), object : CommonDialogClickListener {
@@ -6600,13 +6886,16 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         val currentTimeInLong = AppUtils.convertTimeWithMeredianToLong(AppUtils.getCurrentTimeWithMeredian())
                         val approvedOutTimeInLong = AppUtils.convertTimeWithMeredianToLong(Pref.approvedOutTime)
 
-                        if (currentTimeInLong < approvedOutTimeInLong)
+                        if (currentTimeInLong < approvedOutTimeInLong) {
                             showLogoutLocReasonDialog()
-                        else
+                            }
+                        else {
                             logoutYesClick()
+                            }
                     }
-                    else
+                    else {
                         logoutYesClick()
+                    }
                 }
 
             }).show((mContext as DashboardActivity).supportFragmentManager, "")
@@ -6935,17 +7224,40 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                                             if (syncList != null && syncList.isNotEmpty()) {
 
-                                                if (i == 0)
-                                                    AppDatabase.getDBInstance()!!.userLocationDataDao().updateIsUploadedFor5Items(true, syncList[syncList.size - 1].locationId.toInt(), locationListAllId[i].locationId.toInt())
-                                                else
-                                                    AppDatabase.getDBInstance()!!.userLocationDataDao().updateIsUploadedFor5Items(true, locationListAllId[i - 1].locationId.toInt(), locationListAllId[i].locationId.toInt())
-
+                                                if (i == 0) {
+                                                    AppDatabase.getDBInstance()!!
+                                                        .userLocationDataDao()
+                                                        .updateIsUploadedFor5Items(
+                                                            true,
+                                                            syncList[syncList.size - 1].locationId.toInt(),
+                                                            locationListAllId[i].locationId.toInt()
+                                                        )
+                                                } else {
+                                                    AppDatabase.getDBInstance()!!
+                                                        .userLocationDataDao()
+                                                        .updateIsUploadedFor5Items(
+                                                            true,
+                                                            locationListAllId[i - 1].locationId.toInt(),
+                                                            locationListAllId[i].locationId.toInt()
+                                                        )
+                                                }
                                             } else {
-                                                if (i == 0)
-                                                    AppDatabase.getDBInstance()!!.userLocationDataDao().updateIsUploaded(true, locationListAllId[i].locationId.toInt())
-                                                else
-                                                    AppDatabase.getDBInstance()!!.userLocationDataDao().updateIsUploadedFor5Items(true, locationListAllId[i - 1].locationId.toInt(), locationListAllId[i].locationId.toInt())
-                                            }
+                                                if (i == 0) {
+                                                    AppDatabase.getDBInstance()!!
+                                                        .userLocationDataDao().updateIsUploaded(
+                                                        true,
+                                                        locationListAllId[i].locationId.toInt()
+                                                    )
+                                                } else {
+                                                    AppDatabase.getDBInstance()!!
+                                                        .userLocationDataDao()
+                                                        .updateIsUploadedFor5Items(
+                                                            true,
+                                                            locationListAllId[i - 1].locationId.toInt(),
+                                                            locationListAllId[i].locationId.toInt()
+                                                        )
+                                                }
+                                                }
                                         }
 
                                         uiThread {
@@ -6993,8 +7305,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as UnknownReponseModel
-                            if (response.status == NetworkConstant.SUCCESS)
+                            if (response.status == NetworkConstant.SUCCESS) {
                                 submitLoc(response.location_list)
+                            }
                             else {
                                 progress_wheel.stopSpinning()
                                 callAppInfoApi()
@@ -7207,7 +7520,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
     private fun callLogshareApi(){
         syncExtraContact()
-        /*
+        /* code off for for Timber Log Introduced
         if(Pref.LogoutWithLogFile){
             try{
                 val filesForZip: Array<String> = arrayOf(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "xeurobondlogsample/log").path)

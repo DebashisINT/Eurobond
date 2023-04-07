@@ -786,9 +786,15 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                 } else
                     itemView.next_visit_date_RL.visibility = View.GONE
 
+                if(Pref.ShowApproxDistanceInNearbyShopList){
+                    itemView.ll_distance.visibility = View.VISIBLE
                 val distance = LocationWizard.getDistance(list[adapterPosition].shopLat, list[adapterPosition].shopLong,
                         Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
                 itemView.tv_distance.text = "$distance (Approx. from current location)"
+                }
+                else{
+                    itemView.ll_distance.visibility = View.GONE
+                }
 
                 itemView.iv_whatsapp.setOnClickListener {
                     listener.onWhatsAppClick(list[adapterPosition].ownerContactNumber)
@@ -990,8 +996,6 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                         itemView.add_multiple_ll.visibility = View.GONE
                         itemView.new_multi_view.visibility = View.GONE
                     }
-
-
 
 
 

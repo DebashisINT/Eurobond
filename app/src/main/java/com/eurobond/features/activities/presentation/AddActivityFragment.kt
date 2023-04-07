@@ -107,10 +107,12 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
         fun newInstance(mShop: Any): AddActivityFragment {
             val fragment = AddActivityFragment()
 
-            if (mShop is AddShopDBModelEntity)
+            if (mShop is AddShopDBModelEntity) {
                 shop = mShop
-            else
+            }
+            else {
                 shop = null
+            }
 
             return fragment
         }
@@ -201,10 +203,12 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.tv_party_dropdown, R.id.iv_party_dropdown_icon -> {
-                if (shopList.isEmpty())
+                if (shopList.isEmpty()) {
                     callShopListApi()
-                else
+                }
+                else {
                     showPartyDialog()
+                }
             }
 
             R.id.tv_date -> {
@@ -233,39 +237,48 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
 
             R.id.tv_activity_dropdown, R.id.iv_activity_dropdown_icon -> {
                 val list = AppDatabase.getDBInstance()?.activityDropdownDao()?.getAll()
-                if (list == null || list.isEmpty())
+                if (list == null || list.isEmpty()) {
                     getActivityDropdownList()
-                else
+                }
+                else {
                     openActivityList(list)
+                }
             }
 
             R.id.tv_type_dropdown, R.id.iv_type_dropdown_icon -> {
                 val list = AppDatabase.getDBInstance()?.typeDao()?.getAll()
-                if (list == null || list.isEmpty())
+                if (list == null || list.isEmpty()) {
                     getTypeList()
-                else
+                }
+                else {
                     openTypeList()
+                }
             }
 
             R.id.tv_product_dropdown, R.id.iv_product_dropdown_icon -> {
                 val list = AppDatabase.getDBInstance()?.productListDao()?.getAll()
-                if (list == null || list.isEmpty())
+                if (list == null || list.isEmpty()) {
                     getProductList()
-                else
+                }
+                else {
                     openProductList(list)
+                }
             }
 
             R.id.tv_priority_dropdown, R.id.iv_priority_dropdown_icon -> {
                 val list = AppDatabase.getDBInstance()?.priorityDao()?.getAll()
-                if (list == null || list.isEmpty())
+                if (list == null || list.isEmpty()) {
                     getPriorityList()
-                else
+                }
+                else {
                     openPriorityList(list)
+                }
             }
 
             R.id.tv_due_date -> {
-                if (TextUtils.isEmpty(tv_date.text.toString().trim()))
+                if (TextUtils.isEmpty(tv_date.text.toString().trim())) {
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_date_first))
+                }
                 else {
                     isDueDate = true
                     val datePicker = android.app.DatePickerDialog(mContext, R.style.DatePickerTheme, date, myCalendar.get(Calendar.YEAR),
@@ -295,8 +308,9 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
 
             R.id.et_attachment -> {
                 isAttachment = true
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     initPermissionCheck()
+                }
                 else {
                     showPictureDialog()
                 }
@@ -308,8 +322,9 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
 
             R.id.et_photo -> {
                 isAttachment = false
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     initPermissionCheck()
+                }
                 else {
                     (mContext as DashboardActivity).captureImage()
                 }
@@ -384,60 +399,82 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
             shopObj.is_otp_verified = shop_list[i].is_otp_verified
             shopObj.added_date = shop_list[i].added_date
 
-            if (shop_list[i].amount == null || shop_list[i].amount == "0.00")
+            if (shop_list[i].amount == null || shop_list[i].amount == "0.00") {
                 shopObj.amount = ""
-            else
+            }
+            else {
                 shopObj.amount = shop_list[i].amount
+            }
 
-            if (shop_list[i].entity_code == null)
+            if (shop_list[i].entity_code == null) {
                 shopObj.entity_code = ""
-            else
+            }
+            else {
                 shopObj.entity_code = shop_list[i].entity_code
+            }
 
-            if (shop_list[i].area_id == null)
+            if (shop_list[i].area_id == null) {
                 shopObj.area_id = ""
-            else
+            }
+            else {
                 shopObj.area_id = shop_list[i].area_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].model_id))
+            if (TextUtils.isEmpty(shop_list[i].model_id)) {
                 shopObj.model_id = ""
-            else
+            }
+            else {
                 shopObj.model_id = shop_list[i].model_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].primary_app_id))
+            if (TextUtils.isEmpty(shop_list[i].primary_app_id)) {
                 shopObj.primary_app_id = ""
-            else
+            }
+            else {
                 shopObj.primary_app_id = shop_list[i].primary_app_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].secondary_app_id))
+            if (TextUtils.isEmpty(shop_list[i].secondary_app_id)) {
                 shopObj.secondary_app_id = ""
-            else
+            }
+            else {
                 shopObj.secondary_app_id = shop_list[i].secondary_app_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].lead_id))
+            if (TextUtils.isEmpty(shop_list[i].lead_id)) {
                 shopObj.lead_id = ""
-            else
+            }
+            else {
                 shopObj.lead_id = shop_list[i].lead_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].stage_id))
+            if (TextUtils.isEmpty(shop_list[i].stage_id)) {
                 shopObj.stage_id = ""
-            else
+            }
+            else {
                 shopObj.stage_id = shop_list[i].stage_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].funnel_stage_id))
+            if (TextUtils.isEmpty(shop_list[i].funnel_stage_id)) {
                 shopObj.funnel_stage_id = ""
-            else
+            }
+            else {
                 shopObj.funnel_stage_id = shop_list[i].funnel_stage_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].booking_amount))
+            if (TextUtils.isEmpty(shop_list[i].booking_amount)) {
                 shopObj.booking_amount = ""
-            else
+            }
+            else {
                 shopObj.booking_amount = shop_list[i].booking_amount
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].type_id))
+            if (TextUtils.isEmpty(shop_list[i].type_id)) {
                 shopObj.type_id = ""
-            else
+            }
+            else {
                 shopObj.type_id = shop_list[i].type_id
+            }
 
             shopObj.family_member_dob = shop_list[i].family_member_dob
             shopObj.director_name = shop_list[i].director_name
@@ -464,60 +501,73 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
             shopObj.assistant_doa = shop_list[i].assistant_doa
             shopObj.assistant_family_dob = shop_list[i].assistant_family_dob
 
-            if (TextUtils.isEmpty(shop_list[i].entity_id))
+            if (TextUtils.isEmpty(shop_list[i].entity_id)) {
                 shopObj.entity_id = ""
-            else
+            }
+            else {
                 shopObj.entity_id = shop_list[i].entity_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].party_status_id))
+            if (TextUtils.isEmpty(shop_list[i].party_status_id)) {
                 shopObj.party_status_id = ""
-            else
+            }
+            else {
                 shopObj.party_status_id = shop_list[i].party_status_id
-
-            if (TextUtils.isEmpty(shop_list[i].retailer_id))
+            }
+            if (TextUtils.isEmpty(shop_list[i].retailer_id)) {
                 shopObj.retailer_id = ""
-            else
+            }
+            else {
                 shopObj.retailer_id = shop_list[i].retailer_id
-
-            if (TextUtils.isEmpty(shop_list[i].dealer_id))
+            }
+            if (TextUtils.isEmpty(shop_list[i].dealer_id)) {
                 shopObj.dealer_id = ""
-            else
+            }
+            else {
                 shopObj.dealer_id = shop_list[i].dealer_id
-
-            if (TextUtils.isEmpty(shop_list[i].beat_id))
+            }
+            if (TextUtils.isEmpty(shop_list[i].beat_id)) {
                 shopObj.beat_id = ""
-            else
+            }
+            else {
                 shopObj.beat_id = shop_list[i].beat_id
-
-            if (TextUtils.isEmpty(shop_list[i].account_holder))
+            }
+            if (TextUtils.isEmpty(shop_list[i].account_holder)) {
                 shopObj.account_holder = ""
-            else
+            }
+            else {
                 shopObj.account_holder = shop_list[i].account_holder
-
-            if (TextUtils.isEmpty(shop_list[i].account_no))
+            }
+            if (TextUtils.isEmpty(shop_list[i].account_no)) {
                 shopObj.account_no = ""
-            else
+            }
+            else {
                 shopObj.account_no = shop_list[i].account_no
-
-            if (TextUtils.isEmpty(shop_list[i].bank_name))
+            }
+            if (TextUtils.isEmpty(shop_list[i].bank_name)) {
                 shopObj.bank_name = ""
-            else
+            }
+            else {
                 shopObj.bank_name = shop_list[i].bank_name
-
-            if (TextUtils.isEmpty(shop_list[i].ifsc_code))
+            }
+            if (TextUtils.isEmpty(shop_list[i].ifsc_code)) {
                 shopObj.ifsc_code = ""
-            else
+            }
+            else {
                 shopObj.ifsc_code = shop_list[i].ifsc_code
-
-            if (TextUtils.isEmpty(shop_list[i].upi))
+            }
+            if (TextUtils.isEmpty(shop_list[i].upi)) {
                 shopObj.upi_id = ""
-            else
+            }
+            else {
                 shopObj.upi_id = shop_list[i].upi
-
-            if (TextUtils.isEmpty(shop_list[i].assigned_to_shop_id))
+            }
+            if (TextUtils.isEmpty(shop_list[i].assigned_to_shop_id)) {
                 shopObj.assigned_to_shop_id = ""
-            else
+            }
+            else {
                 shopObj.assigned_to_shop_id = shop_list[i].assigned_to_shop_id
+            }
 
             list.add(shopObj)
             AppDatabase.getDBInstance()!!.addShopEntryDao().insert(shopObj)
@@ -817,10 +867,12 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
     private fun initPermissionCheck() {
         permissionUtils = PermissionUtils(mContext as Activity, object : PermissionUtils.OnPermissionListener {
             override fun onPermissionGranted() {
-                if (isAttachment)
+                if (isAttachment) {
                     showPictureDialog()
-                else
+                }
+                else {
                     (mContext as DashboardActivity).captureImage()
+                }
             }
 
             override fun onPermissionNotGranted() {

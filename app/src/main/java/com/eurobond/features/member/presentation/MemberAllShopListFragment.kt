@@ -127,8 +127,9 @@ class MemberAllShopListFragment : BaseFragment() {
                     val shopType = AppDatabase.getDBInstance()?.shopTypeDao()?.getSingleType(shop_list?.get(0)?.shop_type!!)
                     if (shopType != null && !TextUtils.isEmpty(shopType.shoptype_name)) {
                         tv_shop_count.text = "Total " + shopType.shoptype_name + "(s): " + shop_list?.size
-                    } else
+                    } else {
                         tv_shop_count.text = "Total " + Pref.shopText + "(s): " + shop_list?.size
+                    }
                 } else {
                     adapter?.filter?.filter(query)
                 }
@@ -297,17 +298,19 @@ class MemberAllShopListFragment : BaseFragment() {
         val shopType = AppDatabase.getDBInstance()?.shopTypeDao()?.getSingleType(shop_list[0].shop_type)
         if (shopType != null && !TextUtils.isEmpty(shopType.shoptype_name)) {
             tv_shop_count.text = "Total " + shopType.shoptype_name + "(s): " + shop_list.size
-        } else
+        } else {
             tv_shop_count.text = "Total " + Pref.shopText + "(s): " + shop_list.size
-
+        }
         if (!TextUtils.isEmpty(shopId)) {
             tv_shop_path.visibility = View.VISIBLE
 
             shopNameList.forEachIndexed { index, shopName ->
-                if (index == shopNameList.size - 1)
+                if (index == shopNameList.size - 1) {
                     tv_shop_path.text = shopName
-                else
+                }
+                else {
                     tv_shop_path.text = shopName + "-> "
+                }
             }
         } else
             tv_shop_path.visibility = View.GONE
@@ -335,12 +338,14 @@ class MemberAllShopListFragment : BaseFragment() {
             val shopType_ = AppDatabase.getDBInstance()?.shopTypeDao()?.getSingleType(shop_list[0].shop_type)
             if (shopType_ != null && !TextUtils.isEmpty(shopType_.shoptype_name)) {
                 tv_shop_count.text = "Total " + shopType_.shoptype_name + "(s): " + size
-            } else
+            } else {
                 tv_shop_count.text = "Total " + Pref.shopText + "(s): " + size
+            }
         },
             { teamShop: TeamShopListDataModel ->
-                if (!Pref.isAddAttendence)
+                if (!Pref.isAddAttendence) {
                     (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+                }
                 else if(Pref.IsAllowBreakageTrackingunderTeam) {
                     //CustomStatic.IsBreakageViewFromTeam = true
                     //(mContext as DashboardActivity).loadFragment(FragType.ShopDamageProductListFrag, true, teamShop.shop_id+"~"+userId)
@@ -350,8 +355,9 @@ class MemberAllShopListFragment : BaseFragment() {
 
             },
         { teamShop: TeamShopListDataModel ->
-            if (!Pref.isAddAttendence)
+            if (!Pref.isAddAttendence) {
                 (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+            }
             else if(Pref.IsNewQuotationfeatureOn) {
                 (mContext as DashboardActivity).loadFragment(FragType.ViewAllQuotListFragment, true, teamShop)
         }
@@ -431,8 +437,9 @@ class MemberAllShopListFragment : BaseFragment() {
                 if (AppUtils.isOnline(mContext)) {
                     if (mTeamShop is TeamShopListDataModel)
                         callShopAddressUpdateApi(mTeamShop)
-                } else
+                } else {
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
+                }
 
             }).show((mContext as DashboardActivity).supportFragmentManager, "UpdateShopAddressDialog")
 
@@ -465,8 +472,9 @@ class MemberAllShopListFragment : BaseFragment() {
                             if (response.status == NetworkConstant.SUCCESS) {
                                 (mContext as DashboardActivity).showSnackMessage(response.message!!)
                                 getTeamShopList()
-                            } else
+                            } else {
                                 (mContext as DashboardActivity).showSnackMessage(response.message!!)
+                            }
 
                         }, { error ->
                             error.printStackTrace()
@@ -482,17 +490,21 @@ class MemberAllShopListFragment : BaseFragment() {
 
         shopIdList.also {
             it.removeAt(it.size - 1)
-            shopId = if (it.size > 0)
+            shopId = if (it.size > 0) {
                 it[it.size - 1]
-            else
+            }
+            else {
                 ""
+            }
         }
 
         shopNameList.also {
-            if (it.size > 0)
+            if (it.size > 0) {
                 it[it.size - 1]
-            else
+            }
+            else {
                 it[0]
+            }
         }
 
         getTeamShopList()

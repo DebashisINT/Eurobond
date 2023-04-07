@@ -43,6 +43,7 @@ import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
 import com.android.volley.AuthFailureError
@@ -208,6 +209,7 @@ import com.eurobond.features.performance.GpsStatusFragment
 import com.eurobond.features.performance.PerformanceFragment
 import com.eurobond.features.performance.api.UpdateGpsStatusRepoProvider
 import com.eurobond.features.performance.model.UpdateGpsInputParamsModel
+import com.eurobond.features.performanceAPP.PerformanceAppFragment
 import com.eurobond.features.permissionList.ViewPermissionFragment
 import com.eurobond.features.photoReg.*
 import com.eurobond.features.quotation.presentation.*
@@ -276,6 +278,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_dashboard_new.*
 import kotlinx.android.synthetic.main.menu.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.alexandroid.gps.GpsStatusDetector
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -304,6 +308,8 @@ import java.util.concurrent.TimeUnit
 // 5.0 NearByShopsListFragment AppV 4.0.6 Suman 03-02-2023 updateModifiedShop + sendModifiedShopList  for shop update mantis 25624
 // 10.0 DashboardActivity AppV 4.0.7 saheli 10-02-2023 order rate issue mantis  25666
 // 11.0 DashboardActivity AppV 4.0.7 saheli 16-02-2023 duartion calculation issue(multiple visit last data calculation) mantis  25675
+// 12.0 DashboardActivity AppV 4.0.7 saheli 24-03-2023 room main thread optimizetion location db insertion in dashboardActivity revisitShop(image: String) mantis 0025753
+// 13.0 DashboardActivity AppV 4.0.7 Suman 31-03-2023 quotation auto mail app kill work mantis 25766
 
 
 
@@ -358,8 +364,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         })
         println("load_frag " + mFragType.toString() + "     " + Pref.user_id.toString()+" "+Pref.GPSAlertGlobal.toString());
 
-
-        Pref.IsShowQuotationFooterforEurobond = true
+        //val distance = LocationWizard.getDistance(22.4339117,	87.3366233, 22.52156	,87.3279733)
 
         //AppDatabase.getDBInstance()!!.userLocationDataDao().updateUnknownLocationTest(AppUtils.getCurrentDateForShopActi(),"Unknown",false)
         if (addToStack) {
@@ -733,6 +738,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     private var shop_id = ""
     private var lastLat = 0.0
     private var lastLng = 0.0
+
+    private lateinit var tv_performance_teamMenu: AppCustomTextView
 
 
     @SuppressLint("NewApi")
@@ -1752,8 +1759,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         if (fcmReceiver_leave != null)
             LocalBroadcastManager.getInstance(this).unregisterReceiver(fcmReceiver_leave)
 
-        if (fcmReceiver_quotation_approval != null)
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(fcmReceiver_quotation_approval)
+        // 13.0 DashboardActivity AppV 4.0.7 Suman 31-03-2023 quotation auto mail app kill work mantis 25766
+        Timber.d("quto_mail ondestroy receiver...")
+        /*if (fcmReceiver_quotation_approval != null)
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(fcmReceiver_quotation_approval)*/
 
 
         if (collectionAlertReceiver != null)
@@ -1952,6 +1961,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         rl_confirm_btn = findViewById(R.id.rl_confirm_btn)
         tv_pp_dd_outstanding = findViewById(R.id.tv_pp_dd_outstanding)
 
+
         returnTV = findViewById(R.id.return_TV)
 
 
@@ -1974,6 +1984,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         state_report_TV = findViewById(R.id.state_report_TV) // performance menu
         iv_list_party = findViewById(R.id.iv_list_party)
         quo_TV = findViewById(R.id.quo_TV)
+
+        tv_performance_teamMenu = findViewById(R.id.tv_performance_teamMenu)
 
         if (profilePicture != null && Pref.profile_img != null && Pref.profile_img.trim().isNotEmpty()) {
             // Picasso.with(this).load(Pref.user_profile_img).into(profilePicture)
@@ -2198,6 +2210,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         assignedLead.setOnClickListener(this)
         surveyMenu.setOnClickListener(this)
         tv_clear_attendance.setOnClickListener(this)
+
+        tv_performance_teamMenu.setOnClickListener(this)
 
         drawerLL=findViewById(R.id.activity_dashboard_lnr_lyt_slide_view)
         drawerLL.setOnClickListener(this)
@@ -3842,6 +3856,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 loadFragment(FragType.MicroLearningListFragment, false, "")
             }
 
+            R.id.tv_performance_teamMenu -> {
+                loadFragment(FragType.PerformanceAppFragment, false, "")
+            }
+
         }
     }
 
@@ -4122,6 +4140,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 //isMemberMap = false
                 setTopBarTitle(getString(R.string.traveling_history))
                 setTopBarVisibility(TopBarConfig.ACTIVITYMAP)
+            }
+
+            FragType.PerformanceAppFragment -> {
+                if (enableFragGeneration) {
+                    mFragment = PerformanceAppFragment()
+                }
+                setTopBarTitle("Performance")
             }
 
             FragType.SearchLocationFragment -> {
@@ -5481,6 +5506,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }
                 setTopBarTitle(getString(R.string.training_contents))
                 setTopBarVisibility(TopBarConfig.MICROLEARNING)
+            }
+            FragType.PerformanceAppFragment -> {
+                if (enableFragGeneration) {
+                    mFragment = PerformanceAppFragment()
+                }
+                setTopBarTitle("Performance")
+                setTopBarVisibility(TopBarConfig.BACK)
             }
             FragType.MicroLearningWebViewFragment -> {
                 if (enableFragGeneration) {
@@ -7832,8 +7864,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             })
             simpleDialog.show()
 
-        }else if(getFragment() != null && getFragment() is ViewAllOrderListFragment && Pref.IsShowNewOrderCart){
-            loadFragment(FragType.NearByShopsListFragment, false, "")
+        }else if(getFragment() != null && getFragment() is ViewAllOrderListFragment && CustomStatic.IsBackFromNewOptiCart){
+            CustomStatic.IsBackFromNewOptiCart=false
+            loadFragment(FragType.DashboardFragment, false, DashboardType.Home)
         }
         /*Date 14-09-2021*/
         else if (getFragment() != null && getFragment() is NewOrderScrOrderDetailsFragment) {
@@ -9902,21 +9935,39 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 Timber.e("Total Distance====> $finalDistance")
                 Timber.e("=====================================")
 
-                userlocation.distance = finalDistance
-                userlocation.locationName = LocationWizard.getNewLocationName(this, userlocation.latitude.toDouble(), userlocation.longitude.toDouble())
-                userlocation.timestamp = LocationWizard.getTimeStamp()
-                userlocation.time = LocationWizard.getFormattedTime24Hours(true)
-                userlocation.meridiem = LocationWizard.getMeridiem()
-                userlocation.hour = LocationWizard.getHour()
-                userlocation.minutes = LocationWizard.getMinute()
-                userlocation.isUploaded = false
-                userlocation.shops = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi()).size.toString()
-                userlocation.updateDate = AppUtils.getCurrentDateForShopActi()
-                userlocation.updateDateTime = AppUtils.getCurrentDateTime()
-                userlocation.meeting = AppDatabase.getDBInstance()!!.addMeetingDao().getMeetingDateWise(AppUtils.getCurrentDateForShopActi()).size.toString()
-                userlocation.network_status = if (AppUtils.isOnline(this)) "Online" else "Offline"
-                userlocation.battery_percentage = AppUtils.getBatteryPercentage(this).toString()
-                AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
+                // start 12.0 DashboardActivity 24-03-2023 room main thread optimizetion location db insertion in dashboardActivity revisitShop(image: String) lifecycleScope introduced mantis 0025753
+
+                val ref = this
+                lifecycleScope.launch(Dispatchers.IO) {
+                    ref.runOnUiThread {
+                        try {
+                            userlocation.distance = finalDistance
+                            Timber.e("latitute & lontitute ====> ${userlocation.latitude.toDouble()} ${ userlocation.longitude.toDouble()}")
+                            userlocation.locationName = LocationWizard.getNewLocationName(this@DashboardActivity, userlocation.latitude.toDouble(), userlocation.longitude.toDouble())
+                            Timber.e("location name ====> ${userlocation.locationName}")
+                            userlocation.timestamp = LocationWizard.getTimeStamp()
+                            userlocation.time = LocationWizard.getFormattedTime24Hours(true)
+                            userlocation.meridiem = LocationWizard.getMeridiem()
+                            userlocation.hour = LocationWizard.getHour()
+                            userlocation.minutes = LocationWizard.getMinute()
+                            userlocation.isUploaded = false
+                            userlocation.shops = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi()).size.toString()
+                            userlocation.updateDate = AppUtils.getCurrentDateForShopActi()
+                            userlocation.updateDateTime = AppUtils.getCurrentDateTime()
+                            userlocation.meeting = AppDatabase.getDBInstance()!!.addMeetingDao().getMeetingDateWise(AppUtils.getCurrentDateForShopActi()).size.toString()
+                            userlocation.network_status = if (AppUtils.isOnline(this@DashboardActivity)) "Online" else "Offline"
+                            userlocation.battery_percentage = AppUtils.getBatteryPercentage(this@DashboardActivity).toString()
+                            AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
+                            Timber.e("location insert data ====> ${userlocation}")
+
+                        } catch (ex: Exception) {
+                            Timber.e("ex revisitShop error : ${ex.localizedMessage} ${ex.printStackTrace()}")
+                            ex.printStackTrace()
+                        }
+                    }
+                }
+                // end
+
 
                 Timber.e("=====Shop revisit data added=======")
 
@@ -12542,9 +12593,11 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         override fun onReceive(context: Context, intent: Intent) {
             logo.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.shake))
             // 8.0 DashboardActivity AppV 4.0.6 Suman 23-01-2023  Auto mail from notification flow of quotation 25614
+            Timber.d("quto_mail auto mail block receiver...")
             getQutoDtlsBeforePDF(CustomStatic.QutoNoFromNoti)
         }
     }
+
 
     // 8.0 DashboardActivity AppV 4.0.6 Suman 23-01-2023  Auto mail from notification flow of quotation 25614
     private fun getQutoDtlsBeforePDF(quto_no: String){
@@ -12558,6 +12611,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         val addQuotResult = result as ViewDetailsQuotResponse
                         var addQuotEditResult: ViewDetailsQuotResponse
                         addQuotEditResult = addQuotResult
+                        Timber.d("quto_mail getQutoDtlsBeforePDF ${addQuotResult.status}")
                         if (addQuotResult!!.status == NetworkConstant.SUCCESS) {
                             //  AutoMail Sended work update Auto mail in dashboardActivity
                             var pdfTemplateName = addQuotResult.sel_quotation_pdf_template!!
@@ -12578,6 +12632,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         BaseActivity.isApiInitiated = false
                         if (error != null) {
                         }
+                        Timber.d("quto_mail getQutoDtlsBeforePDF err ${error.message}")
                     })
             )
         }catch (ex: Exception){
@@ -12592,6 +12647,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
     @SuppressLint("UseRequireInsteadOfGet")
     private fun saveDataAsPdfN(addQuotEditResult: ViewDetailsQuotResponse,pdfTtemplateName : String) {
+        Timber.d("quto_mail auto mail block begin...")
         var document: Document = Document(PageSize.A4, 36f, 36f, 36f, 80f)
         val time = System.currentTimeMillis()
         //val fileName = "QUTO_" +  "_" + time
@@ -13167,7 +13223,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 m = Mail("suman.bachar@indusnet.co.in", "dqridqtwsqxatmyt")
                 toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
             }
-
+            Timber.d("quto_mail auto mail sending...")
             m.setTo(toArr)
             m.setFrom("TEAM");
             m.setSubject("Quotation for ${ViewAllQuotListFragment.shop_name} created on dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)}.")
@@ -13176,8 +13232,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 try{
                     val fileUrl = Uri.parse(sendingPath)
                     val i = m.send(fileUrl.path)
+                    Timber.d("quto_mail auto mail success")
                 }catch (ex:Exception){
                     ex.printStackTrace()
+                    Timber.d("quto_mail auto mail error ${ex.localizedMessage}")
                 }
 
                 uiThread {
@@ -14134,8 +14192,6 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                                 if(!revisitStatusList.isEmpty()){
                                                     callRevisitStatusUploadApi(revisitStatusList!!)
                                                 }
-
-
                                                 if (newShopList.size > 0) {
                                                     for (i in 0 until newShopList.size) {
                                                         AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, newShopList[i].shop_id!!, AppUtils.changeAttendanceDateFormatToCurrent(newShopList[i].visited_date!!) /*AppUtils.getCurrentDateForShopActi()*/)

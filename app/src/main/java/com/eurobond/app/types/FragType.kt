@@ -44,5 +44,5 @@ enum class FragType {
     TeamRepeatOrderFrag,MapViewForTeamFrag,ShopDamageProductListFrag,ShopDamageProductSubmitFrag,DistributorwiseorderlistFragment,
     SurveyFrag,SurveyViewFrag,SurveyViewDtlsFrag,TeamBeatListFragment,MultipleImageFragment,PendingOutLocationFrag,PhotoRegAadhaarFragment,
     MenuBeatFrag,ReimbursementNFrag,ReimbursDtlsNFrag,EditReimbNFrag,
-    OrderProductListFrag,OrderProductCartFrag
+    OrderProductListFrag,OrderProductCartFrag,PerformanceAppFragment
 }

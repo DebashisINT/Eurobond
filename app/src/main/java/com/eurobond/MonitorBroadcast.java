@@ -36,7 +36,6 @@ public class MonitorBroadcast extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         try{
-
             Timber.e("MONITOR BROADCAST GPS_EVENT_STOPPED: " + "Time : " + AppUtils.Companion.getCurrentDateTime());
 
             int notiID=intent.getIntExtra("notiId",0);
@@ -112,15 +111,16 @@ public class MonitorBroadcast extends BroadcastReceiver {
             if(player==null){
                 funcc(context);
             }
-        }catch (Exception ex){ex.printStackTrace();}
-
-
-
+        }catch (Exception ex){
+            Timber.e("MonitorBroadcast error "+ex.getLocalizedMessage().toString());
+            ex.printStackTrace();
+        }
     }
 
     private void funcc(Context context){
 
         try{
+
             //Uri soundUriAlarm= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
             Uri soundUriAlarm = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ context.getPackageName() + "/" + R.raw.beethoven);
             if(soundUriAlarm == null){
@@ -147,8 +147,10 @@ public class MonitorBroadcast extends BroadcastReceiver {
 
             }
             //vibrator.vibrate(10*60*1000);
-        }catch (Exception ex){ex.printStackTrace();}
-
+        }catch (Exception ex){
+            Timber.e("MonitorBroadcast funcc error "+ex.getLocalizedMessage().toString());
+            ex.printStackTrace();
+        }
 
 
     }

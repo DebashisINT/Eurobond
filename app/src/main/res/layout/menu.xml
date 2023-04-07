@@ -481,6 +481,21 @@
                     android:text="@string/history"
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp" />
+                <!--Performace Menu In Menu bar 24-03-2023 by saheli-->
+                <com.eurobond.widgets.AppCustomTextView
+                    android:id="@+id/tv_performance_teamMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:drawableStart="@drawable/ic_performance"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:text="Performance"
+                    android:visibility="gone"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp" />
 
                 <com.eurobond.widgets.AppCustomTextView
                     android:id="@+id/quo_TV"

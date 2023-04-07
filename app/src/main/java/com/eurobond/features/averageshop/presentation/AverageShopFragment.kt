@@ -239,11 +239,13 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                             val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(ShopActivityEntityList[i].shopid)
                             if (shop.isUploaded) {
                                 if (ShopActivityEntityList[i].isDurationCalculated /*&& !ShopActivityEntityList[i].isUploaded*/) {
-                                    if (AppUtils.isVisitSync == "1")
+                                    if (AppUtils.isVisitSync == "1") {
                                         list.add(ShopActivityEntityList[i])
+                                        }
                                     else {
-                                        if (!ShopActivityEntityList[i].isUploaded)
+                                        if (!ShopActivityEntityList[i].isUploaded) {
                                             list.add(ShopActivityEntityList[i])
+                                        }
                                     }
                                 }
                             }
@@ -266,11 +268,12 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
 
                         list = list.filter { it.isUploaded == false } as ArrayList<ShopActivityEntity>
 
-                        if (list.size > 0)
+                        if (list.size > 0) {
                             syncAllShopActivity(list[i].shopid!!, list)
-                        else
+                            }
+                        else {
                             syncShopVisitImage()
-
+                        }
                     } else {
                         syncShopVisitImage()
                     }
@@ -284,11 +287,13 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                             val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(ShopActivityEntityList[i].shopid)
                             if (shop.isUploaded) {
                                 if (ShopActivityEntityList[i].isDurationCalculated /*&& !ShopActivityEntityList[i].isUploaded*/) {
-                                    if (AppUtils.isVisitSync == "1")
+                                    if (AppUtils.isVisitSync == "1") {
                                         list.add(ShopActivityEntityList[i])
+                                    }
                                     else {
-                                        if (!ShopActivityEntityList[i].isUploaded)
+                                        if (!ShopActivityEntityList[i].isUploaded) {
                                             list.add(ShopActivityEntityList[i])
+                                        }
                                     }
                                 }
                             }
@@ -296,8 +301,9 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
 
                         list = list.filter { it.isUploaded == false } as ArrayList<ShopActivityEntity>
 
-                        if (list.size > 0)
+                        if (list.size > 0) {
                             syncAllShopActivityForMultiVisit(list)
+                            }
                     }
                 }
             }
@@ -381,21 +387,29 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 shopDurationData.updated_on= ""
             }
 
+            try{
+                if (!TextUtils.isEmpty(shopActivity.pros_id!!))
+                    shopDurationData.pros_id = shopActivity.pros_id!!
+                else
+                    shopDurationData.pros_id = ""
 
-            if (!TextUtils.isEmpty(shopActivity.pros_id!!))
-                shopDurationData.pros_id = shopActivity.pros_id!!
-            else
-                shopDurationData.pros_id = ""
+                if (!TextUtils.isEmpty(shopActivity.agency_name!!))
+                    shopDurationData.agency_name =shopActivity.agency_name!!
+                else
+                    shopDurationData.agency_name = ""
 
-            if (!TextUtils.isEmpty(shopActivity.agency_name!!))
-                shopDurationData.agency_name =shopActivity.agency_name!!
-            else
+                if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value))
+                    shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
+                else
+                    shopDurationData.approximate_1st_billing_value = ""
+            }
+            catch (ex:Exception){
+                shopDurationData.pros_id = "0"
                 shopDurationData.agency_name = ""
-
-            if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value))
-                shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
-            else
                 shopDurationData.approximate_1st_billing_value = ""
+            }
+
+
 
             //duration garbage fix
             try{
@@ -985,8 +999,9 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                                                     }
                                                 }
 
-                                                if (unSyncedAudioList.isNotEmpty())
+                                                if (unSyncedAudioList.isNotEmpty()) {
                                                     callShopVisitAudioUploadApi(unSyncedAudioList, false, null)
+                                                        }
                                                 else {
                                                     (mContext as DashboardActivity).showSnackMessage("Sync successful")
                                                     ShopActivityEntityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi())
@@ -2179,21 +2194,28 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
             shopDurationData.updated_on = ""
         }
 
+        /**/
+        try{
+            if (!TextUtils.isEmpty(shopActivity.pros_id!!))
+                shopDurationData.pros_id = shopActivity.pros_id!!
+            else
+                shopDurationData.pros_id = "0"
 
-        if (!TextUtils.isEmpty(shopActivity.pros_id!!))
-            shopDurationData.pros_id = shopActivity.pros_id!!
-        else
-            shopDurationData.pros_id = ""
+            if (!TextUtils.isEmpty(shopActivity.agency_name!!))
+                shopDurationData.agency_name =shopActivity.agency_name!!
+            else
+                shopDurationData.agency_name = ""
 
-        if (!TextUtils.isEmpty(shopActivity.agency_name!!))
-            shopDurationData.agency_name =shopActivity.agency_name!!
-        else
+            if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value))
+                shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
+            else
+                shopDurationData.approximate_1st_billing_value = ""
+
+        }catch (ex:Exception){
+            shopDurationData.pros_id = "0"
             shopDurationData.agency_name = ""
-
-        if (!TextUtils.isEmpty(shopActivity.approximate_1st_billing_value))
-            shopDurationData.approximate_1st_billing_value = shopActivity.approximate_1st_billing_value!!
-        else
             shopDurationData.approximate_1st_billing_value = ""
+        }
 
         //duration garbage fix
         try{
@@ -2288,11 +2310,12 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                                 callCompetetorImgUploadApi(shopId)
 
 
-                                if (!Pref.isMultipleVisitEnable)
+                                if (!Pref.isMultipleVisitEnable) {
                                     AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, shopId, selectedDate)
-                                else
+                                }
+                                else {
                                     AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, shopId, selectedDate, shopActivity.startTimeStamp)
-
+                                }
                                 //
                                 i++
                                 if (i < list_.size) {
@@ -2705,7 +2728,6 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                             when (addShopResult.status) {
                                 NetworkConstant.SUCCESS -> {
                                     AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsUploaded(true, addShop.shop_id)
-
                                     doAsync {
                                         uiThread {
                                             syncShopList()

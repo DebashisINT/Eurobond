@@ -51,6 +51,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.eurobond.CustomStatic;
 import com.eurobond.R;
+import com.eurobond.app.Pref;
 import com.eurobond.app.types.FragType;
 import com.eurobond.faceRec.customview.OverlayView;
 import com.eurobond.faceRec.env.BorderedText;
@@ -152,6 +153,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
 
     fabAdd = findViewById(R.id.fab_add);
     fabAdd.setVisibility(View.GONE);

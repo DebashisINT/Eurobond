@@ -144,10 +144,12 @@ class AddTaskFragment : BaseFragment(), View.OnClickListener {
             isStatusUpdated = -1
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             initPermissionCheck(task)
-        else
+        }
+        else {
             addEventToCalender(task)
+        }
     }
 
     private fun initPermissionCheck(task: TaskEntity) {

@@ -303,12 +303,14 @@ class MonitorService:Service() {
     )
 
     override fun stopService(name: Intent?): Boolean {
+        println("monitor_s stopService")
         stopForeground(true)
         stopSelf()
         return super.stopService(name)
     }
 
     override fun onDestroy() {
+        println("monitor_s onDestroy")
         super.onDestroy()
         stopForeground(true)
         stopSelf()

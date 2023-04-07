@@ -129,6 +129,8 @@ class ConfigFetchResponseModel : BaseResponse() {
 
     var IsAllowZeroRateOrder: Boolean? = null
 
+    var ShowApproxDistanceInNearbyShopList: Boolean? = null
+
 
 
 }

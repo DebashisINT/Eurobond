@@ -127,8 +127,9 @@ class UpdateWorkTypeFragment : Fragment(), View.OnClickListener {
             et_dd_name.setText(Pref.distributorName)
             et_market_worked.setText(Pref.marketWorked)
         }
-        else
+        else {
             cv_dd_field.visibility = View.GONE
+        }
 
 
         et_work_type_text.setOnTouchListener(View.OnTouchListener { v, event ->
@@ -142,10 +143,12 @@ class UpdateWorkTypeFragment : Fragment(), View.OnClickListener {
         })
 
         val list = AppDatabase.getDBInstance()?.workTypeDao()?.getAll() as ArrayList<WorkTypeEntity>
-        if (list == null || list.isEmpty())
+        if (list == null || list.isEmpty()) {
             getWorkTypeListApi()
-        else
+        }
+        else {
             initAdapter(list)
+        }
     }
 
     private fun getWorkTypeListApi() {
@@ -300,10 +303,12 @@ class UpdateWorkTypeFragment : Fragment(), View.OnClickListener {
 
             R.id.cv_beat_type_root->{
                 val list = AppDatabase.getDBInstance()?.beatDao()?.getAll() as ArrayList<BeatEntity>
-                if (list != null && list.isNotEmpty())
+                if (list != null && list.isNotEmpty()) {
                     showBeatListDialog(list)
-                else
+                }
+                else {
                     (mContext as DashboardActivity).showSnackMessage("No list found")
+                }
             }
 
             R.id.rl_work_type_header -> {
@@ -319,12 +324,15 @@ class UpdateWorkTypeFragment : Fragment(), View.OnClickListener {
     }
 
     private fun visibilityCheck() {
-        if (TextUtils.isEmpty(workTypeId))
+        if (TextUtils.isEmpty(workTypeId)) {
             (mContext as DashboardActivity).showSnackMessage("Please select work type")
-        else if (Pref.isDDFieldEnabled && TextUtils.isEmpty(et_dd_name.text.toString().trim()))
+        }
+        else if (Pref.isDDFieldEnabled && TextUtils.isEmpty(et_dd_name.text.toString().trim())) {
             (mContext as DashboardActivity).showSnackMessage("Please enter distributor name")
-        else if (Pref.isDDFieldEnabled && TextUtils.isEmpty(et_market_worked.text.toString().trim()))
+        }
+        else if (Pref.isDDFieldEnabled && TextUtils.isEmpty(et_market_worked.text.toString().trim())) {
             (mContext as DashboardActivity).showSnackMessage("Please enter market worked")
+        }
         else {
             if (!AppUtils.isOnline(mContext)) {
                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))

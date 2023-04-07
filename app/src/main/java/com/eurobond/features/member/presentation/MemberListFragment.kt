@@ -120,10 +120,12 @@ class MemberListFragment : BaseFragment() {
 
         tv_member_no = view.findViewById(R.id.tv_member_no)
 
-        if ((mContext as DashboardActivity).isAllTeam)
+        if ((mContext as DashboardActivity).isAllTeam) {
             tv_member_no.visibility = View.VISIBLE
-        else
+        }
+        else {
             tv_member_no.visibility = View.GONE
+        }
 
         setHierarchyData()
     }
@@ -743,92 +745,120 @@ class MemberListFragment : BaseFragment() {
             shopObj.dateOfBirth = shop_list[i].dob
             shopObj.dateOfAniversary = shop_list[i].date_aniversary
             shopObj.visitDate = AppUtils.getCurrentDate()
-            if (shop_list[i].total_visit_count == "0")
+            if (shop_list[i].total_visit_count == "0") {
                 shopObj.totalVisitCount = "1"
-            else
+            }
+            else {
                 shopObj.totalVisitCount = shop_list[i].total_visit_count
-            shopObj.address = shop_list[i].address
-            shopObj.ownerEmailId = shop_list[i].owner_email
-            shopObj.ownerContactNumber = shop_list[i].owner_contact_no
-            shopObj.pinCode = shop_list[i].pin_code
-            shopObj.isUploaded = true
-            shopObj.ownerName = shop_list[i].owner_name
-            shopObj.user_id = Pref.user_id
-            shopObj.orderValue = 0
-            shopObj.type = shop_list[i].type
-            shopObj.assigned_to_dd_id = shop_list[i].assigned_to_dd_id
-            shopObj.assigned_to_pp_id = shop_list[i].assigned_to_pp_id
-            shopObj.isAddressUpdated = shop_list[i].isAddressUpdated == "1"
-            shopObj.is_otp_verified = shop_list[i].is_otp_verified
-            shopObj.added_date = shop_list[i].added_date
+                shopObj.address = shop_list[i].address
+                shopObj.ownerEmailId = shop_list[i].owner_email
+                shopObj.ownerContactNumber = shop_list[i].owner_contact_no
+                shopObj.pinCode = shop_list[i].pin_code
+                shopObj.isUploaded = true
+                shopObj.ownerName = shop_list[i].owner_name
+                shopObj.user_id = Pref.user_id
+                shopObj.orderValue = 0
+                shopObj.type = shop_list[i].type
+                shopObj.assigned_to_dd_id = shop_list[i].assigned_to_dd_id
+                shopObj.assigned_to_pp_id = shop_list[i].assigned_to_pp_id
+                shopObj.isAddressUpdated = shop_list[i].isAddressUpdated == "1"
+                shopObj.is_otp_verified = shop_list[i].is_otp_verified
+                shopObj.added_date = shop_list[i].added_date
+            }
 
-            if (shop_list[i].amount == null || shop_list[i].amount == "0.00")
+            if (shop_list[i].amount == null || shop_list[i].amount == "0.00") {
                 shopObj.amount = ""
-            else
+            }
+            else {
                 shopObj.amount = shop_list[i].amount
+            }
 
-            if (shop_list[i].last_visit_date!!.contains("."))
+            if (shop_list[i].last_visit_date!!.contains(".")) {
                 shopObj.lastVisitedDate =
-                        AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!.split(".")[0])
-            else
+                    AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!.split(".")[0])
+            }
+            else {
                 shopObj.lastVisitedDate =
-                        AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!)
+                    AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!)
+            }
 
-            if (shopObj.lastVisitedDate == AppUtils.getCurrentDateChanged())
+            if (shopObj.lastVisitedDate == AppUtils.getCurrentDateChanged()) {
                 shopObj.visited = true
-            else
+            }
+            else {
                 shopObj.visited = false
+            }
 
-            if (shop_list[i].entity_code == null)
+            if (shop_list[i].entity_code == null) {
                 shopObj.entity_code = ""
-            else
+            }
+            else {
                 shopObj.entity_code = shop_list[i].entity_code
+            }
 
 
-            if (shop_list[i].area_id == null)
+            if (shop_list[i].area_id == null) {
                 shopObj.area_id = ""
-            else
+            }
+            else {
                 shopObj.area_id = shop_list[i].area_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].model_id))
+            if (TextUtils.isEmpty(shop_list[i].model_id)) {
                 shopObj.model_id = ""
-            else
+            }
+            else {
                 shopObj.model_id = shop_list[i].model_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].primary_app_id))
+            if (TextUtils.isEmpty(shop_list[i].primary_app_id)) {
                 shopObj.primary_app_id = ""
-            else
+            }
+            else {
                 shopObj.primary_app_id = shop_list[i].primary_app_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].secondary_app_id))
+            if (TextUtils.isEmpty(shop_list[i].secondary_app_id)) {
                 shopObj.secondary_app_id = ""
-            else
+            }
+            else {
                 shopObj.secondary_app_id = shop_list[i].secondary_app_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].lead_id))
+            if (TextUtils.isEmpty(shop_list[i].lead_id)) {
                 shopObj.lead_id = ""
-            else
+            }
+            else {
                 shopObj.lead_id = shop_list[i].lead_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].stage_id))
+            if (TextUtils.isEmpty(shop_list[i].stage_id)) {
                 shopObj.stage_id = ""
-            else
+            }
+            else {
                 shopObj.stage_id = shop_list[i].stage_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].funnel_stage_id))
+            if (TextUtils.isEmpty(shop_list[i].funnel_stage_id)) {
                 shopObj.funnel_stage_id = ""
-            else
+            }
+            else {
                 shopObj.funnel_stage_id = shop_list[i].funnel_stage_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].booking_amount))
+            if (TextUtils.isEmpty(shop_list[i].booking_amount)) {
                 shopObj.booking_amount = ""
-            else
+            }
+            else {
                 shopObj.booking_amount = shop_list[i].booking_amount
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].type_id))
+            if (TextUtils.isEmpty(shop_list[i].type_id)) {
                 shopObj.type_id = ""
-            else
+            }
+            else {
                 shopObj.type_id = shop_list[i].type_id
+            }
 
             shopObj.family_member_dob = shop_list[i].family_member_dob
             shopObj.director_name = shop_list[i].director_name
@@ -855,60 +885,82 @@ class MemberListFragment : BaseFragment() {
             shopObj.assistant_doa = shop_list[i].assistant_doa
             shopObj.assistant_family_dob = shop_list[i].assistant_family_dob
 
-            if (TextUtils.isEmpty(shop_list[i].entity_id))
+            if (TextUtils.isEmpty(shop_list[i].entity_id)) {
                 shopObj.entity_id = ""
-            else
+            }
+            else {
                 shopObj.entity_id = shop_list[i].entity_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].party_status_id))
+            if (TextUtils.isEmpty(shop_list[i].party_status_id)) {
                 shopObj.party_status_id = ""
-            else
+            }
+            else {
                 shopObj.party_status_id = shop_list[i].party_status_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].retailer_id))
+            if (TextUtils.isEmpty(shop_list[i].retailer_id)) {
                 shopObj.retailer_id = ""
-            else
+            }
+            else {
                 shopObj.retailer_id = shop_list[i].retailer_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].dealer_id))
+            if (TextUtils.isEmpty(shop_list[i].dealer_id)) {
                 shopObj.dealer_id = ""
-            else
+            }
+            else {
                 shopObj.dealer_id = shop_list[i].dealer_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].beat_id))
+            if (TextUtils.isEmpty(shop_list[i].beat_id)) {
                 shopObj.beat_id = ""
-            else
+            }
+            else {
                 shopObj.beat_id = shop_list[i].beat_id
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].account_holder))
+            if (TextUtils.isEmpty(shop_list[i].account_holder)) {
                 shopObj.account_holder = ""
-            else
+            }
+            else {
                 shopObj.account_holder = shop_list[i].account_holder
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].account_no))
+            if (TextUtils.isEmpty(shop_list[i].account_no)) {
                 shopObj.account_no = ""
-            else
+            }
+            else {
                 shopObj.account_no = shop_list[i].account_no
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].bank_name))
+            if (TextUtils.isEmpty(shop_list[i].bank_name)) {
                 shopObj.bank_name = ""
-            else
+            }
+            else {
                 shopObj.bank_name = shop_list[i].bank_name
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].ifsc_code))
+            if (TextUtils.isEmpty(shop_list[i].ifsc_code)) {
                 shopObj.ifsc_code = ""
-            else
+            }
+            else {
                 shopObj.ifsc_code = shop_list[i].ifsc_code
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].upi))
+            if (TextUtils.isEmpty(shop_list[i].upi)) {
                 shopObj.upi_id = ""
-            else
+            }
+            else {
                 shopObj.upi_id = shop_list[i].upi
+            }
 
-            if (TextUtils.isEmpty(shop_list[i].assigned_to_shop_id))
+            if (TextUtils.isEmpty(shop_list[i].assigned_to_shop_id)) {
                 shopObj.assigned_to_shop_id = ""
-            else
+            }
+            else {
                 shopObj.assigned_to_shop_id = shop_list[i].assigned_to_shop_id
+            }
 
             shopObj.project_name = shop_list[i].project_name
             shopObj.landline_number = shop_list[i].landline_number

@@ -63,10 +63,12 @@ class DeviceInfoListFragment : BaseFragment() {
         selectedDate = AppUtils.getCurrentDateForShopActi()
 
         val list = AppDatabase.getDBInstance()?.batteryNetDao()?.getAll()
-        if (list != null && list.isNotEmpty())
+        if (list != null && list.isNotEmpty()) {
             initAdapter()
-        else
+        }
+        else {
             getListFromApi()
+        }
 
         return view
     }

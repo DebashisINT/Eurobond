@@ -175,15 +175,19 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
         val completedList = AppDatabase.getDBInstance()?.taskDao()?.getTaskStatusDateWise(selectedDate, true)
         val pendingList = AppDatabase.getDBInstance()?.taskDao()?.getTaskStatusDateWise(selectedDate, false)
 
-        if (completedList == null)
+        if (completedList == null) {
             tv_completed_count.text = "0"
-        else
+        }
+        else {
             tv_completed_count.text = completedList.size.toString()
+        }
 
-        if (pendingList == null)
+        if (pendingList == null) {
             tv_pending_count.text = "0"
-        else
+        }
+        else {
             tv_pending_count.text = pendingList.size.toString()
+        }
 
 
         var finalList: ArrayList<TaskEntity>? = null
@@ -225,17 +229,20 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
             }
 
             override fun onRightClick(editableData: String) {
-                if (task.isUploaded)
+                if (task.isUploaded) {
                     deleteTask(task)
+                }
                 else {
                     (mContext as DashboardActivity).showSnackMessage("Task deleted successfully")
                     AppDatabase.getDBInstance()?.taskDao()?.deleteSingleItem(task.task_id!!)
                     initAdapter()
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         initPermissionCheck(task)
-                    else
+                    }
+                    else {
                         deleteEventToCalender(task)
+                    }
                 }
             }
 
@@ -374,10 +381,12 @@ class TaskListFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun changeStatus(task: TaskEntity) {
-        if (task.isCompleted)
+        if (task.isCompleted) {
             AppDatabase.getDBInstance()?.taskDao()?.updateIsCompleted(false, task.task_id!!)
-        else
+        }
+        else {
             AppDatabase.getDBInstance()?.taskDao()?.updateIsCompleted(true, task.task_id!!)
+        }
 
         if (!task.isUploaded) {
             Timber.d("============UnSync Task at Status change time (Task List)===========")

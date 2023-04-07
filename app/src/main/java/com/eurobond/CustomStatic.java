@@ -74,5 +74,6 @@ public class CustomStatic {
 
     public static String TeamUserSelect_user_id = "";
 
+    public static Boolean IsBackFromNewOptiCart = false;
 
 }
