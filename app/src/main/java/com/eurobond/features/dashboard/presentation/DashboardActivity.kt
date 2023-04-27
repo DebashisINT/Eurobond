@@ -12594,7 +12594,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             logo.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.shake))
             // 8.0 DashboardActivity AppV 4.0.6 Suman 23-01-2023  Auto mail from notification flow of quotation 25614
             Timber.d("quto_mail auto mail block receiver...")
-            getQutoDtlsBeforePDF(CustomStatic.QutoNoFromNoti)
+            //getQutoDtlsBeforePDF(CustomStatic.QutoNoFromNoti)
+            if(Pref.prevQutoNoForMail.equals(CustomStatic.QutoNoFromNoti)){
+                return
+            }else{
+                getQutoDtlsBeforePDF(CustomStatic.QutoNoFromNoti)
+            }
+            //End of Rev 3.0 MyFirebaseMessagingService AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
         }
     }
 
@@ -12602,6 +12608,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     // 8.0 DashboardActivity AppV 4.0.6 Suman 23-01-2023  Auto mail from notification flow of quotation 25614
     private fun getQutoDtlsBeforePDF(quto_no: String){
         try{
+            Pref.prevQutoNoForMail = quto_no
             val repository = GetQuotRegProvider.provideSaveButton()
             BaseActivity.compositeDisposable.add(
                 repository.viewDetailsQuot(quto_no!!)
@@ -13226,7 +13233,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             Timber.d("quto_mail auto mail sending...")
             m.setTo(toArr)
             m.setFrom("TEAM");
-            m.setSubject("Quotation for ${ViewAllQuotListFragment.shop_name} created on dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)}.")
+            m.setSubject("Quotation for ${addQuotEditResult.shop_name} created on dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)}.")
             m.setBody("Hello Team,  \n Please find attached Quotation No. ${addQuotEditResult.quotation_number} Dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)} for ${ViewAllQuotListFragment.shop_name} \n\n\n Regards \n${Pref.user_name}.")
             doAsync {
                 try{

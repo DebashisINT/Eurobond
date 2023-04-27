@@ -854,4 +854,6 @@ object Pref : PreferenceHolder() {
 
     // 4.0 Pref  AppV 4.0.7 Suman    23/03/2023 ShowApproxDistanceInNearbyShopList Show approx distance in nearby + shopmaster  mantis 0025742
     var ShowApproxDistanceInNearbyShopList: Boolean by bindToPreferenceField(false, "ShowApproxDistanceInNearbyShopList")
+
+    var prevQutoNoForMail : String by bindToPreferenceField("", "prevQutoNoForMail")
 }
