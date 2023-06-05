@@ -3,6 +3,10 @@ package com.eurobond.features.lead.api
 import com.eurobond.base.BaseResponse
 import com.eurobond.features.NewQuotation.model.AddQuotRequestData
 import com.eurobond.features.lead.model.*
+import com.eurobond.features.taskManagement.AddTaskReq
+import com.eurobond.features.taskManagement.EditTaskReq
+import com.eurobond.features.taskManagement.TaskViewRes
+import com.eurobond.features.taskManagement.model.TaskListReq
 import io.reactivex.Observable
 
 class GetLeadListRegRepository(val apiService : GetLeadListApi) {
@@ -21,6 +25,22 @@ class GetLeadListRegRepository(val apiService : GetLeadListApi) {
 
     fun getActivityList(crm_id: String): Observable<ActivityViewRes> {
         return apiService.viewActivityList(crm_id)
+    }
+
+    fun TaskList(list: TaskListReq): Observable<TaskResponse> {
+        return apiService.getTaskList(list)
+    }
+
+    fun submitTask(list: AddTaskReq): Observable<BaseResponse> {
+        return apiService.submitTaskListAPI(list)
+    }
+
+    fun getTaskList(task_id: String): Observable<TaskViewRes> {
+        return apiService.viewTaskList(task_id)
+    }
+
+    fun editTask(obj: EditTaskReq): Observable<BaseResponse> {
+        return apiService.editTaskAPI(obj)
     }
 
 }

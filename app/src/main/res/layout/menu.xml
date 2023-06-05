@@ -368,12 +368,12 @@
                     android:id="@+id/nearby_shop_TV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawablePadding="@dimen/_15sdp"
                     android:drawableStart="@drawable/ic_nearby_new"
-                    android:paddingBottom="@dimen/_7sdp"
+                    android:drawablePadding="@dimen/_15sdp"
                     android:paddingLeft="@dimen/_17sdp"
-                    android:paddingRight="@dimen/_17sdp"
                     android:paddingTop="@dimen/_15sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingBottom="@dimen/_7sdp"
                     android:text="@string/nearby_shops"
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp"
@@ -437,6 +437,23 @@
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp" />
 
+                <!--mantis 0026023 A new Menu named as
+                ‘Task Management’ should be implemented in the menu bar.-->
+
+                <com.eurobond.widgets.AppCustomTextView
+                    android:id="@+id/task_management_TV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:drawableStart="@drawable/ic_professional_skills_lead"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:text="Task Management"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp" />
+
                 <com.eurobond.widgets.AppCustomTextView
                     android:id="@+id/nearby_user_TV"
                     android:layout_width="match_parent"
@@ -493,7 +510,7 @@
                     android:paddingRight="@dimen/_17sdp"
                     android:paddingTop="@dimen/_15sdp"
                     android:text="Performance"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp" />
 
@@ -1174,6 +1191,23 @@
                     android:textSize="@dimen/_12sdp"
                     android:visibility="gone" />
 
+                <!--mantis 0025783 In-app privacy policy working in menu & Login -->
+
+                <com.eurobond.widgets.AppCustomTextView
+                    android:id="@+id/privacy_policy_tv_menu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:drawableStart="@drawable/ic_party_status"
+                    android:drawableTint="@color/white"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:text="Privacy policy"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp" />
+
                 <com.eurobond.widgets.AppCustomTextView
                     android:id="@+id/logout_TV"
                     android:layout_width="match_parent"
@@ -1188,6 +1222,7 @@
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp" />
 
+
                 <com.eurobond.widgets.AppCustomTextView
                     android:id="@+id/version_name_TV"
                     android:layout_width="wrap_content"
@@ -1200,6 +1235,8 @@
                     android:textColor="@color/color_custom_red"
                     android:textStyle="bold"
                     android:textSize="@dimen/_12sdp" />
+
+
 
             </LinearLayout>
 
