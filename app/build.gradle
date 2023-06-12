@@ -19,13 +19,13 @@ apply plugin: 'de.undercouch.download'
 android {
 
     compileSdkVersion 32
-    buildToolsVersion "32.0.0"
+    //buildToolsVersion "32.0.0"
     defaultConfig {
         applicationId "com.eurobond"
         minSdkVersion 26
         targetSdkVersion 32
         versionCode 103
-        versionName "4.1.7"
+        versionName "4.1.8"
         //versionName "2.3.0"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -306,6 +306,7 @@ dependencies {
     implementation 'com.github.AAChartModel:AAChartCore-Kotlin:7.2.0'
     // lifecycle for room mantis 0025753
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
+
 }
 
 

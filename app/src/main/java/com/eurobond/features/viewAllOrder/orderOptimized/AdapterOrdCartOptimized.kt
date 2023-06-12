@@ -242,7 +242,7 @@ class AdapterOrdCartOptimized(val mContext:Context,val cartL:ArrayList<FinalOrde
                 val dialogHeader = simpleDialogg.findViewById(R.id.dialog_yes_no_headerTV) as AppCustomTextView
                 val dialogBody = simpleDialogg.findViewById(R.id.dialog_cancel_order_header_TV) as AppCustomTextView
                 dialogHeader.text=cartL.get(adapterPosition).product_name
-                dialogBody.text="Want to delete this product?"
+                dialogBody.text="Wish to Remove the Product from the Cart?" //mantis 25788
                 val dialogYes = simpleDialogg.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
                 val dialogNo = simpleDialogg.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
                 dialogYes.setOnClickListener {

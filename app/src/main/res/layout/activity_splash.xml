@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/logo_new"
-        android:layout_width="@dimen/_165sdp"
-        android:layout_height="@dimen/_70sdp"
+        android:layout_width="@dimen/_135sdp"
+        android:layout_height="@dimen/_50sdp"
         android:src="@drawable/breezelogo"
         android:layout_marginTop="@dimen/_170sdp"
         android:layout_centerHorizontal="true" />
