@@ -13501,15 +13501,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
             var m = Mail()
             var toArr = arrayOf("")
-            m = Mail("suman.bachar@indusnet.co.in", "dqridqtwsqxatmyt")
-            toArr = arrayOf("suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
-            /*if(Pref.IsShowQuotationFooterforEurobond){
+            if(Pref.IsShowQuotationFooterforEurobond){
                 m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
                 toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
             }else{
                 m = Mail("suman.bachar@indusnet.co.in", "dqridqtwsqxatmyt")
                 toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
-            }*/
+            }
             Timber.d("quto_mail auto mail sending...")
             m.setTo(toArr)
             m.setFrom("TEAM");
