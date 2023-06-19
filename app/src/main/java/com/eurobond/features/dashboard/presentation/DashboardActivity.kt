@@ -13310,6 +13310,15 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             product_tolerance_of_coating.spacingAfter = 6f
             document.add(product_tolerance_of_coating)
 
+            // rev 4.0 ViewAllQuotListFragment  AppV 4.0.8  Saheli    16/05/2023 pdf remark field mantis 26139
+
+            val remarks = Paragraph("Remarks                                              :     " + addQuotEditResult.Remarks, font2Big)
+            remarks.alignment = Element.ALIGN_LEFT
+            remarks.spacingAfter = 6f
+            document.add(remarks)
+
+            // end 4.0 rev mantis 26139 PDF remarks field added saheli v 4.0.8 16-05-2023
+
 
             val end = Paragraph("Anticipating healthy business relation with your esteemed organization.", grayFront)
             end.alignment = Element.ALIGN_LEFT
