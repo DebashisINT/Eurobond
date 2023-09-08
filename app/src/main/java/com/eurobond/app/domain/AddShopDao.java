@@ -11,6 +11,12 @@ import java.util.List;
 
 import static com.eurobond.app.AppConstant.SHOP_TABLE;
 
+import com.eurobond.features.marketAssist.ChurnShopL;
+import com.eurobond.features.marketAssist.ShopDtls;
+import com.eurobond.features.marketAssist.ShopLastVisit;
+import com.eurobond.features.performanceAPP.NoOrderTakenList;
+import com.eurobond.features.performanceAPP.ShopDtlsCustom;
+
 /**
  * Created by sayantan.sarkar on 2/11/17.
  */
@@ -284,4 +290,61 @@ public interface AddShopDao {
 
 //    @Query("INSERT OR REPLACE INTO SHOP_TABLE (shopId,shopName,address,pinCode,ownerName,isVisited) VALUES (:id, :title, :url, COALESCE((SELECT isSubscribed FROM articles WHERE id = :id), 0));")
 //    void insertOrUpdateShop(long id, String title, String url);
+
+    /*@Query("select shop_id,shop_name,address,owner_name,owner_contact_number,shopLat,shopLong,\n" +
+            "case when shop_type_list.shoptype_name IS NULL then '' else shop_type_list.shoptype_name END as shopType,\n" +
+            "\t   case when beat_list.name  IS NULL then '' else beat_list.name END as beatName\n" +
+            "\t   from shop_detail left JOIN shop_type_list\n" +
+            "on shop_detail.type = shop_type_list.shoptype_id left join beat_list\n" +
+            "on shop_detail.beat_id = beat_list.beat_id")
+    List<ShopDtls> getShopForMarketAssist();*/
+
+    @Query("select shop_id,shop_name,address,owner_name,owner_contact_number,shopLat,shopLong,\n" +
+            "case when shop_type_list.shoptype_name IS NULL then '' else shop_type_list.shoptype_name END as shopType,\n" +
+            "case when beat_list.name  IS NULL then '' else beat_list.name END as beatName,\n" +
+            "case when shop_detail.retailer_id IS NULL then '' else shop_detail.retailer_id END as retailer_id,\n" +
+            "case when shop_detail.party_status_id IS NULL then '' else shop_detail.party_status_id END as party_status_id\n" +
+            "from shop_detail left JOIN shop_type_list\n" +
+            "on shop_detail.type = shop_type_list.shoptype_id left join beat_list\n" +
+            "on shop_detail.beat_id = beat_list.beat_id order by shop_name")
+    List<ShopDtls> getShopForMarketAssist();
+
+    @Query("select shop_id,shop_name,address,owner_name,owner_contact_number,shopLat,shopLong,\n" +
+            "case when shop_type_list.shoptype_name IS NULL then '' else shop_type_list.shoptype_name END as shopType,\n" +
+            "case when beat_list.name  IS NULL then '' else beat_list.name END as beatName,\n" +
+            "case when shop_detail.retailer_id IS NULL then '' else shop_detail.retailer_id END as retailer_id,\n" +
+            "case when shop_detail.party_status_id IS NULL then '' else shop_detail.party_status_id END as party_status_id,lastVisitedDate,0 as tag1,0 as tag2,0 as tag3,0 as tag4,0 as tag5,0 as tag6," +
+            "'' as lastPurchaseAge,'' as lastVisitAge,'' as avgShopOrdAmt,'' as avgTimeSinceFirstOrd,'' as shopVisitAvg,'' as orderBehav \n" +
+            "from shop_detail left JOIN shop_type_list\n" +
+            "on shop_detail.type = shop_type_list.shoptype_id left join beat_list\n" +
+            "on shop_detail.beat_id = beat_list.beat_id order by shop_name")
+    List<ChurnShopL> getShopForChurn();
+
+    @Query("select shop_id,shop_name,owner_contact_number,address,case when owner_name IS NULL then '' else owner_name END as owner_name,type, JULIANDAY(date())- JULIANDAY(added_date) as age_since_party_creation_count," +
+            " date(added_date) as dateAdded,lastVisitedDate from shop_detail where shop_id not in (\n" +
+            "select shopid from shop_activity \n" +
+            ") and isOwnshop = 1")
+    List<ShopDtlsCustom>  getShopDtlsCUstom();
+
+    @Query("select shop_id,shop_name,owner_contact_number,address,case when owner_name IS NULL then '' else owner_name END as owner_name,type, JULIANDAY(date())- JULIANDAY(added_date) as age_since_party_creation_count," +
+            " date(added_date) as dateAdded,lastVisitedDate from shop_detail where isOwnshop = 1 order by upper(trim(shop_name))")
+    List<ShopDtlsCustom>  getShopDtlsCUstom1();
+
+    @Query("Select shop_id,shop_name,owner_contact_number,address,case when owner_name IS NULL then '' else owner_name END as owner_name," +
+            "type, JULIANDAY(date())- JULIANDAY(added_date) as age_since_party_creation_count from shop_detail where shop_id=:shopId")
+    NoOrderTakenList getCustomShopDtls(String shopId);
+
+
+    @Query("select shop_id,lastVisitedDate,'' as lastVIsitAge,totalVisitCount from shop_detail")
+    List<ShopLastVisit> getShopListLastVisit();
+
+    @Query("select shop_id,lastVisitedDate,'' as lastVIsitAge,totalVisitCount from shop_detail where shop_id=:shop_id ")
+    ShopLastVisit getShopListLastVisitByShop(String shop_id);
+
+    @Query("select lastVisitedDate from shop_detail where shop_id=:shop_id")
+    String getShopListLastVisit(String shop_id);
+
+    @Query("Select * from shop_detail where type=:type and assigned_to_dd_id=:assigned_to_dd_id and shop_name=:shop_name")
+    List<AddShopDBModelEntity> getShopsAccordingToTypeDD(String type,String assigned_to_dd_id,String shop_name);
+
 }

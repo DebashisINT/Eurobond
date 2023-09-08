@@ -1,7 +1,7 @@
-package com.eurobond.features.photoReg.adapter
-
+package com.eurobond.features.performanceAPP.model
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
@@ -60,7 +60,31 @@ class AdapterUserTestList (var mContext: Context, var customerList:ArrayList<Per
                     cb_row_row_dialog_tax_multiple.isChecked = false
                 }
 
-                cb_row_row_dialog_tax_multiple.setOnCheckedChangeListener { buttonView, isChecked ->
+                cb_row_row_dialog_tax_multiple.setOnClickListener {
+                    var checkedL = mList!!.filter { it.isChecked }
+                    if(checkedL.size + 1 >5){
+                        if(mList!!.get(adapterPosition).isChecked == false){
+                            Toaster.msgShort(mContext,"Max 5 party Selected")
+                        }
+
+                        cb_row_row_dialog_tax_multiple.isChecked = false
+                        mList!!.get(adapterPosition).isChecked = false
+                        listner.onTickUntickView(mList!!.get(adapterPosition),false)
+                    }else{
+                        if(mList!!.get(adapterPosition).isChecked){
+                            mList!!.get(adapterPosition).isChecked = false
+                            cb_row_row_dialog_tax_multiple.isChecked = false
+                            listner.onTickUntickView(mList!!.get(adapterPosition),false)
+                        }else{
+                            mList!!.get(adapterPosition).isChecked = true
+                            cb_row_row_dialog_tax_multiple.isChecked = true
+                            listner.onTickUntickView(mList!!.get(adapterPosition),true)
+                        }
+                    }
+                }
+
+
+               /* cb_row_row_dialog_tax_multiple.setOnCheckedChangeListener { buttonView, isChecked ->
                     if (isChecked){
                         var checkedL = mList!!.filter { it.isChecked }
                         if(checkedL.size>=5){
@@ -74,7 +98,7 @@ class AdapterUserTestList (var mContext: Context, var customerList:ArrayList<Per
                         mList!!.get(adapterPosition).isChecked = false
                         listner.onTickUntickView(mList!!.get(adapterPosition),false)
                     }
-                }
+                }*/
             }
         }
     }

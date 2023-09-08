@@ -1153,6 +1153,20 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
     }
 
     private fun initPermissionCheck(state: Int) {
+
+        //begin mantis id 26741 Storage permission updation Suman 22-08-2023
+        var permissionList = arrayOf<String>( Manifest.permission.CAMERA)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            permissionList += Manifest.permission.READ_MEDIA_IMAGES
+            permissionList += Manifest.permission.READ_MEDIA_AUDIO
+            permissionList += Manifest.permission.READ_MEDIA_VIDEO
+        }else{
+            permissionList += Manifest.permission.WRITE_EXTERNAL_STORAGE
+            permissionList += Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+//end mantis id 26741 Storage permission updation Suman 22-08-2023
+
         permissionUtils = PermissionUtils(mContext as Activity, object : PermissionUtils.OnPermissionListener {
             override fun onPermissionGranted() {
                 imageState = state
@@ -1163,8 +1177,8 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
             override fun onPermissionNotGranted() {
                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.accept_permission))
             }
-
-        }, arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+// mantis id 26741 Storage permission updation Suman 22-08-2023
+        },permissionList) //arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
     }
 
     fun onRequestPermission(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -2332,10 +2346,10 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
                     if (reimbursementResponse.status == NetworkConstant.SUCCESS) {
                         try{
                             progress_wheel.spin()
-                            var expenseDA   = reimbursementResponse.expense_list!!.filter { it.expense_type.equals("Dearness Allowance") }.firstOrNull()
+                            var expenseDA   = reimbursementResponse.expense_list!!.filter { it.expense_type.equals("Dearness Allowance",ignoreCase = true) }.firstOrNull()
                             var expenseDADtls: ReimbursementListDetailsModel? = expenseDA!!.expense_list_details?.filter { it.applied_date.equals(date.toString()) }?.firstOrNull()
                             if(expenseDADtls == null){
-                                var notexpenseDA = reimbursementResponse.expense_list!!.filter { !it.expense_type.equals("Dearness Allowance") }
+                                var notexpenseDA = reimbursementResponse.expense_list!!.filter { !it.expense_type.equals("Dearness Allowance",ignoreCase = true) }
                                 var notexpenseDADtls = notexpenseDA.filter { it.expense_list_details!!.size>0 }
                                 var notexpenseDADtlsDate :ArrayList<ReimbursementListDetailsModel> = ArrayList()
                                 if(notexpenseDADtls.size>0){
@@ -2350,7 +2364,7 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
 
                                 progress_wheel.stopSpinning()
                                 var exp=expense_type_TV.text
-                                if(notexpenseDADtlsDate.size>0 && expense_type_TV.text.equals("Dearness Allowance")){
+                                if(notexpenseDADtlsDate.size>0 && expense_type_TV.text.toString().equals("Dearness Allowance",ignoreCase = true)){
                                     openDialogPopup("Other Allowance was applied for the day. You are not eligible to apply Dearness Allowance.")
                                     //Toaster.msgShort(mContext,"Other Allowance was applied for the day. You are not eligible to apply Dearness Allowance.")
                                 }else{

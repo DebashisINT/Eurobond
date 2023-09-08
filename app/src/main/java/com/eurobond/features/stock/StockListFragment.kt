@@ -54,6 +54,7 @@ import timber.log.Timber
  * Created by Saikat on 10-09-2019.
  */
 // 1.0 StockListFragment AppV 4.0.6 saheli 12-01-2023 multiple contact Data added on Api called
+// 2.0 StockListFragment  v 4.1.6 stock optmization mantis 0026391 20-06-2023 saheli
 class StockListFragment : BaseFragment(), View.OnClickListener {
 
     private lateinit var mContext: Context
@@ -316,7 +317,18 @@ class StockListFragment : BaseFragment(), View.OnClickListener {
                 if (!Pref.isAddAttendence)
                     (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
                 else
-                (mContext as DashboardActivity).loadFragment(FragType.OrderTypeListFragment, true, mAddShopDataObj?.shop_id!!)
+                /*2.0 StockListFragment  start v 4.1.6 stock optmization mantis 0026391 20-06-2023 saheli v 4.1.6 */
+//               (mContext as DashboardActivity).loadFragment(FragType.OrderTypeListFragment, true, mAddShopDataObj?.shop_id!!)
+                    progress_wheel.spin()
+                if(Pref.isNewOptimizedStock){
+                    Pref.savefromOrderOrStock = false
+                    (mContext as DashboardActivity).loadFragment(FragType.OrderProductListFrag, true,  mAddShopDataObj?.shop_id!!)
+                    progress_wheel.stopSpinning()
+                }else{
+                    (mContext as DashboardActivity).loadFragment(FragType.OrderTypeListFragment, true,  mAddShopDataObj?.shop_id!!)
+                    progress_wheel.stopSpinning()
+                }
+                /* 2.0 StockListFragment end v 4.1.6 stock optmization mantis 0026391 20-06-2023 saheli v 4.1.6 */
               /*  {
                     if(Pref.IsShowNewOrderCart){
                         (mContext as DashboardActivity).loadFragment(FragType.OrderProductListFrag, true, mAddShopDataObj?.shop_id!!)

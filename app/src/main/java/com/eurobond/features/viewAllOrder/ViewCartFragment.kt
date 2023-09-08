@@ -190,7 +190,9 @@ class ViewCartFragment : BaseFragment() {
                 totalAmount += list[i].total_price?.toDouble()!!
             }
             //val totalPrice = DecimalFormat("##.##").format(totalAmount)
-            val totalPrice = String.format("%.2f", totalAmount.toFloat())
+            //val totalPrice = String.format("%.2f", totalAmount.toFloat())
+            //mantis id 26274
+            val totalPrice = String.format("%.2f", totalAmount.toDouble())
             tv_total_order_amount.text = totalPrice
         }, 200)
 
@@ -204,7 +206,9 @@ class ViewCartFragment : BaseFragment() {
                 ex.printStackTrace()
                 totalScAmount = 0.0
             }
-            val totalScPrice = String.format("%.2f", totalScAmount.toFloat())
+            //val totalScPrice = String.format("%.2f", totalScAmount.toFloat())
+            //mantis id 26274
+            val totalScPrice = String.format("%.2f", totalScAmount.toDouble())
             tv_total_order_amount_sc.text = totalScPrice
         }, 200)
 

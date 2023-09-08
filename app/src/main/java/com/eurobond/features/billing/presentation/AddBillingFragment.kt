@@ -199,7 +199,9 @@ class AddBillingFragment : BaseFragment(), View.OnClickListener {
                 totalAmount += (mContext as DashboardActivity).totalPrice[i]
             }
 
-            val finalTotalAmount = String.format("%.2f", totalAmount.toFloat())
+            //val finalTotalAmount = String.format("%.2f", totalAmount.toFloat())
+            //mantis id 26274
+            val finalTotalAmount = String.format("%.2f", totalAmount.toDouble())
             tv_total_order_amount.text = finalTotalAmount
 
             tv_total_order_value.text = productList!!.size.toString()
@@ -313,6 +315,20 @@ class AddBillingFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun initPermissionCheck() {
+
+        //begin mantis id 26741 Storage permission updation Suman 22-08-2023
+        var permissionList = arrayOf<String>( Manifest.permission.CAMERA)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            permissionList += Manifest.permission.READ_MEDIA_IMAGES
+            permissionList += Manifest.permission.READ_MEDIA_AUDIO
+            permissionList += Manifest.permission.READ_MEDIA_VIDEO
+        }else{
+            permissionList += Manifest.permission.WRITE_EXTERNAL_STORAGE
+            permissionList += Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+//end mantis id 26741 Storage permission updation Suman 22-08-2023
+
         permissionUtils = PermissionUtils(mContext as Activity, object : PermissionUtils.OnPermissionListener {
             override fun onPermissionGranted() {
                 showPictureDialog()
@@ -322,7 +338,7 @@ class AddBillingFragment : BaseFragment(), View.OnClickListener {
                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.accept_permission))
             }
 
-        }, arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        },permissionList)// arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
     }
 
     fun onRequestPermission(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -332,7 +348,8 @@ class AddBillingFragment : BaseFragment(), View.OnClickListener {
     private fun showPictureDialog() {
         val pictureDialog = AlertDialog.Builder(mContext)
         pictureDialog.setTitle("Select Action")
-        val pictureDialogItems = arrayOf("Select photo from gallery", "Capture Image", "Select file from file manager")
+        //val pictureDialogItems = arrayOf("Select photo from gallery", "Capture Image", "Select file from file manager")
+        val pictureDialogItems = arrayOf("Select photo from gallery", "Capture Image")
         pictureDialog.setItems(pictureDialogItems,
                 DialogInterface.OnClickListener { dialog, which ->
                     when (which) {
@@ -341,9 +358,9 @@ class AddBillingFragment : BaseFragment(), View.OnClickListener {
                             //(mContext as DashboardActivity).openFileManager()
                             launchCamera()
                         }
-                        2 -> {
+                        /*2 -> {
                             (mContext as DashboardActivity).openFileManager()
-                        }
+                        }*/
                     }
                 })
         pictureDialog.show()

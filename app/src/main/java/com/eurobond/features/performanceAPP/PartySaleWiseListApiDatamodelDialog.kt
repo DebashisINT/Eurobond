@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eurobond.R
 import com.eurobond.features.nearbyshops.model.ShopData
-import com.eurobond.features.photoReg.adapter.AdapterUserTestList
+import com.eurobond.features.performanceAPP.model.AdapterUserTestList
 import com.eurobond.widgets.AppCustomEditText
 import com.eurobond.widgets.AppCustomTextView
 

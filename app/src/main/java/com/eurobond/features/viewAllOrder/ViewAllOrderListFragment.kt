@@ -785,6 +785,7 @@ class ViewAllOrderListFragment : BaseFragment(), View.OnClickListener {
                     else{
                         progress_wheel.spin()
                         if(Pref.IsShowNewOrderCart){
+                            Pref.savefromOrderOrStock = true
                             (mContext as DashboardActivity).loadFragment(FragType.OrderProductListFrag, true, shopId)
                             progress_wheel.stopSpinning()
                         }else{

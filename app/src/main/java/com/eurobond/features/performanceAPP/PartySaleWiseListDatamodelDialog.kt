@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eurobond.R
 import com.eurobond.app.domain.AddShopDBModelEntity
-import com.eurobond.features.photoReg.adapter.AdapterUserTestList
+import com.eurobond.features.performanceAPP.model.AdapterUserTestList
 import com.eurobond.widgets.AppCustomEditText
 import com.eurobond.widgets.AppCustomTextView
 
@@ -92,8 +92,10 @@ class PartySaleWiseListDatamodelDialog: DialogFragment() {
             override fun onTickUntickView(obj: PerformDataClass, isTick: Boolean) {
                 if(isTick){
                     selectedDataL.add(obj)
+                    finalL.filter { it.shop_id.equals(obj.shop_id) }.first().isChecked = true
                 } else{
                     selectedDataL.remove(obj)
+                    finalL.filter { it.shop_id.equals(obj.shop_id) }.first().isChecked = false
                 }
             }
         },{

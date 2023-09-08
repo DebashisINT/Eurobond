@@ -156,6 +156,17 @@ class ConfigFetchResponseModel : BaseResponse() {
 
     var IsBeatPlanAvailable:Boolean?=null// mantis 26163
 
+    var IsUpdateVisitDataInTodayTable:Boolean?=null
 
+
+    var IsShowWhatsAppIconforVisit:Boolean?=null
+    var IsAutomatedWhatsAppSendforRevisit:Boolean?=null
+
+    var ShopSyncIntervalInMinutes:String? = ""
+
+    var IsAllowBackdatedOrderEntry:Boolean?=null
+    var Order_Past_Days:Int?=null
+
+    var Show_distributor_scheme_with_Product:Boolean?=null
 
 }

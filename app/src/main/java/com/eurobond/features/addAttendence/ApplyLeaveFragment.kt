@@ -317,6 +317,9 @@ class ApplyLeaveFragment : BaseFragment(), View.OnClickListener, DatePickerDialo
         addAttendenceModel.work_long=Pref.current_longitude
         addAttendenceModel.beat_id = "0"
 
+        addAttendenceModel.visit_location_id = "0"
+        addAttendenceModel.area_location_id = "0"
+
         val repository = AddAttendenceRepoProvider.addAttendenceRepo()
         progress_wheel.spin()
         BaseActivity.compositeDisposable.add(

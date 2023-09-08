@@ -823,6 +823,7 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
 
                 var m = Mail()
                 var toArr = arrayOf("")
+
                 if(Pref.IsShowQuotationFooterforEurobond){
                     m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
                     toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
