@@ -438,6 +438,9 @@ class MemberAllShopListFragment : BaseFragment() {
         } else
             tv_shop_path.visibility = View.GONE
 // 4.0 MemberAllShopListFragment tufan 02-08-2023 AppV 4.1.6 mantis 0026651 start
+
+        this.shop_list = shop_list
+
         adapter = MemberAllShopListAdapter(mContext, shop_list,isViewAll,
             { teamShop: TeamShopListDataModel ->
                 if (!Pref.isAddAttendence)
