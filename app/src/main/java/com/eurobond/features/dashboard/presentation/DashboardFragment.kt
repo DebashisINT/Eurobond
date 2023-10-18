@@ -2988,11 +2988,13 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
         //callUserConfigApi()   // calling instead of checkToCallAssignedDDListApi()
         //getBeatListApi()
-        getProductRateListApi()
+        //getProductRateListApi()
+
+        getBeatListApi()
     }
 
 
-    private fun getProductRateListApi() {
+    /*private fun getProductRateListApi() {
         if(Pref.isOrderShow){
             Timber.d("api_call_dash  getProductRateListApi()")
             val repository = ProductListRepoProvider.productListProvider()
@@ -3036,7 +3038,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
             Timber.d("API_Optimization getProductRateListApi DashFrag : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
             getBeatListApi()
         }
-    }
+    }*/
 
     private fun getBeatListApi() {
         // Begin Rev 12.0 DashboardFragment AppV 4.0.8 Suman    24/04/2023 Beat api fetch updation 0025898
@@ -3303,69 +3305,123 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     private fun getProductList(date: String?) {
         if(Pref.isOrderShow){
             Timber.d("API_Optimization  getProductList DashFrag  : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
-        val repository = ProductListRepoProvider.productListProvider()
-        var progress_wheel: ProgressWheel? = null
-        if (Pref.isAttendanceFeatureOnly)
-            progress_wheel = progress_wheel_attendance
-        else
-            progress_wheel = this.progress_wheel
+            val repository = ProductListRepoProvider.productListProvider()
+            var progress_wheel: ProgressWheel? = null
+            if (Pref.isAttendanceFeatureOnly)
+                progress_wheel = progress_wheel_attendance
+            else
+                progress_wheel = this.progress_wheel
             Timber.d("api_call_dash  getProductList()")
-        progress_wheel?.spin()
-        BaseActivity.compositeDisposable.add(
+            progress_wheel?.spin()
+            BaseActivity.compositeDisposable.add(
                 //repository.getProductList(Pref.session_token!!, Pref.user_id!!, date!!)
                 repository.getProductList(Pref.session_token!!, Pref.user_id!!, "")
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
-                            val response = result as ProductListResponseModel
-                            if (response.status == NetworkConstant.SUCCESS) {
-                                val list = response.product_list
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as ProductListResponseModel
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            val list = response.product_list
 
-                                if (list != null && list.isNotEmpty()) {
+                            if (list != null && list.isNotEmpty()) {
 
-                                    doAsync {
+                                doAsync {
 
-                                        if (!TextUtils.isEmpty(date))
-                                            AppDatabase.getDBInstance()?.productListDao()?.deleteAllProduct()
+                                    if (!TextUtils.isEmpty(date))
+                                        AppDatabase.getDBInstance()?.productListDao()?.deleteAllProduct()
 
-                                        AppDatabase.getDBInstance()?.productListDao()?.insertAll(list!!)
+                                    AppDatabase.getDBInstance()?.productListDao()?.insertAll(list!!)
 
-                                        /*for (i in list.indices) {
-                                            val productEntity = ProductListEntity()
-                                            productEntity.id = list[i].id?.toInt()!!
-                                            productEntity.product_name = list[i].product_name
-                                            productEntity.watt = list[i].watt
-                                            productEntity.category = list[i].category
-                                            productEntity.brand = list[i].brand
-                                            productEntity.brand_id = list[i].brand_id
-                                            productEntity.watt_id = list[i].watt_id
-                                            productEntity.category_id = list[i].category_id
-                                            productEntity.date = AppUtils.getCurrentDateForShopActi()
-                                            AppDatabase.getDBInstance()?.productListDao()?.insert(productEntity)
-                                        }*/
+                                    /*for (i in list.indices) {
+                                        val productEntity = ProductListEntity()
+                                        productEntity.id = list[i].id?.toInt()!!
+                                        productEntity.product_name = list[i].product_name
+                                        productEntity.watt = list[i].watt
+                                        productEntity.category = list[i].category
+                                        productEntity.brand = list[i].brand
+                                        productEntity.brand_id = list[i].brand_id
+                                        productEntity.watt_id = list[i].watt_id
+                                        productEntity.category_id = list[i].category_id
+                                        productEntity.date = AppUtils.getCurrentDateForShopActi()
+                                        AppDatabase.getDBInstance()?.productListDao()?.insert(productEntity)
+                                    }*/
 
-                                        uiThread {
-                                            progress_wheel.stopSpinning()
-                                            getSelectedRouteListRefresh()
-                                        }
+                                    uiThread {
+                                        progress_wheel.stopSpinning()
+                                        getProductRateListApi()
                                     }
-                                } else {
-                                    progress_wheel.stopSpinning()
-                                    getSelectedRouteListRefresh()
+                                }
+                            } else {
+                                progress_wheel.stopSpinning()
+                                getProductRateListApi()
+                            }
+                        } else {
+                            progress_wheel.stopSpinning()
+                            getProductRateListApi()
+                        }
+
+                    }, { error ->
+                        error.printStackTrace()
+                        progress_wheel.stopSpinning()
+                        getProductRateListApi()
+                    })
+            )
+        }else{
+            Timber.d("API_Optimization getProductList DashFrag : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+            getSelectedRouteListRefresh()
+        }
+    }
+
+    private fun getProductRateListApi() {
+        if(Pref.isOrderShow){
+            Timber.d("api_call_dash  getProductRateListApi()")
+            val repository = ProductListRepoProvider.productListProvider()
+            progress_wheel.spin()
+            BaseActivity.compositeDisposable.add(
+                repository.getProductRateOfflineListNew()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        //val response = result as ProductListOfflineResponseModel
+                        val response = result as ProductListOfflineResponseModelNew
+                        BaseActivity.isApiInitiated = false
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            val productRateList = response.product_rate_list
+                            if (productRateList != null && productRateList.size > 0) {
+                                doAsync {
+                                    AppDatabase.getDBInstance()!!.productRateDao().deleteAll()
+                                    AppDatabase.getDBInstance()?.productRateDao()?.insertAll(productRateList)
+                                    uiThread {
+                                        progress_wheel.stopSpinning()
+                                        getSelectedRouteListRefresh()
+                                    }
                                 }
                             } else {
                                 progress_wheel.stopSpinning()
                                 getSelectedRouteListRefresh()
                             }
+                        } else {
 
-                        }, { error ->
-                            error.printStackTrace()
-                            progress_wheel.stopSpinning()
-                            getSelectedRouteListRefresh()
-                        })
-        )
+                            doAsync {
+                                AppDatabase.getDBInstance()?.productRateDao()?.deleteAll()
+                                val rateList: ArrayList<ProductRateEntity> = AppDatabase.getDBInstance()?.productRateDao()?.getAllBlank() as ArrayList<ProductRateEntity>
+                                AppDatabase.getDBInstance()?.productRateDao()?.insertAll(rateList)
+                                uiThread {
+                                    progress_wheel.stopSpinning()
+                                    getSelectedRouteListRefresh()
+                                }
+                            }
+                        }
+
+                    }, { error ->
+                        error.printStackTrace()
+                        BaseActivity.isApiInitiated = false
+                        progress_wheel.stopSpinning()
+                        getSelectedRouteListRefresh()
+                    })
+            )
         }else{
-            Timber.d("API_Optimization getProductList DashFrag : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+            Timber.d("API_Optimization getProductRateListApi DashFrag : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
             getSelectedRouteListRefresh()
         }
     }
