@@ -86,6 +86,7 @@ import com.eurobond.features.login.api.user_config.UserConfigRepoProvider
 import com.eurobond.features.login.model.alarmconfigmodel.AlarmConfigResponseModel
 import com.eurobond.features.login.model.globalconfig.ConfigFetchResponseModel
 import com.eurobond.features.login.model.mettingListModel.MeetingListResponseModel
+import com.eurobond.features.login.model.productlistmodel.NewOdrScrOrderListModel
 import com.eurobond.features.login.model.productlistmodel.ProductListOfflineResponseModelNew
 import com.eurobond.features.login.model.productlistmodel.ProductListResponseModel
 import com.eurobond.features.login.model.userconfig.UserConfigResponseModel
@@ -103,6 +104,8 @@ import com.eurobond.features.report.presentation.ReportAdapter
 import com.eurobond.features.timesheet.api.TimeSheetRepoProvider
 import com.eurobond.features.timesheet.model.TimeSheetConfigResponseModel
 import com.eurobond.features.timesheet.model.TimeSheetDropDownResponseModel
+import com.eurobond.features.viewAllOrder.api.OrderDetailsListRepoProvider
+import com.eurobond.features.viewAllOrder.model.NewOrderDataModel
 import com.eurobond.widgets.AppCustomTextView
 
 import com.google.android.gms.tasks.OnSuccessListener
@@ -3368,7 +3371,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
             )
         }else{
             Timber.d("API_Optimization getProductList DashFrag : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
-            getSelectedRouteListRefresh()
+            println("dash_ref_flow getProductList else")
+            getNewOrderDataList()
         }
     }
 
@@ -3393,12 +3397,12 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     AppDatabase.getDBInstance()?.productRateDao()?.insertAll(productRateList)
                                     uiThread {
                                         progress_wheel.stopSpinning()
-                                        getSelectedRouteListRefresh()
+                                        getNewOrderDataList()
                                     }
                                 }
                             } else {
                                 progress_wheel.stopSpinning()
-                                getSelectedRouteListRefresh()
+                                getNewOrderDataList()
                             }
                         } else {
 
@@ -3408,7 +3412,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                 AppDatabase.getDBInstance()?.productRateDao()?.insertAll(rateList)
                                 uiThread {
                                     progress_wheel.stopSpinning()
-                                    getSelectedRouteListRefresh()
+                                    getNewOrderDataList()
                                 }
                             }
                         }
@@ -3417,16 +3421,137 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                         error.printStackTrace()
                         BaseActivity.isApiInitiated = false
                         progress_wheel.stopSpinning()
-                        getSelectedRouteListRefresh()
+                        getNewOrderDataList()
                     })
             )
         }else{
             Timber.d("API_Optimization getProductRateListApi DashFrag : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
+            getNewOrderDataList()
+        }
+    }
+
+    fun getNewOrderDataList() {
+        if(Pref.IsActivateNewOrderScreenwithSize || true) {
+            try {
+                println("dash_ref_flow getNewOrderDataList if")
+                AppDatabase.getDBInstance()?.newOrderGenderDao()?.deleteAll()
+                AppDatabase.getDBInstance()?.newOrderProductDao()?.deleteAll()
+                AppDatabase.getDBInstance()?.newOrderColorDao()?.deleteAll()
+                AppDatabase.getDBInstance()?.newOrderSizeDao()?.deleteAll()
+
+                progress_wheel.spin()
+
+                val repository = OrderDetailsListRepoProvider.provideOrderDetailsListRepository()
+                BaseActivity.compositeDisposable.add(
+                    repository.getNewOrderData()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({ result ->
+                            val response = result as NewOrderDataModel
+
+                            progress_wheel.stopSpinning()
+
+                            if (response.status == NetworkConstant.SUCCESS) {
+                                var list_gender = response.Gender_list
+                                var list_product = response.Product_list
+                                var list_color = response.Color_list
+                                var list_size = response.size_list
+
+                                if (list_gender != null && list_gender.isNotEmpty()) {
+                                    doAsync {
+                                        for (l in 0..list_gender.size - 1) {
+                                            if (list_gender.get(l).gender_id == 1) {
+                                                Pref.new_ord_gender_male = list_gender.get(l).gender.toString().toUpperCase()
+                                            }
+                                            if (list_gender.get(l).gender_id == 2) {
+                                                Pref.new_ord_gender_female = list_gender.get(l).gender.toString().toUpperCase()
+                                            }
+                                        }
+                                        AppDatabase.getDBInstance()?.newOrderGenderDao()?.insertAll(list_gender)
+                                        AppDatabase.getDBInstance()?.newOrderGenderDao()?.updateGendertoUpperCase()
+
+                                        if (list_product != null && list_product.isNotEmpty()) {
+                                            AppDatabase.getDBInstance()?.newOrderProductDao()?.insertAll(list_product)
+                                            AppDatabase.getDBInstance()?.newOrderProductDao()?.updateProducttoUpperCase()
+                                        }
+                                        if (list_color != null && list_color.isNotEmpty()) {
+                                            AppDatabase.getDBInstance()?.newOrderColorDao()?.insertAll(list_color)
+                                            AppDatabase.getDBInstance()?.newOrderColorDao()?.updateColorNametoUpperCase()
+
+                                        }
+                                        if (list_size != null && list_size.isNotEmpty()) {
+                                            AppDatabase.getDBInstance()?.newOrderSizeDao()?.insertAll(list_size)
+                                            AppDatabase.getDBInstance()?.newOrderSizeDao()?.updateSizeNametoUpperCase()
+                                        }
+                                        uiThread {
+                                            getNewOrderHistory()
+                                        }
+                                    }
+                                } else {
+                                    getNewOrderHistory()
+                                }
+                            } else {
+                                getNewOrderHistory()
+                            }
+                        }, { error ->
+                            error.printStackTrace()
+                            progress_wheel.stopSpinning()
+                            getNewOrderHistory()
+                        })
+                )
+            } catch (ex: java.lang.Exception) {
+                ex.printStackTrace()
+                progress_wheel.stopSpinning()
+                getNewOrderHistory()
+            }
+        } else{
+            println("dash_ref_flow getNewOrderDataList else")
+            getSelectedRouteListRefresh()
+        }
+    }
+
+    private fun getNewOrderHistory() {
+        try {
+            println("dash_ref_flow getNewOrderHistory if")
+            val list = AppDatabase.getDBInstance()?.newOrderScrOrderDao()?.getAll()
+            if (list!!.size == 0) {
+                val repository = OrderDetailsListRepoProvider.provideOrderDetailsListRepository()
+                BaseActivity.compositeDisposable.add(
+                    repository.getNewOrderHistoryDataSimplefied()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({ result ->
+                            val response = result as NewOdrScrOrderListModel
+                            if (response.status == NetworkConstant.SUCCESS) {
+                                doAsync {
+                                    AppDatabase.getDBInstance()?.newOrderScrOrderDao()?.insertAll(response.order_list!!.asReversed())
+                                    AppDatabase.getDBInstance()?.newOrderScrOrderDao()?.updateSizeNametoUpperCase()
+                                    uiThread {
+                                        getSelectedRouteListRefresh()
+                                    }
+                                }
+                            } else {
+                                println("dash_ref_flow getNewOrderHistory else")
+                                getSelectedRouteListRefresh()
+                            }
+                        }, { error ->
+                            println("dash_ref_flow getNewOrderHistory error")
+                            getSelectedRouteListRefresh()
+                        })
+                )
+            } else {
+                println("dash_ref_flow getNewOrderHistory else else")
+                getSelectedRouteListRefresh()
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            println("dash_ref_flow getNewOrderHistory catch")
             getSelectedRouteListRefresh()
         }
     }
 
     private fun getSelectedRouteListRefresh() {
+        println("dash_ref_flow getSelectedRouteListRefresh")
         val list = AppDatabase.getDBInstance()?.selectedWorkTypeDao()?.getAll()
         if (list != null && list.isNotEmpty()) {
             AppDatabase.getDBInstance()?.selectedWorkTypeDao()?.delete()
