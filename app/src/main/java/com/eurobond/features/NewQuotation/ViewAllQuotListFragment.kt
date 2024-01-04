@@ -937,8 +937,8 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                 m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
                 toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
             }else{
-                //m = Mail("saheli.bhattacharjee@indusnet.co.in", "@Intsaheli22")
-                m = Mail("suman.bachar@indusnet.co.in", "pgppbcavlmmhgpxw")
+                //m = Mail("suman.bachar@indusnet.co.in", "jfek uhst ltfk arrv")
+                m = Mail("suman.bachar@indusnet.co.in", "jfekuhstltfkarrv") // generate under 2-step verification -> app password
                 toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
             }
 

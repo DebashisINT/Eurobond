@@ -383,6 +383,21 @@
                     android:visibility="visible" />
 
                 <com.eurobond.widgets.AppCustomTextView
+                    android:id="@+id/contacts_TV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_userclient"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:text="Contacts"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp"
+                    android:visibility="visible" />
+
+                <com.eurobond.widgets.AppCustomTextView
                     android:id="@+id/menu_beat_TV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -1147,12 +1162,12 @@
                     android:id="@+id/permission_info_TV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawablePadding="@dimen/_15sdp"
                     android:drawableStart="@drawable/ic_permisioninfo_new"
-                    android:paddingBottom="@dimen/_7sdp"
+                    android:drawablePadding="@dimen/_15sdp"
                     android:paddingLeft="@dimen/_17sdp"
-                    android:paddingRight="@dimen/_17sdp"
                     android:paddingTop="@dimen/_15sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingBottom="@dimen/_7sdp"
                     android:text="@string/permission_info"
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp"

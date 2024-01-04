@@ -15,6 +15,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.eurobond.CustomStatic
 import com.eurobond.R
 import com.eurobond.app.AppConstant
@@ -58,6 +59,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
     @RequiresApi(Build.VERSION_CODES.O)
     fun CreateNotification(mContext: Context, shopID: String = "") {
 
+        println("tag_noti_check NotificationUtils.CreateNotification")
         if (Pref.isAttendanceFeatureOnly)
             return
 

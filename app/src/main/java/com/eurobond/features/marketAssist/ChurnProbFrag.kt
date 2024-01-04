@@ -1,11 +1,19 @@
 package com.eurobond.features.marketAssist
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.speech.RecognizerIntent
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.eurobond.CustomStatic
 import com.eurobond.R
@@ -21,6 +29,7 @@ import com.pnikosis.materialishprogress.ProgressWheel
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ChurnProbFrag : BaseFragment(), View.OnClickListener{
 
@@ -28,6 +37,10 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
     private lateinit var rvShopL:RecyclerView
     private lateinit var progress:ProgressWheel
     private var finalShopChurnL : ArrayList<ChurnShopL> = ArrayList()
+    private lateinit var etSearchShop: EditText
+    private lateinit var llSearch: LinearLayout
+    private lateinit var ivMic: ImageView
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -41,7 +54,7 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
             _areLecturesLoaded = true;
             progress.spin()
             Handler().postDelayed(Runnable {
-                calculateDataNew()
+                calculateDataNew("")
             }, 1000)
 
         }
@@ -58,8 +71,73 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
     private fun initView(view: View) {
         rvShopL = view.findViewById(R.id.rv_frag_churn_prob_list)
         progress = view.findViewById(R.id.progress_wheel_frag_churn)
+        etSearchShop = view.findViewById(R.id.et_frag_shop_list_ma_list_search)
+        llSearch = view.findViewById(R.id.ll_frag_shop_list_ma_list_search)
+        ivMic = view.findViewById(R.id.iv_frag_shop_list_ma_mic)
+        llSearch.setOnClickListener(this)
+        ivMic.setOnClickListener(this)
+
+
+        etSearchShop.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+                if (p0.toString().length == 0) {
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    calculateDataNew("")
+                }
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+        })
 
     }
+
+    override fun onClick(p0: View?) {
+        when (p0?.id) {
+            R.id.ll_frag_shop_list_ma_list_search ->{
+                var searchText = etSearchShop.text.toString()
+                if(searchText.length>0){
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    calculateDataNew(searchText)
+                }
+            }
+
+            R.id.iv_frag_shop_list_ma_mic ->{
+                val intent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                Handler().postDelayed(Runnable {
+                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"hi")
+                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH)
+                    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hello, How can I help you?")
+                }, 1000)
+                try {
+                    startActivityForResult(intent, 7009)
+                    Handler().postDelayed(Runnable {
+
+                    }, 2000)
+
+                } catch (a: ActivityNotFoundException) {
+                    a.printStackTrace()
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == 7009){
+            try {
+                val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                etSearchShop.setText(result!![0].toString())
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+        }
+    }
+
 
     fun calculatDate(){
 
@@ -113,6 +191,7 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
             var allFalseL4 :ArrayList<ChurnShopL> = ArrayList()
             var allFalseL5 :ArrayList<ChurnShopL> = ArrayList()
             var allFalseL6 :ArrayList<ChurnShopL> = ArrayList()
+            var allFalseLAny2 :ArrayList<ChurnShopL> = ArrayList()
 
             for(k in 0..shopCusFinalL.size-1){
                 var shopObj = shopCusFinalL.get(k)
@@ -186,6 +265,7 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
                     ex.printStackTrace()
                 }
 
+
                 if(!shopObj.tag1 && !shopObj.tag2 && !shopObj.tag3 && !shopObj.tag4 && !shopObj.tag5 && !shopObj.tag6){
                     allFalseL.add(shopObj)
                 }else if(shopObj.tag1 && !shopObj.tag2 && !shopObj.tag3 && !shopObj.tag4 && !shopObj.tag5 && !shopObj.tag6){
@@ -212,7 +292,11 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
             finalL.addAll(allFalseL4)
             finalL.addAll(allFalseL5)
             finalL.addAll(allFalseL6)
+            finalL.addAll(allFalseLAny2)
             finalL = finalL.distinctBy { it.shop_id } as ArrayList<ChurnShopL>
+
+         //   println("finalL.size"+finalL.size)
+         //   println("finalL.toString"+finalL.toString())
 
             uiThread {
                 progress.stopSpinning()
@@ -224,7 +308,7 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
 
     }
 
-    fun calculateDataNew(){
+    fun calculateDataNew(filter:String){
 
         doAsync {
             /*AppDatabase.getDBInstance()!!.orderDetailsListDao().xTest("54855_1688021010577526","548552906230003","2023-04-29T12:19:46")
@@ -368,6 +452,15 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
             var finalS :ArrayList<ChurnShopL> = ArrayList()
             for(i in 0..shopCusFinalL.size-1){
                 var obj = shopCusFinalL.get(i)
+
+                try{
+                    var typeN = AppDatabase.getDBInstance()!!.shopTypeDao().getShopTypeNameById(obj.shop_id)
+                    obj.shopType = typeN
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                    obj.shopType = "N/A"
+                }
+
                 if(!obj.tag1 && !obj.tag2 && !obj.tag3 && !obj.tag4 && !obj.tag5 && !obj.tag6){
                     finalS.add(obj)
                 }else if(obj.tag1 && !obj.tag2 && !obj.tag3 && !obj.tag4 && !obj.tag5 && !obj.tag6){
@@ -383,16 +476,28 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
                 }else if(!obj.tag1 && !obj.tag2 && !obj.tag3 && !obj.tag4 && !obj.tag5 && obj.tag6){
                     finalS.add(obj)
                 }
+
+                val booleanList = listOf(obj.tag1, obj.tag2, obj.tag3, obj.tag4, obj.tag5, obj.tag6)
+                val falseCount = booleanList.count { it == false }
+                if(falseCount>=2){
+                    finalS.add(obj)
+                }
             }
             uiThread {
                 progress.stopSpinning()
-                rvShopL.adapter = AdapterChurnShopL(mContext,finalS)
+
+                if(filter.length==0){
+                    rvShopL.adapter = AdapterChurnShopL(mContext,finalS)
+                }else{
+                    var searchfinal :ArrayList<ChurnShopL> = ArrayList()
+                    searchfinal= finalS.filter { it.shop_name.contains(filter,ignoreCase = true) || it.owner_contact_number.contains(filter) } as ArrayList<ChurnShopL>
+                    rvShopL.adapter = AdapterChurnShopL(mContext,searchfinal)
+
+                }
             }
         }
 
     }
 
-    override fun onClick(p0: View?) {
 
-    }
 }

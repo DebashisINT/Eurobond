@@ -250,4 +250,8 @@ interface ShopActivityDao {
     @Query("select shopid,count(shopid) as cnt from shop_activity group by shopid")
     fun getCUstomShopActivityCount():List<ShopActivityCnt>
 
+    @Query("Select * from shop_activity where shopid=:shopId and date=:date ORDER by shopActivityId DESC")
+    fun getMultipleVisitShopByShopId(shopId: String, date: String): List<ShopActivityEntity>
+
+
 }

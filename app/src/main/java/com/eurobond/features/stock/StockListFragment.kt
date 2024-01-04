@@ -518,9 +518,37 @@ class StockListFragment : BaseFragment(), View.OnClickListener {
 
         // duplicate shop api call
         addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+//start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+        try {
+            addShopData.FSSAILicNo = mAddShopDBModelEntity.FSSAILicNo
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            addShopData.FSSAILicNo = ""
+        }
+//end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
 
         addShopData.GSTN_Number=mAddShopDBModelEntity.gstN_Number
         addShopData.ShopOwner_PAN=mAddShopDBModelEntity.shopOwner_PAN
+
+        //contact shop sync
+        try{
+            addShopData.actual_address = mAddShopDBModelEntity.address
+            addShopData.shop_firstName=  mAddShopDBModelEntity.crm_firstName
+            addShopData.shop_lastName=  mAddShopDBModelEntity.crm_lastName
+            addShopData.crm_companyID=  if(mAddShopDBModelEntity.companyName_id.equals("")) "0" else mAddShopDBModelEntity.companyName_id
+            addShopData.crm_jobTitle=  mAddShopDBModelEntity.jobTitle
+            addShopData.crm_typeID=  if(mAddShopDBModelEntity.crm_type_ID.equals("")) "0" else mAddShopDBModelEntity.crm_type_ID
+            addShopData.crm_statusID=  if(mAddShopDBModelEntity.crm_status_ID.equals("")) "0" else mAddShopDBModelEntity.crm_status_ID
+            addShopData.crm_sourceID= if(mAddShopDBModelEntity.crm_source_ID.equals("")) "0" else mAddShopDBModelEntity.crm_source_ID
+            addShopData.crm_reference=  mAddShopDBModelEntity.crm_reference
+            addShopData.crm_referenceID=  if(mAddShopDBModelEntity.crm_reference_ID.equals("")) "0" else mAddShopDBModelEntity.crm_reference_ID
+            addShopData.crm_referenceID_type=  mAddShopDBModelEntity.crm_reference_ID_type
+            addShopData.crm_stage_ID=  if(mAddShopDBModelEntity.crm_stage_ID.equals("")) "0" else mAddShopDBModelEntity.crm_stage_ID
+            addShopData.assign_to=  mAddShopDBModelEntity.crm_assignTo_ID
+            addShopData.saved_from_status=  mAddShopDBModelEntity.crm_saved_from
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
 
         callAddShopApiForSync(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shop_id, stock_id, amount,
                 currentDateForShopActi, stock_lat, stock_long, mAddShopDBModelEntity.doc_degree)

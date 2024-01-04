@@ -97,4 +97,8 @@ class RevisionNote {
 
     // mantis id 26741 Storage permission updation Suman 22-08-2023
 
+    //mantis id 27063 Suman 04-12-2023
+
+    //whatsapp api call off https://theultimate.io/WAApi/send
+
 }

@@ -13,6 +13,13 @@ import com.eurobond.features.addshop.model.AddLogReqData
 import com.eurobond.features.addshop.model.AddShopRequestData
 import com.eurobond.features.addshop.model.AddShopResponse
 import com.eurobond.features.addshop.model.LogFileResponse
+import com.eurobond.features.contacts.CallHisDtls
+import com.eurobond.features.contacts.CompanyReqData
+import com.eurobond.features.contacts.ContactMasterRes
+import com.eurobond.features.contacts.SourceMasterRes
+import com.eurobond.features.contacts.StageMasterRes
+import com.eurobond.features.contacts.StatusMasterRes
+import com.eurobond.features.contacts.TypeMasterRes
 import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.document.model.AddEditDocumentInputParams
 import com.eurobond.features.document.model.DocumentAttachmentModel
@@ -42,6 +49,40 @@ class EditShopRepo(val apiService: EditShopApi) {
         return apiService.whatsAppStatusFetchApi(user_id)
     }
 
+    fun callCompanyMaster(session_token: String): Observable<ContactMasterRes> {
+        return apiService.callCompanyMasterApi(session_token)
+    }
+
+    fun saveCompanyMaster(companyName: String): Observable<BaseResponse> {
+        return apiService.saveCompanyMasterApi(Pref.session_token.toString(),Pref.user_id.toString(),companyName)
+    }
+
+    fun saveCompanyMasterNw(companyName: CompanyReqData): Observable<BaseResponse> {
+        return apiService.saveCompanyMasterApiNw(companyName)
+    }
+
+    fun callTypeMaster(session_token: String): Observable<TypeMasterRes> {
+        return apiService.callTypeMasterApi(session_token)
+    }
+
+    fun callStatusMaster(session_token: String): Observable<StatusMasterRes> {
+        return apiService.callStatusMasterApi(session_token)
+    }
+    fun callSourceMaster(session_token: String): Observable<SourceMasterRes> {
+        return apiService.callSourceMasterApi(session_token)
+    }
+
+    fun callStageMaster(session_token: String): Observable<StageMasterRes> {
+        return apiService.callStageMasterApi(session_token)
+    }
+
+    fun callLogListSaveApi(callLogHisSave: CallHisDtls?): Observable<BaseResponse> {
+        return apiService.callLogListSaveApi(callLogHisSave)
+    }
+
+    fun callCallListHisAPI(user_id: String): Observable<CallHisDtls> {
+        return apiService.callCallListHisAPI(user_id)
+    }
 
     fun addShopWithImage(shop: AddShopRequestData, shop_image: String?, context: Context): Observable<AddShopResponse> {
         var profile_img_data: MultipartBody.Part? = null

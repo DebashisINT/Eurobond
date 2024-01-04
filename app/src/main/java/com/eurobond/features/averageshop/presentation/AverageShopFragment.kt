@@ -883,15 +883,26 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
             shopDurationData.in_location = shopActivity.in_loc
             shopDurationData.out_location = shopActivity.out_loc
 
-            shopDurationData.shop_revisit_uniqKey = shopActivity.shop_revisit_uniqKey!!
+            try{
+                shopDurationData.shop_revisit_uniqKey = shopActivity.shop_revisit_uniqKey!!
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                shopDurationData.shop_revisit_uniqKey = ""
+            }
+
             /*10-12-2021*/
             shopDurationData.updated_by = Pref.user_id
             shopDurationData.updated_on = shopActivity.updated_on!!
 
-            if (!TextUtils.isEmpty(shopActivity.pros_id!!))
-                shopDurationData.pros_id = shopActivity.pros_id!!
-            else
+            try{
+                if (!TextUtils.isEmpty(shopActivity.pros_id!!))
+                    shopDurationData.pros_id = shopActivity.pros_id!!
+                else
+                    shopDurationData.pros_id = ""
+            }catch (ex:Exception){
+                ex.printStackTrace()
                 shopDurationData.pros_id = ""
+            }
 
             if (!TextUtils.isEmpty(shopActivity.agency_name!!))
                 shopDurationData.agency_name =shopActivity.agency_name!!
@@ -956,6 +967,15 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
 
             progress_wheel.spin()
             shopDurationApiReq.shop_list = shopDataList
+
+            try{
+                if(shopDurationApiReq.shop_list!!.get(0).isnewShop == true){
+                    shopDurationApiReq.isnewShop = 1
+                }
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+
             val repository = ShopDurationRepositoryProvider.provideShopDurationRepository()
             var gson = Gson();
             var jsonInString = gson.toJson(shopDurationApiReq);
@@ -1307,7 +1327,8 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 var shopWiseWhatsObj = AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getByShopIDDate(shop_id,AppUtils.getCurrentDateForShopActi())
                 var shopObj: AddShopDBModelEntity = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shop_id)
                 if(AppUtils.isOnline(mContext)){
-                    whatsappApi(shopWiseWhatsObj!!,shopObj,shopWiseWhatsObj.isNewShop)
+                    //whatsapp api call off https://theultimate.io/WAApi/send
+                    //whatsappApi(shopWiseWhatsObj!!,shopObj,shopWiseWhatsObj.isNewShop)
                 }else{
                     Toaster.msgShort(mContext, "Your network connection is offine. Make it online to proceed.")
                 }
@@ -1505,6 +1526,34 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
             addShopData.isShopDuplicate=shop.isShopDuplicate
 
             addShopData.purpose=shop.purpose
+//start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+            try {
+                addShopData.FSSAILicNo = shop.FSSAILicNo
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                addShopData.FSSAILicNo = ""
+            }
+//end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+
+            //contact shop sync
+            try{
+                addShopData.actual_address = addShopData.address
+                addShopData.shop_firstName=  addShopData.shop_firstName
+                addShopData.shop_lastName=  addShopData.shop_lastName
+                addShopData.crm_companyID=  if(addShopData.crm_companyID.equals("")) "0" else addShopData.crm_companyID
+                addShopData.crm_jobTitle=  addShopData.crm_jobTitle
+                addShopData.crm_typeID=  if(addShopData.crm_typeID.equals("")) "0" else addShopData.crm_typeID
+                addShopData.crm_statusID=  if(addShopData.crm_statusID.equals("")) "0" else addShopData.crm_statusID
+                addShopData.crm_sourceID= if(addShopData.crm_sourceID.equals("")) "0" else addShopData.crm_sourceID
+                addShopData.crm_reference=  addShopData.crm_reference
+                addShopData.crm_referenceID=  if(addShopData.crm_referenceID.equals("")) "0" else addShopData.crm_referenceID
+                addShopData.crm_referenceID_type=  addShopData.crm_referenceID_type
+                addShopData.crm_stage_ID=  if(addShopData.crm_stage_ID.equals("")) "0" else addShopData.crm_stage_ID
+                addShopData.assign_to=  addShopData.assign_to
+                addShopData.saved_from_status=  addShopData.saved_from_status
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
 
             callAddShopApi(addShopData, shop.shopImageLocalPath, shop.doc_degree, position)
             //}
@@ -2748,7 +2797,34 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                    addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
 
                    addShopData.purpose=mAddShopDBModelEntity.purpose
+//start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+                   try {
+                       addShopData.FSSAILicNo = mAddShopDBModelEntity.FSSAILicNo
+                   }catch (ex:Exception){
+                       ex.printStackTrace()
+                       addShopData.FSSAILicNo = ""
+                   }
+//end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
 
+                   //contact shop sync
+                   try{
+                       addShopData.actual_address = mAddShopDBModelEntity.address
+                       addShopData.shop_firstName=  mAddShopDBModelEntity.crm_firstName
+                       addShopData.shop_lastName=  mAddShopDBModelEntity.crm_lastName
+                       addShopData.crm_companyID=  if(mAddShopDBModelEntity.companyName_id.equals("")) "0" else mAddShopDBModelEntity.companyName_id
+                       addShopData.crm_jobTitle=  mAddShopDBModelEntity.jobTitle
+                       addShopData.crm_typeID=  if(mAddShopDBModelEntity.crm_type_ID.equals("")) "0" else mAddShopDBModelEntity.crm_type_ID
+                       addShopData.crm_statusID=  if(mAddShopDBModelEntity.crm_status_ID.equals("")) "0" else mAddShopDBModelEntity.crm_status_ID
+                       addShopData.crm_sourceID= if(mAddShopDBModelEntity.crm_source_ID.equals("")) "0" else mAddShopDBModelEntity.crm_source_ID
+                       addShopData.crm_reference=  mAddShopDBModelEntity.crm_reference
+                       addShopData.crm_referenceID=  if(mAddShopDBModelEntity.crm_reference_ID.equals("")) "0" else mAddShopDBModelEntity.crm_reference_ID
+                       addShopData.crm_referenceID_type=  mAddShopDBModelEntity.crm_reference_ID_type
+                       addShopData.crm_stage_ID=  if(mAddShopDBModelEntity.crm_stage_ID.equals("")) "0" else mAddShopDBModelEntity.crm_stage_ID
+                       addShopData.assign_to=  mAddShopDBModelEntity.crm_assignTo_ID
+                       addShopData.saved_from_status=  mAddShopDBModelEntity.crm_saved_from
+                   }catch (ex:Exception){
+                       ex.printStackTrace()
+                   }
 
                    callAddShopApi(addShopData, mAddShopDBModelEntity.shopImageLocalPath, shopList, true,
                        mAddShopDBModelEntity.doc_degree)

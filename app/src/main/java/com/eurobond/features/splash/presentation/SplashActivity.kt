@@ -2,6 +2,7 @@ package com.eurobond.features.splash.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.app.Activity
 import android.app.Dialog
 import android.content.ComponentName
@@ -22,8 +23,11 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
 import com.eurobond.BuildConfig
 import com.eurobond.R
+import com.eurobond.app.AppDatabase
 import com.eurobond.app.NetworkConstant
 import com.eurobond.app.Pref
+import com.eurobond.app.domain.AddShopDBModelEntity
+import com.eurobond.app.domain.CallHisEntity
 import com.eurobond.app.uiaction.DisplayAlert
 import com.eurobond.app.utils.AppUtils
 import com.eurobond.app.utils.FileLoggingTree
@@ -39,6 +43,7 @@ import com.eurobond.features.dashboard.presentation.DashboardActivity
 import com.eurobond.features.location.LocationWizard
 import com.eurobond.features.location.SingleShotLocationProvider
 import com.eurobond.features.login.presentation.LoginActivity
+import com.eurobond.features.nearbyshops.presentation.ShopCallHisFrag
 import com.eurobond.features.splash.presentation.api.VersionCheckingRepoProvider
 import com.eurobond.features.splash.presentation.model.VersionCheckingReponseModel
 import com.eurobond.widgets.AppCustomTextView
@@ -155,6 +160,8 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
     }
 
 
+
+
     fun checkBatteryOptiSettings(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val intent = Intent()
@@ -241,6 +248,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
             Timber.d("Permission Name"+permListDenied.get(i).permissionName + " Status : Denied")
         }
     }
+
 
     private fun initPermissionCheck() {
 

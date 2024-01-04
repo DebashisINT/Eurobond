@@ -1744,7 +1744,7 @@ class TeamPerformanceFragment: BaseFragment(), View.OnClickListener {
                                             obj.shop_name!!,
                                             obj.owner_contact_no!!,
                                             obj.address!!,
-                                            "",
+                                            obj.owner_name!!,
                                             obj.type!!,
                                             orderDate
                                         )
@@ -1801,6 +1801,7 @@ class TeamPerformanceFragment: BaseFragment(), View.OnClickListener {
 
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private fun noCollectionMadeListOfShop() {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.MONTH, -3)
@@ -1823,8 +1824,12 @@ class TeamPerformanceFragment: BaseFragment(), View.OnClickListener {
                 var finalShopCollL :ArrayList<NoCollActivityInshop> = ArrayList()
                 for(i in 0..finalShopL.size-1) {
                     var obj = shopList.data!!.shop_list!!.filter { it.shop_id.equals(finalShopL.get(i)) }.first()
-                    finalShopCollL.add(NoCollActivityInshop(obj.shop_id!!, obj.shop_name!!, obj.owner_contact_no!!,obj.address!!,"",obj.type!!))
-                    println("visited_tag"+finalShopCollL.size)
+                    try{
+                        finalShopCollL.add(NoCollActivityInshop(obj.shop_id!!, obj.shop_name!!, obj.owner_contact_no!!,obj.address!!,obj.owner_name!!,obj.type!!,obj.last_visit_date!!))
+                        println("visited_tag"+finalShopCollL.size)
+                    }catch (ex:Exception){
+                        ex.printStackTrace()
+                    }
                 }
 
                 uiThread {
@@ -1958,7 +1963,7 @@ class TeamPerformanceFragment: BaseFragment(), View.OnClickListener {
                             finalLl = ArrayList()
                             for(i in 0..finalShopL.size-1) {
                                 var obj = shopList.data!!.shop_list!!.filter { it.shop_id.equals(finalShopL.get(i)) }.first()
-                                finalLl.add(NoVisitedActivityInshop(obj.shop_id!!, obj.shop_name!!, obj.owner_contact_no!!,obj.address!!,"",obj.type!!,obj.last_visit_date!!))
+                                finalLl.add(NoVisitedActivityInshop(obj.shop_id!!, obj.shop_name!!, obj.owner_contact_no!!,obj.address!!,obj.owner_name!!,obj.type!!,obj.last_visit_date!!))
                                 println("visited_tag"+finalLl.size)
                             }
                             uiThread {

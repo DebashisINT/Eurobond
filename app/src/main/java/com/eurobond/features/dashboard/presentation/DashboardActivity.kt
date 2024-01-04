@@ -3,7 +3,9 @@ package com.eurobond.features.dashboard.presentation
 //import com.fieldtrackingsystem.features.logout.presentation.LogOutTimeSelect
 
 import android.Manifest
+import android.R.id
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.app.Activity
 import android.app.Dialog
 import android.app.NotificationManager
@@ -11,6 +13,7 @@ import android.app.PendingIntent
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.*
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -19,8 +22,13 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.location.LocationManager
+import android.media.MediaPlayer
+import android.media.RingtoneManager
 import android.net.*
 import android.os.*
+import android.provider.CallLog
+import android.provider.ContactsContract
+import android.provider.ContactsContract.CommonDataKinds
 import android.provider.MediaStore
 import android.provider.Settings
 import android.speech.RecognizerIntent
@@ -56,6 +64,7 @@ import com.eurobond.*
 import com.eurobond.R
 import com.eurobond.app.*
 import com.eurobond.app.NewFileUtils.browseDocuments
+import com.eurobond.app.NewFileUtils.browsePDFDocuments
 import com.eurobond.app.NewFileUtils.getExtension
 import com.eurobond.app.domain.*
 import com.eurobond.app.types.DashboardType
@@ -119,6 +128,14 @@ import com.eurobond.features.commondialogsinglebtn.AddFeedbackSingleBtnDialog
 import com.eurobond.features.commondialogsinglebtn.CommonDialogSingleBtn
 import com.eurobond.features.commondialogsinglebtn.OnDialogClickListener
 import com.eurobond.features.commondialogsinglebtn.TermsAndConditionsSingleBtnDialog
+import com.eurobond.features.contacts.ContactDtls
+import com.eurobond.features.contacts.ContactGr
+import com.eurobond.features.contacts.ContactMasterRes
+import com.eurobond.features.contacts.ContactsAddFrag
+import com.eurobond.features.contacts.ContactsFrag
+import com.eurobond.features.contacts.SchedulerAddFormFrag
+import com.eurobond.features.contacts.SchedulerAddFrag
+import com.eurobond.features.contacts.TypeMasterRes
 import com.eurobond.features.dailyPlan.prsentation.AllShopListFragment
 import com.eurobond.features.dailyPlan.prsentation.DailyPlanListFragment
 import com.eurobond.features.dailyPlan.prsentation.PlanDetailsFragment
@@ -165,6 +182,9 @@ import com.eurobond.features.login.model.alarmconfigmodel.AlarmConfigDataModel
 import com.eurobond.features.login.presentation.LoginActivity
 import com.eurobond.features.logout.presentation.api.LogoutRepositoryProvider
 import com.eurobond.features.logoutsync.presentation.LogoutSyncFragment
+import com.eurobond.features.marketAssist.MarketAssistTabFrag
+import com.eurobond.features.marketAssist.ShopDtlsMarketAssistFrag
+import com.eurobond.features.marketAssist.ShopListMarketAssistFrag
 import com.eurobond.features.marketing.presentation.MarketingPagerFragment
 import com.eurobond.features.meetinglist.prsentation.MeetingListFragment
 import com.eurobond.features.member.MapViewForTeamFrag
@@ -187,6 +207,7 @@ import com.eurobond.features.nearbyshops.multipleattachImage.MultipleImageFragme
 import com.eurobond.features.nearbyshops.presentation.BeatListFragment
 import com.eurobond.features.nearbyshops.presentation.NearByShopsListFragment
 import com.eurobond.features.nearbyshops.presentation.NewNearByShopsListFragment
+import com.eurobond.features.nearbyshops.presentation.ShopCallHisFrag
 import com.eurobond.features.nearbyuserlist.presentation.NearbyUserListFragment
 import com.eurobond.features.newcollection.CollectionDetailsStatusFragment
 import com.eurobond.features.newcollection.CollectionShopListFragment
@@ -209,7 +230,9 @@ import com.eurobond.features.performance.GpsStatusFragment
 import com.eurobond.features.performance.PerformanceFragment
 import com.eurobond.features.performance.api.UpdateGpsStatusRepoProvider
 import com.eurobond.features.performance.model.UpdateGpsInputParamsModel
+import com.eurobond.features.performanceAPP.OwnPerformanceFragment
 import com.eurobond.features.performanceAPP.PerformanceAppFragment
+import com.eurobond.features.performanceAPP.allPerformanceFrag
 import com.eurobond.features.permissionList.ViewPermissionFragment
 import com.eurobond.features.photoReg.*
 import com.eurobond.features.privacypolicy.PrivacypolicyWebviewFrag
@@ -226,6 +249,7 @@ import com.eurobond.features.stock.StockListFragment
 import com.eurobond.features.stockAddCurrentStock.AddShopStockFragment
 import com.eurobond.features.stockAddCurrentStock.UpdateShopStockFragment
 import com.eurobond.features.stockAddCurrentStock.ViewStockDetailsFragment
+import com.eurobond.features.stockAddCurrentStock.model.MultipleImageFileUploadonStock
 import com.eurobond.features.stockCompetetorStock.AddCompetetorStockFragment
 import com.eurobond.features.stockCompetetorStock.CompetetorStockFragment
 import com.eurobond.features.stockCompetetorStock.ViewComStockProductDetails
@@ -276,6 +300,7 @@ import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import com.themechangeapp.pickimage.PermissionHelper
 import com.themechangeapp.pickimage.PermissionHelper.Companion.REQUEST_CODE_DOCUMENT
+import com.themechangeapp.pickimage.PermissionHelper.Companion.REQUEST_CODE_DOCUMENT_PDF
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_dashboard_new.*
@@ -289,19 +314,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.*
+import java.sql.Date
 import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
-import android.R.attr.name
-import android.content.pm.ApplicationInfo
-import com.eurobond.app.NewFileUtils.browsePDFDocuments
-import com.eurobond.features.marketAssist.MarketAssistTabFrag
-import com.eurobond.features.marketAssist.ShopDtlsMarketAssistFrag
-import com.eurobond.features.marketAssist.ShopListMarketAssistFrag
-import com.eurobond.features.performanceAPP.OwnPerformanceFragment
-import com.eurobond.features.performanceAPP.allPerformanceFrag
-import com.eurobond.features.stockAddCurrentStock.model.MultipleImageFileUploadonStock
-import com.themechangeapp.pickimage.PermissionHelper.Companion.REQUEST_CODE_DOCUMENT_PDF
+import kotlin.collections.ArrayList
 
 
 /*
@@ -360,6 +377,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     @SuppressLint("MissingPermission")
     override fun loadFragment(mFragType: FragType, addToStack: Boolean, initializeObject: Any) {
         AppUtils.contx = this
+        Pref.IsLoggedIn = true
 
         drawerLayout.closeDrawers()
 
@@ -382,19 +400,461 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             //println("fcm_token " + token.toString());
             Timber.d("token : " + token.toString())
         })
-        println("load_frag " + mFragType.toString() + "     " + Pref.user_id.toString() + " "+Pref.profile_state );
 
-        //val distance = LocationWizard.getDistance(22.4339117,	87.3366233, 22.52156	,87.3279733)
-        //Pref.isExpenseFeatureAvailable = false
-        Timber.d("dash_frag ${AppUtils.getCurrentDateTime()} ${Pref.user_name} ${Pref.profile_state}")
-        if (addToStack) {
+        //begin Suman 21-09-2023 mantis id 0026837
+        try{
+            val packageName = "com.google.android.apps.maps"
+            val appInfo: ApplicationInfo = this.getPackageManager().getApplicationInfo(packageName, 0)
+            var appstatus = appInfo.enabled
+
+            if(!appstatus && !mFragType.equals(FragType.DashboardFragment)){
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(false)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_ok)
+                val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
+                dialogHeader.text = "Location will be inappropriate as Google map is disabled. Please go to settings of your phone and Enable Google Map. Thank you."
+                val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
+                dialogYes.setOnClickListener({ view ->
+                    simpleDialog.cancel()
+                })
+                simpleDialog.show()
+                return
+            }else{
+                println("load_frag " +" gmap app enable")
+            }
+
+            //val pInfo = this.packageManager.getPackageInfo("com.google.android.apps.maps", PackageManager.GET_PERMISSIONS)
+            //val version = pInfo.versionName
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        //end Suman 21-09-2023 mantis id 0026837
+        if(mFragType.equals(FragType.DashboardFragment) && !mFragType.equals(FragType.LogoutSyncFragment)){
+            Pref.IsAnyPageVisitFromDshboard = false
+            println("dasg_tag if")
+        }else{
+            Pref.IsAnyPageVisitFromDshboard = true
+            println("dasg_tag else")
+        }
+
+   /*     var fgg = getPhoneBookGroups()
+        contactDtls=ArrayList()
+        for(i in 1..fgg.size-1){
+           var ar = getContactsForGroup1(fgg.get(i).gr_id,fgg.get(i).gr_name)
+            var gg = "asd"
+        }*/
+        //getNamePhoneDetails()
+        //initPermissionCheckOne()
+        Pref.MultiVisitIntervalInMinutes = "1"
+        Pref.IsShowCustomerLocationShare = false
+        //var dist = LocationWizard.getDistance(21.2551583,83.7234367, 21.2095733   ,83.652335)
+        println("load_frag " + mFragType.toString() + "     " + Pref.user_id.toString()+" "+Pref.MultiVisitIntervalInMinutes)
+
+        batteryCheck(mFragType,addToStack,initializeObject)
+        /*if (addToStack) {
             mTransaction.add(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
             mTransaction.addToBackStack(mFragType.toString()).commitAllowingStateLoss()
         } else {
             mTransaction.replace(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
             mTransaction.commitAllowingStateLoss()
+        }*/
+
+    }
+
+
+
+
+    var contactDtls : ArrayList<ContactDtls> = ArrayList()
+    private fun getPhoneBookGroups(): ArrayList<ContactGr> {
+        val groups : ArrayList<ContactGr> = ArrayList()
+
+        val projection = arrayOf(ContactsContract.Groups._ID, ContactsContract.Groups.TITLE)
+        val cursor = contentResolver.query(ContactsContract.Groups.CONTENT_URI, projection, null, null, null)
+        cursor?.use {
+            while (it.moveToNext()) {
+                val groupName = it.getString(it.getColumnIndex(ContactsContract.Groups.TITLE))
+                val groupId = it.getString(it.getColumnIndex(ContactsContract.Groups._ID))
+                if(!groups.map { it.gr_name }.contains(groupName)){
+                    groups.add(ContactGr(groupId,groupName))
+                    println("tag_contact $groupId $groupName")
+                }
+
+            }
+        }
+        return groups
+    }
+
+    /*fun getContactsOfGroup(group: Group): Cursor? {
+        // getting ids of contacts that are in this specific group
+        val where = ((ContactsContract.CommonDataKinds.GroupMembership.GROUP_ROW_ID + "="
+                + group.id) + " AND "
+                + ContactsContract.CommonDataKinds.GroupMembership.MIMETYPE + "='"
+                + ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE + "'")
+        val query = context.contentResolver.query(
+            ContactsContract.Data.CONTENT_URI, arrayOf(
+                ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID
+            ), where, null, ContactsContract.Data.DISPLAY_NAME + " COLLATE LOCALIZED ASC"
+        )
+        var ids = ""
+        query!!.moveToFirst()
+        while (!query.isAfterLast) {
+            ids += "," + query.getString(0)
+            query.moveToNext()
+        }
+        if (ids.length > 0) {
+            ids = ids.substring(1)
         }
 
+        // getting all of information of contacts. it fetches all of number from every one
+        val projection = arrayOf(
+            "_id",
+            "contact_id",
+            "lookup",
+            "display_name",
+            "data1",
+            "photo_id",
+            "data2"
+        )
+        val selection =
+            (("mimetype ='" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'"
+                    + " AND account_name='" + group.accountName) + "' AND account_type='" + group.accountType + "'"
+                    + " AND contact_id in (" + ids + ")")
+        return context.contentResolver.query(BASE_URI, projection, selection, null, null)
+    }*/
+
+    private fun initPermissionCheckOne() {
+        var permissionList = arrayOf<String>( Manifest.permission.READ_CALL_LOG, Manifest.permission.WRITE_CALL_LOG,Manifest.permission.READ_CONTACTS)
+        permissionUtils = PermissionUtils(this, object : PermissionUtils.OnPermissionListener {
+            @TargetApi(Build.VERSION_CODES.M)
+            override fun onPermissionGranted() {
+
+                //Toaster.msgShort(this@DashboardActivity,"PG")
+                //var t1 = obtenerDetallesLlamadas(this@DashboardActivity)
+                //var t2 = getNamePhoneDetails()
+                var t4="456"
+            }
+            override fun onPermissionNotGranted() {
+
+            }
+        },permissionList)
+    }
+
+    @SuppressLint("Range")
+
+
+    data class Contact(val id:String="",val name:String="",val number:String="")
+
+    public fun getNamePhoneDetails(): ArrayList<Contact>? {
+        val names:ArrayList<Contact> = ArrayList()
+        val cr = contentResolver
+        val cur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+            null, null, null)
+        if (cur!!.count > 0) {
+            while (cur.moveToNext()) {
+                val id = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NAME_RAW_CONTACT_ID))
+                val name = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val number = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                val grr =cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA1))
+                names.add(Contact(id , name , number))
+            }
+        }
+        return names
+    }
+
+    fun getContactsForGroup(groupID: String, activity: Activity): HashMap<String, String>? {
+        val dataCursor = activity.contentResolver.query(
+            ContactsContract.Data.CONTENT_URI, arrayOf( // PROJECTION
+                ContactsContract.Data.CONTACT_ID,
+                ContactsContract.Data.DISPLAY_NAME,  // contact name
+                ContactsContract.Data.DATA1 // group
+            ),
+            ContactsContract.Data.MIMETYPE + " = ? " + "AND " +  // SELECTION
+                    ContactsContract.Data.DATA1 + " = ? ", arrayOf( // SELECTION_ARGS
+                ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE,
+                groupID
+            ),
+            null
+        )
+        dataCursor!!.moveToFirst()
+        val map = HashMap<String, String>()
+        while (dataCursor.moveToNext()) //
+        {
+            val s0 = dataCursor.getString(0) //contact_id
+            val s1 = dataCursor.getString(1) //contact_name
+            val s2 = dataCursor.getString(2) //group_id
+            Log.d("tag", "contact_id: $s0  contact: $s1   groupID: $s2")
+            map[s0] = s1
+        }
+        return map
+    }
+
+    fun getContactsForGroup1(grId:String,grName:String):ArrayList<ContactDtls>{
+        val groupId: String = grId
+        val cProjection = arrayOf<String>(ContactsContract.Contacts.DISPLAY_NAME, CommonDataKinds.GroupMembership.CONTACT_ID)
+
+        val groupCursor = contentResolver.query(
+            ContactsContract.Data.CONTENT_URI,
+            cProjection,
+            CommonDataKinds.GroupMembership.GROUP_ROW_ID + "= ?" + " AND "
+                    + CommonDataKinds.GroupMembership.MIMETYPE + "='"
+                    + CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE + "'",
+            arrayOf<String>(groupId.toString()),
+            null
+        )
+        if (groupCursor != null && groupCursor.moveToFirst()) {
+            do {
+                val nameCoumnIndex = groupCursor.getColumnIndex(CommonDataKinds.Phone.DISPLAY_NAME)
+                val name = groupCursor.getString(nameCoumnIndex)
+                val contactId =
+                    groupCursor.getLong(groupCursor.getColumnIndex(CommonDataKinds.GroupMembership.CONTACT_ID))
+                val numberCursor = contentResolver.query(
+                    CommonDataKinds.Phone.CONTENT_URI,
+                    arrayOf<String>(CommonDataKinds.Phone.NUMBER),
+                    CommonDataKinds.Phone.CONTACT_ID + "=" + contactId,
+                    null,
+                    null
+                )
+                if (numberCursor!!.moveToFirst()) {
+                    val numberColumnIndex = numberCursor!!.getColumnIndex(CommonDataKinds.Phone.NUMBER)
+                    do {
+                        val phoneNumber = numberCursor!!.getString(numberColumnIndex)
+                        Log.d("your tag", "contact $name:$phoneNumber")
+                        println("tag_contact for grId ${groupId} contact $name:$phoneNumber")
+                        var ph = phoneNumber.toString().replace(" ","")
+                        if(!contactDtls.map { it.number }.contains(ph)){
+                            contactDtls.add(ContactDtls(grName,name,ph))
+                        }
+                    } while (numberCursor!!.moveToNext())
+                    numberCursor!!.close()
+                }
+            } while (groupCursor.moveToNext())
+            groupCursor.close()
+        }
+        return contactDtls
+    }
+
+    data class PhoneCallDtls(var number:String?="",var type:String?="",var callDate:String?="",var callDateTime:String?="",var callDuration:String?="")
+
+    fun obtenerDetallesLlamadas(context: Context): ArrayList<PhoneCallDtls>? {
+        //public static String obtenerDetallesLlamadas(Context context) {
+        try {
+            val stringBuffer = StringBuffer()
+            val cursor = context.contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                null, null, null, CallLog.Calls.DATE + " DESC"
+            )
+            val number = cursor!!.getColumnIndex(CallLog.Calls.NUMBER)
+            val type = cursor.getColumnIndex(CallLog.Calls.TYPE)
+            val date = cursor.getColumnIndex(CallLog.Calls.DATE)
+            val duration = cursor.getColumnIndex(CallLog.Calls.DURATION)
+
+            val phoneCallRecord = ArrayList<PhoneCallDtls>()
+
+            while (cursor.moveToNext()) {
+                val phNumber = cursor.getString(number)
+                val callType = cursor.getString(type)
+                val callDate = cursor.getString(date)
+                val callDayTime = Date(java.lang.Long.valueOf(callDate))
+                var callDateTime = AppUtils.getDateTimeFromTimeStamp(callDate.toLong())
+                val callDuration = cursor.getString(duration)
+                var dir: String? = null
+                val dircode = callType.toInt()
+                when (dircode) {
+                    CallLog.Calls.OUTGOING_TYPE -> dir = "OUTGOING"
+                    CallLog.Calls.INCOMING_TYPE -> dir = "INCOMING"
+                    CallLog.Calls.MISSED_TYPE -> dir = "MISSED"
+                }
+                stringBuffer.append(
+                    "\nPhone Number:--- " + phNumber + " \nCall Type:--- "
+                            + dir + " \nCall Date:--- " + callDayTime
+                            + " \nCall duration in sec :--- " + callDuration
+                )
+                stringBuffer.append("\n----------------------------------")
+
+                try{
+                    val obj = PhoneCallDtls()
+                    obj.number = phNumber
+                    obj.type = dir
+                    obj.callDate = callDate
+                    obj.callDateTime = callDateTime
+                    obj.callDuration = callDuration
+                    phoneCallRecord.add(obj)
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+
+            }
+            cursor.close()
+            return phoneCallRecord
+            //return stringBuffer.toString();
+        } catch (ex: java.lang.Exception) {
+            ex.printStackTrace()
+        }
+        return null
+    }
+
+
+    fun batteryCheck(mFragType: FragType, addToStack: Boolean, initializeObject: Any){
+        val mTransaction = supportFragmentManager.beginTransaction()
+        mTransaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+        try{
+            val pm = mContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+            var sett = pm.isIgnoringBatteryOptimizations(packageName)
+            if(!mFragType.equals(FragType.DashboardFragment) && sett==false && !mFragType.equals(FragType.LogoutSyncFragment)){
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(false)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_ok_logout)
+                val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
+                var msgHead = "App battery Saver is turned on. Please follow the below settings."
+                if(AppUtils.getDeviceName().contains("MI",ignoreCase = true) || AppUtils.getDeviceName().contains("Redmi",ignoreCase = true) ||
+                    AppUtils.getDeviceName().contains("Poco",ignoreCase = true)){
+                    dialogHeader.text = msgHead+" "+"Go to Settings -> Apps -> Manage Apps -> FSM App -> Battery Saver -> No restrictions."
+                }else if(AppUtils.getDeviceName().contains("Vivo",ignoreCase = true)){
+                    dialogHeader.text = msgHead+" "+"Go to Settings -> Battery -> Background Battery Power Consumption Ranking / High Background Power Consumption -> FSM App -> Don't Restrict."
+                }else{
+                    dialogHeader.text = msgHead+" "+"Go to Settings -> Apps -> FSM App -> Battery -> Unrestricted."
+                }
+                val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
+                dialogYes.setOnClickListener({ view ->
+                    //simpleDialog.cancel()
+                    //callLogout()
+
+                    /*val intent = Intent()
+                    val packageName = packageName
+                    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    val uri = Uri.fromParts("package", packageName, null)
+                    intent.data = uri
+                    mContext.startActivity(intent)*/
+                })
+                simpleDialog.show()
+                Handler().postDelayed(Runnable {
+                    val timer = object : CountDownTimer(6 * 1000, 1000) {
+                        override fun onTick(millisUntilFinished: Long) {
+                            dialogYes.text = "Logout in "+(millisUntilFinished / 1000).toString()+" seconds..."
+                        }
+                        override fun onFinish() {
+                            simpleDialog.cancel()
+                            callLogout()
+                            //Toaster.msgShort(this@DashboardActivity,"Logout call")
+                        }
+                    }.start()
+                }, 1000)
+            }
+            else{
+                if (addToStack) {
+                    mTransaction.add(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
+                    mTransaction.addToBackStack(mFragType.toString()).commitAllowingStateLoss()
+                } else {
+                    mTransaction.replace(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
+                    mTransaction.commitAllowingStateLoss()
+                }
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            if (addToStack) {
+                mTransaction.add(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
+                mTransaction.addToBackStack(mFragType.toString()).commitAllowingStateLoss()
+            } else {
+                mTransaction.replace(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
+                mTransaction.commitAllowingStateLoss()
+            }
+        }
+    }
+
+    fun callLogout(){
+        Pref.IsAutoLogoutFromBatteryCheck = true
+        if(AppUtils.isOnline(this)){
+            Timber.d("Battery optimization in online mode.")
+            (mContext as DashboardActivity).loadFragment(FragType.LogoutSyncFragment, true, "")
+        }else{
+            Timber.d("Battery optimization in offline mode.")
+            try{
+                var  soundUriAlarm = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.getPackageName() + "/" + R.raw.beethoven)
+                if (soundUriAlarm == null){
+                    soundUriAlarm = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                }
+                var player: MediaPlayer = MediaPlayer.create(this, soundUriAlarm)
+                player.isLooping = true
+                player.start()
+                var vibrator : Vibrator = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                val pattern = longArrayOf(0, 5, 10, 20, 40, 80, 120, 100, 600, 700, 500, 500, 500)
+                vibrator.vibrate(pattern, 1)
+
+
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(false)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_ok)
+                val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
+                dialogHeader.text = "Device is in offline mode. Internet connection is required for auto logout."
+                val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
+                dialogYes.setOnClickListener({ view ->
+                    simpleDialog.cancel()
+                    player.stop()
+                    vibrator.cancel()
+                })
+                simpleDialog.show()
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+        }
+
+
+        /*val unSyncedList = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADayNotSyn(AppUtils.convertFromRightToReverseFormat(Pref.login_date!!), false)
+        var distance = 0.0
+        if (unSyncedList != null && unSyncedList.isNotEmpty()) {
+            var totalDistance = 0.0
+            for (i in unSyncedList.indices) {
+                totalDistance += unSyncedList[i].distance.toDouble()
+            }
+            distance = Pref.tempDistance.toDouble() + totalDistance
+        }
+        else{
+            distance = Pref.tempDistance.toDouble()
+        }
+        var location = ""
+        if (Pref.logout_latitude != "0.0" && Pref.logout_longitude != "0.0") {
+            location = LocationWizard.getAdressFromLatlng(this, Pref.logout_latitude.toDouble(), Pref.logout_longitude.toDouble())
+            if (location.contains("http"))
+                location = "Unknown"
+        }
+
+        val repository = LogoutRepositoryProvider.provideLogoutRepository()
+        BaseActivity.compositeDisposable.add(
+            repository.logout(Pref.user_id!!, Pref.session_token!!, Pref.logout_latitude, Pref.logout_longitude,AppUtils.getCurrentDateTime(),
+                distance.toString(), "1", location)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    val logoutResponse = result as BaseResponse
+                    Timber.d("AUTO_LOGOUT : " + "RESPONSE : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + logoutResponse.message)
+                    if (logoutResponse.status == NetworkConstant.SUCCESS) {
+                        Pref.tempDistance = "0.0"
+                        if (unSyncedList != null && unSyncedList.isNotEmpty()) {
+                            for (i in unSyncedList.indices) {
+                                AppDatabase.getDBInstance()!!.userLocationDataDao().updateIsUploaded(true, unSyncedList[i].locationId)
+                            }
+                        }
+                        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        notificationManager.cancelAll()
+                        Pref.logout_latitude = "0.0"
+                        Pref.logout_longitude = "0.0"
+                        clearData()
+                        Pref.isAutoLogout = false
+                        Pref.isAddAttendence = false
+                    } else
+                        performLogout()
+                        BaseActivity.isApiInitiated = false
+                        takeActionOnGeofence()
+                }, { error ->
+                        Toaster.msgShort(this, getString(R.string.something_went_wrong))
+                        Timber.d("AUTO_LOGOUT : " + "RESPONSE ERROR: " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                        error.printStackTrace()
+                        performLogout()
+                    })
+        )*/
     }
 
 
@@ -515,6 +975,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     lateinit var tv_noti_count: AppCustomTextView
     private lateinit var iv_home_icon: ImageView
     private lateinit var nearbyShops: AppCustomTextView
+    private lateinit var contacts_TV: AppCustomTextView
     private lateinit var menuBeatTV: AppCustomTextView// 5.0 DashboardActivity AppV 4.0.6  MenuBeatFrag
     private lateinit var marketAssistTV: AppCustomTextView
     private lateinit var tv_pending_out_loc_menu: AppCustomTextView
@@ -857,6 +1318,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     }
 
                     val leadActivityList=AppDatabase.getDBInstance()!!.leadActivityDao().getAll(AppUtils.getCurrentDateForShopActi())
+                    Timber.d("lead activity ${leadActivityList.size}")
                     leadActivityList?.forEach {
                         val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
                         //val shop = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(it.shopid)
@@ -1064,6 +1526,12 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             WorkManager.getInstance(this).enqueueUniquePeriodicWork("loc_worker", ExistingPeriodicWorkPolicy.KEEP, request)
         }
         }, 1000)
+
+
+        // In your Application class or MainActivity
+       // FacebookSdk.sdkInitialize(getApplicationContext());
+       // AppEventsLogger.activateApp(application); // For logging app activation events
+
 
     }
     //Start of Rev 18 DashboardActivity AppV 4.0.8 Suman    28/04/2023 worker manager updation 25973
@@ -1436,6 +1904,36 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     override fun onResume() {
         super.onResume()
 
+        //begin Suman 21-09-2023 mantis id 0026837
+        try{
+            val packageName = "com.google.android.apps.maps"
+            val appInfo: ApplicationInfo = this.getPackageManager().getApplicationInfo(packageName, 0)
+            var appstatus = appInfo.enabled
+
+            if(!appstatus){
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(false)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_ok)
+                val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
+                dialogHeader.text = "Location will be inappropriate as Google map is disabled. Please go to settings of your phone and Enable Google Map. Thank you."
+                val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
+                dialogYes.setOnClickListener({ view ->
+                    simpleDialog.cancel()
+                })
+                simpleDialog.show()
+                return
+            }else{
+                println("load_frag " +" gmap app enable")
+            }
+
+            //val pInfo = this.packageManager.getPackageInfo("com.google.android.apps.maps", PackageManager.GET_PERMISSIONS)
+            //val version = pInfo.versionName
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        //end Suman 21-09-2023 mantis id 0026837
+
         println("tag_lifecycle onresume")
         //if(Settings.Secure.getInt(this.getContentResolver(), Settings.Secure.ADB_ENABLED, 0) == 1 && Pref.IsUsbDebuggingRestricted) {
         if(Settings.Secure.getInt(this.getContentResolver(), Settings.Secure.DEVELOPMENT_SETTINGS_ENABLED , 0) == 1 && Pref.IsUsbDebuggingRestricted) {
@@ -1498,8 +1996,47 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
             checkForFingerPrint()
 
-    }
 
+
+        //battery check onresume
+        if(Pref.IsAnyPageVisitFromDshboard){
+            val pm = mContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+            var sett = pm.isIgnoringBatteryOptimizations(packageName)
+            if(sett==false){
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(false)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_ok_logout)
+                val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
+                if(AppUtils.getDeviceName().contains("MI",ignoreCase = true) || AppUtils.getDeviceName().contains("Redmi",ignoreCase = true) ||
+                    AppUtils.getDeviceName().contains("Poco",ignoreCase = true)){
+                    dialogHeader.text = "Go to Settings -> Apps -> Manage Apps -> FSM App -> Battery Saver -> No restrictions."
+                }else if(AppUtils.getDeviceName().contains("Vivo",ignoreCase = true)){
+                    dialogHeader.text = "Go to Settings -> Battery -> Background Battery Power Consumption Ranking / High Background Power Consumption -> FSM App -> Don't Restrict."
+                }else{
+                    dialogHeader.text = "Go to Settings -> Apps -> FSM App -> Battery -> Unrestricted."
+                }
+                val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
+                dialogYes.setOnClickListener({ view ->
+                    simpleDialog.cancel()
+                    callLogout()
+                })
+                simpleDialog.show()
+                Handler().postDelayed(Runnable {
+                    val timer = object : CountDownTimer(6 * 1000, 1000) {
+                        override fun onTick(millisUntilFinished: Long) {
+                            dialogYes.text = "Logout in "+(millisUntilFinished / 1000).toString()+" seconds..."
+                        }
+                        override fun onFinish() {
+                            simpleDialog.cancel()
+                            callLogout()
+                        }
+                    }.start()
+                }, 1000)
+            }
+        }
+
+    }
 
     fun checkForFingerPrint() {
         try {
@@ -2154,6 +2691,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         nearby_shops_TV = findViewById<AppCustomTextView>(R.id.nearby_shops_TV)
         my_orders_TV = findViewById<AppCustomTextView>(R.id.my_orders_TV)
         nearbyShops = findViewById<AppCustomTextView>(R.id.nearby_shop_TV)
+        contacts_TV = findViewById<AppCustomTextView>(R.id.contacts_TV)
         menuBeatTV = findViewById<AppCustomTextView>(R.id.menu_beat_TV)// 5.0 DashboardActivity AppV 4.0.6  MenuBeatFrag
         marketAssistTV = findViewById<AppCustomTextView>(R.id.menu_market_assist_TV)
         tv_pending_out_loc_menu = findViewById<AppCustomTextView>(R.id.tv_pending_out_loc_menu)
@@ -2240,6 +2778,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         tickTV.setOnClickListener(this)
         logo.setOnClickListener(this)
         nearbyShops.setOnClickListener(this)
+        contacts_TV.setOnClickListener(this)
         marketAssistTV.setOnClickListener(this)
         menuBeatTV.setOnClickListener(this)// 5.0 DashboardActivity AppV 4.0.6  MenuBeatFrag
         tv_pending_out_loc_menu.setOnClickListener(this)
@@ -2656,6 +3195,11 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             nearby_shop_TV.visibility = View.VISIBLE
         else
             nearby_shop_TV.visibility = View.GONE
+
+        if (Pref.IsShowMenuCRMContacts)
+            contacts_TV.visibility = View.VISIBLE
+        else
+            contacts_TV.visibility = View.GONE
 
         if (Pref.IsmanualInOutTimeRequired)
             tv_pending_out_loc_menu.visibility = View.VISIBLE
@@ -3121,6 +3665,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             }
             R.id.logout_TV -> {
                 //performLogout()
+                Pref.IsAutoLogoutFromBatteryCheck = false
                 if (Pref.DayEndMarked == false && Pref.IsShowDayEnd == true && Pref.DayStartMarked) {
                     showSnackMessage("Please mark Day End before logout. Thanks.")
                 } else {
@@ -3391,6 +3936,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }
             }
             // 5.0 DashboardActivity AppV 4.0.6  MenuBeatFrag
+
+            R.id.contacts_TV->{
+                if (!Pref.isAddAttendence)
+                    (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+                else
+                    loadFragment(FragType.ContactsFrag, false, "")
+            }
             R.id.menu_beat_TV ->{
                 if (!Pref.isAddAttendence) {
                     (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
@@ -3481,6 +4033,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
                     getCurrentFragType() == FragType.NewReturnListFragment -> (getFragment() as NewReturnListFragment).refreshOrderList()
                     getCurrentFragType() == FragType.MapViewForTeamFrag -> (getFragment() as MapViewForTeamFrag).refreshMap()
+                    getCurrentFragType() == FragType.ContactsFrag -> (getFragment() as ContactsFrag).checkModifiedShop()
+
                 }
             }
             R.id.iv_delete_icon -> {
@@ -4919,6 +5473,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     } else
                         setTopBarVisibility(TopBarConfig.GPS)
                 }
+                if(Pref.IsAutoLogoutFromBatteryCheck){
+                    setTopBarVisibility(TopBarConfig.NONE)
+                }
             }
             FragType.ReimbursementFragment -> {
                 if (enableFragGeneration) {
@@ -5811,6 +6368,45 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 setTopBarVisibility(TopBarConfig.HOME)
                 setTopBarVisibility(TopBarConfig.PHOTOREG)
             }
+            FragType.ContactsFrag -> {
+                if (enableFragGeneration) {
+                    mFragment = ContactsFrag()
+                }
+                setTopBarTitle("Contact(s)")
+                setTopBarVisibility(TopBarConfig.CONTACT)
+            }
+            FragType.ContactsAddFrag -> {
+                if (enableFragGeneration) {
+                    mFragment = ContactsAddFrag.getInstance(initializeObject)
+                }
+                //setTopBarTitle("Add Contact")
+                setTopBarVisibility(TopBarConfig.HOME)
+            }
+            FragType.SchedulerAddFrag -> {
+                if (enableFragGeneration) {
+                    mFragment = SchedulerAddFrag.getInstance(initializeObject)
+                }
+                //setTopBarTitle("Add Contact")
+                setTopBarVisibility(TopBarConfig.HOME)
+                setTopBarVisibility(TopBarConfig.NEWORDERSCRCART)
+                setTopBarTitle("Scheduler Details")
+            }
+            FragType.SchedulerAddFormFrag -> {
+                if (enableFragGeneration) {
+                    mFragment = SchedulerAddFormFrag.getInstance(initializeObject)
+                }
+                //setTopBarTitle("Add Contact")
+                setTopBarVisibility(TopBarConfig.HOME)
+                setTopBarVisibility(TopBarConfig.NEWORDERSCRCART)
+                setTopBarTitle("Add Schedule")
+            }
+            FragType.ShopCallHisFrag -> {
+                if (enableFragGeneration) {
+                    mFragment = ShopCallHisFrag.getInstance(initializeObject)
+                }
+                setTopBarTitle("Call Log History")
+                setTopBarVisibility(TopBarConfig.HOME)
+            }
             FragType.LeaveHome -> {
                 if (enableFragGeneration) {
                     mFragment = LeaveHome.getInstance(initializeObject)
@@ -6000,13 +6596,32 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     }
 
     fun setTopBarTitle(title: String) {
-         headerTV.text = title
+         headerTV.text = title+"   "
     }
 
     @RequiresApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     private fun setTopBarVisibility(mTopBarConfig: TopBarConfig) {
         tv_noti_count.visibility = View.GONE
         when (mTopBarConfig) {
+            TopBarConfig.NONE ->{
+                iv_home_icon.visibility = View.GONE
+                iv_search_icon.visibility = View.GONE
+                iv_sync_icon.visibility = View.GONE
+                rl_cart.visibility = View.GONE
+                iv_filter_icon.visibility = View.GONE
+                rl_confirm_btn.visibility = View.GONE
+                iv_list_party.visibility = View.GONE
+                logo.visibility = View.GONE
+                iv_map.visibility = View.GONE
+                iv_settings.visibility = View.GONE
+                ic_calendar.visibility = View.GONE
+                ic_chat_bot.visibility = View.GONE
+                iv_cancel_chat.visibility = View.GONE
+                iv_people.visibility = View.GONE
+                iv_scan.visibility = View.GONE
+                iv_view_text.visibility = View.GONE
+                fl_net_status.visibility = View.GONE
+            }
             TopBarConfig.HOME -> {
                 iv_home_icon.visibility = View.VISIBLE
                 iv_search_icon.visibility = View.GONE
@@ -7497,6 +8112,33 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 mDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_header_back_arrow)
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
+
+            TopBarConfig.CONTACT -> {
+                iv_home_icon.visibility = View.VISIBLE
+                iv_search_icon.visibility = View.GONE
+                iv_sync_icon.visibility = View.VISIBLE
+                rl_cart.visibility = View.GONE
+                iv_filter_icon.visibility = View.GONE
+                rl_confirm_btn.visibility = View.GONE
+                iv_list_party.visibility = View.GONE
+                logo.visibility = View.VISIBLE
+                iv_map.visibility = View.GONE
+                iv_settings.visibility = View.GONE
+                ic_calendar.visibility = View.GONE
+                ic_chat_bot.visibility = View.GONE
+                iv_cancel_chat.visibility = View.GONE
+                iv_people.visibility = View.GONE
+                iv_scan.visibility = View.GONE
+                iv_view_text.visibility = View.GONE
+                fl_net_status.visibility = View.GONE
+
+                supportActionBar!!.setDisplayHomeAsUpEnabled(false)
+                // Show hamburger
+                mDrawerToggle.isDrawerIndicatorEnabled = true
+                toolbar.setNavigationIcon(R.drawable.ic_header_menu_icon)
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            }
+
             else -> {
                 iv_home_icon.visibility = View.VISIBLE
                 mDrawerToggle.isDrawerIndicatorEnabled = false
@@ -7813,10 +8455,16 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             }
 
         } else if (getFragment() != null && getFragment() is LogoutSyncFragment) {
-            if (!isForceLogout) {
-                super.onBackPressed()
-                if (getFragment() != null && getFragment() is ChatBotFragment)
-                    (getFragment() as ChatBotFragment).update()
+            if(!Pref.IsAutoLogoutFromBatteryCheck){
+                try{
+                    if (!isForceLogout) {
+                        super.onBackPressed()
+                        if (getFragment() != null && getFragment() is ChatBotFragment)
+                            (getFragment() as ChatBotFragment).update()
+                    }
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
             }
         } else if (getFragment() != null && getFragment() is AddPJPLocationFragment) {
 
@@ -8179,6 +8827,23 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             super.onBackPressed()
             if (getFragment() != null && getFragment() is OrderProductListFrag){
                 (getFragment() as OrderProductListFrag).updateCartSize()
+            }
+        }else if(getFragment() != null && getFragment() is ContactsAddFrag){
+            super.onBackPressed()
+            if (getFragment() != null && getFragment() is ContactsFrag){
+                (getFragment() as ContactsFrag).shopContactList("")
+            }
+        }
+        else if(getFragment() != null && getFragment() is SchedulerAddFrag){
+            super.onBackPressed()
+            if (getFragment() != null && getFragment() is ContactsFrag){
+                (getFragment() as ContactsFrag).shopContactList("")
+            }
+        }
+        else if(getFragment() != null && getFragment() is SchedulerAddFormFrag){
+            super.onBackPressed()
+            if (getFragment() != null && getFragment() is ContactsFrag){
+                (getFragment() as ContactsFrag).shopContactList("")
             }
         }
         else {
@@ -10759,6 +11424,28 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         /*val addShop = AddShopRequest()
         addShop.data = addShopReqData*/
 
+        // contact module
+        try{
+            addShopReqData.address = addShopData!!.address
+            addShopReqData.actual_address = addShopData!!.address
+            addShopReqData.shop_firstName= addShopData!!.crm_firstName
+            addShopReqData.shop_lastName=  addShopData!!.crm_lastName
+            addShopReqData.crm_companyID=  if(addShopData.companyName_id.isNullOrEmpty()) "0" else addShopData.companyName_id
+            addShopReqData.crm_jobTitle=  addShopData.jobTitle
+            addShopReqData.crm_typeID=  if(addShopData.crm_type_ID.isNullOrEmpty()) "0" else addShopData.crm_type_ID
+            addShopReqData.crm_statusID=  if(addShopData.crm_status_ID.isNullOrEmpty()) "0" else addShopData.crm_status_ID
+            addShopReqData.crm_sourceID= if(addShopData.crm_source_ID.isNullOrEmpty()) "0" else addShopData.crm_source_ID
+            addShopReqData.crm_reference=  addShopData.crm_reference
+            addShopReqData.crm_referenceID=  if(addShopData.crm_reference_ID.isNullOrEmpty()) "0" else addShopData.crm_reference_ID
+            addShopReqData.crm_referenceID_type=  addShopData.crm_reference_ID_type
+            addShopReqData.crm_stage_ID=  if(addShopData.crm_stage_ID.isNullOrEmpty()) "0" else addShopData.crm_stage_ID
+            addShopReqData.assign_to=  addShopData.crm_assignTo_ID
+            addShopReqData.saved_from_status=  addShopData.crm_saved_from
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            Timber.d("Logout edit sync err ${ex.message}")
+        }
+
         if (AppUtils.isOnline(mContext)) {
 
             if (BaseActivity.isApiInitiated)
@@ -11726,7 +12413,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
         if (Pref.isRevisitCaptureImage) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                if(Pref.IsnewleadtypeforRuby && shopNameByID.equals("2")){
+                /*if(Pref.IsnewleadtypeforRuby && shopNameByID.equals("2")){
                     initPermissionCheckRubyCUstomi(shopNameByID)
                 }
                 else if (Pref.IsnewleadtypeforRuby && !shopNameByID.equals("2")){
@@ -11734,7 +12421,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 }
                 else{
                     initPermissionCheck()
-                }
+                }*/
+                initPermissionCheck()
             }
             else{
                 if(Pref.IsnewleadtypeforRuby && shopNameByID.equals("2")){
@@ -13709,7 +14397,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
                 toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
             }else{
-                m = Mail("suman.bachar@indusnet.co.in", "dqridqtwsqxatmyt")
+                //m = Mail("suman.bachar@indusnet.co.in", "dqridqtwsqxatmyt")
                 toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
             }
             Timber.d("quto_mail auto mail sending...")

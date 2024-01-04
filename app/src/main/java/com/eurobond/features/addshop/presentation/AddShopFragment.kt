@@ -155,6 +155,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var tv_assign_to_dd: AppCustomTextView
 
     private lateinit var GSTINNumberRL: RelativeLayout
+    private lateinit var FSSAILicNumberRL: RelativeLayout
     private lateinit var PANNumberRL: RelativeLayout
 
     private var shopLongitude: Double = 0.0
@@ -251,6 +252,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var til_remarks: TextInputLayout
     private lateinit var add_shop_ll: LinearLayout
     private lateinit var tv_name_asterisk_mark: AppCustomTextView
+    private lateinit var tv_FSSAILic_asterisk_mark: AppCustomTextView
     private lateinit var ll_extra_info: LinearLayout
     private lateinit var director_name_EDT: AppCustomEditText
     private lateinit var family_mem_dob_EDT: AppCustomEditText
@@ -285,6 +287,15 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var tv_addContact5: TextView
     private lateinit var tv_addContact6: TextView
     private lateinit var ll_addExtraContactRoot: LinearLayout
+    //Begin Puja 16.11.23 mantis-0026997 //
+    private lateinit var rl_frag_addshop_model_view: RelativeLayout
+    private lateinit var rl_frag_addshop_priapp_view: RelativeLayout
+    private lateinit var rl_frag_addshop_secondapp_view: RelativeLayout
+    private lateinit var rl_booking_amount: RelativeLayout
+    private lateinit var rl_frag_addshop_leadtyp_view: RelativeLayout
+    private lateinit var rl_frag_addshop_stage_view: RelativeLayout
+    private lateinit var rl_frag_addshop_funnelstage_view: RelativeLayout
+    //End Puja 16.11.23 mantis-0026997 //
 
     private var fingerprintDialog: FingerprintDialog? = null
     private var areaId = ""
@@ -638,6 +649,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         iv_frag_add_shop_mic.setOnClickListener(this)  // 5.0 AddShopFragment AppV 4.0.7  add feedback voice added mantis 0025684
         PANNumberRL = view.findViewById(R.id.PANNumberRL)
         GSTINNumberRL = view.findViewById(R.id.GSTINNumberRL)
+        FSSAILicNumberRL = view.findViewById(R.id.FSSAILicNumberRL)
         assign_to_tv = view.findViewById(R.id.assign_to_tv)
         captureShopImage = view.findViewById(R.id.capture_shop_image_IV)
         shopImage = view.findViewById(R.id.shop_image_RL)
@@ -712,6 +724,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         key_person_no_EDT = view.findViewById(R.id.key_person_no_EDT)
         scroll_bar = view.findViewById(R.id.scroll_bar)
         tv_name_asterisk_mark = view.findViewById(R.id.tv_name_asterisk_mark)
+        tv_FSSAILic_asterisk_mark = view.findViewById(R.id.tv_FSSAILic_asterisk_mark)
         ll_doc_extra_info = view.findViewById(R.id.ll_doc_extra_info)
         et_specalization = view.findViewById(R.id.et_specalization)
         et_patient_count = view.findViewById(R.id.et_patient_count)
@@ -808,6 +821,16 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         tv_addContact6.setOnClickListener(this)
         ll_addExtraContactRoot = view.findViewById(R.id.ll_frag_add_shop_more_contact_root)
 
+        //Begin Puja 16.11.23 mantis-0026997 //
+        rl_frag_addshop_model_view = view.findViewById(R.id.rl_frag_addshop_model_view)
+        rl_frag_addshop_priapp_view = view.findViewById(R.id.rl_frag_addshop_priapp_view)
+        rl_frag_addshop_secondapp_view = view.findViewById(R.id.rl_frag_addshop_secondapp_view)
+        rl_booking_amount = view.findViewById(R.id.rl_booking_amount)
+        rl_frag_addshop_leadtyp_view = view.findViewById(R.id.rl_frag_addshop_leadtyp_view)
+        rl_frag_addshop_stage_view = view.findViewById(R.id.rl_frag_addshop_stage_view)
+        rl_frag_addshop_funnelstage_view = view.findViewById(R.id.rl_frag_addshop_funnelstage_view)
+        //End Puja 16.11.23 mantis-0026997 //
+
         if(Pref.IsMultipleContactEnableforShop){
             ll_addExtraContactRoot.visibility = View.VISIBLE
         }else{
@@ -899,8 +922,12 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             PANNumberRL.visibility = View.GONE
             GSTINNumberRL.visibility = View.GONE
         }
-
-
+        if(Pref.FSSAILicNoEnableInShop) {
+            FSSAILicNumberRL.visibility = View.VISIBLE
+        }
+        else {
+            FSSAILicNumberRL.visibility = View.GONE
+        }
 
         val typeList = AppDatabase.getDBInstance()?.shopTypeDao()?.getAll()
         if (typeList != null && typeList.isNotEmpty()) {
@@ -917,7 +944,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
         if (Pref.isCustomerFeatureEnable) {
             ll_customer_view.visibility = View.VISIBLE
-            rl_owner_name_main.visibility = View.GONE
+          //  rl_owner_name_main.visibility = View.GONE
+            rl_owner_name_main.visibility = View.VISIBLE
             til_no.hint = Pref.contactNumberText + " Number"
             til_mail.hint = Pref.emailText
 //            til_name.hint = Pref.contactNumberText + " Number"
@@ -932,6 +960,59 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             rl_select_retailer.visibility = View.GONE
             rl_select_dealer.visibility = View.GONE
             assign_to_shop_rl.visibility = View.GONE
+
+            //Begin Puja 16.11.23 mantis-0026997 //
+
+            if (Pref.isLeadContactNumber){
+                rl_contact_lead.visibility =View.VISIBLE
+            }
+            else {
+                rl_contact_lead.visibility =View.GONE
+            }
+            if (Pref.isModelEnable){
+                rl_frag_addshop_model_view.visibility =View.VISIBLE
+            }
+            else {
+                rl_frag_addshop_model_view.visibility =View.GONE
+            }
+            if (Pref.isPrimaryApplicationEnable){
+                rl_frag_addshop_priapp_view.visibility =View.VISIBLE
+            }
+            else {
+                rl_frag_addshop_priapp_view.visibility =View.GONE
+            }
+            if (Pref.isSecondaryApplicationEnable){
+                rl_frag_addshop_secondapp_view.visibility =View.VISIBLE
+            }
+            else {
+                rl_frag_addshop_secondapp_view.visibility =View.GONE
+            }
+            if (Pref.isBookingAmount){
+                rl_booking_amount.visibility =View.VISIBLE
+            }
+            else {
+                rl_booking_amount.visibility =View.GONE
+            }
+            if (Pref.isLeadTypeEnable){
+                rl_frag_addshop_leadtyp_view.visibility =View.VISIBLE
+            }
+            else {
+                rl_frag_addshop_leadtyp_view.visibility =View.GONE
+            }
+            if (Pref.isStageEnable){
+                rl_frag_addshop_stage_view.visibility =View.VISIBLE
+            }
+            else {
+                rl_frag_addshop_stage_view.visibility =View.GONE
+            }
+            if (Pref.isFunnelStageEnable){
+                rl_frag_addshop_funnelstage_view.visibility =View.VISIBLE
+            }
+            else {
+                rl_frag_addshop_funnelstage_view.visibility =View.GONE
+            }
+
+            //End Puja 16.11.23 mantis-0026997 //
         }
         else {
             ll_customer_view.visibility = View.GONE
@@ -1559,6 +1640,17 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 tv_feedback_asterisk_mark.visibility = View.GONE
             }
 
+            //Begin Puja 16.11.23 mantis-0026997 //
+            rl_contact_lead.visibility = View.GONE
+            rl_frag_addshop_model_view.visibility = View.GONE
+            rl_frag_addshop_priapp_view.visibility = View.GONE
+            rl_frag_addshop_secondapp_view.visibility = View.GONE
+            rl_booking_amount.visibility = View.GONE
+            rl_frag_addshop_leadtyp_view.visibility = View.GONE
+            rl_frag_addshop_stage_view.visibility = View.GONE
+            rl_frag_addshop_funnelstage_view.visibility = View.GONE
+            //End Puja 16.11.23 mantis-0026997 //
+
         }
 
         /*if (Pref.isReplaceShopText)
@@ -2009,14 +2101,16 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                             }
                             //showShopVerificationDialog(addShop.shop_id!!)
 
-                        } else if (addShopResult.status == NetworkConstant.SESSION_MISMATCH) {
+                        }
+                        else if (addShopResult.status == NetworkConstant.SESSION_MISMATCH) {
                             Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
                             progress_wheel.stopSpinning()
                             (mContext as DashboardActivity).clearData()
                             startActivity(Intent(mContext as DashboardActivity, LoginActivity::class.java))
                             (mContext as DashboardActivity).overridePendingTransition(0, 0)
                             (mContext as DashboardActivity).finish()
-                        } else if (addShopResult.status == NetworkConstant.DUPLICATE_SHOP_ID) {
+                        }
+                        else if (addShopResult.status == NetworkConstant.DUPLICATE_SHOP_ID) {
                             Timber.d("DuplicateShop : " + ", SHOP: " + addShop.shop_name)
                             progress_wheel.stopSpinning()
                             (mContext as DashboardActivity).showSnackMessage(addShopResult.message!!)
@@ -2026,7 +2120,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                             }
                             (mContext as DashboardActivity).onBackPressed()
                             (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
-                        } else {
+                        }
+                        else {
                             progress_wheel.stopSpinning()
                             Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
@@ -5962,6 +6057,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         }
 
 
+
         shopLatitude = shopLat
         shopLongitude = shopLong
 
@@ -6067,6 +6163,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             assignedToShopId = ""
         }
 
+
         shopDataModel.amount = amount
         shopDataModel.entity_id = entityId
         shopDataModel.assigned_to_shop_id = assignedToShopId
@@ -6081,7 +6178,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
 //        shopDataModel = AddShopDBModelEntity()
         if (!(shopName.text!!.isBlank()))
-            shopDataModel.shopName = shopName.text.toString()
+            shopDataModel.shopName = shopName.text.toString().trim()
         else {
             shopName.error = getString(R.string.field_cannot_be_blank)
             /*9-12-2021*/
@@ -6142,7 +6239,15 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 }
                 shopDataModel.ownerName = ""
             }
-        }
+        }else{//test code begin
+            if (!(ownerName.text!!.trim().isBlank())){
+            shopDataModel.ownerName = ownerName.text.toString()
+            }else{
+                BaseActivity.isApiInitiated = false
+                (mContext as DashboardActivity).showSnackMessage(getString(R.string.contactname_error))
+                return
+            }
+        }//test code end
 
 
         if(Pref.IsnewleadtypeforRuby && addShopData.type.equals("16")){
@@ -6242,16 +6347,38 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             return
         }
 
-        if (Pref.isCustomerFeatureEnable && TextUtils.isEmpty(modelId)) {
+        if (Pref.isCustomerFeatureEnable && TextUtils.isEmpty(modelId) && Pref.isModelEnable) {
             BaseActivity.isApiInitiated = false
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_model))
             return
         }
 
-        if (Pref.isCustomerFeatureEnable && TextUtils.isEmpty(stageId)) {
+        if (Pref.isCustomerFeatureEnable && TextUtils.isEmpty(stageId) && Pref.isStageEnable) {
             BaseActivity.isApiInitiated = false
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_stage))
             return
+        }
+
+
+        if(Pref.GSTINPANMandatoryforSHOPTYPE4 && addShopData.type == "4"){
+            if(GSTINnumber_EDT.text!!.trim().isBlank()){
+                Toaster.msgShort(mContext,"Please provide GSTIN number")
+                BaseActivity.isApiInitiated = false
+                return
+            }
+            if(PANnumber_EDT.text!!.trim().isBlank()){
+                Toaster.msgShort(mContext,"Please provide PAN number")
+                BaseActivity.isApiInitiated = false
+                return
+            }
+        }
+
+        if(Pref.FSSAILicNoMandatoryInShop4 && addShopData.type == "4"){
+            if(FSSAILic_EDT.text!!.trim().isBlank()){
+                Toaster.msgShort(mContext,"Please provide FSSAI Lic number")
+                BaseActivity.isApiInitiated = false
+                return
+            }
         }
 
         shopDataModel.landline_number = landLineNumberRL_EDT.text.toString().trim()
@@ -6260,7 +6387,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         shopDataModel.alternateNoForCustomer = alternate_number_EDT.text.toString().trim()
         shopDataModel.whatsappNoForCustomer = whatsapp_number_EDT.text.toString().trim()
 
-        if(checkNearbyDuplicacy(shopLat,shopLong) && false){
+        if(checkNearbyDuplicacy(shopLat,shopLong)){
             val simpleDialog = Dialog(mContext)
             simpleDialog.setCancelable(false)
             simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -6273,7 +6400,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 BaseActivity.isApiInitiated = false
             })
             simpleDialog.show()
-        }else{
+        }
+        else{
             shopDataModel.doc_degree = ""
             if (ll_doc_extra_info.visibility == View.VISIBLE) {
                 if (TextUtils.isEmpty(attachment_EDT.text.toString().trim())) {
@@ -6609,6 +6737,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         //feeback shop_details table
         shopDataModel.purpose = feedbackValue
 
+        shopDataModel.FSSAILicNo = FSSAILic_EDT.text.toString()
+
         if(shopExtraContactList.size>0){
             for(o in 0..shopExtraContactList.size-1){
                 shopExtraContactList.get(o).shop_id = shopDataModel.shop_id
@@ -6693,7 +6823,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 /*************************************Convert to request object and call api*********************************/
                 convertToReqAndApiCall(shopDataModel)
             }
-        } else {
+        }
+        else {
 
             AppDatabase.getDBInstance()!!.addShopEntryDao().insertAll(shopDataModel)
 
@@ -6935,6 +7066,13 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         /*GSTIN & PAN NUMBER*/
         addShopData.GSTN_Number = shopDataModel.gstN_Number
         addShopData.ShopOwner_PAN = shopDataModel.shopOwner_PAN
+
+        try{
+            addShopData.FSSAILicNo = shopDataModel.FSSAILicNo.toString()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            addShopData.FSSAILicNo = ""
+        }
 
 
         if(Pref.IsShowWhatsAppIconforVisit){
@@ -7638,7 +7776,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                             rl_type.visibility = View.GONE
                             setMargin(false)
                             contactHeader.visibility = View.GONE
-                            rl_owner_name_main.visibility = View.GONE
+                           // rl_owner_name_main.visibility = View.GONE
+                            rl_owner_name_main.visibility = View.VISIBLE
                             rl_area_main.visibility = View.GONE
                             ownerNumberLL.visibility = View.GONE
                             owneremailLL.visibility = View.GONE
@@ -8304,9 +8443,9 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
     fun checkNearbyDuplicacy(shopLat: Double, shopLong: Double):Boolean{
         var isNearbyDplicate = false
-        var shopN = shopName.text.toString()
+        var shopN = shopName.text.toString().trim()
         var selDDid = assignedToDDId
-        var shopType1L: ArrayList<AddShopDBModelEntity> = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopsAccordingToTypeDD("1",selDDid,shopN) as ArrayList<AddShopDBModelEntity>
+        var shopType1L: ArrayList<AddShopDBModelEntity> = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopsAccordingToTypeDD("1",selDDid,shopN.toLowerCase()) as ArrayList<AddShopDBModelEntity>
         if(shopType1L.size>0){
             for(i in 0..shopType1L.size-1){
                 var obj = shopType1L.get(i)
@@ -8317,7 +8456,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 dbShopLoc.latitude = obj.shopLat.toDouble()
                 dbShopLoc.longitude = obj.shopLong.toDouble()
                 val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(shopLoc, dbShopLoc, 200)
-                if(obj.shopName.equals(shopN) && isShopNearby){
+                if(obj.shopName.toLowerCase().equals(shopN.toLowerCase()) && isShopNearby){
                     isNearbyDplicate = true
                     break
                 }

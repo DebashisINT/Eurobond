@@ -2,6 +2,7 @@ package com.eurobond.features.dashboard.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
@@ -25,6 +26,7 @@ import com.eurobond.CustomConstants
 import com.eurobond.CustomStatic
 import com.eurobond.Customdialog.CustomDialog
 import com.eurobond.Customdialog.OnDialogCustomClickListener
+import com.eurobond.MultiFun
 import com.eurobond.R
 import com.eurobond.ScreenRecService
 import com.eurobond.app.*
@@ -98,6 +100,7 @@ import com.eurobond.features.member.model.TeamShopListResponseModel
 import com.eurobond.features.member.model.UserPjpResponseModel
 import com.eurobond.features.nearbyshops.api.ShopListRepositoryProvider
 import com.eurobond.features.nearbyshops.model.*
+import com.eurobond.features.nearbyshops.presentation.ShopCallHisFrag
 import com.eurobond.features.photoReg.api.GetUserListPhotoRegProvider
 import com.eurobond.features.photoReg.model.UserFacePicUrlResponse
 import com.eurobond.features.report.presentation.ReportAdapter
@@ -134,6 +137,7 @@ import java.io.*
 import java.net.URL
 import java.time.LocalDate
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Created by rp : 31-10-2017:16:49
@@ -466,7 +470,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
         //checkToCallMemberList()
         writeDataToFile()
-        println("on Resume " +AppUtils.getCurrentDateTime());
+        println("on_Resume " +AppUtils.getCurrentDateTime());
 
         /*if(Pref.IsActivateNewOrderScreenwithSize){
             var rateListToday= AppDatabase.getDBInstance()?.newOrderScrOrderDao()?.getRateListByDate(AppUtils.getCurrentDateyymmdd()) as List<String>
@@ -478,6 +482,85 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         }*/
 
         updateOrdAmtForNewOrd()
+
+        if(Pref.IsCallLogHistoryActivated){
+            saveCallHisToDB()
+        }
+
+        if(Pref.IsShowMenuCRMContacts){
+            sendCrmAuto()
+        }
+    }
+
+    fun sendCrmAuto(){
+        try {
+            var undoneL = AppDatabase.getDBInstance()?.contactActivityDao()?.getAllUnDoneToday(AppUtils.getCurrentDateyymmdd().toString()) as ArrayList<ContactActivityEntity>
+            if(undoneL.size>0){
+                for(i in 0..undoneL.size-1){
+                    var shopObj = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(undoneL.get(i).shop_id)
+                    doAsync {
+                        MultiFun.generateContactDtlsPdf(shopObj,mContext)
+                        uiThread {
+                            AppDatabase.getDBInstance()?.contactActivityDao()?.updateIsActivityDone(true,undoneL.get(i).shop_id,AppUtils.getCurrentDateyymmdd().toString())
+                        }
+                    }
+                }
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+    }
+
+    fun saveCallHisToDB(){
+        try{
+            println("on_Resume call his saveCallHisToDB")
+            doAsync {
+                var sevenPrevDate = AppUtils.getCustomPreviousDate(AppUtils.getCurrentDateForShopActi(),2)
+                //var callHisL = AppUtils.obtenerDetallesLlamadas(mContext) as ArrayList<AppUtils.Companion.PhoneCallDtls>
+                var callHisL = AppUtils.obtenerDetallesLlamadasByDate(mContext,sevenPrevDate,AppUtils.getCurrentDateForShopActi()) as ArrayList<AppUtils.Companion.PhoneCallDtls>
+
+                if(callHisL.size>0){
+                    for(i in 0..callHisL.size-1){
+                        try{
+                            var obj:CallHisEntity = CallHisEntity()
+                            var callNo = if(callHisL.get(i).number!!.length>10) callHisL.get(i).number!!.replace("+","").removeRange(0,2) else callHisL.get(i).number!!
+                            var isMyShop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByPhone(callNo) as ArrayList<AddShopDBModelEntity>
+                            if(isMyShop.size>0){
+                                obj.apply {
+                                    shop_id = isMyShop.get(0).shop_id.toString()
+                                    call_number = callNo
+                                    call_date = callHisL.get(i).callDateTime!!.split(" ").get(0)
+                                    call_time = callHisL.get(i).callDateTime!!.split(" ").get(1)
+                                    call_date_time = callHisL.get(i).callDateTime!!
+                                    call_type = callHisL.get(i).type!!
+                                    if(call_type.equals("MISSED",ignoreCase = true)){
+                                        call_duration_sec = "0"
+                                    }else{
+                                        call_duration_sec = callHisL.get(i).callDuration!!
+                                    }
+                                    call_duration = AppUtils.getMMSSfromSeconds(call_duration_sec.toInt())
+                                }
+                                var isPresent = (AppDatabase.getDBInstance()!!.callhisDao().getFilterData(obj.call_number,obj.call_date,obj.call_time,obj.call_type,obj.call_duration_sec) as ArrayList<CallHisEntity>).size
+                                if(isPresent==0){
+                                    println("on_Resume call his insert ${obj.call_number}")
+                                    Timber.d("tag_log_insert ${obj.call_number} ${obj.call_duration}")
+                                    AppDatabase.getDBInstance()!!.callhisDao().insert(obj)
+                                }
+                            }
+                        }catch (ex:Exception){
+                            ex.printStackTrace()
+                            println("on_Resume call his err inner ${ex.message}")
+                        }
+                    }
+                }
+                uiThread {
+
+                }
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            println("on_Resume call his err ${ex.message}")
+        }
     }
 
     fun updateOrdAmtForNewOrd(){
@@ -2997,7 +3080,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     }
 
 
-    /*private fun getProductRateListApi() {
+   /* private fun getProductRateListApi() {
         if(Pref.isOrderShow){
             Timber.d("api_call_dash  getProductRateListApi()")
             val repository = ProductListRepoProvider.productListProvider()
@@ -3551,7 +3634,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     }
 
     private fun getSelectedRouteListRefresh() {
-        println("dash_ref_flow getSelectedRouteListRefresh")
         val list = AppDatabase.getDBInstance()?.selectedWorkTypeDao()?.getAll()
         if (list != null && list.isNotEmpty()) {
             AppDatabase.getDBInstance()?.selectedWorkTypeDao()?.delete()
@@ -4724,11 +4806,6 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsMenuShowAIMarketAssistant = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsUsbDebuggingRestricted", ignoreCase = true)) {
-                                                Pref.IsUsbDebuggingRestricted = response.getconfigure!![i].Value == "1"
-                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
-                                                    Pref.IsUsbDebuggingRestricted = response.getconfigure?.get(i)?.Value == "1"
-                                                }
                                             }
                                             //Begin 17.0 DashboardFragment v 4.1.6 Suman 13/07/2023 mantis 26555 Usersettings
                                             else if (response.getconfigure?.get(i)?.Key.equals("IsUsbDebuggingRestricted", ignoreCase = true)) {
@@ -4738,6 +4815,23 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 }
                                             }
                                             //End 17.0 DashboardFragment v 4.1.6 Suman 13/07/2023 mantis 26555 Usersettings
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsDisabledUpdateAddress", ignoreCase = true)) {
+                                                Pref.IsDisabledUpdateAddress = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsDisabledUpdateAddress = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuCRMContacts", ignoreCase = true)) {
+                                                Pref.IsShowMenuCRMContacts = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowMenuCRMContacts = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsCallLogHistoryActivated", ignoreCase = true)) {
+                                                Pref.IsCallLogHistoryActivated = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCallLogHistoryActivated = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
                                         }
                                     }
                                 } catch (e: Exception) {
@@ -5148,6 +5242,54 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     Pref.Show_distributor_scheme_with_Product = configResponse.Show_distributor_scheme_with_Product!!
                                 //End 15.0 Pref v 4.1.6 Tufan 22/08/2023 mantis 26649 Show distributor scheme with Product
 
+                                //Begin 16.0 Pref v 4.1.6 Tufan 07/09/2023 mantis 26785 Multi visit Interval in Minutes Against the Same Shop
+                                if (configResponse.MultiVisitIntervalInMinutes != null)
+                                    Pref.MultiVisitIntervalInMinutes = configResponse.MultiVisitIntervalInMinutes!!
+                                //End 16.0 Pref v 4.1.6 Tufan 07/09/2023 mantis 26785 Multi visit Interval in Minutes Against the Same Shop
+
+                                //Begin v 4.1.6 Tufan 21/09/2023 mantis 26812 AND 26813  FSSAI Lic No and GSTINPANMandatoryforSHOPTYPE4 In add shop page edit
+                                if (configResponse.GSTINPANMandatoryforSHOPTYPE4 != null)
+                                    Pref.GSTINPANMandatoryforSHOPTYPE4 = configResponse.GSTINPANMandatoryforSHOPTYPE4!!
+                                if (configResponse.FSSAILicNoEnableInShop != null)
+                                    Pref.FSSAILicNoEnableInShop = configResponse.FSSAILicNoEnableInShop!!
+                                if (configResponse.FSSAILicNoMandatoryInShop4 != null)
+                                    Pref.FSSAILicNoMandatoryInShop4 = configResponse.FSSAILicNoMandatoryInShop4!!
+                                //Edit v 4.1.6 Tufan 21/09/2023 mantis 26812 AND 26813  FSSAI Lic No and GSTINPANMandatoryforSHOPTYPE4 In add shop page edit
+
+                                //Begin Puja 16.11.23 mantis-0026997 //
+
+                                if (configResponse.isLeadContactNumber != null)
+                                    Pref.isLeadContactNumber = configResponse.isLeadContactNumber!!
+
+                                if (configResponse.isModelEnable != null)
+                                    Pref.isModelEnable = configResponse.isModelEnable!!
+
+                                if (configResponse.isPrimaryApplicationEnable != null)
+                                    Pref.isPrimaryApplicationEnable = configResponse.isPrimaryApplicationEnable!!
+
+                                if (configResponse.isSecondaryApplicationEnable != null)
+                                    Pref.isSecondaryApplicationEnable = configResponse.isSecondaryApplicationEnable!!
+
+                                if (configResponse.isBookingAmount != null)
+                                    Pref.isBookingAmount = configResponse.isBookingAmount!!
+
+                                if (configResponse.isLeadTypeEnable != null)
+                                    Pref.isLeadTypeEnable = configResponse.isLeadTypeEnable!!
+
+                                if (configResponse.isStageEnable != null)
+                                    Pref.isStageEnable = configResponse.isStageEnable!!
+
+                                if (configResponse.isFunnelStageEnable != null)
+                                    Pref.isFunnelStageEnable = configResponse.isFunnelStageEnable!!
+                                //End Puja 16.11.23 mantis-0026997 //
+                                if (configResponse.IsGPSRouteSync != null)
+                                    Pref.IsGPSRouteSync = configResponse.IsGPSRouteSync!!
+                                if (configResponse.IsSyncBellNotificationInApp != null)
+                                    Pref.IsSyncBellNotificationInApp = configResponse.IsSyncBellNotificationInApp!!
+                                if (configResponse.IsShowCustomerLocationShare != null)
+                                    Pref.IsShowCustomerLocationShare = configResponse.IsShowCustomerLocationShare!!
+
+
                             }
                             BaseActivity.isApiInitiated = false
                             /*API_Optimization 02-03-2022*/
@@ -5161,7 +5303,22 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                 Pref.isShowBeatGroup = false
                                 Pref.IsShowBeatInMenu = false
                             }
-                            
+
+                            //Begin Puja 16.11.23 mantis-0026997 //
+
+                            if(Pref.isCustomerFeatureEnable==false){
+                                Pref.isLeadContactNumber = false
+                                Pref.isModelEnable = false
+                                Pref.isPrimaryApplicationEnable = false
+                                Pref.isSecondaryApplicationEnable = false
+                                Pref.isBookingAmount = false
+                                Pref.isLeadTypeEnable = false
+                                Pref.isStageEnable = false
+                                Pref.isFunnelStageEnable = false
+                            }
+
+                            //End Puja 16.11.23 mantis-0026997 //
+
                             checkToCallAssignedDDListApi()   // calling instead of checkToCallAlarmConfigApi()
 
                         }, { error ->
@@ -8872,6 +9029,15 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
             addShopData.director_name = mAddShopDBModelEntity.director_name
             addShopData.key_person_name = mAddShopDBModelEntity.person_name
             addShopData.phone_no = mAddShopDBModelEntity.person_no
+            //start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+            try {
+                addShopData.FSSAILicNo = mAddShopDBModelEntity.FSSAILicNo
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                addShopData.FSSAILicNo = ""
+            }
+//end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+
 
             if (!TextUtils.isEmpty(mAddShopDBModelEntity.family_member_dob))
                 addShopData.family_member_dob = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.family_member_dob)
@@ -8920,6 +9086,26 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
             // duplicate shop api call
             addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
+
+            //contact shop sync
+            try{
+                addShopData.actual_address = mAddShopDBModelEntity.address
+                addShopData.shop_firstName=  mAddShopDBModelEntity.crm_firstName
+                addShopData.shop_lastName=  mAddShopDBModelEntity.crm_lastName
+                addShopData.crm_companyID=  if(mAddShopDBModelEntity.companyName_id.equals("")) "0" else mAddShopDBModelEntity.companyName_id
+                addShopData.crm_jobTitle=  mAddShopDBModelEntity.jobTitle
+                addShopData.crm_typeID=  if(mAddShopDBModelEntity.crm_type_ID.equals("")) "0" else mAddShopDBModelEntity.crm_type_ID
+                addShopData.crm_statusID=  if(mAddShopDBModelEntity.crm_status_ID.equals("")) "0" else mAddShopDBModelEntity.crm_status_ID
+                addShopData.crm_sourceID= if(mAddShopDBModelEntity.crm_source_ID.equals("")) "0" else mAddShopDBModelEntity.crm_source_ID
+                addShopData.crm_reference=  mAddShopDBModelEntity.crm_reference
+                addShopData.crm_referenceID=  if(mAddShopDBModelEntity.crm_reference_ID.equals("")) "0" else mAddShopDBModelEntity.crm_reference_ID
+                addShopData.crm_referenceID_type=  mAddShopDBModelEntity.crm_reference_ID_type
+                addShopData.crm_stage_ID=  if(mAddShopDBModelEntity.crm_stage_ID.equals("")) "0" else mAddShopDBModelEntity.crm_stage_ID
+                addShopData.assign_to=  mAddShopDBModelEntity.crm_assignTo_ID
+                addShopData.saved_from_status=  mAddShopDBModelEntity.crm_saved_from
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
 
 
             Handler().postDelayed(Runnable {

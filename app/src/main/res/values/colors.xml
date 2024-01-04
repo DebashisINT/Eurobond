@@ -7,6 +7,7 @@
     <color name="default_text_color">#1A8BA6</color>
     <color name="default_text_color_light">#49B5CF</color>
     <color name="black">#000000</color>
+    <color name="black_custom_light">#B3000000</color>
     <color name="login_txt_color">#606060</color>
     <color name="menu_text_color">#EEEFF1</color>
     <color name="dark_gray">#7e7e7e</color>
@@ -91,9 +92,12 @@
 
     <color name="bill_green">#108e79</color>
     <color name="bill_blue">#013446</color>
+    <color name="search_text">#d60c91</color>
+    <color name="search_text1">#0d9c28</color>
     <color name="new_floating_btn_color">#625b9f</color>
     <color name="attendance_report_header_blue">#009cc4</color>
     <color name="lightest_new_gray">#E0E0E0</color>
+    <color name="lightest_new_gray1">#F8F8F8</color>
     <color name="lightest_light_new_gray">#F8F8F8</color>
     <color name="stock_text_popup_color">#73b5c6</color>
     <color name="completed_green">#34ad58</color>

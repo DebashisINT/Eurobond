@@ -339,6 +339,7 @@ class DistributorwiseorderlistFragment : BaseFragment(), View.OnClickListener {
             document.open()
 
             var font: Font = Font(Font.FontFamily.HELVETICA, 10f, Font.BOLD)
+            var fontSmall: Font = Font(Font.FontFamily.HELVETICA, 9f, Font.BOLD)
             var fontBoldU: Font = Font(Font.FontFamily.HELVETICA, 12f, Font.UNDERLINE or Font.BOLD)
             var font1: Font = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL)
             val redFront = Font(Font.FontFamily.HELVETICA, 12f, Font.UNDERLINE or Font.BOLD, BaseColor.BLUE)
@@ -613,7 +614,26 @@ class DistributorwiseorderlistFragment : BaseFragment(), View.OnClickListener {
                 val glue1 = Chunk(VerticalPositionMark())
                 val ph11 = Phrase()
                 val main1 = Paragraph()
-                ph11.add(Chunk("Rupees " + NumberToWords.numberToWord(tAmt.toDouble().toInt()!!)!!.toUpperCase() + " Only  ", font))
+
+                //new code begin
+                var intP = ""
+                var decPart = ""
+                var finalConcatWord = ""
+                tAmt = String.format("%.2f",tAmt.toDouble()) // 52.70
+                if(tAmt.contains(".")){
+                    intP = String.format("%.2f",tAmt.toDouble()).split(".").get(0).toString() //52
+                    decPart = String.format("%.2f",tAmt.toDouble()).split(".").get(1).toString() //70
+                    finalConcatWord = NumberToWords.numberToWord(intP.toDouble().toInt()!!)!!.toUpperCase()+" Rupees "+
+                            NumberToWords.numberToWord(decPart.toDouble().toInt()!!)!!.toUpperCase()+" Paisa"  //52 rupees 70 paisa
+                    if(NumberToWords.numberToWord(decPart.toDouble().toInt()!!)!!.toUpperCase().contains("ZERO")){
+                        ph11.add(Chunk( NumberToWords.numberToWord(intP.toDouble().toInt()!!)!!.toUpperCase() + " Only  ", fontSmall))
+                    }else{
+                        ph11.add(Chunk( finalConcatWord + " Only  ", fontSmall))
+                    }
+                }
+                //new code end
+
+                //ph11.add(Chunk("Rupees " + NumberToWords.numberToWord(tAmt.toDouble().toInt()!!)!!.toUpperCase() + " Only  ", font))
                 ph11.add(glue1) // Here I add special chunk to the same phrase.
 
                 ph11.add(Chunk("Total  Amount: " + "\u20B9" + tAmt.toString(), font))

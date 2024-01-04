@@ -137,17 +137,21 @@ class MemberAllShopListFragment : BaseFragment() {
 
         (mContext as DashboardActivity).setSearchListener(object : SearchListener {
             override fun onSearchQueryListener(query: String) {
-                if (query.isBlank()) {
-                    adapter?.refreshList(shop_list!!)
-                    //initAdapter(shop_list!!)
-                    val shopType = AppDatabase.getDBInstance()?.shopTypeDao()?.getSingleType(shop_list?.get(0)?.shop_type!!)
-                    if (shopType != null && !TextUtils.isEmpty(shopType.shoptype_name)) {
-                        tv_shop_count.text = "Total " + shopType.shoptype_name + "(s): " + shop_list?.size
+                try{
+                    if (query.isBlank()) {
+                        adapter?.refreshList(shop_list!!)
+                        //initAdapter(shop_list!!)
+                        val shopType = AppDatabase.getDBInstance()?.shopTypeDao()?.getSingleType(shop_list?.get(0)?.shop_type!!)
+                        if (shopType != null && !TextUtils.isEmpty(shopType.shoptype_name)) {
+                            tv_shop_count.text = "Total " + shopType.shoptype_name + "(s): " + shop_list?.size
+                        } else {
+                            tv_shop_count.text = "Total " + Pref.shopText + "(s): " + shop_list?.size
+                        }
                     } else {
-                        tv_shop_count.text = "Total " + Pref.shopText + "(s): " + shop_list?.size
+                        adapter?.filter?.filter(query)
                     }
-                } else {
-                    adapter?.filter?.filter(query)
+                }catch (ex:Exception){
+                    ex.printStackTrace()
                 }
             }
         })
@@ -510,7 +514,7 @@ class MemberAllShopListFragment : BaseFragment() {
                     }
                 }
             }, { teamShop: TeamShopListDataModel ->   // 1.0 MemberAllShopListFragment  AppV 4.0.6  IsAllowShopStatusUpdate
-                UpdateShopStatusDialog.getInstance(teamShop.shop_name!!, "Cancel", "Confirm", true,"","",
+                UpdateShopStatusDialog.getInstance(teamShop.shop_name!!, "Cancel", "Confirm", true,"","","Select Shop Status",
                     object : UpdateShopStatusDialog.OnDSButtonClickListener {
                         override fun onLeftClick() {
 

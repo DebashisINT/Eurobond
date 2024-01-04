@@ -710,6 +710,14 @@ class NewReturnListFragment : BaseFragment() {
         addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
 
         addShopData.purpose=mAddShopDBModelEntity.purpose
+//start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+        try {
+            addShopData.FSSAILicNo = mAddShopDBModelEntity.FSSAILicNo
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            addShopData.FSSAILicNo = ""
+        }
+//end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
 
         addShopData.GSTN_Number=mAddShopDBModelEntity.gstN_Number
         addShopData.ShopOwner_PAN=mAddShopDBModelEntity.shopOwner_PAN
@@ -1328,6 +1336,14 @@ class NewReturnListFragment : BaseFragment() {
         // duplicate shop api call
         addShopData.isShopDuplicate=shop.isShopDuplicate
         addShopData.purpose=shop.purpose
+//start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+        try {
+            addShopData.FSSAILicNo = shop.FSSAILicNo
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            addShopData.FSSAILicNo = ""
+        }
+//end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
 
         addShopData.GSTN_Number=shop.gstN_Number
         addShopData.ShopOwner_PAN=shop.shopOwner_PAN
@@ -2090,6 +2106,14 @@ class NewReturnListFragment : BaseFragment() {
         addShopData.isShopDuplicate=mAddShopDBModelEntity.isShopDuplicate
 
         addShopData.purpose=mAddShopDBModelEntity.purpose
+//start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+        try {
+            addShopData.FSSAILicNo = mAddShopDBModelEntity.FSSAILicNo
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            addShopData.FSSAILicNo = ""
+        }
+//end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
 
         addShopData.GSTN_Number=mAddShopDBModelEntity.gstN_Number
         addShopData.ShopOwner_PAN=mAddShopDBModelEntity.shopOwner_PAN

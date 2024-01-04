@@ -6,6 +6,9 @@ import android.content.Context.ACTIVITY_SERVICE
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import com.eurobond.app.Pref
 import com.google.android.gms.maps.model.LatLng
 import java.io.IOException

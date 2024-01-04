@@ -13,6 +13,8 @@
     <!--Map Key-->
     <!--<string name="MAP_ProjectAPIKey">AIzaSyBRrqsLZFqThqM8uxw_k94pZMbv3-3h0dM</string>-->
     <string name="MAP_ProjectAPIKey" translatable="false">AIzaSyCbYMZjnt8T6yivYfIa4_R9oy-L3SIYyrQ</string>
+    <string name="facebook_app_id" translatable="false">260734547001450</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb260734547001450</string>
 
     <!--Login-->
     <string name="username_new" translatable="false">Username</string>
@@ -181,6 +183,7 @@
     <string name="owner_contact_number" translatable="false">Owner Contact Number</string>
     <string name="owner_contact_number1" translatable="false">Contact Number</string>
     <string name="GSTIN" translatable="false">GSTIN Number</string>
+    <string name="FSSAILic" translatable="false">FSSAI Lic Number</string>
     <string name="pan" translatable="false">PAN Number</string>
     <string name="owner_email" translatable="false">Owner Email</string>
     <string name="owner_email1" translatable="false">Email</string>
@@ -1432,7 +1435,6 @@
     <string name="loc_msg" translatable="false">Field Sales Management App collects location data after you open and login into the App,\u0020to identify nearby Parties location even when the app is running in the background and not in use.</string>
     <string name="loc_msg_new" translatable="false">Field Sales Management App collects location data after you open and login into the App,\u0020to identify nearby Parties location even when the app is running in the background and not in use.This app collects location data to enable nearby shops, GPS route,
         even when the app is closed or not in use.</string>
-
 
 
     <!--My Jobs-->

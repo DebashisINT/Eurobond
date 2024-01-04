@@ -66,8 +66,9 @@ import com.eurobond.features.taskManagement.model.TaskManagmentEntity
         QuestionEntity::class, QuestionSubmitEntity::class, AddShopSecondaryImgEntity::class, ReturnDetailsEntity::class, ReturnProductListEntity::class, UserWiseLeaveListEntity::class, ShopFeedbackEntity::class, ShopFeedbackTempEntity::class, LeadActivityEntity::class,
         ShopDtlsTeamEntity::class, CollDtlsTeamEntity::class, BillDtlsTeamEntity::class, OrderDtlsTeamEntity::class,
         TeamAllShopDBModelEntity::class, DistWiseOrderTblEntity::class, NewGpsStatusEntity::class,ShopExtraContactEntity::class,ProductOnlineRateTempEntity::class, TaskManagmentEntity::class,
-    VisitRevisitWhatsappStatus::class),
-        version = 9, exportSchema = false)
+    VisitRevisitWhatsappStatus::class,CallHisEntity::class,CompanyMasterEntity::class,TypeMasterEntity::class,StatusMasterEntity::class,SourceMasterEntity::class,StageMasterEntity::class,TeamListEntity::class,
+    ContactActivityEntity::class),
+        version = 10, exportSchema = false)
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun addShopEntryDao(): AddShopDao
@@ -208,6 +209,14 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun taskManagementDao(): TaskManagementDao
     abstract fun visitRevisitWhatsappStatusDao(): VisitRevisitWhatsappStatusDao
+    abstract fun callhisDao(): CallHisDao
+    abstract fun companyMasterDao(): CompanyMasterDao
+    abstract fun typeMasterDao(): TypeMasterDao
+    abstract fun statusMasterDao(): StatusMasterDao
+    abstract fun sourceMasterDao(): SourceMasterDao
+    abstract fun stageMasterDao(): StageMasterDao
+    abstract fun teamListDao(): TeamListDao
+    abstract fun contactActivityDao(): ContactActivityDao
 
 
     companion object {
@@ -220,7 +229,7 @@ abstract class AppDatabase : RoomDatabase() {
                         // Don't do this on a real app! See PersistenceBasicSample for an example.
                         .allowMainThreadQueries()
                         .addMigrations(MIGRATION_1_2,MIGRATION_2_3,MIGRATION_3_4,MIGRATION_4_5,MIGRATION_5_6,
-                            MIGRATION_6_7,MIGRATION_7_8,MIGRATION_8_9 )
+                        MIGRATION_6_7,MIGRATION_7_8,MIGRATION_8_9,MIGRATION_9_10)
 //                        .fallbackToDestructiveMigration()
                         .build()
             }
@@ -361,6 +370,45 @@ abstract class AppDatabase : RoomDatabase() {
 
             }
         }
+        val MIGRATION_9_10: Migration = object : Migration(9, 10) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+
+                database.execSQL("create TABLE call_his (sl_no INTEGER NOT NULL PRIMARY KEY , shop_id TEXT NOT NULL DEFAULT '', call_number TEXT NOT NULL DEFAULT '', call_date TEXT NOT NULL DEFAULT '', call_time TEXT NOT NULL DEFAULT '', call_date_time TEXT NOT NULL DEFAULT '', call_type TEXT NOT NULL DEFAULT '',call_duration_sec TEXT NOT NULL DEFAULT '',call_duration TEXT NOT NULL DEFAULT '' ,isUploaded INTEGER NOT NULL DEFAULT 0) ")
+                database.execSQL("create TABLE company_master (sl_no INTEGER NOT NULL PRIMARY KEY , company_id INTEGER NOT NULL DEFAULT 0 , company_name TEXT NOT NULL DEFAULT '',isUploaded INTEGER NOT NULL DEFAULT 0) ")
+                database.execSQL("create TABLE crm_type_master (sl_no INTEGER NOT NULL PRIMARY KEY , type_id INTEGER NOT NULL DEFAULT 0 , type_name TEXT NOT NULL DEFAULT '') ")
+                database.execSQL("create TABLE crm_status_master (sl_no INTEGER NOT NULL PRIMARY KEY , status_id INTEGER NOT NULL DEFAULT 0 , status_name TEXT NOT NULL DEFAULT '') ")
+                database.execSQL("create TABLE crm_source_master (sl_no INTEGER NOT NULL PRIMARY KEY , source_id INTEGER NOT NULL DEFAULT 0 , source_name TEXT NOT NULL DEFAULT '') ")
+                database.execSQL("create TABLE crm_stage_master (sl_no INTEGER NOT NULL PRIMARY KEY , stage_id INTEGER NOT NULL DEFAULT 0 , stage_name TEXT NOT NULL DEFAULT '') ")
+               // database.execSQL("create TABLE crm_stage_master (sl_no INTEGER NOT NULL PRIMARY KEY , stage_id INTEGER NOT NULL DEFAULT 0 , stage_name TEXT NOT NULL DEFAULT '') ")
+                database.execSQL("create TABLE team_list (sl_no INTEGER NOT NULL PRIMARY KEY , user_id TEXT NOT NULL DEFAULT '' , user_name TEXT NOT NULL DEFAULT '') ")
+                database.execSQL("create TABLE contact_activity (sl_no INTEGER NOT NULL PRIMARY KEY , shop_id TEXT NOT NULL DEFAULT '' , activity_date TEXT NOT NULL DEFAULT '', create_date_time TEXT NOT NULL DEFAULT '', isActivityDone INTEGER NOT NULL DEFAULT 0) ")
+
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_firstName TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_lastName TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN companyName TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN companyName_id TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN jobTitle TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_assignTo TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_status TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_source TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_reference TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_reference_ID TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_reference_ID_type TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_stage TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_stage_ID TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_assignTo_ID TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_type TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_type_ID TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_status_ID TEXT")
+                database.execSQL("ALTER TABLE shop_detail ADD COLUMN crm_source_ID TEXT")
+                database.execSQL("alter table shop_detail ADD COLUMN FSSAILicNo TEXT")
+                database.execSQL("alter table shop_detail ADD COLUMN crm_saved_from TEXT")
+                database.execSQL("alter table shop_detail ADD COLUMN isUpdateAddressFromShopMaster INTEGER ")
+                database.execSQL("alter table gps_status ADD COLUMN reasontagforGPS TEXT")
+
+            }
+        }
+
 
 
     }

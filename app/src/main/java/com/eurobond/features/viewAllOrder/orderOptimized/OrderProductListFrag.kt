@@ -182,9 +182,9 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
     fun filterAutoSearchData(){
         if (etSearch.text.toString().equals("")) {
             if(Pref.isRateOnline){
-                loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnline() as ArrayList<CustomProductRate>)
+                loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnlineV1() as ArrayList<CustomProductRate>)
             }else{
-                loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAll() as ArrayList<CustomProductRate>)
+                loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllV1() as ArrayList<CustomProductRate>)
             }
         }else{
             progrwss_wheel.spin()
@@ -192,9 +192,9 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
             Handler().postDelayed(Runnable {
                 var allProductL : ArrayList<CustomProductRate> = ArrayList()
                 if(Pref.isRateOnline){
-                    allProductL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnline() as ArrayList<CustomProductRate>
+                    allProductL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnlineV1() as ArrayList<CustomProductRate>
                 }else{
-                    allProductL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAll() as ArrayList<CustomProductRate>
+                    allProductL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllV1() as ArrayList<CustomProductRate>
                 }
 
                 var searchObj = etSearch.text.toString()
@@ -208,11 +208,11 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
             progrwss_wheel.spin()
             Handler().postDelayed(Runnable {
                 if(Pref.isRateOnline){
-                    loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnline() as ArrayList<CustomProductRate>)
+                    loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnlineV1() as ArrayList<CustomProductRate>)
                 }else{
-                    loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAll() as ArrayList<CustomProductRate>)
+                    loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllV1() as ArrayList<CustomProductRate>)
                 }
-            }, 1500)
+            }, 500)
         }
     }
     override fun onClick(v: View?) {
@@ -233,9 +233,9 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
                         tv_measureSel.text = "Search by Measurement"
 
                         if(Pref.isRateOnline){
-                            loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDFromOnlineRate(selGrIDStr) as ArrayList<CustomProductRate>)
+                            loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDFromOnlineRateV1(selGrIDStr) as ArrayList<CustomProductRate>)
                         }else{
-                            loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandID(selGrIDStr) as ArrayList<CustomProductRate>)
+                            loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDV1(selGrIDStr) as ArrayList<CustomProductRate>)
                         }
 
                     }).show((mContext as DashboardActivity).supportFragmentManager, "")
@@ -257,9 +257,9 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
                             tv_measureSel.text = "Search by Measurement"
 
                             if(Pref.isRateOnline){
-                                loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDCategoryIDFromOnlineRate(selGrIDStr, selCategoryIDStr) as ArrayList<CustomProductRate>)
+                                loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDCategoryIDFromOnlineRateV1(selGrIDStr, selCategoryIDStr) as ArrayList<CustomProductRate>)
                             }else{
-                                loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDCategoryID(selGrIDStr, selCategoryIDStr) as ArrayList<CustomProductRate>)
+                                loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDCategoryIDV1(selGrIDStr, selCategoryIDStr) as ArrayList<CustomProductRate>)
                             }
                         }).show((mContext as DashboardActivity).supportFragmentManager, "")
                     } else {
@@ -285,9 +285,9 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
                                 selMeasureIDStr = it.id_sel
 
                                 if(Pref.isRateOnline){
-                                    loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDCategoryIDWattIDFromOnlineRate(selGrIDStr, selCategoryIDStr, selMeasureIDStr) as ArrayList<CustomProductRate>)
+                                    loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDCategoryIDWattIDFromOnlineRateV1(selGrIDStr, selCategoryIDStr, selMeasureIDStr) as ArrayList<CustomProductRate>)
                                 }else {
-                                    loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDCategoryIDWattID(selGrIDStr, selCategoryIDStr, selMeasureIDStr) as ArrayList<CustomProductRate>)
+                                    loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListByBeandIDCategoryIDWattIDV1(selGrIDStr, selCategoryIDStr, selMeasureIDStr) as ArrayList<CustomProductRate>)
                                 }
                             }).show((mContext as DashboardActivity).supportFragmentManager, "")
                         } else {
@@ -311,9 +311,9 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
                 llFilterRoot.visibility = View.GONE
                 if (etSearch.text.toString().equals("")) {
                     if(Pref.isRateOnline){
-                        loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnline() as ArrayList<CustomProductRate>)
+                        loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnlineV1() as ArrayList<CustomProductRate>)
                     }else{
-                        loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAll() as ArrayList<CustomProductRate>)
+                        loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllV1() as ArrayList<CustomProductRate>)
                     }
                 }else{
                     progrwss_wheel.spin()
@@ -321,9 +321,9 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
                     Handler().postDelayed(Runnable {
                         var allProductL : ArrayList<CustomProductRate> = ArrayList()
                         if(Pref.isRateOnline){
-                            allProductL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnline() as ArrayList<CustomProductRate>
+                            allProductL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnlineV1() as ArrayList<CustomProductRate>
                         }else{
-                            allProductL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAll() as ArrayList<CustomProductRate>
+                            allProductL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllV1() as ArrayList<CustomProductRate>
                         }
 
                         var searchObj = etSearch.text.toString().replace("  "," ")
@@ -356,7 +356,6 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
                 } catch (a: ActivityNotFoundException) {
                     a.printStackTrace()
                 }
-
             }
         }
     }
@@ -374,7 +373,8 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
     }
 
     fun loadProduct(productL: ArrayList<CustomProductRate>) {
-        progrwss_wheel.spin()
+        //progrwss_wheel.spin()
+        println("tag_timer end1 ${AppUtils.getCurrentDateTime()}")
         var productQtyRateSubmit: ArrayList<ProductQtyRateSubmit> = ArrayList()
         var isOnline = AppUtils.isOnline(mContext)
         for (i in 0..productL.size - 1) {
@@ -422,6 +422,8 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
 
             productQtyRateSubmit.add(obj)
         }
+
+        println("tag_timer end2 ${AppUtils.getCurrentDateTime()}")
 
         productAdapter = AdapterOrdProductOptimized(mContext, productQtyRateSubmit, shop_id,finalOrderDataList, object :
                 AdapterOrdProductOptimized.OnProductOptiOnClick {

@@ -152,24 +152,28 @@ class MemberListFragment : BaseFragment() {
     }
 
     private fun initSearchListener() {
-        (mContext as DashboardActivity).setSearchListener(object : SearchListener {
-            override fun onSearchQueryListener(query: String) {
-                if (query.isBlank()) {
-                    member_list?.let {
-                        adapter?.refreshList(it)
-                        tv_member_no.text = "Total member(s): " + it.size
+        try{
+            (mContext as DashboardActivity).setSearchListener(object : SearchListener {
+                override fun onSearchQueryListener(query: String) {
+                    if (query.isBlank()) {
+                        member_list?.let {
+                            adapter?.refreshList(it)
+                            tv_member_no.text = "Total member(s): " + it.size
+                        }
+                        //initAdapter(shop_list!!)
+                    } else {
+                        adapter?.filter?.filter(query)
                     }
-                    //initAdapter(shop_list!!)
-                } else {
-                    adapter?.filter?.filter(query)
                 }
-            }
-        })
+            })
 
-        // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 start
-        (mContext as DashboardActivity).searchView.setVoiceIcon(R.drawable.ic_mic)
-        (mContext as DashboardActivity).searchView.setOnVoiceClickedListener({ startVoiceInput() })
-        // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 end
+            // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 start
+            (mContext as DashboardActivity).searchView.setVoiceIcon(R.drawable.ic_mic)
+            (mContext as DashboardActivity).searchView.setOnVoiceClickedListener({ startVoiceInput() })
+            // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 end
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
     }
     // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 start
     private fun startVoiceInput() {

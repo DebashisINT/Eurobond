@@ -605,6 +605,7 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
 //                        mRadious=9999000
                     }
                     //val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(location, shopLocation, NEARBY_RADIUS)
+                    println("add_shop_loc mRadious ${mRadious}")
                     val isShopNearby = FTStorageUtils.checkShopPositionWithinRadious(location, shopLocation, mRadious)
                     if (isShopNearby) {
                         //Timber.d("shop_id====> " + newList[i].shop_id+ " shopName====> " + newList[i].shopName)

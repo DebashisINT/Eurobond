@@ -25,11 +25,25 @@ interface ProductListDao {
     @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show," +
             "PL.product_discount_show,PR.rate1 as rate,PR.stock_amount,PR.stock_unit,PR.isStockShow,PR.isRateShow,0.0 as Qty_per_Unit,0.0 as Scheme_Qty,0.0 as Effective_Rate from \n" +
             "(select * from product_list) as PL\n" +
-            "inner JOIN\n" +
+            "left JOIN\n" +
             "(select * from product_rate) as PR\n" +
             "on PL.id = PR.product_id ")
     fun getCustomizeProductListAll(): List<CustomProductRate>
 
+
+    @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show,\n" +
+            "PL.product_discount_show,\n" +
+            "case when PR.rate1 IS NULL then '0.00' else PR.rate1 END as rate,\n" +
+            "case when PR.stock_amount IS NULL then '0.00' else PR.stock_amount END as stock_amount,\n" +
+            "case when PR.stock_unit IS NULL then 'Units' else PR.stock_unit END as stock_unit,\n" +
+            "case when PR.isStockShow IS NULL then '0' else PR.isStockShow END as isStockShow,\n" +
+            "case when PR.isRateShow IS NULL then '1' else PR.isRateShow END as isRateShow,\n" +
+            "0.0 as Qty_per_Unit,0.0 as Scheme_Qty,0.0 as Effective_Rate from \n" +
+            "(select * from product_list) as PL\n" +
+            "left JOIN\n" +
+            "(select * from product_rate) as PR\n" +
+            "on PL.id = PR.product_id ")
+    fun getCustomizeProductListAllV1(): List<CustomProductRate>
 
     @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show," +
             "PL.product_discount_show,PR.rate as rate,PR.stock_amount,PR.stock_unit,PR.isStockShow,PR.isRateShow,PR.Qty_per_Unit,PR.Scheme_Qty,PR.Effective_Rate from \n" +
@@ -38,6 +52,23 @@ interface ProductListDao {
             "(select * from product_online_rate_temp_table) as PR\n" +
             "on PL.id = PR.product_id ")
     fun getCustomizeProductListAllFromOnline(): List<CustomProductRate>
+
+    @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show,\n" +
+            "PL.product_discount_show,\n" +
+            "case when PR.rate IS NULL then '0.0' else PR.rate END as rate,\n" +
+            "case when PR.stock_amount IS NULL then '0.0' else PR.stock_amount END as stock_amount,\n" +
+            "case when PR.stock_unit IS NULL then 'Units' else PR.stock_unit END as stock_unit,\n" +
+            "case when PR.isStockShow IS NULL then '0' else PR.isStockShow END as isStockShow,\n" +
+            "case when PR.isRateShow IS NULL then '1' else PR.isRateShow END as isRateShow,\n" +
+            "case when PR.Qty_per_Unit IS NULL then '0.0' else PR.Qty_per_Unit END as Qty_per_Unit,\n" +
+            "case when PR.Scheme_Qty IS NULL then '0.0' else PR.Scheme_Qty END as Scheme_Qty,\n" +
+            "case when PR.Effective_Rate IS NULL then '0.0' else PR.Effective_Rate END as Effective_Rate from \n" +
+            "(select * from product_list) as PL\n" +
+            "left JOIN\n" +
+            "(select * from product_online_rate_temp_table) as PR\n" +
+            "on PL.id = PR.product_id ")
+    fun getCustomizeProductListAllFromOnlineV1(): List<CustomProductRate>
+
     @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show," +
             "PL.product_discount_show,PR.rate1 as rate,PR.stock_amount,PR.stock_unit,PR.isStockShow,PR.isRateShow,0.0 as Qty_per_Unit,0.0 as Scheme_Qty,0.0 as Effective_Rate from \n" +
             "(select * from product_list) as PL\n" +
@@ -45,6 +76,21 @@ interface ProductListDao {
             "(select * from product_rate) as PR\n" +
             "on PL.id = PR.product_id and brand_id=:brand_id")
     fun getCustomizeProductListByBeandID(brand_id:String): List<CustomProductRate>
+
+    @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show,\n" +
+            "PL.product_discount_show,\n" +
+            "case when PR.rate1 IS NULL then '0.0' else PR.rate1 END as rate,\n" +
+            "case when PR.stock_amount IS NULL then '0.0' else PR.stock_amount END as stock_amount,\n" +
+            "case when PR.stock_unit IS NULL then 'Units' else PR.stock_unit END as stock_unit,\n" +
+            "case when PR.isStockShow IS NULL then '0' else PR.isStockShow END as isStockShow,\n" +
+            "case when PR.isRateShow IS NULL then '1' else PR.isRateShow END as isRateShow,\n" +
+            "0.0 as Qty_per_Unit,0.0 as Scheme_Qty,\n" +
+            "0.0 as Effective_Rate from \n" +
+            "(select * from product_list) as PL\n" +
+            "left JOIN\n" +
+            "(select * from product_rate) as PR\n" +
+            "on PL.id = PR.product_id where brand_id=:brand_id")
+    fun getCustomizeProductListByBeandIDV1(brand_id:String): List<CustomProductRate>
 
     @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show," +
             "PL.product_discount_show,PR.rate as rate,PR.stock_amount,PR.stock_unit,PR.isStockShow,PR.isRateShow,PR.Qty_per_Unit,PR.Scheme_Qty,PR.Effective_Rate from \n" +
@@ -54,6 +100,24 @@ interface ProductListDao {
             "on PL.id = PR.product_id and brand_id=:brand_id")
     fun getCustomizeProductListByBeandIDFromOnlineRate(brand_id:String): List<CustomProductRate>
 
+    @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show,\n" +
+            "PL.product_discount_show,\n" +
+            "case when PR.rate IS NULL then '0.0' else PR.rate END as rate,\n" +
+            "case when PR.stock_amount IS NULL then '0.0' else PR.stock_amount END as stock_amount,\n" +
+            "case when PR.stock_unit IS NULL then 'Units' else PR.stock_unit END as stock_unit,\n" +
+            "case when PR.isStockShow IS NULL then '0' else PR.isStockShow END as isStockShow,\n" +
+            "case when PR.isRateShow IS NULL then '1' else PR.isRateShow END as isRateShow,\n" +
+            "case when PR.Qty_per_Unit IS NULL then '0.0' else PR.Qty_per_Unit END as Qty_per_Unit,\n" +
+            "case when PR.Scheme_Qty IS NULL then '0.0' else PR.Scheme_Qty END as Scheme_Qty,\n" +
+            "case when PR.Effective_Rate IS NULL then '0.0' else PR.Effective_Rate END as Effective_Rate\n" +
+            "from\n" +
+            "(select * from product_list) as PL\n" +
+            "left JOIN\n" +
+            "(select * from product_online_rate_temp_table) as PR\n" +
+            "on PL.id = PR.product_id where brand_id=:brand_id")
+    fun getCustomizeProductListByBeandIDFromOnlineRateV1(brand_id:String): List<CustomProductRate>
+
+
     @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show," +
             "PL.product_discount_show,PR.rate1 as rate,PR.stock_amount,PR.stock_unit,PR.isStockShow,PR.isRateShow,0.0 as Qty_per_Unit,0.0 as Scheme_Qty,0.0 as Effective_Rate from \n" +
             "(select * from product_list) as PL\n" +
@@ -61,6 +125,21 @@ interface ProductListDao {
             "(select * from product_rate) as PR\n" +
             "on PL.id = PR.product_id and brand_id=:brand_id and category_id=:category_id")
     fun getCustomizeProductListByBeandIDCategoryID(brand_id:String, category_id: String): List<CustomProductRate>
+
+    @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show,\n" +
+            "PL.product_discount_show,\n" +
+            "case when PR.rate1 IS NULL then '0.0' else PR.rate1 END as rate,\n" +
+            "case when PR.stock_amount IS NULL then '0.0' else PR.stock_amount END as stock_amount,\n" +
+            "case when PR.stock_unit IS NULL then 'Units' else PR.stock_unit END as stock_unit,\n" +
+            "case when PR.isStockShow IS NULL then '0' else PR.isStockShow END as isStockShow,\n" +
+            "case when PR.isRateShow IS NULL then '1' else PR.isRateShow END as isRateShow,\n" +
+            "0.0 as Qty_per_Unit,0.0 as Scheme_Qty,0.0 as Effective_Rate from \n" +
+            "(select * from product_list) as PL\n" +
+            "left JOIN\n" +
+            "(select * from product_rate) as PR\n" +
+            "on PL.id = PR.product_id where (brand_id=:brand_id and category_id=:category_id)")
+    fun getCustomizeProductListByBeandIDCategoryIDV1(brand_id:String, category_id: String): List<CustomProductRate>
+
 
     @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show," +
             "PL.product_discount_show,PR.rate as rate,PR.stock_amount,PR.stock_unit,PR.isStockShow,PR.isRateShow,PR.Qty_per_Unit,PR.Scheme_Qty,PR.Effective_Rate from \n" +
@@ -70,6 +149,24 @@ interface ProductListDao {
             "on PL.id = PR.product_id and brand_id=:brand_id and category_id=:category_id")
     fun getCustomizeProductListByBeandIDCategoryIDFromOnlineRate(brand_id:String, category_id: String): List<CustomProductRate>
 
+    @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show,\n" +
+            "PL.product_discount_show,\n" +
+            "case when PR.rate IS NULL then '0.0' else PR.rate END as rate,\n" +
+            "case when PR.stock_amount IS NULL then '0.0' else PR.stock_amount END as stock_amount,\n" +
+            "case when PR.stock_unit IS NULL then 'Units' else PR.stock_unit END as stock_unit,\n" +
+            "case when PR.isStockShow IS NULL then '0' else PR.isStockShow END as isStockShow,\n" +
+            "case when PR.isRateShow IS NULL then '1' else PR.isRateShow END as isRateShow,\n" +
+            "case when PR.Qty_per_Unit IS NULL then '0.0' else PR.Qty_per_Unit END as Qty_per_Unit,\n" +
+            "case when PR.Scheme_Qty IS NULL then '0.0' else PR.Scheme_Qty END as Scheme_Qty,\n" +
+            "case when PR.Effective_Rate IS NULL then '0.0' else PR.Effective_Rate END as Effective_Rate\n" +
+            "from\n" +
+            "(select * from product_list) as PL\n" +
+            "left JOIN\n" +
+            "(select * from product_online_rate_temp_table) as PR\n" +
+            "on PL.id = PR.product_id where (brand_id=:brand_id and category_id =:category_id)")
+    fun getCustomizeProductListByBeandIDCategoryIDFromOnlineRateV1(brand_id:String, category_id: String): List<CustomProductRate>
+
+
     @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show," +
             "PL.product_discount_show,PR.rate1 as rate,PR.stock_amount,PR.stock_unit,PR.isStockShow,PR.isRateShow,0.0 as Qty_per_Unit,0.0 as Scheme_Qty,0.0 as Effective_Rate from \n" +
             "(select * from product_list) as PL\n" +
@@ -78,6 +175,21 @@ interface ProductListDao {
             "on PL.id = PR.product_id and brand_id=:brand_id and category_id=:category_id and watt_id=:watt_id")
     fun getCustomizeProductListByBeandIDCategoryIDWattID(brand_id:String, category_id: String,watt_id: String): List<CustomProductRate>
 
+    @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show,\n" +
+            "PL.product_discount_show,\n" +
+            "case when PR.rate1 IS NULL then '0.0' else PR.rate1 END as rate,\n" +
+            "case when PR.stock_amount IS NULL then '0.0' else PR.stock_amount END as stock_amount,\n" +
+            "case when PR.stock_unit IS NULL then 'Units' else PR.stock_unit END as stock_unit,\n" +
+            "case when PR.isStockShow IS NULL then '0' else PR.isStockShow END as isStockShow,\n" +
+            "case when PR.isRateShow IS NULL then '1' else PR.isRateShow END as isRateShow,\n" +
+            "0.0 as Qty_per_Unit,0.0 as Scheme_Qty,0.0 as Effective_Rate from \n" +
+            "(select * from product_list) as PL\n" +
+            "left JOIN\n" +
+            "(select * from product_rate) as PR\n" +
+            "on PL.id = PR.product_id where (brand_id=:brand_id and category_id=:category_id and watt_id=:watt_id)")
+    fun getCustomizeProductListByBeandIDCategoryIDWattIDV1(brand_id:String, category_id: String,watt_id: String): List<CustomProductRate>
+
+
     @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show," +
             "PL.product_discount_show,PR.rate as rate,PR.stock_amount,PR.stock_unit,PR.isStockShow,PR.isRateShow,PR.Qty_per_Unit,PR.Scheme_Qty,PR.Effective_Rate from \n" +
             "(select * from product_list) as PL\n" +
@@ -85,6 +197,23 @@ interface ProductListDao {
             "(select * from product_online_rate_temp_table) as PR\n" +
             "on PL.id = PR.product_id and brand_id=:brand_id and category_id=:category_id and watt_id=:watt_id")
     fun getCustomizeProductListByBeandIDCategoryIDWattIDFromOnlineRate(brand_id:String, category_id: String,watt_id: String): List<CustomProductRate>
+
+    @Query("select PL.id as product_id,PL.product_name,PL.brand_id,PL.brand,PL.category_id,PL.category,PL.watt_id,PL.watt,PL.product_mrp_show,\n" +
+            "PL.product_discount_show,\n" +
+            "case when PR.rate IS NULL then '0.0' else PR.rate END as rate,\n" +
+            "case when PR.stock_amount IS NULL then '0.0' else PR.stock_amount END as stock_amount,\n" +
+            "case when PR.stock_unit IS NULL then 'Units' else PR.stock_unit END as stock_unit,\n" +
+            "case when PR.isStockShow IS NULL then '0' else PR.isStockShow END as isStockShow,\n" +
+            "case when PR.isRateShow IS NULL then '1' else PR.isRateShow END as isRateShow,\n" +
+            "case when PR.Qty_per_Unit IS NULL then '0.0' else PR.Qty_per_Unit END as Qty_per_Unit,\n" +
+            "case when PR.Scheme_Qty IS NULL then '0.0' else PR.Scheme_Qty END as Scheme_Qty,\n" +
+            "case when PR.Effective_Rate IS NULL then '0.0' else PR.Effective_Rate END as Effective_Rate\n" +
+            "from\n" +
+            "(select * from product_list) as PL\n" +
+            "left JOIN\n" +
+            "(select * from product_online_rate_temp_table) as PR\n" +
+            "on PL.id = PR.product_id where (brand_id=:brand_id and category_id = :category_id and watt_id = :watt_id)")
+    fun getCustomizeProductListByBeandIDCategoryIDWattIDFromOnlineRateV1(brand_id:String, category_id: String,watt_id: String): List<CustomProductRate>
 
     @Query("select DISTINCT  brand_id as id_sel,brand as name_sel from product_list")
     fun getDistinctBrandList(): List<CommonProductCatagory>

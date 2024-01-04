@@ -112,6 +112,7 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
     private lateinit var shop_type_TV: AppCustomTextView
     private lateinit var assigned_to_TV: AppCustomTextView
     private lateinit var iv_category_dropdown_icon: ImageView
+    private lateinit var rl_shop_dtls_model_root: RelativeLayout
 
     private lateinit var popup_image: ImageView
     private lateinit var overlay_rl: FrameLayout
@@ -526,6 +527,15 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
 
         whatsappp_no_TV = view.findViewById(R.id.whatsappp_no_TV)
 
+        //test code begin
+        rl_shop_dtls_model_root = view.findViewById(R.id.rl_shop_dtls_model_root)
+        if(Pref.isModelEnable){
+            rl_shop_dtls_model_root.visibility = View.VISIBLE
+        }else{
+            rl_shop_dtls_model_root.visibility = View.GONE
+        }
+        //test code end
+
         shop_name_label_TV.text = "Name"
 
         /*14-12-2021*/
@@ -560,7 +570,10 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
 
         if (Pref.isCustomerFeatureEnable) {
             ll_customer_view.visibility = View.VISIBLE
-            owner_name_RL.visibility = View.GONE
+            //Begin Puja 16.11.23 mantis-0026997 //
+          //  owner_name_RL.visibility = View.GONE
+            owner_name_RL.visibility = View.VISIBLE
+            //End Puja 16.11.23 mantis-0026997 //
             owner_contact_no_label_TV.text = getString(R.string.contact_number)
             owner_email_label_TV.text = getString(R.string.only_email)
         } else {
@@ -4827,7 +4840,7 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.valid_amount_error))
         else if (Pref.isAreaVisible && (Pref.isAreaMandatoryInPartyCreation && TextUtils.isEmpty(areaId)))
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_area))
-        else if (Pref.isCustomerFeatureEnable && TextUtils.isEmpty(modelId))
+        else if (Pref.isCustomerFeatureEnable && TextUtils.isEmpty(modelId) && Pref.isModelEnable)//test code begin
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_model))
         else if (Pref.isCustomerFeatureEnable && TextUtils.isEmpty(stageId))
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_stage))
@@ -5217,6 +5230,28 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
                 addShopReqData.ShopOwner_PAN =addShopData.shopOwner_PAN!!
             else
                 addShopReqData.ShopOwner_PAN = ""
+
+            // contact module
+            try{
+                addShopReqData.address = addShopData.address
+                addShopReqData.actual_address = addShopData.address
+                addShopReqData.shop_firstName= addShopData.crm_firstName
+                addShopReqData.shop_lastName=  addShopData.crm_lastName
+                addShopReqData.crm_companyID=  if(addShopData.companyName_id.equals("")) "0" else addShopData.companyName_id
+                addShopReqData.crm_jobTitle=  addShopData.jobTitle
+                addShopReqData.crm_typeID=  if(addShopData.crm_type_ID.equals("")) "0" else addShopData.crm_type_ID
+                addShopReqData.crm_statusID=  if(addShopData.crm_status_ID.equals("")) "0" else addShopData.crm_status_ID
+                addShopReqData.crm_sourceID= if(addShopData.crm_source_ID.equals("")) "0" else addShopData.crm_source_ID
+                addShopReqData.crm_reference=  addShopData.crm_reference
+                addShopReqData.crm_referenceID=  if(addShopData.crm_reference_ID.equals("")) "0" else addShopData.crm_reference_ID
+                addShopReqData.crm_referenceID_type=  addShopData.crm_reference_ID_type
+                addShopReqData.crm_stage_ID=  if(addShopData.crm_stage_ID.equals("")) "0" else addShopData.crm_stage_ID
+                addShopReqData.assign_to=  addShopData.crm_assignTo_ID
+                addShopReqData.saved_from_status=  addShopData.crm_saved_from
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                Timber.d("Logout edit sync err ${ex.message}")
+            }
 
             callEditShopApi(addShopReqData, addShopData.shopImageLocalPath)
         } else {

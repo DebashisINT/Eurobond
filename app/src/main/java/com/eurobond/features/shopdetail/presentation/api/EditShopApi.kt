@@ -5,6 +5,13 @@ import com.eurobond.base.BaseResponse
 import com.eurobond.features.addshop.model.AddShopRequestData
 import com.eurobond.features.addshop.model.AddShopResponse
 import com.eurobond.features.addshop.model.LogFileResponse
+import com.eurobond.features.contacts.CallHisDtls
+import com.eurobond.features.contacts.CompanyReqData
+import com.eurobond.features.contacts.ContactMasterRes
+import com.eurobond.features.contacts.SourceMasterRes
+import com.eurobond.features.contacts.StageMasterRes
+import com.eurobond.features.contacts.StatusMasterRes
+import com.eurobond.features.contacts.TypeMasterRes
 import com.eurobond.features.login.model.WhatsappApiData
 import com.eurobond.features.login.model.WhatsappApiFetchData
 import io.reactivex.Observable
@@ -41,6 +48,43 @@ interface EditShopApi {
     @Multipart
     @POST("APPLogFilesDetection/APPLogFilesSave")
     fun logshareFile(@Query("data") userId: String, @Part attachments: MultipartBody.Part?): Observable<LogFileResponse>
+
+    @FormUrlEncoded
+    @POST("CRMContactInfo/CRMCompanyList")
+    fun callCompanyMasterApi(@Field("session_token") session_token: String): Observable<ContactMasterRes>
+
+    @FormUrlEncoded
+    @POST("CRMContactInfo/CRMCompanySave")
+    fun saveCompanyMasterApi(@Field("session_token") session_token: String,@Field("created_by") created_by: String,@Field("company_name") company_name: String): Observable<BaseResponse>
+
+    @POST("CRMContactInfo/CRMCompanySave")
+    fun saveCompanyMasterApiNw(@Body addShop: CompanyReqData?): Observable<BaseResponse>
+
+    @FormUrlEncoded
+    @POST("CRMContactInfo/CRMTypeList")
+    fun callTypeMasterApi(@Field("session_token") session_token: String): Observable<TypeMasterRes>
+
+
+    @FormUrlEncoded
+    @POST("CRMContactInfo/CRMStatusList")
+    fun callStatusMasterApi(@Field("session_token") session_token: String): Observable<StatusMasterRes>
+
+
+    @FormUrlEncoded
+    @POST("CRMContactInfo/CRMSourceList")
+    fun callSourceMasterApi(@Field("session_token") session_token: String): Observable<SourceMasterRes>
+
+    @FormUrlEncoded
+    @POST("CRMContactInfo/CRMStageList")
+    fun callStageMasterApi(@Field("session_token") session_token: String): Observable<StageMasterRes>
+
+
+    @POST("CallLogInformations/CallLogListSave")
+    fun callLogListSaveApi(@Body callLogHisSave: CallHisDtls?): Observable<BaseResponse>
+
+    @FormUrlEncoded
+    @POST("CallLogInformations/CallLogList")
+    fun callCallListHisAPI(@Field("user_id") user_id: String): Observable<CallHisDtls>
 
     /**
      * Companion object to create the GithubApiService

@@ -618,6 +618,17 @@ class AverageShopListAdapter(context: Context, userLocationDataEntity: List<Shop
                 ex.printStackTrace()
             }
 
+            if(Pref.IsCallLogHistoryActivated){
+                itemView.shop_totalv_call_his_ll.visibility = View.VISIBLE
+                itemView.shop_totalv_call_his_view.visibility = View.VISIBLE
+            }else{
+                itemView.shop_totalv_call_his_ll.visibility = View.GONE
+                itemView.shop_totalv_call_his_view.visibility = View.GONE
+            }
+            itemView.shop_totalv_call_his_ll.setOnClickListener {
+                (context as DashboardActivity).loadFragment(FragType.ShopCallHisFrag, true, userLocationDataEntity[adapterPosition].shopid.toString()!!)
+            }
+
 
         }
     }

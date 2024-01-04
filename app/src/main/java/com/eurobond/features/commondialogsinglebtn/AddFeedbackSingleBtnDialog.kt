@@ -294,6 +294,8 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
             R.id.ok_TV -> {
                 iv_close_icon.isEnabled=true
 
+                dialogOk.isEnabled = false
+
                 var str_remarks =  ""
                 str_remarks = tv_remarks_dropdown.text.toString().trim().toString()
 
@@ -305,18 +307,27 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 
                 if(Pref.IsContactPersonSelectionRequiredinRevisit && sel_extraContName.equals("")){
                     Toaster.msgShort(mContext, "Please select Contact Person")
+                    dialogOk.isEnabled = true
                     return
                 }
 
                 //if (Pref.RevisitRemarksMandatory && TextUtils.isEmpty(tv_remarks_dropdown.text.toString().trim()))
-                if (Pref.RevisitRemarksMandatory && !msg.equals(""))
+                if (Pref.RevisitRemarksMandatory && !msg.equals("")){
                     Toaster.msgShort(mContext, msg)
-                else if (Pref.isNextVisitDateMandatory && TextUtils.isEmpty(nextVisitDate))
+                    dialogOk.isEnabled = true
+                }
+                else if (Pref.isNextVisitDateMandatory && TextUtils.isEmpty(nextVisitDate)){
                     Toaster.msgShort(mContext, getString(R.string.error_message_next_visit_date))
-                else if (Pref.isRecordAudioEnable && TextUtils.isEmpty(et_audio.text.toString().trim()))
+                    dialogOk.isEnabled = true
+                }
+                else if (Pref.isRecordAudioEnable && TextUtils.isEmpty(et_audio.text.toString().trim())){
                     Toaster.msgShort(mContext, getString(R.string.error_message_audio))
-                else if (Pref.IsnewleadtypeforRuby && shopType.equals("16") && TextUtils.isEmpty(et_approxvalue_name.text.toString().trim()))
+                    dialogOk.isEnabled = true
+                }
+                else if (Pref.IsnewleadtypeforRuby && shopType.equals("16") && TextUtils.isEmpty(et_approxvalue_name.text.toString().trim())){
                     Toaster.msgShort(mContext, getString(R.string.error_message_approx))
+                    dialogOk.isEnabled = true
+                }
                 else {
                     dialogOk.isSelected = true
 
@@ -334,7 +345,8 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                         obj.isUploaded = false
                         AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.insert(obj)
 
-                        if(AppUtils.isOnline(mContext)){
+                        //whatsapp api call off https://theultimate.io/WAApi/send
+                        if(AppUtils.isOnline(mContext) && false){
                             var shopWiseWhatsObj = AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getByShopIDDate(mShopID,AppUtils.getCurrentDateForShopActi())
                             try{
                                 val stringRequest: StringRequest = object : StringRequest(
@@ -393,6 +405,9 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 
                     Handler().postDelayed(Runnable {
                         dismiss()
+
+                        dialogOk.isEnabled = false
+
                         if (Pref.RevisitRemarksMandatory){
 //                        mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId)
                             // 1.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  start

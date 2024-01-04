@@ -567,6 +567,15 @@ class EditActivityFragment : BaseFragment(), View.OnClickListener {
                 shopObj.assigned_to_shop_id = ""
             else
                 shopObj.assigned_to_shop_id = shop_list[i].assigned_to_shop_id
+            //start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+            try {
+                shopObj.FSSAILicNo = shop_list[i].FSSAILicNo
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                shopObj.FSSAILicNo = ""
+            }
+//end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+
 
             list.add(shopObj)
             AppDatabase.getDBInstance()!!.addShopEntryDao().insert(shopObj)

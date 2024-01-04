@@ -215,10 +215,8 @@ class ProtoRegistrationFragment : BaseFragment(), View.OnClickListener {
         }, 3000)
 
         //startVoiceInput()
-
     }
     // 1.0 MemberListFragment AppV 4.0.7 mantis 0025683 start
-
 
 
 

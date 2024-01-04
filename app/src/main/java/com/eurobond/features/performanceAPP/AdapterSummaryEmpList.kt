@@ -74,13 +74,13 @@ class AdapterSummaryEmpList(var mContext: Context, var mList:ArrayList<Performan
             itemView.tv_order_value_last_month.text = mList.get(adapterPosition).order_vale
             itemView.tv_row_emp_name.text = mList.get(adapterPosition).member_name
 
-            itemView.tv_attend_row_summary_emp.text =  "Logged in "+mList.get(adapterPosition).attendance_present_count
-            itemView.tv_absent_row_summary_emp.text =  "Not logged in "+mList.get(adapterPosition).attendance_absent_count
+            itemView.tv_attend_row_summary_emp.text =  "Logged in "+mList.get(adapterPosition).attendance_present_count+" Days"
+            itemView.tv_absent_row_summary_emp.text =  "Not logged in "+mList.get(adapterPosition).attendance_absent_count+" Days"
 
             itemView.tv_row_incativity_last_3.text =  mList.get(adapterPosition).visit_inactivity_party_count.toString()
             itemView.tv_row_Order_inctivity3.text =  mList.get(adapterPosition).order_inactivity_party_count.toString()
             itemView.tv_lastVdate.text =  mList.get(adapterPosition).last_visited_date
-            itemView.tv_lastOdate.text =  mList.get(adapterPosition).last_order_date
+            itemView.tv_lastOdate.text =  if(mList.get(adapterPosition).last_order_date.equals("")) "N/A" else mList.get(adapterPosition).last_order_date
 
         }
     }

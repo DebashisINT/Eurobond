@@ -74,7 +74,8 @@ class AdapterCollectionInactivityShop(var mContext: Context, var mList:ArrayList
 
                 try{
                     itemView.tv_row_shop_list_tv_text_dynamic.text = "last collection date"
-                    itemView.tv_row_shop_list_ma_shop_count.text =  AppUtils.changeDateFormat1( mList.get(adapterPosition).collectionDate)
+                    //itemView.tv_row_shop_list_ma_shop_count.text =  AppUtils.changeDateFormat1( mList.get(adapterPosition).collectionDate)
+                    itemView.tv_row_shop_list_ma_shop_count.text =  AppUtils.getFormatedDateNew(mList.get(adapterPosition).collectionDate.split("T").get(0),"yyyy-mm-dd","dd-mm-yyyy")
                 }catch (ex:Exception){
                     itemView.tv_row_shop_list_tv_text_dynamic.text = "last collection date"
                     itemView.tv_row_shop_list_ma_shop_count.text = "N/A"
