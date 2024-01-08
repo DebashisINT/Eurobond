@@ -346,7 +346,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                         AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.insert(obj)
 
                         //whatsapp api call off https://theultimate.io/WAApi/send
-                        if(AppUtils.isOnline(mContext) && false){
+                        if(AppUtils.isOnline(mContext)){
                             var shopWiseWhatsObj = AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getByShopIDDate(mShopID,AppUtils.getCurrentDateForShopActi())
                             try{
                                 val stringRequest: StringRequest = object : StringRequest(

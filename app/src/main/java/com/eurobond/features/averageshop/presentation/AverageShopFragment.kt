@@ -1328,7 +1328,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 var shopObj: AddShopDBModelEntity = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shop_id)
                 if(AppUtils.isOnline(mContext)){
                     //whatsapp api call off https://theultimate.io/WAApi/send
-                    //whatsappApi(shopWiseWhatsObj!!,shopObj,shopWiseWhatsObj.isNewShop)
+                    whatsappApi(shopWiseWhatsObj!!,shopObj,shopWiseWhatsObj.isNewShop)
                 }else{
                     Toaster.msgShort(mContext, "Your network connection is offine. Make it online to proceed.")
                 }
