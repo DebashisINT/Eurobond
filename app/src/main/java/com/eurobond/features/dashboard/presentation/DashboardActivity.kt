@@ -447,6 +447,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         //getNamePhoneDetails()
         //initPermissionCheckOne()
         Pref.MultiVisitIntervalInMinutes = "1"
+        Pref.IsUsbDebuggingRestricted = false
         Pref.IsShowCustomerLocationShare = false
         //var dist = LocationWizard.getDistance(21.2551583,83.7234367, 21.2095733   ,83.652335)
         println("load_frag " + mFragType.toString() + "     " + Pref.user_id.toString()+" "+Pref.MultiVisitIntervalInMinutes)
@@ -14183,7 +14184,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             billing.spacingAfter = 2f
             document.add(billing)
 
-            val product_tolerance_of_thickness = Paragraph("Product Tolerance of Thickness          :     " + addQuotEditResult.product_tolerance_of_thickness, font2Big)
+          /*  val product_tolerance_of_thickness = Paragraph("Product Tolerance of Thickness          :     " + addQuotEditResult.product_tolerance_of_thickness, font2Big)
             product_tolerance_of_thickness.alignment = Element.ALIGN_LEFT
             product_tolerance_of_thickness.spacingAfter = 2f
             document.add(product_tolerance_of_thickness)
@@ -14192,7 +14193,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             product_tolerance_of_coating.alignment = Element.ALIGN_LEFT
             product_tolerance_of_coating.spacingAfter = 6f
             document.add(product_tolerance_of_coating)
-
+*/
             // rev 23.0 DashobaordActivity  AppV 4.1.6  Saheli    19/06/2023 pdf remark field mantis 26139
 
             val remarks = Paragraph("Remarks                                              :     " + addQuotEditResult.Remarks, font2Big)
