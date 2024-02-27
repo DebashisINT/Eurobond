@@ -1073,7 +1073,7 @@ fun clearData() {
                     backupAlarmMgr.cancel(pendingIntent)
                     pendingIntent.cancel()
 
-                    Log.e("BaseActivity", "Stop Job Intent Service")
+                    Timber.e("BaseActivity", "Stop Job Intent Service")
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -1083,7 +1083,15 @@ fun clearData() {
                 AppUtils.clearPreferenceKey(this@BaseActivity, "TEXT_LIST")
                 AppUtils.clearPreferenceKey(this@BaseActivity, "Location")
 
-                serviceStatusActionable()
+                Timber.d("serviceStatusActionable start")
+                try {
+                    serviceStatusActionable()
+                    Timber.d("serviceStatusActionable end")
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                    Timber.d("serviceStatusActionable err ${ex.message}")
+                }
+
 
                 /*try {
                     val shopActivityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi())
@@ -1137,13 +1145,19 @@ fun clearData() {
                 }
 */
 
-                val intent = Intent(this@BaseActivity, LoginActivity::class.java)
-                //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                overridePendingTransition(0, 0)
-                finishAffinity()
-            }
+                try {
+                    Timber.d("LoginActivity load")
+                    val intent = Intent(this@BaseActivity, LoginActivity::class.java)
+                    //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    overridePendingTransition(0, 0)
+                    finishAffinity()
+                }catch (ex:Exception){
+                     ex.printStackTrace()
+                    Timber.d("LoginActivity error ${ex.message}")
+                }
 
+            }
         }
     }
 }
@@ -1171,7 +1185,9 @@ private fun runLongTask(): Any {
         }
     } catch (e: Exception) {
         e.printStackTrace()
+        Timber.d("runLongTask error ${e.printStackTrace()}")
     }
+    Timber.d("runLongTask return true")
     return true
 }
 
