@@ -1352,13 +1352,13 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                         "We're thrilled to have you on board! Explore our website to discover a world of stunning ACP designs with unbeatable quality, and unmatched performance. Let's create something extraordinary together!\n" +
                         "https://www.breezeeurobondfsmacp.com/download-catalogues\n\n" +
                         "\n" +
-                        "*Team breezeeurobondfsm*\n"
+                        "*Team Eurobond*\n"
                 templateName = "incoming_call_response"
             }else {
                 msgBody= "Hey there!\n" +
                         "Hope you had a successful meeting with (${Pref.user_name} - ${Pref.UserLoginContactID})\n" +
                         "We’ll be happy to assist you further with any inquiries or support you may require.\n" +
-                        "*Team breezeeurobondfsm*\n"
+                        "*Team Eurobond*\n"
                 templateName = "incoming_call_response_2"
             }
 
@@ -1401,7 +1401,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 {
                     override fun getParams(): Map<String, String>? {
                         val params: MutableMap<String, String> = HashMap()
-                        params.put("userid", "breezeeurobondfsmwa")
+                        params.put("userid", "eurobondwa")
                         params.put("msg", msgBody)
                         params.put("wabaNumber", "917888488891")
                         params.put("output", "json")

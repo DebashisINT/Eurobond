@@ -375,11 +375,11 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                                 {
                                     override fun getParams(): Map<String, String>? {
                                         val params: MutableMap<String, String> = HashMap()
-                                        params.put("userid", "breezeeurobondfsmwa")
+                                        params.put("userid", "eurobondwa")
                                         params.put("msg", "Hey there!\n" +
                                                 "Hope you had a successful meeting with (${Pref.user_name} - ${Pref.UserLoginContactID})\n" +
                                                 "We’ll be happy to assist you further with any inquiries or support you may require.\n" +
-                                                "*Team breezeeurobondfsm*\n")
+                                                "*Team Eurobond*\n")
                                         params.put("wabaNumber", "917888488891")
                                         params.put("output", "json")
                                         //params.put("mobile", "919830916971")

@@ -449,6 +449,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         Pref.MultiVisitIntervalInMinutes = "1"
         //Pref.IsUsbDebuggingRestricted = false
         Pref.IsShowCustomerLocationShare = false
+        Pref.IsUsbDebuggingRestricted = false
         //var dist = LocationWizard.getDistance(21.2551583,83.7234367, 21.2095733   ,83.652335)
         println("load_frag " + mFragType.toString() + "     " + Pref.user_id.toString()+" "+Pref.MultiVisitIntervalInMinutes)
 
