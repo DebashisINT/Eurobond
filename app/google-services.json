@@ -1,36 +1,45 @@
 {
   "project_info": {
-    "project_number": "439129678040",
-    "project_id": "eurobond---bonds-that-last",
-    "storage_bucket": "eurobond---bonds-that-last.appspot.com"
+    "project_number": "163141817080",
+    "project_id": "breezeeurobond",
+    "storage_bucket": "breezeeurobond.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:439129678040:android:04989d01c69150d13cb7ad",
+        "mobilesdk_app_id": "1:163141817080:android:98a7fad5ddc7a183e8a10d",
         "android_client_info": {
-          "package_name": "com.eurobond"
+          "package_name": "com.breezeeurobond"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "439129678040-5rmhot45a1qeeejin9t24hu74vac8bue.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAeLxEmnPBOmPppLB5Oj4XjkZQMhHYmoYE"
+          "current_key": "AIzaSyDIAwcGPAsK5ayrsJ4_-_zNp8kYc89AW4I"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "439129678040-5rmhot45a1qeeejin9t24hu74vac8bue.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:163141817080:android:3eda81cb9ed0bec1e8a10d",
+        "android_client_info": {
+          "package_name": "com.breezeeurobondfsm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIAwcGPAsK5ayrsJ4_-_zNp8kYc89AW4I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     }

@@ -14,7 +14,7 @@
         android:layout_marginTop="@dimen/_170sdp"
         android:layout_centerHorizontal="true" />
 
-    <com.eurobond.widgets.AppCustomTextView
+    <com.breezeeurobondfsm.widgets.AppCustomTextView
         android:id="@+id/Logo_name_TV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

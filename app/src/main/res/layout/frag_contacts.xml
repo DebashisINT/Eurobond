@@ -65,7 +65,7 @@
                     android:padding="@dimen/_5sdp"
                     app:cardElevation="@dimen/_5sdp">
 
-                    <com.eurobond.widgets.AppCustomEditText
+                    <com.breezeeurobondfsm.widgets.AppCustomEditText
                         android:id="@+id/et_frag_contacts_search"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -189,7 +189,7 @@
 
         </LinearLayout>
 
-        <com.eurobond.app.widgets.MovableFloatingActionButton
+        <com.breezeeurobondfsm.app.widgets.MovableFloatingActionButton
             android:id="@+id/fab_frag_contacts_add_contacts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

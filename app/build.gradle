@@ -21,13 +21,13 @@ android {
     compileSdkVersion 33
     //buildToolsVersion "32.0.0"
     defaultConfig {
-        applicationId "com.eurobond"
+        applicationId "com.breezeeurobondfsm"
         minSdkVersion 26
         targetSdkVersion 33
 //        versionCode 120
 //        versionName "4.1.5"
-        versionCode 115
-        versionName "4.2.8"
+        versionCode 116
+        versionName "4.2.9"
         //versionName "2.3.0"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -60,9 +60,9 @@ android {
                 def formattedDate = new Date().format('dd-MM-yyyy')
                 def versionName = variant.versionName
 /*
-                outputFileName = "eurobond-Breeze_${flavor}_${formattedDate}_v_${versionName}.apk"
+                outputFileName = "breezeeurobondfsm-Breeze_${flavor}_${formattedDate}_v_${versionName}.apk"
 */
-                outputFileName = "eurobond-Breeze_${formattedDate}_v_${versionName}.apk"
+                outputFileName = "breezeeurobondfsm-Breeze_${formattedDate}_v_${versionName}.apk"
             }
         }
     }

@@ -1,6 +1,6 @@
 <resources>
     <!--<string name="app_name">Field Tracking System</string>-->
-    <string name="app_name" translatable="false">Europanel</string>
+    <string name="app_name" translatable="false">BreezeEuropanel</string>
     <string name="blank" translatable="false"></string>
     <string name="enter_a_title" translatable="false">Enter a title</string>
     <string name="entry_details_default_text" translatable="false">Entry Details!</string>
@@ -12,7 +12,7 @@
 
     <!--Map Key-->
     <!--<string name="MAP_ProjectAPIKey">AIzaSyBRrqsLZFqThqM8uxw_k94pZMbv3-3h0dM</string>-->
-    <string name="MAP_ProjectAPIKey" translatable="false">AIzaSyCbYMZjnt8T6yivYfIa4_R9oy-L3SIYyrQ</string>
+    <string name="MAP_ProjectAPIKey" translatable="false">AIzaSyA80P4J5Cr6lUzEc68fPpbIDK4pMFNSutA</string>
     <string name="facebook_app_id" translatable="false">260734547001450</string>
     <string name="fb_login_protocol_scheme" translatable="false">fb260734547001450</string>
 
@@ -435,12 +435,12 @@
     <string name="email" translatable="false">Email ID</string>
 
 
-    <!--eurobond-->
-    <string name="eurobond_user_name" translatable="false">Mr. Kinsuk Roy</string>
-    <string name="eurobond_login" translatable="false">Logged in at 10:55 AM</string>
-    <string name="eurobond_location" translatable="false">You have covered the distance of 3 KM in last hour </string>
-    <string name="eurobond_shops" translatable="false">You have visited 2 shops</string>
-    <string name="eurobond_time" translatable="false">10:30 AM</string>
+    <!--breezeeurobondfsm-->
+    <string name="breezeeurobondfsm_user_name" translatable="false">Mr. Kinsuk Roy</string>
+    <string name="breezeeurobondfsm_login" translatable="false">Logged in at 10:55 AM</string>
+    <string name="breezeeurobondfsm_location" translatable="false">You have covered the distance of 3 KM in last hour </string>
+    <string name="breezeeurobondfsm_shops" translatable="false">You have visited 2 shops</string>
+    <string name="breezeeurobondfsm_time" translatable="false">10:30 AM</string>
 
     <!--Change Password-->
     <string name="old_pwd" translatable="false">Old Password</string>
@@ -503,8 +503,8 @@
     <string name="capture_shop_image" translatable="false">Capture an image of shop</string>
     <string name="welcome" translatable="false">Welcome</string>
     <string name="vikas_malhotra" translatable="false">Vikash Malhotra</string>
-    <string name="dashboard_eurobond_item" translatable="false">10.30\nAM</string>
-    <string name="dashboard_eurobond_address" translatable="false">SDF Building, GP Block, Saltlake </string>
+    <string name="dashboard_breezeeurobondfsm_item" translatable="false">10.30\nAM</string>
+    <string name="dashboard_breezeeurobondfsm_address" translatable="false">SDF Building, GP Block, Saltlake </string>
     <string name="ten" translatable="false">10</string>
     <string name="five" translatable="false">5</string>
     <string name="organization_name" translatable="false">Nordusk</string>
@@ -1493,7 +1493,7 @@
     <string name="error_enter_canceled_by" translatable="false">Please enter cancelled by</string>
 
 
-    <string name="tfe_od_app_name" translation_description="Object Detection eurobond app [CHAR_LIMIT=40]">Face Recognition</string>
+    <string name="tfe_od_app_name" translation_description="Object Detection breezeeurobondfsm app [CHAR_LIMIT=40]">Face Recognition</string>
     <string name="tfe_od_camera_error" translation_description="Error regarding camera support[CHAR_LIMIT=40]">This device doesn\'t support Camera2 API.</string>
     <string name="label_install_anydesk" translatable="false">Install Anydesk</string>
     <string name="label_open_anydesk" translatable="false">Open Anydesk</string>
@@ -1582,7 +1582,14 @@
     <string name="camera_back" translatable="false">Back Camera :\u0020 </string>
     <string name="camera_front" translatable="false">Front Camera :\u0020 </string>
     <string name="historys" translatable="false">Historys</string>
+<!--
     <string name="firebase_key" translatable="false">key=AAAAZj4rINg:APA91bHmnhpJuY6068fHwK3RFHPdWAEWOcksGpMbZJFEwQ39jf8xzSm2IFDMwifn9e_A6AY8EYWmnP5IVFyJVyFmgvDNVzguemofko53fYEcJUsbpMYMxinjnzcTdOHQwfSfbenM_tzr</string>
+-->
+
+    <string name="PART_1" translatable="false">key=AAAAJfwCkvg:APA91bF6vgiJG9cvCsvfwGZ55MBY7g</string>
+    <string name="PART_2" translatable="false">Ez18XES4VRZ08N5yOjV-XxuEKAbzSgReEq</string>
+    <string name="PART_3" translatable="false">KlZt4yCNwG4xV44jG9YqsfRzVBcgL4eNY04N7nAz9lnr</string>
+    <string name="PART_4" translatable="false">Ka6MG9EPgDMjD3UzAWsLpzLQ5kSZQOe6</string>
 
     <string name="GenderTextNewOrd" translatable="false">Gender</string>
     <string name="ProductTextNewOrd" translatable="false">Product Type</string>
