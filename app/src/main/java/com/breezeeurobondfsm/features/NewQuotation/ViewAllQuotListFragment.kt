@@ -368,7 +368,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             progress_wheel.spin()
             var pdfWriter :PdfWriter = PdfWriter.getInstance(document, FileOutputStream(path + fileName + ".pdf"))
             // 1.0 HeaderFooterPageEvent  AppV 4.0.7  Suman 27/02/2023 footer image with text mantis 25705
-            val event = HeaderFooterPageEvent(if(Pref.IsShowQuotationFooterforbreezeeurobondfsm){
+            val event = HeaderFooterPageEvent(if(Pref.IsShowQuotationFooterforEurobond){
                 "EURO PANEL PRODUCTS LIMITED"
             }else{
                 getString(R.string.app_name)
@@ -554,10 +554,10 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             x.spacingAfter = 6f
             document.add(x)
 
-            // Hardcoded for breezeeurobondfsm
+            // Hardcoded for EuroBond
             var sub = Chunk("",font)
-            if(Pref.IsShowQuotationFooterforbreezeeurobondfsm){
-                sub = Chunk("Sub :-Quotation For breezeeurobondfsm-ALUMINIUM COMPOSITE PANEL", font)
+            if(Pref.IsShowQuotationFooterforEurobond){
+                sub = Chunk("Sub :-Quotation For Eurobond-ALUMINIUM COMPOSITE PANEL", font)
             }else{
                 sub = Chunk("Sub :-Quotation For "+getString(R.string.app_name), font)
             }
@@ -722,7 +722,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             billing.spacingAfter = 2f
             document.add(billing)
 
-           /* val product_tolerance_of_thickness = Paragraph("Product Tolerance of Thickness          :     " + addQuotEditResult.product_tolerance_of_thickness, font2Big)
+          /*  val product_tolerance_of_thickness = Paragraph("Product Tolerance of Thickness          :     " + addQuotEditResult.product_tolerance_of_thickness, font2Big)
             product_tolerance_of_thickness.alignment = Element.ALIGN_LEFT
             product_tolerance_of_thickness.spacingAfter = 2f
             document.add(product_tolerance_of_thickness)
@@ -754,9 +754,9 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             thanks.spacingAfter = 4f
             document.add(thanks)
 
-            // Hardcoded for breezeeurobondfsm
+            // Hardcoded for EuroBond
             var companyName = Paragraph()
-            if(Pref.IsShowQuotationFooterforbreezeeurobondfsm){
+            if(Pref.IsShowQuotationFooterforEurobond){
                  companyName = Paragraph("EURO PANEL PRODUCTS LIMITED", fontB1)
             }else{
                  companyName = Paragraph(getString(R.string.app_name), fontB1)
@@ -790,9 +790,9 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             xxxx.spacingAfter = 4f
             //document.add(xxxx)
 
-            // Hardcoded for breezeeurobondfsm
+            // Hardcoded for EuroBond
             var euroHead = Paragraph()
-            if(Pref.IsShowQuotationFooterforbreezeeurobondfsm){
+            if(Pref.IsShowQuotationFooterforEurobond){
                 euroHead = Paragraph("\nEURO PANEL PRODUCTS LIMITED", font)
             }else{
                 euroHead = Paragraph("\n"+getString(R.string.app_name), font)
@@ -802,9 +802,9 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             //document.add(euroHead)
 
             //strip_line//bar//ics
-            //Hardcoded for breezeeurobondfsm
+            //Hardcoded for EuroBond
             var bm1: Bitmap
-            if(Pref.IsShowQuotationFooterforbreezeeurobondfsm){
+            if(Pref.IsShowQuotationFooterforEurobond){
                  bm1 = BitmapFactory.decodeResource(resources, R.drawable.footer_icon_euro)
             }else{
                  bm1 = BitmapFactory.decodeResource(resources, R.drawable.ics_image)
@@ -843,7 +843,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             val companydel = Paragraph("Regd.Off: 702,Aravali Business Centre,Ramadas Sutrale Road,Borivali(West),Mumbai-400 092." +
                     "Factory: Survey No.124/4,Manekpur,Sanjan,Khattalwada,Taluka- Umbergaon,Dist.Valsad,Gujarat - 396120" +
-                    "T: +91-22-29686500(30 lines) +91-7666625999 - E: sale@breezeeurobondfsmacp.com + W: www.breezeeurobondfsmacp.com + CIN: U28931MH2013PTC251176" +
+                    "T: +91-22-29686500(30 lines) +91-7666625999 - E: sale@eurobondacp.com + W: www.eurobondacp.com + CIN: U28931MH2013PTC251176" +
                     "", font1)
             companydel.alignment = Element.ALIGN_RIGHT
             companydel.spacingAfter = 10f
@@ -896,7 +896,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
                    val shareIntent = Intent(Intent.ACTION_SEND)
                    shareIntent.addCategory(Intent.CATEGORY_APP_EMAIL);
                    shareIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf<String>("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in"))
-//                    shareIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf<String>("sales1@breezeeurobondfsmacp.com","sales@breezeeurobondfsmacp.com"))
+//                    shareIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf<String>("sales1@eurobondacp.com","sales@eurobondacp.com"))
                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Quotation for $shop_name created on dated ${addQuotEditResult.save_date_time}.")
                    shareIntent.putExtra(Intent.EXTRA_TEXT, "Hello Team,  \n Please find attached Quotation No. ${addQuotEditResult.quotation_number} Dated ${addQuotEditResult.save_date_time} " +
                            " for $shop_name \n\n\n" +
@@ -933,9 +933,9 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             var m = Mail()
             var toArr = arrayOf("")
 
-            if(Pref.IsShowQuotationFooterforbreezeeurobondfsm){
-                m = Mail("breezeeurobondfsmacp02@gmail.com", "nuqfrpmdjyckkukl")
-                toArr = arrayOf("sales1@breezeeurobondfsmacp.com", "sales@breezeeurobondfsmacp.com")
+            if(Pref.IsShowQuotationFooterforEurobond){
+                m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
+                toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
             }else{
                 //m = Mail("suman.bachar@indusnet.co.in", "jfek uhst ltfk arrv")
                 m = Mail("suman.bachar@indusnet.co.in", "jfekuhstltfkarrv") // generate under 2-step verification -> app password

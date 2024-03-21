@@ -170,6 +170,7 @@ public interface AddShopDao {
     List<AddShopDBModelEntity> getShopBySearchData(String shopNameorNum);
 
     @Query("Select * from shop_detail where shop_name LIKE '%' || :shopNameorNum  || '%' OR owner_contact_number LIKE '%' || :shopNameorNum  ||  '%' OR owner_name LIKE '%' || :shopNameorNum  || '%' ")
+   // @Query("Select * from shop_detail where shop_name LIKE '%' || :shopNameorNum )
     List<AddShopDBModelEntity> getShopBySearchDataNew(String shopNameorNum);
 
 
@@ -369,6 +370,9 @@ public interface AddShopDao {
 
     @Query("select * from shop_detail where type = '99' order by added_date desc")
     List<AddShopDBModelEntity> getContatcShopsByAddedDate();
+
+    @Query("select * from shop_detail where type = '99' order by shop_name COLLATE NOCASE ASC")
+    List<AddShopDBModelEntity> getContatcShopsByName();
 
     @Query("select * from shop_detail where type = '99' and isUploaded=:isUploaded")
     List<AddShopDBModelEntity> getContatcUnsyncList(Boolean isUploaded);

@@ -101,4 +101,29 @@ class RevisionNote {
 
     //whatsapp api call off https://theultimate.io/WAApi/send
 
+    //mantis id 27172 begin
+
+    //mantis id 0027192 Suman date 18-01-2024
+
+    //mantis id 0027232 Puja date 06-02-2024
+
+    //negative distance handle Suman 06-02-2024 mantis id 0027225
+
+
+    //logout distance calculation mantis id 27259 Suman 20-02-2023
+
+    //screen recorder not working Puja 19-02-2024 mantis id 0027255
+
+    //Churn Probability optimization Puja mantis id 0027005
+
+    //AdditionalInfoRequiredForTimelines functionality Puja 20-02-2024 mantis id 0027245
+
+    // mrp fix Suman 22-02-2024 mantis id 0027271
+
+    // ShowPartyWithGeoFence fix puja 01-03-2024 mantis id 0027279
+
+    // ShowPartyWithCreateOrder fix puja 01-03-2024 mantis id 0027285
+
+    // Allow_past_days_for_apply_reimbursement fix puja 01-03-2024 mantis id 0027282
+
 }

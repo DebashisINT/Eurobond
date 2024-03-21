@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
 import android.speech.tts.TextToSpeech
 import androidx.core.content.ContextCompat
 import androidx.appcompat.widget.AppCompatTextView
@@ -41,6 +42,7 @@ import com.breezeeurobondfsm.app.utils.Toaster
 import com.breezeeurobondfsm.base.BaseResponse
 import com.breezeeurobondfsm.base.presentation.BaseActivity
 import com.breezeeurobondfsm.base.presentation.BaseActivity.Companion.compositeDisposable
+import com.breezeeurobondfsm.base.presentation.BaseActivity.Companion.isShopActivityUpdating
 import com.breezeeurobondfsm.base.presentation.BaseFragment
 import com.breezeeurobondfsm.features.addshop.api.AddShopRepositoryProvider
 import com.breezeeurobondfsm.features.addshop.api.assignToPPList.AssignToPPListRepoProvider
@@ -160,157 +162,159 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
         i = 0
         when (p0?.id) {
             R.id.sync_all_tv -> {
-                // tested on 23-11-2021 begin
-                for (i in ShopActivityEntityList.indices) {
-                if (!ShopActivityEntityList[i].isDurationCalculated && ShopActivityEntityList[i].startTimeStamp != "0" && ShopActivityEntityList[i].isUploaded==false) {
-                    Pref.durationCompletedShopId = ShopActivityEntityList[i].shopid!!
-                    val endTimeStamp = System.currentTimeMillis().toString()
-                    val totalMinute = AppUtils.getMinuteFromTimeStamp(ShopActivityEntityList[i].startTimeStamp, endTimeStamp)
-                    val duration = AppUtils.getTimeFromTimeSpan(ShopActivityEntityList[i].startTimeStamp, endTimeStamp)
+                Handler().postDelayed(Runnable {
+                    // tested on 23-11-2021 begin
+                    for (i in ShopActivityEntityList.indices) {
+                        if (!ShopActivityEntityList[i].isDurationCalculated && ShopActivityEntityList[i].startTimeStamp != "0" && ShopActivityEntityList[i].isUploaded==false) {
+                            Pref.durationCompletedShopId = ShopActivityEntityList[i].shopid!!
+                            val endTimeStamp = System.currentTimeMillis().toString()
+                            val totalMinute = AppUtils.getMinuteFromTimeStamp(ShopActivityEntityList[i].startTimeStamp, endTimeStamp)
+                            val duration = AppUtils.getTimeFromTimeSpan(ShopActivityEntityList[i].startTimeStamp, endTimeStamp)
 
-                    if (!Pref.isMultipleVisitEnable) {
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateTotalMinuteForDayOfShop(ShopActivityEntityList[i].shopid!!, totalMinute, selectedDate)
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateEndTimeOfShop(endTimeStamp, ShopActivityEntityList[i].shopid!!, selectedDate)
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateTimeDurationForDayOfShop(ShopActivityEntityList[i].shopid!!, duration, selectedDate)
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateDurationAvailable(true, ShopActivityEntityList[i].shopid!!, selectedDate)
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateIsUploaded(false, ShopActivityEntityList[i].shopid!!, selectedDate)
-                    }
-                    else {
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateTotalMinuteForDayOfShop(ShopActivityEntityList[i].shopid!!, totalMinute, selectedDate, ShopActivityEntityList[i].startTimeStamp)
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateEndTimeOfShop(endTimeStamp, ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateTimeDurationForDayOfShop(ShopActivityEntityList[i].shopid!!, duration, selectedDate, ShopActivityEntityList[i].startTimeStamp)
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateDurationAvailable(true, ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateIsUploaded(false, ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
-                    }
-                    AppDatabase.getDBInstance()!!.shopActivityDao().updateOutTime(AppUtils.getCurrentTimeWithMeredian(), ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
-                    AppDatabase.getDBInstance()!!.shopActivityDao().updateOutLocation(LocationWizard.getNewLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble()), ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
+                            if (!Pref.isMultipleVisitEnable) {
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateTotalMinuteForDayOfShop(ShopActivityEntityList[i].shopid!!, totalMinute, selectedDate)
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateEndTimeOfShop(endTimeStamp, ShopActivityEntityList[i].shopid!!, selectedDate)
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateTimeDurationForDayOfShop(ShopActivityEntityList[i].shopid!!, duration, selectedDate)
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateDurationAvailable(true, ShopActivityEntityList[i].shopid!!, selectedDate)
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateIsUploaded(false, ShopActivityEntityList[i].shopid!!, selectedDate)
+                            }
+                            else {
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateTotalMinuteForDayOfShop(ShopActivityEntityList[i].shopid!!, totalMinute, selectedDate, ShopActivityEntityList[i].startTimeStamp)
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateEndTimeOfShop(endTimeStamp, ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateTimeDurationForDayOfShop(ShopActivityEntityList[i].shopid!!, duration, selectedDate, ShopActivityEntityList[i].startTimeStamp)
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateDurationAvailable(true, ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateIsUploaded(false, ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
+                            }
+                            AppDatabase.getDBInstance()!!.shopActivityDao().updateOutTime(AppUtils.getCurrentTimeWithMeredian(), ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
+                            AppDatabase.getDBInstance()!!.shopActivityDao().updateOutLocation(LocationWizard.getNewLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble()), ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
 
-                    val netStatus = if (AppUtils.isOnline(mContext))
-                        "Online"
-                    else
-                        "Offline"
+                            val netStatus = if (AppUtils.isOnline(mContext))
+                                "Online"
+                            else
+                                "Offline"
 
-                    val netType = if (AppUtils.getNetworkType(mContext).equals("wifi", ignoreCase = true))
-                        AppUtils.getNetworkType(mContext)
-                    else
-                        "Mobile ${AppUtils.mobNetType(mContext)}"
+                            val netType = if (AppUtils.getNetworkType(mContext).equals("wifi", ignoreCase = true))
+                                AppUtils.getNetworkType(mContext)
+                            else
+                                "Mobile ${AppUtils.mobNetType(mContext)}"
 
-                    if (!Pref.isMultipleVisitEnable) {
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateDeviceStatusReason(AppUtils.getDeviceName(), AppUtils.getAndroidVersion(),
-                                AppUtils.getBatteryPercentage(mContext).toString(), netStatus, netType.toString(), ShopActivityEntityList[i].shopid!!,selectedDate)
-                    }
-                    else {
-                        AppDatabase.getDBInstance()!!.shopActivityDao().updateDeviceStatusReason(AppUtils.getDeviceName(), AppUtils.getAndroidVersion(),
-                                AppUtils.getBatteryPercentage(mContext).toString(), netStatus, netType.toString(), ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
-                    }
+                            if (!Pref.isMultipleVisitEnable) {
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateDeviceStatusReason(AppUtils.getDeviceName(), AppUtils.getAndroidVersion(),
+                                    AppUtils.getBatteryPercentage(mContext).toString(), netStatus, netType.toString(), ShopActivityEntityList[i].shopid!!,selectedDate)
+                            }
+                            else {
+                                AppDatabase.getDBInstance()!!.shopActivityDao().updateDeviceStatusReason(AppUtils.getDeviceName(), AppUtils.getAndroidVersion(),
+                                    AppUtils.getBatteryPercentage(mContext).toString(), netStatus, netType.toString(), ShopActivityEntityList[i].shopid!!, selectedDate, ShopActivityEntityList[i].startTimeStamp)
+                            }
 //                    AppUtils.isShopVisited = false
 
-                    Pref.isShopVisited=false
-                    /*if (Pref.willShowShopVisitReason && totalMinute.toInt() < Pref.minVisitDurationSpentTime.toInt()) {
-                        Pref.isShowShopVisitReason = true
-                        showRevisitReasonDialog(shopActivityList[i].startTimeStamp)
-                    }*/
-                }
-            }
-                //ShopActivityEntityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi())
-                ShopActivityEntityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(selectedDate)
-                Collections.reverse(ShopActivityEntityList)
-                // tested on 23-11-2021 end
-
-
-
-                /*if (ShopActivityEntityList != null && ShopActivityEntityList.isNotEmpty())
-                    syncAllShopActivity(ShopActivityEntityList[i].shopid!!)
-                else {
-                    var unSyncedList: List<ShopVisitImageModelEntity>? = null
-                    for (i in ShopActivityEntityList.indices) {
-                        unSyncedList = AppDatabase.getDBInstance()!!.shopVisitImageDao().getTodaysUnSyncedListAccordingToShopId(false, ShopActivityEntityList[i].shopid!!, ShopActivityEntityList[i].visited_date!!)
+                            Pref.isShopVisited=false
+                            /*if (Pref.willShowShopVisitReason && totalMinute.toInt() < Pref.minVisitDurationSpentTime.toInt()) {
+                                Pref.isShowShopVisitReason = true
+                                showRevisitReasonDialog(shopActivityList[i].startTimeStamp)
+                            }*/
+                        }
                     }
-
-                    if (unSyncedList != null && unSyncedList.isNotEmpty()) {
-                        j = 0
-                        callShopVisitImageUploadApiForAll(unSyncedList)
-                    }
-                }*/
+                    //ShopActivityEntityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi())
+                    ShopActivityEntityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(selectedDate)
+                    Collections.reverse(ShopActivityEntityList)
+                    // tested on 23-11-2021 end
 
 
 
-                if (!Pref.isMultipleVisitEnable) {
-                    if (ShopActivityEntityList != null && ShopActivityEntityList.isNotEmpty()) {
-
-                        var list = ArrayList<ShopActivityEntity>()
-
+                    /*if (ShopActivityEntityList != null && ShopActivityEntityList.isNotEmpty())
+                        syncAllShopActivity(ShopActivityEntityList[i].shopid!!)
+                    else {
+                        var unSyncedList: List<ShopVisitImageModelEntity>? = null
                         for (i in ShopActivityEntityList.indices) {
-                            val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(ShopActivityEntityList[i].shopid)
-                            if (shop.isUploaded) {
-                                if (ShopActivityEntityList[i].isDurationCalculated /*&& !ShopActivityEntityList[i].isUploaded*/) {
-                                    if (AppUtils.isVisitSync == "1") {
-                                        list.add(ShopActivityEntityList[i])
-                                        }
-                                    else {
-                                        if (!ShopActivityEntityList[i].isUploaded) {
+                            unSyncedList = AppDatabase.getDBInstance()!!.shopVisitImageDao().getTodaysUnSyncedListAccordingToShopId(false, ShopActivityEntityList[i].shopid!!, ShopActivityEntityList[i].visited_date!!)
+                        }
+
+                        if (unSyncedList != null && unSyncedList.isNotEmpty()) {
+                            j = 0
+                            callShopVisitImageUploadApiForAll(unSyncedList)
+                        }
+                    }*/
+
+
+
+                    if (!Pref.isMultipleVisitEnable) {
+                        if (ShopActivityEntityList != null && ShopActivityEntityList.isNotEmpty()) {
+
+                            var list = ArrayList<ShopActivityEntity>()
+
+                            for (i in ShopActivityEntityList.indices) {
+                                val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(ShopActivityEntityList[i].shopid)
+                                if (shop.isUploaded) {
+                                    if (ShopActivityEntityList[i].isDurationCalculated /*&& !ShopActivityEntityList[i].isUploaded*/) {
+                                        if (AppUtils.isVisitSync == "1") {
                                             list.add(ShopActivityEntityList[i])
+                                        }
+                                        else {
+                                            if (!ShopActivityEntityList[i].isUploaded) {
+                                                list.add(ShopActivityEntityList[i])
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        /*if(list.size>0){
-                            for( i in list?.indices){
-                                var revisitStatusObj= ShopRevisitStatusRequestData()
-                                var data=AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.getSingleItem(list?.get(i).shop_revisit_uniqKey.toString())
-                                if(data != null ){
-                                    revisitStatusObj.shop_id=data.shop_id
-                                    revisitStatusObj.order_status=data.order_status
-                                    revisitStatusObj.order_remarks=data.order_remarks
-                                    revisitStatusObj.shop_revisit_uniqKey=data.shop_revisit_uniqKey
-                                    revisitStatusList.add(revisitStatusObj)
+                            /*if(list.size>0){
+                                for( i in list?.indices){
+                                    var revisitStatusObj= ShopRevisitStatusRequestData()
+                                    var data=AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.getSingleItem(list?.get(i).shop_revisit_uniqKey.toString())
+                                    if(data != null ){
+                                        revisitStatusObj.shop_id=data.shop_id
+                                        revisitStatusObj.order_status=data.order_status
+                                        revisitStatusObj.order_remarks=data.order_remarks
+                                        revisitStatusObj.shop_revisit_uniqKey=data.shop_revisit_uniqKey
+                                        revisitStatusList.add(revisitStatusObj)
+                                    }
                                 }
+                            }*/
+
+
+                            list = list.filter { it.isUploaded == false } as ArrayList<ShopActivityEntity>
+
+                            if (list.size > 0) {
+                                syncAllShopActivity(list[i].shopid!!, list)
                             }
-                        }*/
-
-
-                        list = list.filter { it.isUploaded == false } as ArrayList<ShopActivityEntity>
-
-                        if (list.size > 0) {
-                            syncAllShopActivity(list[i].shopid!!, list)
+                            else {
+                                syncShopVisitImage()
                             }
-                        else {
+                        } else {
                             syncShopVisitImage()
                         }
-                    } else {
-                        syncShopVisitImage()
                     }
-                }
-                else {
-                    if (ShopActivityEntityList != null && ShopActivityEntityList.isNotEmpty()) {
+                    else {
+                        if (ShopActivityEntityList != null && ShopActivityEntityList.isNotEmpty()) {
 
-                        var list = ArrayList<ShopActivityEntity>()
+                            var list = ArrayList<ShopActivityEntity>()
 
-                        for (i in ShopActivityEntityList.indices) {
-                            val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(ShopActivityEntityList[i].shopid)
-                            if (shop.isUploaded) {
-                                if (ShopActivityEntityList[i].isDurationCalculated /*&& !ShopActivityEntityList[i].isUploaded*/) {
-                                    if (AppUtils.isVisitSync == "1") {
-                                        list.add(ShopActivityEntityList[i])
-                                    }
-                                    else {
-                                        if (!ShopActivityEntityList[i].isUploaded) {
+                            for (i in ShopActivityEntityList.indices) {
+                                val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(ShopActivityEntityList[i].shopid)
+                                if (shop.isUploaded) {
+                                    if (ShopActivityEntityList[i].isDurationCalculated /*&& !ShopActivityEntityList[i].isUploaded*/) {
+                                        if (AppUtils.isVisitSync == "1") {
                                             list.add(ShopActivityEntityList[i])
+                                        }
+                                        else {
+                                            if (!ShopActivityEntityList[i].isUploaded) {
+                                                list.add(ShopActivityEntityList[i])
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        list = list.filter { it.isUploaded == false } as ArrayList<ShopActivityEntity>
+                            list = list.filter { it.isUploaded == false } as ArrayList<ShopActivityEntity>
 
-                        if (list.size > 0) {
-                            syncAllShopActivityForMultiVisit(list)
+                            if (list.size > 0) {
+                                syncAllShopActivityForMultiVisit(list)
                             }
+                        }
                     }
-                }
+                }, 1200)
             }
         }
     }
@@ -817,12 +821,15 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
         try {
 
             if (!AppUtils.isOnline(mContext)) {
+                isShopActivityUpdating = false
                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
                 return
             }
             val mList = AppDatabase.getDBInstance()!!.shopActivityDao().getShopForDay(shopId, selectedDate)
-            if (mList.isEmpty())
+            if (mList.isEmpty()){
+                isShopActivityUpdating = false
                 return
+            }
             val shopActivity = mList[0]
 //        var shopActivity = AppDatabase.getDBInstance()!!.shopActivityDao().getShopActivityForId(shopId)
             val shopDurationApiReq = ShopDurationRequest()
@@ -938,6 +945,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
             shopDataList.add(shopDurationData)
 
             if (shopDataList.isEmpty()) {
+                isShopActivityUpdating = false
                 return
             }
 
@@ -1015,7 +1023,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
 
                                         uiThread {
                                             progress_wheel.stopSpinning()
-
+                                            isShopActivityUpdating = false
                                             if (unSyncedList.size > 0) {
                                                 callShopVisitImageUploadApi(unSyncedList, false, null)
                                             } else {
@@ -1046,6 +1054,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
 
                                 } else {
                                     progress_wheel.stopSpinning()
+                                    isShopActivityUpdating = false
                                     (mContext as DashboardActivity).showSnackMessage(mContext.getString(R.string.unable_to_sync))
 
                                     ShopActivityEntityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi())
@@ -1056,6 +1065,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                             }, { error ->
                                 error.printStackTrace()
                                 progress_wheel.stopSpinning()
+                                isShopActivityUpdating = false
                                 Timber.d("ShopActivityFromAverageShop : " + "User Id" + Pref.user_id + ", Session Token" + Pref.session_token + ", SHOP_ID: " + mList[0].shopid + ", SHOP: " + mList[0].shop_name + ", ERROR:" + error.localizedMessage)
                                 (mContext as DashboardActivity).showSnackMessage(mContext.getString(R.string.unable_to_sync))
 
@@ -1066,6 +1076,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                             })
             )
         } catch (e: Exception) {
+            isShopActivityUpdating = false
             e.printStackTrace()
         }
     }
@@ -1138,6 +1149,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                             })
             )
         } catch (e: Exception) {
+            BaseActivity.isShopActivityUpdating = false
             e.printStackTrace()
         }
     }
@@ -1256,7 +1268,24 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 if (shop != null) {
 
                     if (shop.isUploaded) {
-                        checkToSyncShop(position)
+                        //checkToSyncShop(position)
+
+                        // mantis id 27190 Suman 16-01-2024 begin
+                        if(!isShopActivityUpdating){
+                            isShopActivityUpdating = true
+                            if(AppUtils.isOnline(mContext)){
+                                Handler().postDelayed(Runnable {
+                                    checkToSyncShop(position)
+                                }, 500)
+                            }else{
+                                isShopActivityUpdating = false
+                                (mContext as DashboardActivity).showSnackMessage(getString(R.string.no_internet))
+                            }
+                        }else{
+                            println("print_tag_sync checkToSyncShop not call")
+                        }
+
+                        // mantis id 27190 Suman 16-01-2024 end
                     } else {
                         syncShop(position, shop)
                     }
@@ -1327,7 +1356,6 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 var shopWiseWhatsObj = AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getByShopIDDate(shop_id,AppUtils.getCurrentDateForShopActi())
                 var shopObj: AddShopDBModelEntity = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shop_id)
                 if(AppUtils.isOnline(mContext)){
-                    //whatsapp api call off https://theultimate.io/WAApi/send
                     whatsappApi(shopWiseWhatsObj!!,shopObj,shopWiseWhatsObj.isNewShop)
                 }else{
                     Toaster.msgShort(mContext, "Your network connection is offine. Make it online to proceed.")
@@ -1350,7 +1378,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                         "Thanks for connecting with (${Pref.user_name} - ${Pref.UserLoginContactID})\n" +
                         "\n" +
                         "We're thrilled to have you on board! Explore our website to discover a world of stunning ACP designs with unbeatable quality, and unmatched performance. Let's create something extraordinary together!\n" +
-                        "https://www.breezeeurobondfsmacp.com/download-catalogues\n\n" +
+                        "https://www.eurobondacp.com/download-catalogues\n\n" +
                         "\n" +
                         "*Team Eurobond*\n"
                 templateName = "incoming_call_response"
@@ -2197,6 +2225,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
             if (!ShopActivityEntityList[position].isUploaded)
                 syncShopActivity(ShopActivityEntityList[position].shopid!!)
             else {
+                isShopActivityUpdating = false
                 val unSyncedList = AppDatabase.getDBInstance()!!.shopVisitImageDao().getTodaysUnSyncedListAccordingToShopId(false,
                         ShopActivityEntityList[position].shopid!!, ShopActivityEntityList[position].visited_date!!)
 
@@ -2212,6 +2241,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 }
             }
         } catch (e: Exception) {
+            isShopActivityUpdating = false
             e.printStackTrace()
         }
     }

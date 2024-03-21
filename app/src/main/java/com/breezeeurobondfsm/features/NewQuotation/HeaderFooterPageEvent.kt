@@ -49,11 +49,11 @@ class HeaderFooterPageEvent(var companyN:String,var salesmanN:String,var salesma
         //ColumnText.showTextAligned(writer!!.getDirectContent(), Element.ALIGN_CENTER,  Phrase(""), 110f, 30f, 0f);
         //ColumnText.showTextAligned(writer!!.getDirectContent(), Element.ALIGN_CENTER,  Phrase("page " + document!!.getPageNumber()), 550f, 30f, 0f);
 
-        //Hardcoded for breezeeurobondfsm
+        //Hardcoded for EuroBond
 //        val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.ics_image_full)
 //          val bm: Bitmap = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.footer_icon_euro)
         var bm: Bitmap
-        if(Pref.IsShowQuotationFooterforbreezeeurobondfsm){
+        if(Pref.IsShowQuotationFooterforEurobond){
             bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.footer_icon_euro)
         }else{
             bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.strip_line)
@@ -77,7 +77,7 @@ class HeaderFooterPageEvent(var companyN:String,var salesmanN:String,var salesma
         var imgSoc:Image = Image.getInstance(img)
         imgSoc.setAbsolutePosition(15f, 10f);
         var cb : PdfContentByte = writer!!.getDirectContent() as PdfContentByte
-        if(Pref.IsShowQuotationFooterforbreezeeurobondfsm){
+        if(Pref.IsShowQuotationFooterforEurobond){
             cb.addImage(imgSoc)
         }
 

@@ -424,7 +424,7 @@ class CustomerRepeatOrderItemListAdapter(context: Context, list: ArrayList<AddSh
                         listener.onHistoryClick(list[adapterPosition])
                     }
 
-                    //Hardcoded for breezeeurobondfsm
+                    //Hardcoded for EuroBond
                     //itemView.ll_last_visit_age.visibility=View.GONE
                     //itemView.ll_average_visit_time.visibility=View.GONE
                     //itemView.ll_distance.visibility=View.GONE

@@ -1073,7 +1073,7 @@ fun clearData() {
                     backupAlarmMgr.cancel(pendingIntent)
                     pendingIntent.cancel()
 
-                    Timber.e("BaseActivity", "Stop Job Intent Service")
+                    Log.e("BaseActivity", "Stop Job Intent Service")
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -1083,15 +1083,7 @@ fun clearData() {
                 AppUtils.clearPreferenceKey(this@BaseActivity, "TEXT_LIST")
                 AppUtils.clearPreferenceKey(this@BaseActivity, "Location")
 
-                Timber.d("serviceStatusActionable start")
-                try {
-                    serviceStatusActionable()
-                    Timber.d("serviceStatusActionable end")
-                }catch (ex:Exception){
-                    ex.printStackTrace()
-                    Timber.d("serviceStatusActionable err ${ex.message}")
-                }
-
+                serviceStatusActionable()
 
                 /*try {
                     val shopActivityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi())
@@ -1145,19 +1137,13 @@ fun clearData() {
                 }
 */
 
-                try {
-                    Timber.d("LoginActivity load")
-                    val intent = Intent(this@BaseActivity, LoginActivity::class.java)
-                    //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    overridePendingTransition(0, 0)
-                    finishAffinity()
-                }catch (ex:Exception){
-                     ex.printStackTrace()
-                    Timber.d("LoginActivity error ${ex.message}")
-                }
-
+                val intent = Intent(this@BaseActivity, LoginActivity::class.java)
+                //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                overridePendingTransition(0, 0)
+                finishAffinity()
             }
+
         }
     }
 }
@@ -1185,9 +1171,7 @@ private fun runLongTask(): Any {
         }
     } catch (e: Exception) {
         e.printStackTrace()
-        Timber.d("runLongTask error ${e.printStackTrace()}")
     }
-    Timber.d("runLongTask return true")
     return true
 }
 
@@ -1220,6 +1204,8 @@ fun serviceStatusActionable() {
             return
         }
         val serviceLauncher = Intent(this, LocationFuzedService::class.java)
+        Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
+
         if (Pref.user_id != null && Pref.user_id!!.isNotEmpty()) {
 
             Timber.e("MID: 26980 in serviceStatusActionable method if user_id is not null")
@@ -1238,6 +1224,7 @@ fun serviceStatusActionable() {
                         .setOverrideDeadline(1000)
                         .build()
 
+                Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
                 val resultCode = jobScheduler.schedule(jobInfo)
 
                 Timber.e("MID: 26980 in serviceStatusActionable method if user_id is not null $resultCode")
@@ -1252,6 +1239,7 @@ fun serviceStatusActionable() {
             } else {
 
                 Timber.e("MID: 26980 in serviceStatusActionable method if user_id is not null, SDK_VERSION is less 26")
+                Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
 
                 startService(serviceLauncher)
                 startMonitorService()

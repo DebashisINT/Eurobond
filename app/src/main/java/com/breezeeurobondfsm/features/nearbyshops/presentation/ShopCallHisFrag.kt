@@ -80,9 +80,13 @@ class ShopCallHisFrag : BaseFragment(), View.OnClickListener {
     private lateinit var tvOwnerContact : TextView
     private lateinit var ivOwnerContact : ImageView
     private lateinit var llShopAddr : LinearLayout
-    private lateinit var tvNoData : TextView
     private lateinit var mFab: MovableFloatingActionButton
     private lateinit var progress_wheel: ProgressWheel
+
+    private lateinit var tv_empty_page_msg_head:TextView
+    private lateinit var tv_empty_page_msg:TextView
+    private lateinit var ll_no_data_root:LinearLayout
+    private lateinit var img_direction:ImageView
 
     private var shopDtls = AddShopDBModelEntity()
 
@@ -118,10 +122,15 @@ class ShopCallHisFrag : BaseFragment(), View.OnClickListener {
         tvOwnerName = view.findViewById(R.id.tv_frag_shop_call_his_shop_owner_name)
         tvOwnerContact = view.findViewById(R.id.tv_frag_shop_call_his_shop_owner_contact)
         ivOwnerContact = view.findViewById(R.id.iv_frag_shop_call_his_shop_owner_contact)
-        tvNoData = view.findViewById(R.id.tv_frag_call_his_noData)
         progress_wheel = view.findViewById(R.id.progress_wheel_frag_shop_Call_his)
 
         mFab = view.findViewById(R.id.fab_frag_call_his_share)
+
+        tv_empty_page_msg_head = view.findViewById(R.id.tv_empty_page_msg_head)
+        tv_empty_page_msg = view.findViewById(R.id.tv_empty_page_msg)
+        ll_no_data_root = view.findViewById(R.id.ll_no_data_root)
+        img_direction = view.findViewById(R.id.img_direction)
+        img_direction.visibility = View.GONE
 
         shopDtls = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopID)
         tvShopInitial.text = shopDtls.shopName!!.get(0).toString()
@@ -209,7 +218,7 @@ class ShopCallHisFrag : BaseFragment(), View.OnClickListener {
         var callL = AppDatabase.getDBInstance()!!.callhisDao().getCallListByID(shopID) as ArrayList<CallHisEntity>
         if(callL.size>0){
             tvOwnerContact.text = shopDtls.ownerContactNumber+" (Call Count : ${callL.size})"
-            tvNoData.visibility = View.GONE
+            ll_no_data_root.visibility = View.GONE
             rvCallLogL.visibility = View.VISIBLE
             adapterCallLogL = AdapterCallLogL(mContext,callL,true,object :AdapterCallLogL.onClick{
                 override fun onSyncClick(obj: CallHisEntity) {
@@ -219,7 +228,9 @@ class ShopCallHisFrag : BaseFragment(), View.OnClickListener {
             })
             rvCallLogL.adapter=adapterCallLogL
         }else{
-            tvNoData.visibility = View.VISIBLE
+            ll_no_data_root.visibility = View.VISIBLE
+            tv_empty_page_msg_head.text = "No record found."
+            tv_empty_page_msg.visibility = View.GONE
             rvCallLogL.visibility = View.GONE
             //(mContext as DashboardActivity).showSnackMessage(getString(R.string.no_data_available))
         }

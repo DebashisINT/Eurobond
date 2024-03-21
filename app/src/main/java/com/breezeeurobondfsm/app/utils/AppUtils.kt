@@ -3129,6 +3129,24 @@ class AppUtils {
             return differenceInDays.toString()
         }
 
+        fun addMonths(startDt:String):String{
+            try {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+                var convertedDate = Date()
+                try {
+                    convertedDate = dateFormat.parse(startDt)
+                } catch (e: ParseException) {
+                    e.printStackTrace()
+                }
+                convertedDate.month = convertedDate.month+1
+
+                return dateFormat.format(convertedDate.time)
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                return ""
+            }
+        }
+
         fun getPrevXMonthDate(prevMonthCount:Int):String{
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.MONTH, -prevMonthCount)
@@ -3367,7 +3385,7 @@ class AppUtils {
                         val groupId = it.getString(it.getColumnIndex(ContactsContract.Groups._ID))
                         if(!groups.map { it.gr_name }.contains(groupName)){
                             groups.add(ContactGr(groupId,groupName))
-                            println("tag_contact_gr $groupId $groupName")
+                            //println("tag_contact_gr $groupId $groupName")
                         }
 
                     }
@@ -3382,6 +3400,9 @@ class AppUtils {
 
         @SuppressLint("Range")
         fun getContactsFormGroup(grId:String, grName:String, context:Context):ArrayList<ContactDtls>{
+
+            println("tag_cont getContactsFormGroup start ")
+
             var contactDtls:ArrayList<ContactDtls> = ArrayList()
             val groupId: String = grId
             val cProjection = arrayOf<String>(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID)
@@ -3412,12 +3433,12 @@ class AppUtils {
                         val numberColumnIndex = numberCursor!!.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
                         do {
                             val phoneNumber = numberCursor!!.getString(numberColumnIndex)
-                            Log.d("your tag", "contact $name:$phoneNumber")
-                            println("tag_contact for grId ${groupId} contact $name:$phoneNumber")
+                            //Log.d("your tag", "contact $name:$phoneNumber")
+                            //println("tag_contact for grId ${groupId} contact $name:$phoneNumber")
                             var ph = phoneNumber.toString().replace(" ","")
                             if(!contactDtls.map { it.number }.contains(ph)){
                                 contactDtls.add(ContactDtls(grName,name,ph))
-                                println("tag_contact_gr_name $name $ph")
+                                println("tag_cont ___________________ $name $ph")
                             }
                         } while (numberCursor!!.moveToNext())
                         numberCursor!!.close()
@@ -3425,6 +3446,7 @@ class AppUtils {
                 } while (groupCursor.moveToNext())
                 groupCursor.close()
             }
+            println("tag_cont getContactsFormGroup end ")
             return contactDtls
         }
 

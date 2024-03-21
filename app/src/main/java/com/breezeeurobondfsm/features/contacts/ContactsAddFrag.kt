@@ -195,14 +195,14 @@ class ContactsAddFrag : BaseFragment(), View.OnClickListener {
         cvSubmit = view.findViewById(R.id.cv_frag_cont_add_submit)
 
         // set onclick listners
-        //tv_assignTo.setOnClickListener(this)
+        tv_assignTo.setOnClickListener(this)
         iv_assignTo.setOnClickListener(this)
         cvSubmit.setOnClickListener(this)
-        //tv_type.setOnClickListener(this)
-        //tv_status.setOnClickListener(this)
-        //tv_source.setOnClickListener(this)
-        //tv_stage.setOnClickListener(this)
-        //tv_reference.setOnClickListener(this)
+        tv_type.setOnClickListener(this)
+        tv_status.setOnClickListener(this)
+        tv_source.setOnClickListener(this)
+        tv_stage.setOnClickListener(this)
+        tv_reference.setOnClickListener(this)
         ll_addExtraContact.setOnClickListener(this)
         tv_extraContact1.setOnClickListener(this)
         tv_extraContact2.setOnClickListener(this)
@@ -228,7 +228,7 @@ class ContactsAddFrag : BaseFragment(), View.OnClickListener {
         extraContRoot.visibility = View.GONE
 
         progress_wheel.spin()
-        if(AppUtils.isOnline(mContext)){
+  /*      if(AppUtils.isOnline(mContext)){
             singleLocation()
         }else{
             locationStr = LocationWizard.getNewLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
@@ -239,7 +239,15 @@ class ContactsAddFrag : BaseFragment(), View.OnClickListener {
             et_addr.setText(locationStr)
             et_pin.setText(location_pinStr)
             progress_wheel.stopSpinning()
-        }
+        }*/
+        locationStr = LocationWizard.getNewLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
+        location_pinStr = LocationWizard.getPostalCode(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
+        locationStr_lat =Pref.current_latitude.toDouble().toString()
+        locationStr_long =Pref.current_longitude.toDouble().toString()
+
+        et_addr.setText(locationStr)
+        et_pin.setText(location_pinStr)
+        progress_wheel.stopSpinning()
 
 
         Handler().postDelayed(Runnable {
@@ -256,12 +264,12 @@ class ContactsAddFrag : BaseFragment(), View.OnClickListener {
             })
         )*/
 
-        tv_stage.isEnabled = false
+        /*tv_stage.isEnabled = false
         tv_type.isEnabled = false
         tv_status.isEnabled = false
         tv_source.isEnabled = false
         tv_reference.isEnabled = false
-        tv_assignTo.isEnabled = false
+        tv_assignTo.isEnabled = false*/
 
         if(!editShopID.equals("")){
             (mContext as DashboardActivity).setTopBarTitle("Edit Contact")
@@ -1136,7 +1144,7 @@ class ContactsAddFrag : BaseFragment(), View.OnClickListener {
             for(i in 0..member_list.size-1){
                 genericL.add(CustomData(member_list.get(i).user_id.toString(),member_list.get(i).user_name.toString()))
             }
-            GenericDialog.newInstance("Reference",genericL as ArrayList<CustomData>){
+            GenericDialog.newInstance("Assign To",genericL as ArrayList<CustomData>){
                 tv_assignTo.setText(it.name)
                 str_assignToID = it.id
             }.show((mContext as DashboardActivity).supportFragmentManager, "")

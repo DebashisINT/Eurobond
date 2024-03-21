@@ -400,7 +400,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                             val configResponse = result as ConfigFetchResponseModel
 //                            XLog.d("ConfigFetchApiResponse : " + "\n" + "Status=====> " + configResponse.status + ", Message====> " + configResponse.message)
-                            Timber.d("ConfigFetchApiResponse : " + "\n" + "Status=====> " + configResponse.status + ", Message====> " + configResponse.message)
+                            Timber.d("GlobalSettingsConfigFetchApiResponse : " + "\n" + "Status=====> " + configResponse.status + ", Message====> " + configResponse.message)
                            /* progress_wheel.stopSpinning()*/
                             if (configResponse.status == NetworkConstant.SUCCESS) {
 
@@ -414,7 +414,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                     AppUtils.maxAccuracy = configResponse.max_accuracy!!
 
                                 if (!TextUtils.isEmpty(configResponse.min_accuracy))
-                                    AppUtils.minAccuracy = configResponse.min_accuracy!!
+                                    //AppUtils.minAccuracy = configResponse.min_accuracy!!
+                                    Pref.minAccuracy = configResponse.min_accuracy!!
 
                                 /*if (!TextUtils.isEmpty(configResponse.idle_time))
                                     AppUtils.idle_time = configResponse.idle_time!!*/
@@ -695,8 +696,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                     Pref.IsRouteStartFromAttendance = configResponse.IsRouteStartFromAttendance!!
 
                                 // 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
-                                if (configResponse.IsShowQuotationFooterforbreezeeurobondfsm != null)
-                                    Pref.IsShowQuotationFooterforbreezeeurobondfsm = configResponse.IsShowQuotationFooterforbreezeeurobondfsm!!
+                                if (configResponse.IsShowQuotationFooterforEurobond != null)
+                                    Pref.IsShowQuotationFooterforEurobond = configResponse.IsShowQuotationFooterforEurobond!!
                                 if (configResponse.IsShowOtherInfoinShopMaster != null)
                                     Pref.IsShowOtherInfoinShopMaster = configResponse.IsShowOtherInfoinShopMaster!!
 
@@ -838,6 +839,34 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                 if (configResponse.IsShowCustomerLocationShare != null)
                                     Pref.IsShowCustomerLocationShare = configResponse.IsShowCustomerLocationShare!!
+
+                                //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+
+                                if (configResponse.AdditionalInfoRequiredForTimelines != null)
+                                    Pref.AdditionalInfoRequiredForTimelines = configResponse.AdditionalInfoRequiredForTimelines!!
+
+                                //end mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+
+                                //begin mantis id 0027279 ShowPartyWithGeoFence functionality Puja 01-03-2024
+
+                                if (configResponse.ShowPartyWithGeoFence != null)
+                                    Pref.ShowPartyWithGeoFence = configResponse.ShowPartyWithGeoFence!!
+
+                                //end mantis id 0027279 ShowPartyWithGeoFence functionality Puja 01-03-2024
+
+                                //begin mantis id 0027285 ShowPartyWithCreateOrder functionality Puja 01-03-2024
+
+                                if (configResponse.ShowPartyWithCreateOrder != null)
+                                    Pref.ShowPartyWithCreateOrder = configResponse.ShowPartyWithCreateOrder!!
+
+                                //end mantis id 0027285 ShowPartyWithCreateOrder functionality Puja 01-03-2024
+
+                                //begin mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
+
+                                if (configResponse.Allow_past_days_for_apply_reimbursement != null)
+                                    Pref.Allow_past_days_for_apply_reimbursement = configResponse.Allow_past_days_for_apply_reimbursement!!
+
+                                //end mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
 
                             }
                             isApiInitiated = false
@@ -3851,13 +3880,13 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
         tvappCustomAnydeskInfo.isSelected = false
 
-     /*   var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
+        var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
         if (launchIntent != null) {
 //            activity_login_tvappCustomAnydesk.text = resources.getString(R.string.label_open_anydesk)
         } else {
 //            activity_login_tvappCustomAnydesk.text = resources.getString(R.string.label_install_anydesk)
         }
-*/
+
 
 
         if (Pref.isRememberMe) {
@@ -4100,8 +4129,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                 simpleDialog.setCancelable(true)
                 simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 simpleDialog.setContentView(R.layout.dialog_settings)
-               // val tvappCustomAnydesk = simpleDialog.findViewById(R.id.activity_login_tvappCustomAnydesk) as AppCustomTextView
-              //  val tvappCustomSharelog = simpleDialog.findViewById(R.id.activity_login_tvappCustomLogs) as AppCustomTextView
+                val tvappCustomAnydesk = simpleDialog.findViewById(R.id.activity_login_tvappCustomAnydesk) as AppCustomTextView
+                val tvappCustomSharelog = simpleDialog.findViewById(R.id.activity_login_tvappCustomLogs) as AppCustomTextView
                 val tvappDbShare = simpleDialog.findViewById(R.id.activity_login_tvappdbLogs) as AppCustomTextView
                 val tvprivacyPolicy = simpleDialog.findViewById(R.id.activity_login_tvprivacypolicy) as AppCustomTextView // mantis 0025783 In-app privacy policy working in menu & Login
 
@@ -4121,7 +4150,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                     simpleDialog.dismiss()
 
                 }
-/*
                 tvappCustomAnydesk.setOnClickListener {
                     var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
                     if (launchIntent != null) {
@@ -4132,21 +4160,18 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                     }
                     simpleDialog.dismiss()
                 }
-*/
-/*
                 tvappCustomSharelog.setOnClickListener {
                     openShareIntents()
                     simpleDialog.dismiss()
 
                 }
-*/
-             /*   var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
+                var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
                 if (launchIntent != null) {
                     tvappCustomAnydesk.text = resources.getString(R.string.label_open_anydesk)
                 } else {
                     tvappCustomAnydesk.text = resources.getString(R.string.label_install_anydesk)
                  }
-*/
+
                 if (!activity_login_tvappCustomAnydeskInfo.isSelected) {
                     activity_login_tvappCustomAnydeskInfo.isSelected = true
 //                    activity_login_llList.visibility = View.VISIBLE
@@ -4770,6 +4795,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             Pref.pwd = ""
         }
 
+        Pref.logId = username
+        Pref.loginPassword = password
+
         var mLocation = ""
 
         if (Pref.latitude != "0.0" && Pref.longitude != "0.0") {
@@ -4977,7 +5005,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             }
                             isApiInitiated = false
 
-                        }, { error ->
+                        },
+                            { error ->
                             login_TV.isEnabled = true
                             enableScreen()
                             isApiInitiated = false
@@ -5423,8 +5452,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
 
     private fun getProductList(date: String?) {
-        //Hardcoded for breezeeurobondfsm
-        if((Pref.isOrderShow && AppDatabase.getDBInstance()?.productListDao()?.getAll()!!.isEmpty()) || Pref.IsShowQuotationFooterforbreezeeurobondfsm){
+        //Hardcoded for EuroBond
+        if((Pref.isOrderShow && AppDatabase.getDBInstance()?.productListDao()?.getAll()!!.isEmpty()) || Pref.IsShowQuotationFooterforEurobond){
 //            XLog.d("API_Optimization getProductList Login : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
             Timber.d("API_Optimization getProductList Login : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
         println("xyzzz - getProductList started" + AppUtils.getCurrentDateTime());
@@ -6272,12 +6301,12 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsShowMenuMIS_Report = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            } /*else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuAnyDesk", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuAnyDesk", ignoreCase = true)) {
                                                 Pref.IsShowMenuAnyDesk = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsShowMenuAnyDesk = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }*/ else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuPermission Info", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuPermission Info", ignoreCase = true)) {
                                                 Pref.IsShowMenuPermission_Info = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsShowMenuPermission_Info = response.getconfigure?.get(i)?.Value == "1"
@@ -8014,6 +8043,17 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         enableScreen()
 // 7.0 LoginActivity AppV 4.0.6 Suman    03/02/2023  Insert login address into location_db
         doAsync {
+            //test code begin
+          /*  for(i in 0..1){
+                var obj = ScheduleTemplateEntity()
+                obj.template_id = i+1
+                obj.template_name = "Template ${i+1}"
+                AppDatabase.getDBInstance()!!.scheduleTemplateDao().insert(obj)
+            }*/
+
+            //test code end
+
+
             //login loc insert
             Timber.d("insertion login tag begin ${AppUtils.getCurrentDateTime()} ${Pref.latitude} ${Pref.longitude}")
             var locationObj: UserLocationDataEntity = UserLocationDataEntity()
@@ -8042,6 +8082,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             locationObj.minutes = loginminutesStr //LocationWizard.getMinute()
             locationObj.hour = loginhourStr //LocationWizard.getHour()
             AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(locationObj)
+            /*if(Pref.IsRouteStartFromAttendance == false){
+                AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(locationObj)
+            }*/
 
             Timber.d("insertion login tag ends ${AppUtils.getCurrentDateTime()}")
 

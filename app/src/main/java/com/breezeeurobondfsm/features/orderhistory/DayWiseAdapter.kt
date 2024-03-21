@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.breezeeurobondfsm.R
+import com.breezeeurobondfsm.app.Pref
 import com.breezeeurobondfsm.features.location.UserLocationDataEntity
 import kotlinx.android.synthetic.main.inflate_route_activity_item.view.*
 
@@ -60,6 +61,18 @@ class DayWiseAdapter(context: Context, userLocationDataEntity: List<UserLocation
                 itemView.sync_icon.visibility = View.VISIBLE
             else
                 itemView.sync_icon.visibility = View.GONE
+            //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 20-02-2024
+            if (Pref.AdditionalInfoRequiredForTimelines) {
+                itemView.ll_battery_network.visibility = View.VISIBLE
+                itemView.tv_lat_long.visibility = View.VISIBLE
+                itemView.ll_approxTravel_partyVisited_meetingAttended.visibility = View.VISIBLE
+            }
+            else{
+                itemView.ll_battery_network.visibility = View.GONE
+                itemView.tv_lat_long.visibility = View.GONE
+                itemView.ll_approxTravel_partyVisited_meetingAttended.visibility = View.GONE
+            }
+            //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 20-02-2024
 
             itemView.shop_tv.text = userLocationDataEntity[adapterPosition].shops
 //            if (userLocationDataEntity.get(adapterPosition).shops == "0" || userLocationDataEntity.get(adapterPosition).shops == "1") {

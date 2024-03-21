@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.breezeeurobondfsm.MonitorBroadcast
+import com.breezeeurobondfsm.MultiFun
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.*
 import com.breezeeurobondfsm.app.Pref.tempDistance
@@ -195,6 +196,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         mLocationRequest!!.interval = (1000 * Pref.locationTrackInterval.toInt()).toLong()
         mLocationRequest!!.fastestInterval = (1000 * Pref.locationTrackInterval.toInt()).toLong()
         mLocationRequest!!.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        //mLocationRequest!!.smallestDisplacement = 20F
         //mLocationRequest!!.smallestDisplacement = 1.0f
 
 //        populateandAddGeofences()
@@ -668,6 +670,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
     var lastInd = 0
 
+    @SuppressLint("SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onLocationChanged(location: Location) {
         Timber.d("service_tag onLocationChanged")
@@ -690,6 +693,67 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             println("service_battert_tag ex")
         }*/
 
+        /*try{
+            println("tag_automail_service serviceCall")
+
+            var curentTimeStamp = System.currentTimeMillis()
+            var schTodayL = AppDatabase.getDBInstance()!!.schedulerMasterDao().getSchedulerByDate(AppUtils.getCurrentDateForShopActi(),isActivityDone = false) as ArrayList<SchedulerMasterEntity>
+            if(schTodayL.size>0 *//*&& Pref.isAutoMailProceeding == false*//*){
+               // Pref.isAutoMailProceeding =true
+                for(i in 0..schTodayL.size-1){
+                    var selectTimestamp = schTodayL.get(i).select_timestamp.toLong()
+                    if(curentTimeStamp>selectTimestamp){
+                        Timber.d("tag_scheduler_fire ${schTodayL.get(i).scheduler_name}")
+                        var shopObj = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(schTodayL.get(i).select_contact_id)
+                                doAsync {
+                                    println("tag_automail_service ${shopObj.ownerEmailId} index $i")
+                                    MultiFun.generateContactDtlsPdf(shopObj,this@LocationFuzedService)
+                                    uiThread {
+                                        AppDatabase.getDBInstance()!!.schedulerMasterDao().updateSchedulerSucess(schTodayL.get(i).select_contact_id,schTodayL.get(i).select_timestamp,schTodayL.get(i).save_date_time,true)
+                                    }
+                                }
+                    }else{
+                        Timber.d("tag_scheduler_fire else")
+                    }
+                   // if (i == schTodayL.size-1)
+                  //  Pref.isAutoMailProceeding=false
+
+                }
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }*/
+        //new code begin
+        try{
+            var curentTimeStamp = System.currentTimeMillis()
+            //AppDatabase.getDBInstance()!!.schedulerMasterDao().updateTest(false)
+            var toSentTimeL = AppDatabase.getDBInstance()!!.schedulerMasterDao().getTimeStampToSent(AppUtils.getCurrentDateForShopActi(),false,true,curentTimeStamp.toString())
+                    as ArrayList<SchedulerDateTimeEntity>
+            println("tag_automail_check toSentTimeL size : ${toSentTimeL.size}")
+            if(toSentTimeL.size>0){
+                   var contToSentL = AppDatabase.getDBInstance()!!.schedulerContactDao().getContDtlsBySchID(toSentTimeL.get(0).scheduler_id.toString()) as ArrayList<SchedulerContactEntity>
+                println("tag_automail_check sch_id : ${toSentTimeL.get(0).scheduler_id} contToSentL size : ${contToSentL.size}")
+                for(k in 0..contToSentL.size-1){
+                        var shopObj = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(contToSentL.get(k).select_contact_id)
+                    println("tag_automail_check shopObj : ${shopObj.shop_id}")
+                        doAsync {
+                            var schedulerObj = AppDatabase.getDBInstance()!!.schedulerMasterDao().getSchedulerDtls(toSentTimeL.get(0).scheduler_id.toString())
+                            //MultiFun.autoMailScheduler(shopObj.ownerEmailId,schedulerObj.template_content,shopObj,schedulerObj.scheduler_name)
+                            MultiFun.sendAutoMailWithFile(schedulerObj.sendingFilePath,shopObj.ownerEmailId, schedulerObj.template_content,shopObj,schedulerObj.scheduler_name)
+                            uiThread {
+                                println("tag_automail_check sch_id:${toSentTimeL.get(0).scheduler_id.toString()}  update : ${toSentTimeL.get(0).scheduler_id.toString()} " +
+                                        "${toSentTimeL.get(0).select_timestamp.toString()}")
+                                AppDatabase.getDBInstance()!!.schedulerMasterDao().updateSchedulerSucess1(toSentTimeL.get(0).scheduler_id.toString(),
+                                    toSentTimeL.get(0).select_timestamp.toString(),true)
+                            }
+                        }
+                    }
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        //new code end
+
         try {
             println("service_tag ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()}")
 
@@ -698,8 +762,10 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 AppUtils.mLocation = location
                 Pref.current_latitude = location.latitude.toString()
                 Pref.current_longitude = location.longitude.toString()
+                //Pref.current_address = LocationWizard.getNewLocationName(this, location.latitude, location.longitude)
+                //Pref.current_pincode = LocationWizard.getPostalCode(this, location.latitude, location.longitude)
                 //XLog.d("onLocationChanged : loc_update : lat - ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()}" + AppUtils.getCurrentDateTime())
-                Timber.d("onLocationChanged : loc_update : lat - ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()} " + AppUtils.getCurrentDateTime())
+                Timber.d("onLocationChanged : loc_update : lat - ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()} accuracy - ${location.accuracy} loc_time - ${AppUtils.getDateTimeFromTimeStamp(location.time)} sys_time: " + AppUtils.getCurrentDateTime())
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -955,12 +1021,12 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         var accuracy = 0f
         accuracy = if (AppUtils.isOnline(this))
-            AppUtils.minAccuracy.toFloat()
+            //AppUtils.minAccuracy.toFloat()
+            Pref.minAccuracy.toFloat()
         else
             800f
 
         //accuracy=1f
-
         /*Discard Data if Inaccurate*/
         if (location.accuracy > accuracy /*&& shouldLocationUpdate()*/) {
             //if (location.accuracy > 2 /*&& shouldLocationUpdate()*/) {
@@ -1242,7 +1308,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                     userlocation.updateDateTime = AppUtils.getCurrentDateTime()
                     userlocation.network_status = if (AppUtils.isOnline(this)) "Online" else "Offline"
                     userlocation.battery_percentage = AppUtils.getBatteryPercentage(this).toString()
-                    AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
+                    AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation) //revisit shop
 
                     Timber.e("=====Shop auto revisit data added=======")
 
@@ -1572,11 +1638,11 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         if (distance * 1000 <= AppUtils.maxDistance.toDouble() && distance * 1000 >= AppUtils.minDistance.toDouble()) {
             tempDistance = (tempDistance.toDouble() + distance).toString()
             resetData()
-            Timber.e("=======Temp Distance is less than maximum distance====")
+            Timber.e("=======Temp Distance is less than maximum distance==== tempDIst : ${tempDistance.toString()}")
         } else if (distance * 1000 > AppUtils.maxDistance.toDouble()) {
             tempDistance = (tempDistance.toDouble() + (AppUtils.maxDistance.toDouble() / 1000)).toString()
             resetData()
-            Timber.e("=======Temp Distance is greater than maximum distance====")
+            Timber.e("=======Temp Distance is greater than maximum distance==== tempDIst : ${tempDistance.toString()}")
         } else if (distance * 1000 < AppUtils.minDistance.toDouble()) {
 
             if (Pref.isAddAttendence)
@@ -2935,9 +3001,15 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 var prevDateTime = obj.updateDateTime
                 var savingDateTime = location.updateDateTime
                 var diffInMin = AppUtils.getDiffDateTime(prevDateTime.toString(),savingDateTime.toString())
-                if(diffInMin<3 && location.distance.toDouble().toInt()>4){
-                    location.distance = (AppUtils.maxDistance.toDouble()/1000).toString()
+                Timber.d("LocFuzed final loc data diffInMin: $diffInMin  location.distance ${location.distance}" )
+                println("tag_x_dist diffInMin: $diffInMin  location.distance ${location.distance} lat:long ${location.latitude},${location.longitude}")
+                //mantis id 27172 begin
+                if(diffInMin<3 && location.distance.toDouble().toInt()>8){
+                    location.distance = ((AppUtils.maxDistance.toDouble()/1000)*diffInMin).toString()
+                    Timber.d("LocFuzed final loc data inside if diffInMin: $diffInMin  location.distance ${location.distance}" )
+                    println("tag_x_dist inside if diffInMin: $diffInMin  location.distance ${location.distance} lat:long ${location.latitude},${location.longitude}")
                 }
+                //mantis id 27172 end
             }
         }catch (ex:Exception){
             ex.printStackTrace()
@@ -2946,7 +3018,26 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         Timber.d(" save loc ${location.latitude} ${location.longitude} ${location.distance}")
 
-        AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(location)
+
+        println("distance_loc_tag insert accu loc ${location.locationId} ${location.latitude} ${location.longitude} ${location.distance}")
+        //Timber.d("distance_loc_tag ${location.locationId} ${location.latitude} ${location.longitude} ${location.distance}")
+
+        //negative distance handle Suman 06-02-2024 mantis id 0027225 begin
+        try{
+            var distReftify = location.distance.toDouble()
+            if(distReftify<0){
+                var locL = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADay(AppUtils.getCurrentDateForShopActi()) as ArrayList<UserLocationDataEntity>
+                var lastLoc = locL.get(locL.size-1)
+                var d = LocationWizard.getDistance(location.latitude.toDouble(),location.longitude.toDouble(), lastLoc.latitude.toDouble()   ,lastLoc.longitude.toDouble())
+                location.distance = d.toString()
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            location.distance = "0.0"
+        }
+        //negative distance handle Suman 06-02-2024 mantis id 0027225 end
+
+        AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(location) // save accurate data
 //        XLog.d("Shop to shop distance (At accurate loc save time)====> " + Pref.totalS2SDistance)
         Timber.d("Shop to shop distance (At accurate loc save time)====> " + Pref.totalS2SDistance + " "+location.time)
 //        XLog.d(text)
@@ -4526,6 +4617,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 return
             }
             val serviceLauncher = Intent(this, LocationFuzedService::class.java)
+            Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
+
             if (Pref.user_id != null && Pref.user_id!!.isNotEmpty()) {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -4537,6 +4630,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                             //.setRequiresDeviceIdle(true)
                             .setOverrideDeadline(1000)
                             .build()
+
+                    Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
 
                     val resultCode = jobScheduler.schedule(jobInfo)
 
@@ -4722,7 +4817,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                     userlocation.updateDateTime = AppUtils.getCurrentDateTime()
                     userlocation.network_status = if (AppUtils.isOnline(this)) "Online" else "Offline"
                     userlocation.battery_percentage = AppUtils.getBatteryPercentage(this).toString()
-                    AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
+                    AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation) // revisit all shop
 
                     Timber.e("=====Shop auto revisit data added=======")
 

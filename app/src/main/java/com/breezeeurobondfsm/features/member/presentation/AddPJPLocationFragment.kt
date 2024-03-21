@@ -126,6 +126,7 @@ class AddPJPLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
             interval = 1000
             fastestInterval = 1000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+         //   mLocationRequest!!.smallestDisplacement = 10F
         }
     }
 

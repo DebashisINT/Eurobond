@@ -52,12 +52,14 @@ import com.breezeeurobondfsm.features.viewAllOrder.model.AddOrderInputParamsMode
 import com.breezeeurobondfsm.features.viewAllOrder.model.AddOrderInputProductList
 import com.breezeeurobondfsm.features.viewAllOrder.model.NewOrderCartModel
 import com.breezeeurobondfsm.widgets.AppCustomTextView
+import com.google.android.exoplayer2.ui.TimeBar
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.customnotification.view.text
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 import java.util.Random
@@ -95,6 +97,8 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
 
     }
     //End 14.0 Pref v 4.1.6 Tufan 11/08/2023 mantis 26655 Order Past Days
+
+    var isOrderProcessing:Boolean = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -281,6 +285,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
                             return
                         }
                         // start 2.0 OrderProductCartFrag v 4.1.6 stock optmization mantis 0026391 20-06-2023 saheli
+                        isOrderProcessing=false
                         if(Pref.savefromOrderOrStock){
                             showCheckAlert("Order Confirmation", "Would you like to confirm the order?")
                         }else{
@@ -314,6 +319,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
     }
 
     private fun saveOrder(){
+        isOrderProcessing = true
         Handler().postDelayed(Runnable {
             // Rev 1.0 OrderProductCartFrag AppV 4.0.8 Suman    21/04/2023 IsAllowZeroRateOrder updation 25879
             if(tv_totalAmt.text.toString().toDouble() !=0.0 || Pref.IsAllowZeroRateOrder){
@@ -411,6 +417,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
 
                     uiThread {
                         progrwss_wheel.stopSpinning()
+                        isOrderProcessing=false
                         if(shopDtls.isUploaded && AppUtils.isOnline(mContext)){
                             syncOrder(orderListDetails,productOrderList)
                         }else{
@@ -672,10 +679,14 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
                 progrwss_wheel.stopSpinning()
             }
             override fun onRightClick(editableData: String) {
-                if (!Pref.isShowOrderRemarks && !Pref.isShowOrderSignature)
-                    saveOrder()
-                else
-                    showRemarksAlert()
+                Timber.d("Order onRightClick ${AppUtils.getCurrentDateTime()}")
+                if(isOrderProcessing==false){
+                    Timber.d("Order onRightClick process ${AppUtils.getCurrentDateTime()}")
+                    if (!Pref.isShowOrderRemarks && !Pref.isShowOrderSignature)
+                        saveOrder()
+                    else
+                        showRemarksAlert()
+                }
             }
         }).show((mContext as DashboardActivity).supportFragmentManager, "")
     }

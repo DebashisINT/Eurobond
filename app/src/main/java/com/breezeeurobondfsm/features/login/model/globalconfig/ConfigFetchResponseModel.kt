@@ -128,7 +128,7 @@ class ConfigFetchResponseModel : BaseResponse() {
     var isExpenseFeatureAvailable:Boolean?=null//mantis 25607
     var IsRouteStartFromAttendance:Boolean?=null
 
-    var IsShowQuotationFooterforbreezeeurobondfsm:Boolean?=null
+    var IsShowQuotationFooterforEurobond:Boolean?=null
     var IsShowOtherInfoinShopMaster:Boolean?=null
 
     var IsAllowZeroRateOrder: Boolean? = null
@@ -191,5 +191,21 @@ class ConfigFetchResponseModel : BaseResponse() {
     var IsShowCustomerLocationShare:Boolean?=true
 
     //End puja 16.11.23 mantis-0026997 //
-    
+
+    //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+    var AdditionalInfoRequiredForTimelines:Boolean? = true
+    //end mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+
+    //begin mantis id 0027279 ShowPartyWithGeoFence functionality Puja 01-03-2024
+    var ShowPartyWithGeoFence:Boolean? = false
+    //end mantis id 0027279 ShowPartyWithGeoFence functionality Puja 01-03-2024
+
+    //begin mantis id 0027285 ShowPartyWithCreateOrder functionality Puja 01-03-2024
+    var ShowPartyWithCreateOrder:Boolean? = false
+    //end mantis id 0027285 ShowPartyWithCreateOrder functionality Puja 01-03-2024
+
+    //begin mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
+    var Allow_past_days_for_apply_reimbursement:String? = ""
+    //end mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
+
 }

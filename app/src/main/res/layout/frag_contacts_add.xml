@@ -33,7 +33,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -65,6 +65,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
+
+                                android:nextFocusDown="@+id/et_frag_cont_add_lname"
+                                android:singleLine="true"
+
                                 android:hint="First Name"
                                 android:digits="abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ "
                                 android:textSize="@dimen/_11sdp" />
@@ -88,6 +92,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
+
+                                android:nextFocusDown="@+id/et_frag_cont_add_conpany_name"
+                                android:singleLine="true"
+
                                 android:hint="Last Name"
                                 android:textSize="@dimen/_11sdp"/>
                         </com.google.android.material.textfield.TextInputLayout>
@@ -106,7 +114,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -136,6 +144,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
+
+                                android:nextFocusDown="@+id/et_frag_cont_add_job_title"
+                                android:singleLine="true"
+
                                 android:hint="Company"
                                 android:textSize="@dimen/_11sdp"/>
                         </com.google.android.material.textfield.TextInputLayout>
@@ -171,7 +183,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -201,6 +213,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
+
+                                android:nextFocusDown="@+id/et_frag_cont_add_email"
+                                android:singleLine="true"
+
                                 android:hint="Job Title"
                                 android:textSize="@dimen/_11sdp"/>
                         </com.google.android.material.textfield.TextInputLayout>
@@ -221,7 +237,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -251,6 +267,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
+
+                                android:nextFocusDown="@+id/et_frag_cont_add_phone"
+                                android:singleLine="true"
+
                                 android:hint="Email"
                                 android:textSize="@dimen/_11sdp"/>
                         </com.google.android.material.textfield.TextInputLayout>
@@ -271,7 +291,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -303,6 +323,10 @@
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
                                 android:hint="Phone"
+
+                                android:nextFocusDown="@+id/et_frag_cont_add_addr"
+                                android:singleLine="true"
+
                                 android:textSize="@dimen/_11sdp"
                                 android:inputType="number"
                                 android:maxLength="10"/>
@@ -463,7 +487,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:minHeight="@dimen/_35sdp"
+                        android:minHeight="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -494,6 +518,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
+
+                                android:nextFocusDown="@+id/et_frag_cont_add_pin"
+
                                 android:hint="Address"
                                 android:textSize="@dimen/_11sdp"/>
                         </com.google.android.material.textfield.TextInputLayout>
@@ -514,7 +541,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -546,6 +573,10 @@
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
                                 android:hint="Pin"
+
+                                android:nextFocusDown="@+id/et_frag_cont_add_sale_value"
+                                android:singleLine="true"
+
                                 android:textSize="@dimen/_11sdp"
                                 android:inputType="number"/>
                         </com.google.android.material.textfield.TextInputLayout>
@@ -566,7 +597,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -599,6 +630,11 @@
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
                                 android:hint="Assign To"
+
+                                android:inputType="none"
+                                android:focusable="false"
+                                android:clickable="true"
+
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_11sdp"/>
                         </com.google.android.material.textfield.TextInputLayout>
@@ -638,7 +674,7 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/_35sdp"
+                            android:layout_height="@dimen/_42sdp"
                             android:orientation="horizontal">
 
                             <LinearLayout
@@ -671,6 +707,11 @@
                                     android:layout_height="match_parent"
                                     android:background="@color/transparent"
                                     android:hint="Type"
+
+                                    android:inputType="none"
+                                    android:focusable="false"
+                                    android:clickable="true"
+
                                     android:textColor="@color/black"
                                     android:textSize="@dimen/_11sdp"/>
                             </com.google.android.material.textfield.TextInputLayout>
@@ -705,7 +746,7 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/_35sdp"
+                            android:layout_height="@dimen/_42sdp"
                             android:orientation="horizontal">
 
                             <LinearLayout
@@ -738,6 +779,11 @@
                                     android:layout_height="match_parent"
                                     android:background="@color/transparent"
                                     android:hint="Status"
+
+                                    android:inputType="none"
+                                    android:focusable="false"
+                                    android:clickable="true"
+
                                     android:textColor="@color/black"
                                     android:textSize="@dimen/_11sdp"/>
                             </com.google.android.material.textfield.TextInputLayout>
@@ -781,7 +827,7 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/_35sdp"
+                            android:layout_height="@dimen/_42sdp"
                             android:orientation="horizontal">
 
                             <LinearLayout
@@ -814,6 +860,11 @@
                                     android:layout_height="match_parent"
                                     android:background="@color/transparent"
                                     android:hint="Source"
+
+                                    android:inputType="none"
+                                    android:focusable="false"
+                                    android:clickable="true"
+
                                     android:textColor="@color/black"
                                     android:textSize="@dimen/_11sdp"/>
                             </com.google.android.material.textfield.TextInputLayout>
@@ -851,7 +902,7 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/_35sdp"
+                            android:layout_height="@dimen/_42sdp"
                             android:orientation="horizontal">
 
                             <LinearLayout
@@ -884,6 +935,11 @@
                                     android:layout_height="match_parent"
                                     android:background="@color/transparent"
                                     android:hint="Reference"
+
+                                    android:inputType="none"
+                                    android:focusable="false"
+                                    android:clickable="true"
+
                                     android:textColor="@color/black"
                                     android:textSize="@dimen/_11sdp"/>
                             </com.google.android.material.textfield.TextInputLayout>
@@ -921,7 +977,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -952,6 +1008,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
+
+                                android:nextFocusDown="@+id/et_frag_cont_add_remarks"
+                                android:singleLine="true"
+
                                 android:hint="Expected sale value in INR"
                                 android:inputType="numberDecimal"
                                 android:textSize="@dimen/_11sdp"/>
@@ -973,7 +1033,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -1006,6 +1066,11 @@
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
                                 android:hint="Stage"
+
+                                android:inputType="none"
+                                android:focusable="false"
+                                android:clickable="true"
+
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_11sdp"/>
                         </com.google.android.material.textfield.TextInputLayout>
@@ -1039,7 +1104,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -1092,7 +1157,7 @@
 
                     <TextView
                         android:layout_width="@dimen/_200sdp"
-                        android:layout_height="@dimen/_35sdp"
+                        android:layout_height="@dimen/_42sdp"
                         android:layout_gravity="center"
                         android:text="Submit"
                         android:gravity="center"

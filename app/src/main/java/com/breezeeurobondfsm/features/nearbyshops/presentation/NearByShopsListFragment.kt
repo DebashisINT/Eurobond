@@ -176,6 +176,7 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
         super.onCreateView(inflater, container, savedInstanceState)
         val view = inflater.inflate(R.layout.fragment_nearby_shops, container, false)
         println("fab_check onCreateView")
+        println("time_check onCreateView")
         initView(view)
 //        if (AppDatabase.getDBInstance()!!.marketingCategoryMasterDao().getAll().isEmpty())
 //            callMarketingCategoryListApi()
@@ -843,6 +844,7 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
         nearByShopsList.visibility = View.VISIBLE*/
 
         //val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().all
+        println("time_check initAdapterstart")
         val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwn(true)
         getOwnShop(allShopList)
 //        ( list as ArrayList).set()
@@ -1750,6 +1752,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
         layoutManager = LinearLayoutManager(mContext, LinearLayout.VERTICAL, false) as RecyclerView.LayoutManager
         nearByShopsList.layoutManager = layoutManager
         nearByShopsList.adapter = mNearByShopsListAdapter
+
+        println("time_check initAdapterend")
+
     }
 
 

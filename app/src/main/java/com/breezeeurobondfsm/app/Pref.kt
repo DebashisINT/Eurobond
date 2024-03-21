@@ -86,6 +86,7 @@ object Pref : PreferenceHolder() {
     var isMarketingImgSynched: Boolean by bindToPreferenceField(false, "isMarketingImgSynched")
     var current_latitude: String by bindToPreferenceField("", "current_latitude")
     var current_longitude: String by bindToPreferenceField("", "current_longitude")
+    var current_address: String by bindToPreferenceField("", "current_address")
     var current_pincode: String by bindToPreferenceField("", "current_pincode")
     var isAddAttendence: Boolean by bindToPreferenceField(false, "isAddAttendence")
     var gpsAccuracy: String by bindToPreferenceField("100", "gpsAccuracy")
@@ -415,7 +416,7 @@ object Pref : PreferenceHolder() {
     var IsShowMenuAddAttendance: Boolean by bindToPreferenceField(false, "IsShowMenuAddAttendance")
     var IsShowMenuAttendance: Boolean by bindToPreferenceField(false, "IsShowMenuAttendance")
     var IsShowMenuMIS_Report: Boolean by bindToPreferenceField(false, "IsShowMenuMIS_Report")
-   // var IsShowMenuAnyDesk: Boolean by bindToPreferenceField(false, "IsShowMenuAnyDesk")
+    var IsShowMenuAnyDesk: Boolean by bindToPreferenceField(false, "IsShowMenuAnyDesk")
     var IsShowMenuPermission_Info: Boolean by bindToPreferenceField(
         false,
         "IsShowMenuPermission_Info"
@@ -702,7 +703,7 @@ object Pref : PreferenceHolder() {
     )
     var ShopScreenAftVisitRevisitGlobal: Boolean by bindToPreferenceField(
         true,
-        "ShopScreenAftVisitRevisit"
+        "ShopScreenAftVisitRevisitGlobal"
     )
 
     var NotiCountFlag: Boolean by bindToPreferenceField(false, "NotiCountFlag")
@@ -717,7 +718,7 @@ object Pref : PreferenceHolder() {
     var IsAllowBreakageTracking: Boolean by bindToPreferenceField(false, "IsAllowBreakageTracking")
     var IsAllowBreakageTrackingunderTeam: Boolean by bindToPreferenceField(
         false,
-        "IsFeedbackAvailableInShop"
+        "IsAllowBreakageTrackingunderTeam"
     )
 
     var IsRateEnabledforNewOrderScreenwithSize: Boolean by bindToPreferenceField(
@@ -861,7 +862,7 @@ object Pref : PreferenceHolder() {
 
     var IsRouteStartFromAttendance: Boolean by bindToPreferenceField(false, "IsRouteStartFromAttendance")//mantis 25637
 
-    var IsShowQuotationFooterforbreezeeurobondfsm: Boolean by bindToPreferenceField(false, "IsShowQuotationFooterforbreezeeurobondfsm")// 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
+    var IsShowQuotationFooterforEurobond: Boolean by bindToPreferenceField(false, "IsShowQuotationFooterforEurobond")// 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
     var IsShowOtherInfoinShopMaster: Boolean by bindToPreferenceField(false, "IsShowOtherInfoinShopMaster") // 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
 
     var IsVoiceEnable: Boolean by bindToPreferenceField(true, "IsVoiceEnable")
@@ -1000,6 +1001,22 @@ object Pref : PreferenceHolder() {
 
     var IsSyncBellNotificationInApp: Boolean by bindToPreferenceField(true, "IsSyncBellNotificationInApp")
     var IsShowCustomerLocationShare: Boolean by bindToPreferenceField(true, "IsShowCustomerLocationShare")
+    var scheduler_template: String? by bindToPreferenceFieldNullable()
+    var scheduler_file: String? by bindToPreferenceFieldNullable()
+    var storeGmailId: String? by bindToPreferenceFieldNullable()
+    var storeGmailPassword: String? by bindToPreferenceFieldNullable()
+    var minAccuracy: String by bindToPreferenceField("200", "minAccuracy")
+    var isAutoMailProceeding: Boolean by bindToPreferenceField(false, "isAutoMailProceeding")
+
+    var isTemplateDialogAlertShow: Boolean by bindToPreferenceField(true, "isTemplateDialogAlertShow")
+    var logId: String by bindToPreferenceField("", "logId")
+    var loginPassword: String by bindToPreferenceField("", "loginPassword")
+    var AdditionalInfoRequiredForTimelines: Boolean by bindToPreferenceField(true, "AdditionalInfoRequiredForTimelines")
+    var ShowPartyWithGeoFence: Boolean by bindToPreferenceField(false, "ShowPartyWithGeoFence")
+    var ShowPartyWithCreateOrder: Boolean by bindToPreferenceField(false, "ShowPartyWithCreateOrder")
+    var Allow_past_days_for_apply_reimbursement: String by bindToPreferenceField("", "Allow_past_days_for_apply_reimbursement")
+
+
 }
 
 

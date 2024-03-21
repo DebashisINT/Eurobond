@@ -206,13 +206,26 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
     private fun initProduct(){
         if (Pref.isShowAllProduct) {
             progrwss_wheel.spin()
-            Handler().postDelayed(Runnable {
+
+            doAsync {
+                var productL :ArrayList<CustomProductRate> = ArrayList()
+                if(Pref.isRateOnline){
+                    productL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnlineV1() as ArrayList<CustomProductRate>
+                }else{
+                    productL = AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllV1() as ArrayList<CustomProductRate>
+                }
+                uiThread {
+                    loadProduct(productL)
+                }
+            }
+
+            /*Handler().postDelayed(Runnable {
                 if(Pref.isRateOnline){
                     loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllFromOnlineV1() as ArrayList<CustomProductRate>)
                 }else{
                     loadProduct(AppDatabase.getDBInstance()?.productListDao()?.getCustomizeProductListAllV1() as ArrayList<CustomProductRate>)
                 }
-            }, 500)
+            }, 500)*/
         }
     }
     override fun onClick(v: View?) {
@@ -436,7 +449,7 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
         rv_product.adapter = productAdapter
         Handler().postDelayed(Runnable {
             progrwss_wheel.stopSpinning()
-        }, 1500)
+        }, 1000)
 
     }
     private fun getProductRateListByShopID() {

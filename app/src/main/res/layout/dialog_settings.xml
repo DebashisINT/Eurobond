@@ -51,7 +51,6 @@
         android:visibility="visible">
 
         <com.breezeeurobondfsm.widgets.AppCustomTextView
-            android:visibility="gone"
             android:id="@+id/activity_login_tvappCustomAnydesk"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/_30sdp"
@@ -63,11 +62,11 @@
             android:paddingHorizontal="@dimen/_30sdp"
             android:paddingVertical="@dimen/_5sdp"
             android:text="@string/label_install_anydesk"
+            android:visibility="gone"
             android:textColor="@color/white"
             android:textSize="@dimen/_10sdp" />
 
         <com.breezeeurobondfsm.widgets.AppCustomTextView
-            android:visibility="gone"
             android:id="@+id/activity_login_tvappCustomLogs"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/_30sdp"

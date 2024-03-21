@@ -51,6 +51,8 @@ import static android.content.Context.ACTIVITY_SERVICE;
 
 import androidx.core.content.FileProvider;
 
+import timber.log.Timber;
+
 /**
  * DStorageUtils
  */
@@ -321,8 +323,12 @@ public class FTStorageUtils {
 
     public static boolean isMyServiceRunning(Class<?> serviceClass, Context mContext) {
         ActivityManager manager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        Timber.d("TAG_CHECK_LOC_SERVICE_STATUS");
+
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
+                Timber.d("TAG_CHECK_LOC_SERVICE_STATUS");
+
                 return true;
             }
         }

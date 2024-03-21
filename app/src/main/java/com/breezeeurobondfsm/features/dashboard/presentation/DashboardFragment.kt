@@ -2096,6 +2096,22 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     userlocation.meeting = AppDatabase.getDBInstance()!!.addMeetingDao().getMeetingDateWise(AppUtils.getCurrentDateForShopActi()).size.toString()
                     userlocation.network_status = if (AppUtils.isOnline(mContext)) "Online" else "Offline"
                     userlocation.battery_percentage = AppUtils.getBatteryPercentage(mContext).toString()
+
+                    //negative distance handle Suman 06-02-2024 mantis id 0027225 begin
+                    try{
+                        var distReftify = userlocation.distance.toDouble()
+                        if(distReftify<0){
+                            var locL = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADay(AppUtils.getCurrentDateForShopActi()) as ArrayList<UserLocationDataEntity>
+                            var lastLoc = locL.get(locL.size-1)
+                            var d = LocationWizard.getDistance(userlocation.latitude.toDouble(),userlocation.longitude.toDouble(), lastLoc.latitude.toDouble()   ,lastLoc.longitude.toDouble())
+                            userlocation.distance = d.toString()
+                        }
+                    }catch (ex:Exception){
+                        ex.printStackTrace()
+                        userlocation.distance = "0.0"
+                    }
+                    //negative distance handle Suman 06-02-2024 mantis id 0027225 end
+
                     AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
 
                     Pref.totalS2SDistance = (Pref.totalS2SDistance.toDouble() + userlocation.distance.toDouble()).toString()
@@ -4203,12 +4219,12 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsShowMenuMIS_Report = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            } /*else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuAnyDesk", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuAnyDesk", ignoreCase = true)) {
                                                 Pref.IsShowMenuAnyDesk = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsShowMenuAnyDesk = response.getconfigure?.get(i)?.Value == "1"
                                                 }
-                                            }*/ else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuPermission Info", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuPermission Info", ignoreCase = true)) {
                                                 Pref.IsShowMenuPermission_Info = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsShowMenuPermission_Info = response.getconfigure?.get(i)?.Value == "1"
@@ -4832,6 +4848,15 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.IsCallLogHistoryActivated = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
+                                            //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 20-02-2024
+                                            else if (response.getconfigure?.get(i)?.Key.equals("AdditionalInfoRequiredForTimelines", ignoreCase = true)) {
+                                                Pref.AdditionalInfoRequiredForTimelines = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.AdditionalInfoRequiredForTimelines = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            //end mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 20-02-2024
+
                                         }
                                     }
                                 } catch (e: Exception) {
@@ -4883,7 +4908,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     AppUtils.maxAccuracy = configResponse.max_accuracy!!
 
                                 if (!TextUtils.isEmpty(configResponse.min_accuracy))
-                                    AppUtils.minAccuracy = configResponse.min_accuracy!!
+                                    //AppUtils.minAccuracy = configResponse.min_accuracy!!
+                                    Pref.minAccuracy = configResponse.min_accuracy!!
 
                                 /*if (!TextUtils.isEmpty(configResponse.idle_time))
                                     AppUtils.idle_time = configResponse.idle_time!!*/
@@ -5160,8 +5186,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     Pref.IsRouteStartFromAttendance = configResponse.IsRouteStartFromAttendance!!
 
                                 // 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
-                                if (configResponse.IsShowQuotationFooterforbreezeeurobondfsm != null)
-                                    Pref.IsShowQuotationFooterforbreezeeurobondfsm = configResponse.IsShowQuotationFooterforbreezeeurobondfsm!!
+                                if (configResponse.IsShowQuotationFooterforEurobond != null)
+                                    Pref.IsShowQuotationFooterforEurobond = configResponse.IsShowQuotationFooterforEurobond!!
                                 if (configResponse.IsShowOtherInfoinShopMaster != null)
                                     Pref.IsShowOtherInfoinShopMaster = configResponse.IsShowOtherInfoinShopMaster!!
 
@@ -5288,6 +5314,28 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     Pref.IsSyncBellNotificationInApp = configResponse.IsSyncBellNotificationInApp!!
                                 if (configResponse.IsShowCustomerLocationShare != null)
                                     Pref.IsShowCustomerLocationShare = configResponse.IsShowCustomerLocationShare!!
+                                //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+                                if (configResponse.AdditionalInfoRequiredForTimelines != null)
+                                    Pref.AdditionalInfoRequiredForTimelines = configResponse.AdditionalInfoRequiredForTimelines!!
+                                //end mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+
+                                //begin mantis id 0027279 ShowPartyWithGeoFence functionality Puja 01-03-2024
+                                if (configResponse.ShowPartyWithGeoFence != null)
+                                    Pref.ShowPartyWithGeoFence = configResponse.ShowPartyWithGeoFence!!
+
+                                //end mantis id 0027279 ShowPartyWithGeoFence functionality Puja 01-03-2024
+
+                                //begin mantis id 0027285 ShowPartyWithCreateOrder functionality Puja 01-03-2024
+                                if (configResponse.ShowPartyWithCreateOrder != null)
+                                    Pref.ShowPartyWithCreateOrder = configResponse.ShowPartyWithCreateOrder!!
+                                //end mantis id 0027285 ShowPartyWithCreateOrder functionality Puja 01-03-2024
+
+                                //begin mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
+                                if (configResponse.Allow_past_days_for_apply_reimbursement != null)
+                                    Pref.Allow_past_days_for_apply_reimbursement = configResponse.Allow_past_days_for_apply_reimbursement!!
+
+                                //end mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
+
 
 
                             }
@@ -8740,6 +8788,22 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                         if (AppUtils.isOnline(mContext)) "Online" else "Offline"
                     userlocation.battery_percentage =
                         AppUtils.getBatteryPercentage(mContext).toString()
+
+                    //negative distance handle Suman 06-02-2024 mantis id 0027225 begin
+                    try{
+                        var distReftify = userlocation.distance.toDouble()
+                        if(distReftify<0){
+                            var locL = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADay(AppUtils.getCurrentDateForShopActi()) as ArrayList<UserLocationDataEntity>
+                            var lastLoc = locL.get(locL.size-1)
+                            var d = LocationWizard.getDistance(userlocation.latitude.toDouble(),userlocation.longitude.toDouble(), lastLoc.latitude.toDouble()   ,lastLoc.longitude.toDouble())
+                            userlocation.distance = d.toString()
+                        }
+                    }catch (ex:Exception){
+                        ex.printStackTrace()
+                        userlocation.distance = "0.0"
+                    }
+                    //negative distance handle Suman 06-02-2024 mantis id 0027225 end
+
                     AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
 
                     Timber.e("=====Shop auto revisit data added=======")

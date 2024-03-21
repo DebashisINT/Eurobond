@@ -99,10 +99,22 @@
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
+            android:visibility="visible"
             android:id="@+id/rv_dialog_cont_list"
             android:layout_width="@dimen/_250sdp"
             android:layout_height="@dimen/_150sdp"
             android:layout_weight="1"
+            app:layout_constrainedHeight="true"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/tv_nodataFound"
+            android:layout_width="@dimen/_250sdp"
+            android:layout_height="@dimen/_150sdp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/no_data_found"
             app:layout_constrainedHeight="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 

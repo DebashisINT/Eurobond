@@ -65,13 +65,19 @@ import com.breezeeurobondfsm.features.geofence.GeofenceService
 import com.breezeeurobondfsm.features.location.LocationFuzedService
 import com.breezeeurobondfsm.features.location.LocationWizard
 import com.breezeeurobondfsm.features.location.SingleShotLocationProvider
+import com.breezeeurobondfsm.features.location.UserLocationDataEntity
 import com.breezeeurobondfsm.features.login.UserLoginDataEntity
+import com.breezeeurobondfsm.features.login.api.LoginRepositoryProvider
+import com.breezeeurobondfsm.features.login.model.LoginResponse
 import com.breezeeurobondfsm.features.login.model.LoginStateListDataModel
 import com.breezeeurobondfsm.features.login.presentation.LoginActivity
 import com.breezeeurobondfsm.features.member.api.TeamRepoProvider
 import com.breezeeurobondfsm.features.member.model.TeamListDataModel
 import com.breezeeurobondfsm.features.member.model.TeamListResponseModel
 import com.breezeeurobondfsm.features.newcollectionreport.PendingCollData
+import com.breezeeurobondfsm.features.orderhistory.api.LocationUpdateRepositoryProviders
+import com.breezeeurobondfsm.features.orderhistory.model.LocationData
+import com.breezeeurobondfsm.features.orderhistory.model.LocationUpdateRequest
 import com.breezeeurobondfsm.features.photoReg.api.GetUserListPhotoRegProvider
 import com.breezeeurobondfsm.features.photoReg.model.UserFacePicUrlResponse
 import com.breezeeurobondfsm.features.viewAllOrder.presentation.ProductListNewOrderDialog
@@ -95,6 +101,7 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_login_new.login_TV
 import kotlinx.android.synthetic.main.fragment_add_attendence.iv_reimb_type_dropdown
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -1686,7 +1693,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
             R.id.ll_at_work -> {
 
                 if (!checkHomeLocation()) {
-                    (mContext as DashboardActivity).showSnackMessage("'Not allowed to Mark Attendance. You are not at permitted location.")
+                    (mContext as DashboardActivity).showSnackMessage("Not allowed to Mark Attendance. You are not at permitted location.")
                     return
                 }
 
@@ -3153,6 +3160,8 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
                                         Pref.IsLeavePressed=true
 
                                         if (isLocationServiceRunning(LocationFuzedService::class.java)) {
+                                            Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
+
                                             mContext.stopService(Intent(mContext, LocationFuzedService::class.java))
                                         }
 
@@ -3242,6 +3251,7 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
 
                                         Pref.isAddAttendence = true
                                         Pref.add_attendence_time = addAttendenceModel.add_attendence_time
+                                        println("add_attendence_time"+Pref.add_attendence_time)
                                         (mContext as DashboardActivity).update_worktype_tv.apply {
                                             visibility = if (Pref.isUpdateWorkTypeEnable)
                                                 View.VISIBLE
@@ -3283,6 +3293,45 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
 
                                 //Pref.isAddAttendence = true
                                 BaseActivity.isApiInitiated = false
+                                println("add_attendence_time_LocationWizard"+LocationWizard.getFormattedTime24Hours(true))
+
+                                //attendance room insert begin
+                                if(!isOnLeave && Pref.IsRouteStartFromAttendance) {
+                                    println("not in leave"+isOnLeave)
+                                    var locationObj: UserLocationDataEntity =
+                                        UserLocationDataEntity()
+                                    locationObj.latitude = Pref.latitude.toString()
+                                    locationObj.longitude = Pref.longitude.toString()
+                                    locationObj.locationName =
+                                        "Attendance from " + LocationWizard.getLocationName(
+                                            mContext,
+                                            Pref.latitude!!.toDouble(),
+                                            Pref.longitude!!.toDouble()
+                                        )
+                                    locationObj.time =
+                                        LocationWizard.getFormattedTime24Hours(true) //LocationWizard.getFormattedTime24Hours(true)
+                                    locationObj.meridiem =
+                                        LocationWizard.getMeridiem() //LocationWizard.getMeridiem()
+                                    locationObj.isUploaded = true
+                                    locationObj.meeting = "0"
+                                    locationObj.battery_percentage = AppUtils.getBatteryPercentage(mContext).toString()
+                                    locationObj.distance = "0"
+                                    locationObj.visit_distance = ""
+                                    locationObj.home_distance = "0"
+                                    locationObj.home_duration = ""
+                                    locationObj.updateDate = AppUtils.getCurrentDateForShopActi()
+                                    locationObj.updateDateTime = AppUtils.getCurrentDateTime()
+                                    locationObj.timestamp = LocationWizard.getTimeStamp()
+                                    locationObj.shops = "0"
+                                    locationObj.network_status = "Online"
+                                    locationObj.minutes = LocationWizard.getMinute()
+                                    locationObj.hour = LocationWizard.getHour()
+                                    AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(locationObj)
+                                }
+                                else{
+                                    println("is in leave"+isOnLeave)
+                                }
+                                //attendance room insert end
 
                                 (mContext as DashboardActivity).showSnackMessage(response.message!!)
 
@@ -3293,11 +3342,38 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
                                 //getDobAnniv()
 
                                 Handler().postDelayed(Runnable {
-                                    (mContext as DashboardActivity).onBackPressed()
-                                }, 1000)
 
+                                    if (isOnLeave==false && Pref.IsRouteStartFromAttendance) {
+                                        val locationList: MutableList<LocationData> = ArrayList()
+                                        val locationUpdateReq = LocationUpdateRequest()
+                                        locationUpdateReq.location_details = ArrayList()
+                                        locationUpdateReq.user_id = Pref.user_id
+                                        locationUpdateReq.session_token = Pref.session_token
+                                        val locationData = LocationData()
 
+                                        locationData.location_name = "Attendance from "+addAttendenceModel.work_address
+                                        locationData.latitude = addAttendenceModel.work_lat
+                                        locationData.longitude = addAttendenceModel.work_long
+                                        locationData.distance_covered = "0.0"
+                                        locationData.last_update_time = LocationWizard.getFormattedTime24Hours(true) +" "+ LocationWizard.getMeridiem()
+                                        locationData.date = AppUtils.getCurrentDateTime()
+                                        locationData.shops_covered = "0"
+                                        locationData.meeting_attended = "0"
+                                        locationData.home_distance = "0.0"
+                                        locationData.network_status = "Online"
+                                        locationData.battery_percentage = AppUtils.getBatteryPercentage(mContext).toString()
+                                        locationData.home_duration = ""
+                                      //  locationData.locationId = apiLocationList[i].locationId.toString()
 
+                                        locationList.add(locationData)
+                                        locationUpdateReq.location_details = locationList
+                                        callLocationUpdateAPIOvveride(locationUpdateReq)
+                                    }
+                                    else{
+                                        (mContext as DashboardActivity).onBackPressed()
+                                    }
+                                   // (mContext as DashboardActivity).onBackPressed()
+                                }, 600)
 
                                 /*Pref.isAddAttendence = true
                         BaseActivity.isApiInitiated = false
@@ -4105,4 +4181,26 @@ class AddAttendanceFragment : Fragment(), View.OnClickListener, DatePickerDialog
     }
     //End of Rev 8.0 AddAttendanceFragment AppV 4.1.3 Suman    18/05/2023 beat flow updation 26120
 
+
+    fun callLocationUpdateAPIOvveride(locApi: LocationUpdateRequest){
+        val repository = LocationUpdateRepositoryProviders.provideLocationUpdareRepository()
+        BaseActivity.compositeDisposable.add(
+            repository.sendLocationUpdate(locApi)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+
+                    val loginResponse = result as BaseResponse
+                    if (loginResponse.status == NetworkConstant.SUCCESS) {
+                        (mContext as DashboardActivity).onBackPressed()
+                    }else{
+                        (mContext as DashboardActivity).onBackPressed()
+                    }
+                },
+                    { error ->
+                        Timber.d("AddAttendance Response Msg=========> " + error.message)
+
+                    })
+        )
+    }
 }

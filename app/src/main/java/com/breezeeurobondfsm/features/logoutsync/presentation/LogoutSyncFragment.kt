@@ -6744,58 +6744,53 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
     fun syncWhatsappStatus(){
         if(Pref.IsShowWhatsAppIconforVisit || Pref.IsAutomatedWhatsAppSendforRevisit){
             scope.launch {
-                Timber.d("tag_supr begin")
-                try{
-                    var whatsL = AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getUnsyncList() as ArrayList<VisitRevisitWhatsappStatus>
-                    for(i in 0..whatsL.size-1){
-                        val stringRequest: StringRequest = object : StringRequest(
-                            Request.Method.POST, "https://theultimate.io/WAApi/report",
-                            Response.Listener<String?> { response ->
-                                var resp = JsonParser.parseString(response)
-                                var statusCode = resp.asJsonObject.get("code").toString()
-                                var data =  resp.asJsonObject.get("data")
-                                try{
-                                    var f1 = data.asJsonObject
-                                    var f2 = f1.asJsonObject.get("records")
-                                    var f3 =f2.asJsonArray
-                                    var status = f3.get(0).asJsonObject.get("status").toString().drop(1).dropLast(1)
-                                    var cause = f3.get(0).asJsonObject.get("cause").toString().drop(1).dropLast(1)
-                                    if(statusCode.equals("200",ignoreCase = true)){
-                                        if(status.equals("DELIVERED")){
-                                            var msg = if(cause.contains("Read By User",ignoreCase = true)) "Read by User" else "Sent Successfully"
-                                            AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.updateWhatsStatus(true,msg,whatsL.get(i).sl_no,whatsL.get(i).transactionId)
-                                        }else{
-                                            AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.updateWhatsStatus(false,status.toString(),whatsL.get(i).sl_no,whatsL.get(i).transactionId)
-                                        }
+                println("tag_supr begin")
+                var whatsL = AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getUnsyncList() as ArrayList<VisitRevisitWhatsappStatus>
+                for(i in 0..whatsL.size-1){
+                    val stringRequest: StringRequest = object : StringRequest(
+                        Request.Method.POST, "https://theultimate.io/WAApi/report",
+                        Response.Listener<String?> { response ->
+                            var resp = JsonParser.parseString(response)
+                            var statusCode = resp.asJsonObject.get("code").toString()
+                            var data =  resp.asJsonObject.get("data")
+                            try{
+                                var f1 = data.asJsonObject
+                                var f2 = f1.asJsonObject.get("records")
+                                var f3 =f2.asJsonArray
+                                var status = f3.get(0).asJsonObject.get("status").toString().drop(1).dropLast(1)
+                                var cause = f3.get(0).asJsonObject.get("cause").toString().drop(1).dropLast(1)
+                                if(statusCode.equals("200",ignoreCase = true)){
+                                    if(status.equals("DELIVERED")){
+                                        var msg = if(cause.contains("Read By User",ignoreCase = true)) "Read by User" else "Sent Successfully"
+                                        AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.updateWhatsStatus(true,msg,whatsL.get(i).sl_no,whatsL.get(i).transactionId)
+                                    }else{
+                                        AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.updateWhatsStatus(false,status.toString(),whatsL.get(i).sl_no,whatsL.get(i).transactionId)
                                     }
-                                }catch (ex:Exception){
-                                    ex.printStackTrace()
                                 }
-                            },
-                            Response.ErrorListener { error ->
-                                Timber.d("error in whatsapp report api ${error.message}")
-                            })
-                        {
-                            override fun getParams(): Map<String, String>? {
-                                val params: MutableMap<String, String> = HashMap()
-                                params.put("userid", "breezeeurobondfsmwa")
-                                params.put("password", "breezeeurobondfsmwa@123")
-                                params.put("wabaNumber", "917888488891")
-                                params.put("fromDate", "${AppUtils.getCurrentDateForShopActi()}")
-                                params.put("toDate", "${AppUtils.getCurrentDateForShopActi()}")
-                                params.put("uuId", whatsL.get(i).transactionId.toString())
-                                return params
+                            }catch (ex:Exception){
+                                ex.printStackTrace()
                             }
+                        },
+                        Response.ErrorListener { error ->
+                            Timber.d("error in whatsapp report api ${error.message}")
+                        })
+                    {
+                        override fun getParams(): Map<String, String>? {
+                            val params: MutableMap<String, String> = HashMap()
+                            params.put("userid", "eurobondwa")
+                            params.put("password", "Eurobondwa@123")
+                            params.put("wabaNumber", "917888488891")
+                            params.put("fromDate", "${AppUtils.getCurrentDateForShopActi()}")
+                            params.put("toDate", "${AppUtils.getCurrentDateForShopActi()}")
+                            params.put("uuId", whatsL.get(i).transactionId.toString())
+                            return params
                         }
-                        MySingleton.getInstance(mContext.applicationContext)!!.addToRequestQueue(stringRequest)
-                        delay(450)
                     }
-                }catch (ex:Exception){
-                    ex.printStackTrace()
-                    Timber.d("tag_supr exx ${ex.message}")
+                    MySingleton.getInstance(mContext.applicationContext)!!.addToRequestQueue(stringRequest)
+                    delay(450)
                 }
             }.invokeOnCompletion {
-                Timber.d("tag_supr finish")
+                println("tag_supr finish")
                 var obL =AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getUnsyncList() as ArrayList<VisitRevisitWhatsappStatus>
                 if(obL.size!= 0){
                     var ob = WhatsappApiData(Pref.user_id.toString(),obL)
@@ -6806,7 +6801,6 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                             .subscribeOn(Schedulers.io())
                             .subscribe({ result ->
                                 val addShopResult = result as BaseResponse
-                                Timber.d("tag_supr whatsAppStatusSync response ${addShopResult.status}")
                                 if(addShopResult.status.equals("200")){
                                     AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.updateWhatsStatusUpload()
                                     calllogoutApi(Pref.user_id!!, Pref.session_token!!)
@@ -6829,7 +6823,6 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
     //===============================================Logout===========================================================================//
     private fun calllogoutApi(user_id: String, session_id: String) {
-        Timber.d("tag_supr calllogoutApi")
         if (Pref.current_latitude == null || Pref.current_longitude == null) {
             (mContext as DashboardActivity).showSnackMessage("Can't fetch location.Please wait for some time ")
             return
@@ -6875,6 +6868,22 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             distance = Pref.tempDistance.toDouble() + totalDistance
         } else
             distance = Pref.tempDistance.toDouble()
+
+        //logout distance calculation mantis id 27259 Suman 20-02-2023 begin
+        //val allLocationList = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADay(AppUtils.getCurrentDateForShopActi()) as ArrayList<UserLocationDataEntity>
+        val allLocationList = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADayNotSyn(AppUtils.getCurrentDateForShopActi(), true) as ArrayList<UserLocationDataEntity>
+        if(allLocationList.size > 0){
+            //var prevObj = allLocationList.get(allLocationList.size-1)
+            var prevObj = allLocationList.get(0)
+            distance = LocationWizard.getDistance(prevObj.latitude.toDouble(),prevObj.longitude.toDouble(),
+                Pref.logout_latitude.toDouble(),Pref.logout_longitude.toDouble()).toDouble()
+            //distance = distance + Pref.tempDistance.toDouble()
+            Timber.d("dist ${distance.toString()} temp_dist ${Pref.tempDistance.toString()}")
+        }else{
+            distance = Pref.tempDistance.toDouble()
+            Timber.d("dist else ${distance.toString()} temp_dist ${Pref.tempDistance.toString()}")
+        }
+        //logout distance xalculation mantis id 27259 Suman 20-02-2023 end
 
 
         var location = ""

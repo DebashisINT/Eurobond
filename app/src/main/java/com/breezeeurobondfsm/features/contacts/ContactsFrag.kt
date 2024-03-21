@@ -37,6 +37,11 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.AuthFailureError
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonObjectRequest
+import com.breezeeurobondfsm.MySingleton
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.NetworkConstant
@@ -46,9 +51,6 @@ import com.breezeeurobondfsm.app.domain.CallHisEntity
 import com.breezeeurobondfsm.app.domain.CompanyMasterEntity
 import com.breezeeurobondfsm.app.domain.ContactActivityEntity
 import com.breezeeurobondfsm.app.domain.ShopActivityEntity
-import com.breezeeurobondfsm.app.domain.SourceMasterEntity
-import com.breezeeurobondfsm.app.domain.StatusMasterEntity
-import com.breezeeurobondfsm.app.domain.TypeMasterEntity
 import com.breezeeurobondfsm.app.types.FragType
 import com.breezeeurobondfsm.app.uiaction.IntentActionable
 import com.breezeeurobondfsm.app.utils.AppUtils
@@ -64,7 +66,6 @@ import com.breezeeurobondfsm.features.addshop.model.AddShopResponse
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
 import com.breezeeurobondfsm.features.location.LocationWizard
 import com.breezeeurobondfsm.features.location.SingleShotLocationProvider
-import com.breezeeurobondfsm.features.login.presentation.LoginActivity
 import com.breezeeurobondfsm.features.nearbyshops.api.ShopListRepositoryProvider
 import com.breezeeurobondfsm.features.nearbyshops.model.ShopData
 import com.breezeeurobondfsm.features.nearbyshops.model.ShopListResponse
@@ -76,7 +77,6 @@ import com.breezeeurobondfsm.widgets.AppCustomTextView
 import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
 import com.itextpdf.text.BadElementException
-import com.itextpdf.text.BaseColor
 import com.itextpdf.text.Chunk
 import com.itextpdf.text.Document
 import com.itextpdf.text.Element
@@ -85,25 +85,21 @@ import com.itextpdf.text.Image
 import com.itextpdf.text.PageSize
 import com.itextpdf.text.Paragraph
 import com.itextpdf.text.Phrase
-import com.itextpdf.text.pdf.PdfPCell
-import com.itextpdf.text.pdf.PdfPTable
 import com.itextpdf.text.pdf.PdfWriter
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import org.json.JSONObject
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Calendar
+import java.util.HashMap
 import java.util.Locale
 import java.util.Random
 
@@ -113,14 +109,15 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
     private lateinit var mContext: Context
     private lateinit var mFab: MovableFloatingActionButton
     private lateinit var tvNodata: TextView
-    private lateinit var ivContactSync: ImageView
+    private lateinit var ivContactSync: LinearLayout
+    private lateinit var iv_frag_APICheckTest: LinearLayout
     private lateinit var ivContactSyncDel: ImageView
-    private lateinit var iv_click_scheduler: ImageView
+    private lateinit var iv_click_scheduler: LinearLayout
     private lateinit var adapterContGr:AdapterContactGr
     private lateinit var adapterContName:AdapterContactName
     private lateinit var progress_wheel: ProgressWheel
     private lateinit var rvContactL: RecyclerView
-    private lateinit var tv_syncAll: TextView
+    private lateinit var tv_syncAll: LinearLayout
 
     private lateinit var et_search: AppCustomEditText
     private lateinit var iv_search: ImageView
@@ -135,6 +132,7 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
 
     private var permissionUtils: PermissionUtils? = null
     private var contGrDialog: Dialog? = null
+    private var instructionDialog: Dialog? = null
 
     private lateinit var floating_fab: FloatingActionMenu
 
@@ -143,6 +141,16 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
     private lateinit var programFab1: FloatingActionButton
     private lateinit var programFab2: FloatingActionButton
     private lateinit var programFab3: FloatingActionButton
+
+    lateinit var simpleDialogProcess : Dialog
+    lateinit var dialogHeaderProcess: AppCustomTextView
+    lateinit var dialog_yes_no_headerTVProcess: AppCustomTextView
+    lateinit var dialog_tv_message_ok: AppCustomTextView
+    lateinit var dialog_pg: ProgressWheel
+    private lateinit var ll_no_data_root:LinearLayout
+    private lateinit var tv_empty_page_msg_head:TextView
+    private lateinit var tv_empty_page_msg:TextView
+    private lateinit var img_direction:ImageView
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -182,6 +190,11 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
         floating_fab = view.findViewById(R.id.floating_fab_contact_frag)
 
         tv_syncAll = view.findViewById(R.id.tv_frag_contact_sync_all)
+        ll_no_data_root = view.findViewById(R.id.ll_no_data_root)
+        tv_empty_page_msg_head = view.findViewById(R.id.tv_empty_page_msg_head)
+        tv_empty_page_msg = view.findViewById(R.id.tv_empty_page_msg)
+        img_direction = view.findViewById(R.id.img_direction)
+        iv_frag_APICheckTest = view.findViewById(R.id.iv_frag_APICheckTest)
 
         floating_fab.menuIconView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_dashboard_filter_icon))
         floating_fab.menuButtonColorNormal = mContext.resources.getColor(R.color.colorAccent)
@@ -242,6 +255,7 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
 
         mFab.setOnClickListener(this)
         ivContactSync.setOnClickListener(this)
+        iv_frag_APICheckTest.setOnClickListener(this)
         iv_click_scheduler.setOnClickListener(this)
         ivContactSyncDel.setOnClickListener(this)
         iv_search.setOnClickListener(this)
@@ -279,6 +293,21 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                 }
             }
         })
+
+        simpleDialogProcess = Dialog(mContext)
+        simpleDialogProcess.setCancelable(false)
+        simpleDialogProcess.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        simpleDialogProcess.setContentView(R.layout.dialog_message)
+        dialogHeaderProcess = simpleDialogProcess.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
+        dialog_yes_no_headerTVProcess = simpleDialogProcess.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
+        dialog_tv_message_ok = simpleDialogProcess.findViewById(R.id.tv_message_ok) as AppCustomTextView
+        var ll_dialog_msg_progress_root = simpleDialogProcess.findViewById(R.id.ll_dialog_msg_progress_root) as LinearLayout
+        dialog_pg = simpleDialogProcess.findViewById(R.id.pw_dialog_msg_progress) as ProgressWheel
+        ll_dialog_msg_progress_root.visibility = View.VISIBLE
+
+        dialog_tv_message_ok.visibility = View.GONE
+        dialog_yes_no_headerTVProcess.text = AppUtils.hiFirstNameText()
+        dialogHeaderProcess.text = "Please wait while fetching contacts ........."
     }
 
     fun initPermissionCheckOne() {
@@ -313,7 +342,57 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                 shopContactList("")
             }
             R.id.iv_click_scheduler->{
-                    (mContext as DashboardActivity).loadFragment(FragType.SchedulerAddFrag, true, "")
+                (mContext as DashboardActivity).loadFragment(FragType.SchedulerViewFrag, true, "")
+
+/*                if (Pref.storeGmailId==null && Pref.storeGmailPassword==null){
+                    instructionDialog = Dialog(mContext)
+                    instructionDialog!!.setCancelable(false)
+                    instructionDialog!!.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    instructionDialog!!.setContentView(R.layout.dialog_gmail_instruction)
+                    val tvHeader = instructionDialog!!.findViewById(R.id.dialog_contact_gr_header) as TextView
+                    val tv_instruction = instructionDialog!!.findViewById(R.id.tv_instruction) as TextView
+                    val tv_save_instruction = instructionDialog!!.findViewById(R.id.tv_save_instruction) as TextView
+                    val et_user_gmail_id = instructionDialog!!.findViewById(R.id.et_user_gmail_id) as EditText
+                    val et_user_password = instructionDialog!!.findViewById(R.id.et_user_password) as EditText
+                    val tv_headerOfSetVerification = instructionDialog!!.findViewById(R.id.tv_headerOfSetVerification) as TextView
+                    val rvContactGrName = instructionDialog!!.findViewById(R.id.rv_dialog_cont_gr) as RecyclerView
+                    val iv_close = instructionDialog!!.findViewById(R.id.iv_dialog_instruction_close_icon) as ImageView
+
+                    tv_save_instruction.setOnClickListener {
+                        if (et_user_gmail_id.text.toString().equals("") && et_user_password.text.toString().trim().equals("")) {
+                            Toast.makeText(
+                                mContext,
+                                "Put your credentials",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        else if (!et_user_gmail_id.text.equals(".gmail") || et_user_password.text.toString().trim().length < 16) {
+                                Toast.makeText(
+                                    mContext,
+                                    "Put your credentials correctly",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                        }
+                        else{
+                            Pref.storeGmailId = et_user_gmail_id.text.toString().trim()
+                            Pref.storeGmailPassword = et_user_gmail_id.text.toString().trim()
+                            // After save 2 step verification
+                            (mContext as DashboardActivity).loadFragment(FragType.SchedulerViewFrag, true, "")
+                            instructionDialog!!.dismiss()
+
+                        }
+                    }
+                    iv_close.setOnClickListener {
+                        instructionDialog!!.dismiss()
+                    }
+                    rvContactGrName.visibility=View.GONE
+                    tvHeader.text = "Read Instruction"
+                    instructionDialog!!.show()
+                }
+                else{
+                    (mContext as DashboardActivity).loadFragment(FragType.SchedulerViewFrag, true, "")
+                }*/
+
             }
             R.id.iv_frag_contacts_dialog -> {
                 contGrDialog = Dialog(mContext)
@@ -349,6 +428,30 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                     progress_wheel.stopSpinning()
                 }
             }
+            R.id.iv_frag_APICheckTest -> {
+
+                try {
+                    val jsonObject = JSONObject()
+                    jsonObject.put("messaging_product", "whatsapp")
+                    jsonObject.put("to", "918017845376")
+                    jsonObject.put("type", "template")
+
+                    val templateObject = JSONObject()
+                    templateObject.put("name", "hello_world")
+
+                    val languageObject = JSONObject()
+                    languageObject.put("code", "en_US")
+
+                    templateObject.put("language", languageObject)
+
+                    jsonObject.put("template", templateObject)
+                    postGraphAPICall(jsonObject)
+
+                } catch (e: java.lang.Exception) {
+                    e.printStackTrace()
+                }
+            }
+
             R.id.iv_frag_contacts_search->{
                 shopContactList(et_search.text.toString())
             }
@@ -403,6 +506,30 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
         }
     }
 
+    private fun postGraphAPICall(jsonObject: JSONObject) {
+
+        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest("https://graph.facebook.com/v18.0/109092662037205/messages", jsonObject,
+            object : Response.Listener<JSONObject?> {
+                override fun onResponse(response: JSONObject?) {
+                    Toast.makeText(mContext, ""+response, Toast.LENGTH_SHORT).show()
+                }
+            },
+            object : Response.ErrorListener {
+                override fun onErrorResponse(error: VolleyError?) {
+                    Toast.makeText(mContext, ""+error.toString(), Toast.LENGTH_SHORT).show()
+                }
+            }) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val params: MutableMap<String, String> = HashMap()
+                params["Authorization"] = "Bearer"+" "+"EAAYdZB0nzeMgBO87GPmP7b28lokaaguZBYuwwbZAKzfyFP6jWsIj6sE62APVlBsvindVqeAKeAjj5Sirl7KgZCleGKB5ZCKjfGPUTQ5KpQMQG2TWEnPd326JQbxAD8HGubvyhxb6OKwMRCSdqHT5KJAvjwt7YShZBZAMs8i2lQoCffvSrUuhuT3nxs3IXwneBJ8cpkBeRBp6t6ou7TDY7dSZCTjL47EZD"
+                params["Content-Type"] = "application/json"
+                return params
+            }
+        }
+        MySingleton.getInstance(mContext)!!.addToRequestQueue(jsonObjectRequest)
+    }
+
     fun syncShopAll(){
         var allUnSyncContact = AppDatabase.getDBInstance()!!.addShopEntryDao().getContatcUnsyncList(false) as ArrayList<AddShopDBModelEntity>
         if(allUnSyncContact.size>0){
@@ -424,6 +551,10 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                     }, 800)
                 }
             }
+        }
+        else{
+            Toaster.msgShort(mContext,"No unsync data found. Thanks.")
+            progress_wheel.stopSpinning()
         }
     }
 
@@ -453,7 +584,7 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                     }
 
                     override fun onProviderDisabled(status: String) {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                     }
 
                     override fun onNewLocationAvailable(location: Location) {
@@ -482,12 +613,26 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
     }
 
     fun showContactNameL(obj:ContactGr){
+
         doAsync {
-            progress_wheel.spin()
+            //
             var contactL : ArrayList<ContactDtls> = ArrayList()
-            contactL = AppUtils.getContactsFormGroup(obj.gr_id,obj.gr_name,mContext)
+            try{
+                (mContext!! as Activity).runOnUiThread {
+                    simpleDialogProcess.show()
+                    dialog_pg.spin()
+                }
+                println("tag_cont selected gr ${obj.gr_name} start")
+                contactL = AppUtils.getContactsFormGroup(obj.gr_id,obj.gr_name,mContext)
+                println("tag_cont selected gr ${obj.gr_name} end")
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                (mContext as DashboardActivity).showSnackMessage("Something went wrong.")
+                simpleDialogProcess.dismiss()
+            }
+
             uiThread {
-                progress_wheel.stopSpinning()
+                //progress_wheel.stopSpinning()
                 if(contactL.size>0){
                     var myShopContactL = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwnerContact() as ArrayList<String>
                     var contactLFinal = contactL.clone() as  ArrayList<ContactDtls>
@@ -497,7 +642,14 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                         }
                     }
                     contactL = contactLFinal
+                }else{
+                    simpleDialogProcess.dismiss()
+                    Toaster.msgShort(mContext,"No contact avaliable")
                 }
+
+                Handler().postDelayed(Runnable {
+                    simpleDialogProcess.dismiss()
+                }, 1500)
 
                 if(contactL.size>0){
                     var contactLTemp : ArrayList<ContactDtls> = contactL.clone() as ArrayList<ContactDtls>
@@ -542,6 +694,7 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                         }
                         var contactTickL : ArrayList<ContactDtls> = ArrayList()
                         //rvContactL.layoutManager = LinearLayoutManager(mContext)
+                        tvHeader.text = "Select Contact(s): ${finalL.size}"
                         adapterContName = AdapterContactName(mContext,finalL,object :AdapterContactName.onClick{
                             override fun onTickUntick(obj: ContactDtls, isTick: Boolean) {
                                 if(isTick){
@@ -754,7 +907,16 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                 }
 
                 override fun onEmailClick(obj: AddShopDBModelEntity) {
-                    IntentActionable.sendMail(mContext, obj.ownerEmailId, "")
+                    //IntentActionable.sendMail(mContext, obj.ownerEmailId, "")
+
+                    val intent = Intent(Intent.ACTION_SENDTO)
+                    intent.setData(Uri.parse("mailto:")) // only email apps should handle this
+                    intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("${obj.ownerEmailId}"))
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Hi ${obj.ownerName}")
+                    intent.putExtra(Intent.EXTRA_TEXT, "Welcome")
+                    if (intent.resolveActivity(mContext.getPackageManager()) != null) {
+                        startActivity(intent)
+                    }
                 }
 
                 override fun onInfoClick(obj: AddShopDBModelEntity) {
@@ -828,10 +990,16 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
             })
             rvContactL.adapter = adapterContactList
             rvContactL.visibility = View.VISIBLE
+            ll_no_data_root.visibility = View.GONE
+
         }else{
             (mContext as DashboardActivity).setTopBarTitle("Contact(s)")
-            tvNodata.visibility = View.VISIBLE
+          //  tvNodata.visibility = View.VISIBLE
             rvContactL.visibility = View.GONE
+            ll_no_data_root.visibility = View.VISIBLE
+            tv_empty_page_msg_head.text = "No Contacts Found"
+            tv_empty_page_msg.text = "Click + to add your Contacts"
+            img_direction.animate().rotationY(180F).start()
         }
     }
 

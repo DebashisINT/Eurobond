@@ -559,7 +559,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
         } else {
             Timber.d("=====Get location from map (Add Shop)======")
+           /* println("addshopfullAdd"+fullAdd)
             actualAddress = fullAdd
+            shopAddress.setText(fullAdd)
+            shopPin.setText(pinCode)*/
+
+            fullAdd = LocationWizard.getNewLocationName(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
+            actualAddress = fullAdd
+            pinCode = LocationWizard.getPostalCode(mContext, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
             shopAddress.setText(fullAdd)
             shopPin.setText(pinCode)
         }
@@ -639,6 +646,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             address = "Unknown"
 
         actualAddress = address
+        println("addshopaddress"+address)
         shopAddress.setText(address)
         shopPin.setText(LocationWizard.getPostalCode(mContext, location.latitude, location.longitude))
     }
@@ -3095,6 +3103,22 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             userlocation.meeting = AppDatabase.getDBInstance()!!.addMeetingDao().getMeetingDateWise(AppUtils.getCurrentDateForShopActi()).size.toString()
             userlocation.network_status = if (AppUtils.isOnline(mContext)) "Online" else "Offline"
             userlocation.battery_percentage = AppUtils.getBatteryPercentage(mContext).toString()
+
+            //negative distance handle Suman 06-02-2024 mantis id 0027225 begin
+            try{
+                var distReftify = userlocation.distance.toDouble()
+                if(distReftify<0){
+                    var locL = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADay(AppUtils.getCurrentDateForShopActi()) as ArrayList<UserLocationDataEntity>
+                    var lastLoc = locL.get(locL.size-1)
+                    var d = LocationWizard.getDistance(userlocation.latitude.toDouble(),userlocation.longitude.toDouble(), lastLoc.latitude.toDouble()   ,lastLoc.longitude.toDouble())
+                    userlocation.distance = d.toString()
+                }
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                userlocation.distance = "0.0"
+            }
+            //negative distance handle Suman 06-02-2024 mantis id 0027225 end
+
             AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
 
             Timber.e("=====New shop visit data added=======")

@@ -117,12 +117,12 @@
                 android:id="@+id/tv_row_cont_list_addr"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/_5sdp"
                 android:gravity="center|start"
                 android:maxLines="2"
                 android:text="Address"
                 android:textColor="@color/gray"
-                android:textSize="@dimen/_11sdp"
-                android:layout_marginLeft="@dimen/_5sdp"/>
+                android:textSize="@dimen/_11sdp" />
 
         </LinearLayout>
 
@@ -847,6 +847,7 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginLeft="@dimen/_5sdp"
             android:layout_marginRight="@dimen/_5sdp"
+            android:visibility="gone"
             android:fadeScrollbars="false"
             android:scrollbarSize="@dimen/_2sdp"
             android:layout_margin="@dimen/_3sdp"
@@ -865,6 +866,7 @@
                     android:orientation="vertical"
                     android:layout_marginLeft="@dimen/_3sdp"
                     android:layout_marginRight="@dimen/_3sdp"
+                    android:visibility="gone"
                     android:layout_marginTop="@dimen/_3sdp"
                     android:layout_marginBottom="@dimen/_3sdp">
 
@@ -893,6 +895,7 @@
                     android:layout_height="@dimen/_25sdp"
                     android:layout_gravity="center"
                     android:background="@color/gray_50"
+                    android:visibility="gone"
                     android:layout_marginLeft="@dimen/_2sdp"
                     android:layout_marginRight="@dimen/_2sdp"/>
 
@@ -942,6 +945,7 @@
                     android:orientation="vertical"
                     android:layout_marginLeft="@dimen/_3sdp"
                     android:layout_marginRight="@dimen/_3sdp"
+                    android:visibility="gone"
                     android:layout_marginTop="@dimen/_3sdp"
                     android:layout_marginBottom="@dimen/_3sdp">
 
@@ -969,6 +973,7 @@
                     android:layout_height="@dimen/_25sdp"
                     android:layout_gravity="center"
                     android:background="@color/gray_50"
+                    android:visibility="gone"
                     android:layout_marginLeft="@dimen/_2sdp"
                     android:layout_marginRight="@dimen/_2sdp"/>
 
@@ -977,6 +982,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:orientation="vertical"
+                    android:visibility="gone"
                     android:layout_marginLeft="@dimen/_3sdp"
                     android:layout_marginRight="@dimen/_3sdp"
                     android:layout_marginTop="@dimen/_3sdp"
@@ -1006,6 +1012,7 @@
                     android:layout_height="@dimen/_25sdp"
                     android:layout_gravity="center"
                     android:background="@color/gray_50"
+                    android:visibility="gone"
                     android:layout_marginLeft="@dimen/_2sdp"
                     android:layout_marginRight="@dimen/_2sdp"/>
 

@@ -1,10 +1,15 @@
 package com.breezeeurobondfsm
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.OpenableColumns
+import android.widget.Toast
 import com.breezeeurobondfsm.app.Pref
 import com.breezeeurobondfsm.app.domain.AddShopDBModelEntity
 import com.breezeeurobondfsm.app.utils.AppUtils
@@ -22,18 +27,23 @@ import com.itextpdf.text.pdf.PdfWriter
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+
 object MultiFun {
+
+
 
     fun generateContactDtlsPdf(shopObj: AddShopDBModelEntity,mContext:Context){
     var document: Document = Document(PageSize.A4, 36f, 36f, 36f, 80f)
         val time = System.currentTimeMillis()
         var fileName = "Contact" +  "_" + time
         val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+"/FSMApp/CallHis/"
+       // val path = "/storage/emulated/0/Android/data/com.breezeeurobondfsm/files/"
 
         val dir = File(path)
         if (!dir.exists()) {
@@ -159,21 +169,26 @@ object MultiFun {
 
             document.close()
 
+
             var sendingPath = path + fileName + ".pdf"
+           // var sendingPath = Pref.scheduler_file
 
             var m = Mail()
             var toArr = arrayOf("")
             m = Mail("suman.bachar@indusnet.co.in", "jfekuhstltfkarrv") // generate under 2-step verification -> app password
-            toArr = arrayOf("suman.bachar@indusnet.co.in")
+            toArr = arrayOf(shopObj.ownerEmailId)
             m.setTo(toArr)
             m.setFrom("TEAM");
-            m.setSubject("Contact Activity.")
-            m.setBody("Hello ,  \n Please find attachment below. \n\n\n Regards \n${Pref.user_name}.")
+            m.setSubject("Scheduler Activity.")
+           // m.setBody("Hello ,  \n Please find attachment below. \n\n\n Regards \n${Pref.user_name}.")
+            var mailBody = Pref.scheduler_template!!.replace("@name","${shopObj.ownerName}").replace("@Name","${shopObj.ownerName}")
+           // m.setBody("Hello ,  \n ${Pref.scheduler_template}.")
+            m.setBody(mailBody)
 
             doAsync {
                 try{
-                    val fileUrl = Uri.parse(sendingPath)
-                    m.send(fileUrl.path)
+                     val fileUrl = Uri.parse(sendingPath)
+                    m.send()
                 }catch (ex:Exception){
                     ex.printStackTrace()
                 }
@@ -183,6 +198,154 @@ object MultiFun {
             }
         }catch (ex:Exception){
             ex.printStackTrace()
+        }
+    }
+
+    interface OnMailAction{
+        fun onStatus(isSuccess:Boolean)
+    }
+
+    fun autoMailScheduler1(emailToSent:String,body:String,shopObj:AddShopDBModelEntity,schName:String,listnr:OnMailAction){
+        doAsync {
+            try {
+                var m = Mail()
+                //m = Mail("suman.bachar@indusnet.co.in", "jfekuhstltfkarrv") // generate under 2-step verification -> app password
+                m = Mail(Pref.storeGmailId, Pref.storeGmailPassword) // generate under 2-step verification -> app password
+                var toArr = arrayOf(emailToSent)
+                m.setTo(toArr)
+                m.setFrom("TEAM");
+                m.setSubject(schName)
+                var mailBody = body.replace("@FromName","${Pref.user_name}").replace("@ToName","${shopObj.ownerName}")
+                m.setBody(mailBody)
+                m.send()
+
+            uiThread {
+                listnr?.onStatus(true)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace();
+                uiThread {
+                    listnr?.onStatus(false)
+                }
+            }
+        }
+    }
+
+    fun autoMailScheduler(emailToSent:String,body:String,shopObj:AddShopDBModelEntity,schName:String){
+        try{
+            var m = Mail()
+            //m = Mail("suman.bachar@indusnet.co.in", "jfekuhstltfkarrv") // generate under 2-step verification -> app password
+            m = Mail(Pref.storeGmailId, Pref.storeGmailPassword) // generate under 2-step verification -> app password
+            var toArr = arrayOf(emailToSent)
+            m.setTo(toArr)
+            m.setFrom("TEAM");
+            m.setSubject(schName)
+            var bbody = body.replace("@toname","@ToName").replace("@fromname","@FromName")
+            var mailBody = bbody.replace("@FromName","${Pref.user_name}").replace("@ToName","${shopObj.ownerName}")
+            m.setBody(mailBody)
+
+            doAsync {
+                try{
+                    m.send()
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                    Timber.e("Mail sent exception: "+ ex.message)
+                }
+                uiThread {
+
+                }
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+    }
+
+    fun isExternalStorageWritable(): Boolean {
+        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+    }
+
+    // Checks if a volume containing external storage is available to at least read.
+    fun isExternalStorageReadable(): Boolean {
+        return Environment.getExternalStorageState() in
+                setOf(Environment.MEDIA_MOUNTED, Environment.MEDIA_MOUNTED_READ_ONLY)
+    }
+
+    @SuppressLint("Range")
+    fun copyFileToInternal(context: Context, fileUri: Uri?): String? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val cursor = context.contentResolver.query(
+                fileUri!!,
+                arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE),
+                null,
+                null
+            )
+            cursor!!.moveToFirst()
+            val displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+            val size = cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE))
+            val file = File(context.filesDir.toString() + "/" + displayName)
+            try {
+                val fileOutputStream = FileOutputStream(file)
+                val inputStream = context.contentResolver.openInputStream(fileUri)
+                val buffers = ByteArray(1024)
+                var read: Int
+                while (inputStream!!.read(buffers).also { read = it } != -1) {
+                    fileOutputStream.write(buffers, 0, read)
+                }
+                inputStream.close()
+                fileOutputStream.close()
+                return file.path
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        return null
+    }
+
+    fun sendAutoMailWithFile(sendingPath:String,emailToSent:String,mailBo:String,shopObj:AddShopDBModelEntity,schName:String){
+        try{
+            var m = Mail(Pref.storeGmailId, Pref.storeGmailPassword)
+            m.setTo(arrayOf(emailToSent))
+            m.setFrom("FSM");
+            m.setSubject(schName)
+            var mailBoRectify = mailBo.replace("@toname","@ToName").replace("@fromname","@FromName")
+            var mailBody = mailBoRectify.replace("@FromName","${Pref.user_name}").replace("@ToName","${shopObj.ownerName}")
+            m.setBody(mailBody)
+            doAsync {
+                try{
+                    if(sendingPath.equals("")){
+                        m.send()
+                    }else{
+                        m.send(sendingPath)
+                    }
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                    println("tag_main Mail sent exception ${ex.message}")
+                    Timber.e("Mail sent exception: "+ ex.message)
+                }
+                uiThread {
+
+                }
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+    }
+
+    fun sendEmailManually(mContext:Context,uri:Uri) {
+        try {
+            var email = "sumanbacharofc@gmail.com"
+            var subject = "subject"
+            var message = "msg"
+            val emailIntent = Intent(Intent.ACTION_SEND)
+            emailIntent.type = "plain/text"
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject)
+            emailIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            emailIntent.putExtra(Intent.EXTRA_TEXT, message)
+            mContext.startActivity(Intent.createChooser(emailIntent, "Sending email..."))
+        }
+        catch (t: Throwable) {
+            Toast.makeText(mContext, "Request failed try again: $t", Toast.LENGTH_LONG).show()
         }
     }
 

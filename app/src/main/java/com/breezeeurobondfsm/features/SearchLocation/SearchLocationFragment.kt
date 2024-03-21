@@ -496,6 +496,7 @@ class SearchLocationFragment : BaseFragment(), View.OnClickListener, LocationAda
         mLocationRequest?.interval = 1000
         mLocationRequest?.fastestInterval = 1000
         mLocationRequest?.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+      //  mLocationRequest!!.smallestDisplacement = 10F
         if (ContextCompat.checkSelfPermission(mContext,
                         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (mGoogleApiClient?.isConnected!!) {

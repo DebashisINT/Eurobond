@@ -11,6 +11,7 @@ import com.breezeeurobondfsm.base.BaseResponse
 
 data class ContactGr(var gr_id:String="",var gr_name:String="")
 data class ContactDtls(val gr_name:String="", val name:String="", val number:String="", var isTick:Boolean = false)
+data class ScheduleContactDtls(val contact_name:String="", val contact_number:String="", val contact_id:String="", var isTick:Boolean = false)
 
 data class ContactMasterRes(var company_list:ArrayList<CompanyMasterEntity>):BaseResponse()
 data class TypeMasterRes(var type_list:ArrayList<TypeMasterEntity>):BaseResponse()

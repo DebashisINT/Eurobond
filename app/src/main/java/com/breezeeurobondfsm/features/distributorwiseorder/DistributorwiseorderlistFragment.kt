@@ -545,6 +545,10 @@ class DistributorwiseorderlistFragment : BaseFragment(), View.OnClickListener {
                     try{
                     mrp = getString(R.string.rupee_symbol_with_space)+" "+tempProductObj!!.get(i).order_mrp+" "
                     discount = getString(R.string.rupee_symbol_with_space)+" "+tempProductObj!!.get(i).order_discount +" "
+                        // mrp fix Suman 22-02-2024 mantis id 0027271 begin
+                        mrp = getString(R.string.rupee_symbol_with_space)+" "+tempProductObj!!.get(j).order_mrp+" "
+                        discount = getString(R.string.rupee_symbol_with_space)+" "+tempProductObj!!.get(j).order_discount +" "
+                        // mrp fix Suman 22-02-2024 mantis id 0027271 end
                     }
                     catch (ex:Exception){
                         mrp = getString(R.string.rupee_symbol_with_space)+" "

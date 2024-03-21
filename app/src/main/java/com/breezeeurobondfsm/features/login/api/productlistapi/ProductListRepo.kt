@@ -16,7 +16,7 @@ import timber.log.Timber
  */
 class ProductListRepo(val apiService: ProductListApi) {
     fun getProductList(session_token: String, user_id: String, last_update_date: String): Observable<ProductListResponseModel> {
-        Timber.d("ProductListRepo hit ${Pref.isOrderShow} ${Pref.IsShowQuotationFooterforbreezeeurobondfsm}" +  "Time : " + AppUtils.getCurrentDateTime())
+        Timber.d("ProductListRepo hit ${Pref.isOrderShow} ${Pref.IsShowQuotationFooterforEurobond}" +  "Time : " + AppUtils.getCurrentDateTime())
         return apiService.getProductList(session_token, user_id, last_update_date)
     }
 

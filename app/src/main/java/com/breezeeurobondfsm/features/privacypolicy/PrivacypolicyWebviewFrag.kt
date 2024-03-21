@@ -1,7 +1,10 @@
 package com.breezeeurobondfsm.features.privacypolicy
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +16,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.NewFileUtils
+import com.breezeeurobondfsm.app.utils.Toaster
 import com.breezeeurobondfsm.base.presentation.BaseFragment
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
 import com.pnikosis.materialishprogress.ProgressWheel
@@ -91,12 +95,36 @@ class PrivacypolicyWebviewFrag: BaseFragment() {
                 }
 
                 override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+
+                    val url = "https://api.whatsapp.com/send?phone=+919674476953"
+
+                    try {
+                        val pm = mContext.packageManager
+                        pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES)
+                        val i = Intent(Intent.ACTION_VIEW)
+                        i.data = Uri.parse(url)
+                        startActivity(i)
+                    } catch (e: PackageManager.NameNotFoundException ) {
+                        e.printStackTrace()
+                        (mContext as DashboardActivity).showSnackMessage("Whatsapp app not installed in your phone.")
+                    }
+                    catch (e: java.lang.Exception) {
+                        e.printStackTrace()
+                        (mContext as DashboardActivity).showSnackMessage("This is not whatsApp no.")
+                    }
+                    view?.loadUrl("https://breezefsm.in/privacy-policy/")
+                    return
                     view?.loadUrl("about:blank")
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         Log.e("LearningWebView", error?.description.toString())
                     }
-                    (mContext as DashboardActivity).showSnackMessage("Sorry, we are unable to load file.")
+                    //(mContext as DashboardActivity).showSnackMessage("Sorry, we are unable to load file.")
                 }
+            }
+
+            it.setOnTouchListener { view, motionEvent ->
+                it.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+                false
             }
         }
         rl_webview_main.setOnClickListener(null)
