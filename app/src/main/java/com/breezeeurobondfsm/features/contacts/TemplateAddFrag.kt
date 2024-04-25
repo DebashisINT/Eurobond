@@ -66,7 +66,7 @@ class TemplateAddFrag: BaseFragment(), View.OnClickListener {
             ivCopy1.id,tvCopy1.id -> {
                 try{
                     var content = etTemplateDesc.text.toString()
-                    content = content + " @ToName"
+                    content = content + " @ToName "
                     etTemplateDesc.setText(content)
                     val pos: Int = etTemplateDesc.getText()!!.length
                     etTemplateDesc.setSelection(pos)
@@ -77,7 +77,7 @@ class TemplateAddFrag: BaseFragment(), View.OnClickListener {
             ivCopy2.id,tvCopy2.id -> {
                 try{
                     var content = etTemplateDesc.text.toString()
-                    content = content + " @FromName"
+                    content = content + " @FromName "
                     etTemplateDesc.setText(content)
                     val pos: Int = etTemplateDesc.getText()!!.length
                     etTemplateDesc.setSelection(pos)

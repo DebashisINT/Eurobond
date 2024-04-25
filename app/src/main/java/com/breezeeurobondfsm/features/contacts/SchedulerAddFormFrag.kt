@@ -11,6 +11,7 @@ import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -75,6 +76,13 @@ import java.util.Random
 import android.provider.OpenableColumns
 
 import android.database.Cursor
+import com.android.volley.AuthFailureError
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonObjectRequest
+import com.breezeeurobondfsm.MySingleton
+import org.json.JSONObject
+import java.util.HashMap
 
 
 class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
@@ -767,8 +775,7 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
                     //new code begin
                     val random = Random()
                     var schObj = SchedulerMasterEntity()
-                    schObj =  AppDatabase.getDBInstance()!!.schedulerMasterDao().getSchedulerDtls(editShchedulerID
-                    )
+                    schObj =  AppDatabase.getDBInstance()!!.schedulerMasterDao().getSchedulerDtls(editShchedulerID)
                     schObj.scheduler_id = editShchedulerID
                     schObj.scheduler_name = schedulername.text.toString().trim()
                     schObj.select_template = selectTemplate.text.toString().trim()
@@ -950,7 +957,7 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
             progress_wheel.stopSpinning()
             return
         }
-        if(selectMode.text.toString().trim().equals("Email")&& Pref.storeGmailId==null || Pref.storeGmailPassword==null){
+        if(selectMode.text.toString().trim().equals("Email") && (Pref.storeGmailId==null || Pref.storeGmailPassword==null) && !selectMode.text.toString().equals("WhatsApp")){
             Toaster.msgShort(mContext,"Store your two step verification id & password")
             progress_wheel.stopSpinning()
             return
@@ -1078,32 +1085,106 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
                         simpleDialog.setContentView(R.layout.dialog_ok)
                         val dialogHeader =
                             simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
-                        dialogHeader.text = "Wow! Schedular configured successfully.\n" +
-                                "Communication with template will sent automatically."
+                        dialogHeader.text = "Wow! Schedular configured successfully.\n" //+ "Communication with template will sent automatically."
                         val dialogYes =
                             simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
                         dialogYes.setOnClickListener({ view ->
                             simpleDialog.cancel()
+                            progress_wheel.stopSpinning()
+                            (mContext as DashboardActivity).onBackPressed()
                         })
-                        simpleDialog.show()
+                        //simpleDialog.show()
 
                         //new code begin
                         if(schObj.isAutoMail == false){
-                            for (l in 0..contL.size - 1) {
-                                var shopObj = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(contL.get(l).select_contact_id)
-                                //MultiFun.autoMailScheduler(shopObj.ownerEmailId, schObj.template_content,shopObj,schObj.scheduler_name)
-                                MultiFun.sendAutoMailWithFile(filePath,shopObj.ownerEmailId, schObj.template_content,shopObj,schObj.scheduler_name)
-                                /*MultiFun.autoMailScheduler1(shopObj.ownerEmailId, schObj.template_content,shopObj,schObj.scheduler_name,object :MultiFun.OnMailAction{
-                                    override fun onStatus(isSuccess: Boolean) {
-                                        var d = isSuccess
+                            if(selectMode.text.toString().equals("WhatsApp")){
+                                var shopObj = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(contL.get(0).select_contact_id)
+                                try {
+                                    val jsonObject = JSONObject()
+                                    jsonObject.put("messaging_product", "whatsapp")
+                                    jsonObject.put("to", "918017845376")
+                                    jsonObject.put("type", "template")
+
+                                    val templateObject = JSONObject()
+                                    templateObject.put("name", "hello_world")
+
+                                    val languageObject = JSONObject()
+                                    languageObject.put("code", "en_US")
+
+                                    templateObject.put("language", languageObject)
+
+                                    jsonObject.put("template", templateObject)
+
+                                    val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest("https://graph.facebook.com/v18.0/110377482141989/messages", jsonObject,
+                                        object : Response.Listener<JSONObject?> {
+                                            override fun onResponse(response: JSONObject?) {
+                                                //Toast.makeText(mContext, ""+response, Toast.LENGTH_SHORT).show()
+                                            }
+                                        },
+                                        object : Response.ErrorListener {
+                                            override fun onErrorResponse(error: VolleyError?) {
+                                                //Toast.makeText(mContext, ""+error.toString(), Toast.LENGTH_SHORT).show()
+                                            }
+                                        }) {
+                                        @Throws(AuthFailureError::class)
+                                        override fun getHeaders(): Map<String, String> {
+                                            val params: MutableMap<String, String> = HashMap()
+                                            params["Authorization"] = "Bearer"+" "+"EAAYdZB0nzeMgBOxizV7tJeuilIZBwqyzn2PAfefBSiHNbaTtrz5Ce50NrYg6SJAqRYasC2rnPYJcZBhmSMEXllT9mtZAiZBzMScmv85EtnZBZAyltthc0GCHOBFgCdNC0oORzD3riXHSzlsjUvpWvOl02TCZCHbXmp0vDVjHuCghagM38Qsl3j3ZAEwXlhzrAY9hyZCAxrK0bH7Qxy1en7UTH0XpQ0ZBy0ZD"
+                                            params["Content-Type"] = "application/json"
+                                            return params
+                                        }
                                     }
-                                })*/
+                                    MySingleton.getInstance(mContext)!!.addToRequestQueue(jsonObjectRequest)
+                                    simpleDialog.show()
+                                } catch (e: java.lang.Exception) {
+                                    e.printStackTrace()
+                                }
+
+
+                                /*schObj.template_content = schObj.template_content.replace("@to name","@ToName").replace("@from name","@FromName")
+                                schObj.template_content = schObj.template_content.replace("@toname","@ToName").replace("@fromname","@FromName")
+                                schObj.template_content = schObj.template_content.replace("@Toname","@ToName").replace("@Fromname","@FromName")
+                                schObj.template_content = schObj.template_content.replace("@To Name","@ToName").replace("@From Name","@FromName")
+                                schObj.template_content = schObj.template_content.replace("@To name","@ToName").replace("@From name","@FromName")
+
+                                schObj.template_content = schObj.template_content.replace("@ToName",shopObj.ownerName).replace("@FromName",Pref.user_name!!)
+
+                                val url = "https://api.whatsapp.com/send?phone=+91${shopObj.ownerContactNumber}&text=${schObj.template_content}"
+                                try {
+                                    val pm = mContext.packageManager
+                                    pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES)
+                                    val i = Intent(Intent.ACTION_VIEW)
+                                    i.data = Uri.parse(url)
+                                    startActivity(i)
+                                } catch (e: PackageManager.NameNotFoundException ) {
+                                    e.printStackTrace()
+                                    (mContext as DashboardActivity).showSnackMessage("Whatsapp app not installed in your phone.")
+                                    progress_wheel.stopSpinning()
+                                }
+                                catch (e: java.lang.Exception) {
+                                    e.printStackTrace()
+                                    (mContext as DashboardActivity).showSnackMessage("This is not whatsApp no.")
+                                    progress_wheel.stopSpinning()
+                                }*/
+                            }else{
+                                for (l in 0..contL.size - 1) {
+                                    var shopObj = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(contL.get(l).select_contact_id)
+                                    //MultiFun.autoMailScheduler(shopObj.ownerEmailId, schObj.template_content,shopObj,schObj.scheduler_name)
+                                    MultiFun.sendAutoMailWithFile(filePath,shopObj.ownerEmailId, schObj.template_content,shopObj,schObj.scheduler_name)
+                                    /*MultiFun.autoMailScheduler1(shopObj.ownerEmailId, schObj.template_content,shopObj,schObj.scheduler_name,object :MultiFun.OnMailAction{
+                                        override fun onStatus(isSuccess: Boolean) {
+                                            var d = isSuccess
+                                        }
+                                    })*/
+                                }
+                                progress_wheel.stopSpinning()
+                                //(mContext as DashboardActivity).onBackPressed()
+                                simpleDialog.show()
                             }
-                            progress_wheel.stopSpinning()
-                            (mContext as DashboardActivity).onBackPressed()
                         }else{
                             progress_wheel.stopSpinning()
                             (mContext as DashboardActivity).onBackPressed()
+                            simpleDialog.show()
                         }
                         //new code end
                     }
@@ -1152,9 +1233,11 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
                 str_modeoftemplateID = it.id
                 if (selectMode.text!!.toString().trim().equals("Email")){
                     iv_row_scheduler_list_email_info.visibility=View.VISIBLE
+                    cvAttachRoot.visibility=View.VISIBLE
                 }
                 else{
                     iv_row_scheduler_list_email_info.visibility=View.GONE
+                    cvAttachRoot.visibility=View.GONE
                 }
 
             }.show((mContext as DashboardActivity).supportFragmentManager, "")
@@ -1171,6 +1254,14 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
             for(i in 0..rule_list.size-1){
                 genericL.add(CustomData(rule_list.get(i).rule_template_id.toString(),rule_list.get(i).rule_template_name.toString()))
             }
+            try{
+                if(selectMode.text!!.toString().equals("WhatsApp")){
+                    genericL.removeAt(0)
+                }
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+
             GenericDialog.newInstance("Rule of Template",genericL as ArrayList<CustomData>){
                 tv_rule_Of_scheduler.setText(it.name)
                 str_ruleoftemplateID = it.id
@@ -1424,6 +1515,7 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
         }
     }
     private fun setModeData(){
+        AppDatabase.getDBInstance()?.modeTemplateDao()?.deleteAll()
         if((AppDatabase.getDBInstance()?.modeTemplateDao()?.getAll() as ArrayList<ModeTemplateEntity>).size == 0){
             var objMode1 = ModeTemplateEntity()
             objMode1.mode_template_id = 1
@@ -1432,7 +1524,7 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
             var objMode2 = ModeTemplateEntity()
             objMode2.mode_template_id = 2
             objMode2.mode_template_name = "Email"
-            //  AppDatabase.getDBInstance()?.modeTemplateDao()?.insert(objMode1)
+            AppDatabase.getDBInstance()?.modeTemplateDao()?.insert(objMode1)
             AppDatabase.getDBInstance()?.modeTemplateDao()?.insert(objMode2)
         }
     }

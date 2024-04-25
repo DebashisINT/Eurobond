@@ -787,32 +787,38 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
 
 
     override fun onDateSelected(dateSelected: DateTime) {
-        var dateTime = dateSelected.toString()
-        var dateFormat = dateTime.substring(0, dateTime.indexOf('T'))
-        selectedDate = dateFormat
-        ShopActivityEntityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(dateFormat)
+        println("tag_date_check onDateSelected")
+        doAsync {
+            progress_wheel.spin()
+            var dateTime = dateSelected.toString()
+            var dateFormat = dateTime.substring(0, dateTime.indexOf('T'))
+            selectedDate = dateFormat
+            ShopActivityEntityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(dateFormat)
 
-        Collections.reverse(ShopActivityEntityList)
+            Collections.reverse(ShopActivityEntityList)
+            uiThread {
+                if (ShopActivityEntityList.isNotEmpty()) {
+                    noShopAvailable.visibility = View.GONE
+                    shopList.visibility = View.VISIBLE
 
-        if (ShopActivityEntityList.isNotEmpty()) {
-            noShopAvailable.visibility = View.GONE
-            shopList.visibility = View.VISIBLE
+                    Timber.d("===========INIT ADAPTER FOR SPECIFIC DATE (AVERAGE SHOP)========")
+                    Timber.d("shop list size====> " + ShopActivityEntityList.size)
+                    Timber.d("specific date====> $selectedDate")
 
-            Timber.d("===========INIT ADAPTER FOR SPECIFIC DATE (AVERAGE SHOP)========")
-            Timber.d("shop list size====> " + ShopActivityEntityList.size)
-            Timber.d("specific date====> $selectedDate")
+                    try {
+                        initAdapter()
+                    } catch (e: UninitializedPropertyAccessException) {
+                        initAdapter()
+                    }
 
-            try {
-                initAdapter()
-            } catch (e: UninitializedPropertyAccessException) {
-                initAdapter()
+                } else {
+                    noShopAvailable.visibility = View.VISIBLE
+                    shopList.visibility = View.GONE
+                }
+                progress_wheel.stopSpinning()
+
             }
-
-        } else {
-            noShopAvailable.visibility = View.VISIBLE
-            shopList.visibility = View.GONE
         }
-
     }
 
     private fun syncShopActivity(shopId: String) {
@@ -1356,6 +1362,7 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                 var shopWiseWhatsObj = AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getByShopIDDate(shop_id,AppUtils.getCurrentDateForShopActi())
                 var shopObj: AddShopDBModelEntity = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shop_id)
                 if(AppUtils.isOnline(mContext)){
+                    //whatsapp api call off https://theultimate.io/WAApi/send
                     whatsappApi(shopWiseWhatsObj!!,shopObj,shopWiseWhatsObj.isNewShop)
                 }else{
                     Toaster.msgShort(mContext, "Your network connection is offine. Make it online to proceed.")

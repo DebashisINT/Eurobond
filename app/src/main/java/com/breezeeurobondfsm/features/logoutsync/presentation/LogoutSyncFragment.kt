@@ -707,12 +707,13 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
     //8-12-2021
     private fun syncQuesSubmit(){
         try{
+            Timber.d("tag_logout_ques syncQuesSubmit")
             var questionSubmit : AddQuestionSubmitRequestData = AddQuestionSubmitRequestData()
 
             var uniqUnsyncShopID=AppDatabase.getDBInstance()?.questionSubmitDao()?.getUnSyncUniqShopID(false)
 
             if(uniqUnsyncShopID != null && uniqUnsyncShopID.isNotEmpty() && uniqUnsyncShopID.size!=0){
-
+                Timber.d("tag_logout_ques syncQuesSubmit if")
                 questionSubmit.user_id=Pref.user_id
                 questionSubmit.session_token=Pref.session_token
                 questionSubmit.shop_id=uniqUnsyncShopID?.get(0)
@@ -749,11 +750,13 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 })
                 )
             }else{
+                Timber.d("tag_logout_ques syncQuesSubmit else")
                 syncUpdatedQuesSubmit()
 //                checkToCallActivity()
             }
         }catch (ex:Exception){
             Timber.d("QuestionSubmit : ERROR " + ex.toString())
+            Timber.d("tag_logout_ques syncQuesSubmit ex")
             ex.printStackTrace()
             syncUpdatedQuesSubmit()
 //            checkToCallActivity()
@@ -766,9 +769,9 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             var questionSubmit : AddQuestionSubmitRequestData = AddQuestionSubmitRequestData()
 
             var uniqUnsyncShopID=AppDatabase.getDBInstance()?.questionSubmitDao()?.getUnSyncUpdatedUniqShopID(false)
-
+            Timber.d("tag_logout_ques syncUpdatedQuesSubmit")
             if(uniqUnsyncShopID != null && uniqUnsyncShopID.isNotEmpty() && uniqUnsyncShopID.size!=0){
-
+                Timber.d("tag_logout_ques syncUpdatedQuesSubmit if")
                 questionSubmit.user_id=Pref.user_id
                 questionSubmit.session_token=Pref.session_token
                 questionSubmit.shop_id=uniqUnsyncShopID?.get(0)
@@ -805,11 +808,13 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                                 })
                 )
             }else{
+                Timber.d("tag_logout_ques syncUpdatedQuesSubmit else")
                 addShopSeconaryUploadImg()
 //                checkToCallActivity()
             }
         }catch (ex:Exception){
             Timber.d("QuestionSubmit : ERROR " + ex.toString())
+            Timber.d("tag_logout_ques syncUpdatedQuesSubmit ex")
             ex.printStackTrace()
             addShopSeconaryUploadImg()
 //            checkToCallActivity()
@@ -821,10 +826,12 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
     private fun addShopSeconaryUploadImg() {
 
         println("sec-image addShopSeconaryUploadImg")
+        Timber.d("tag_logout_ques syncUpdatedQuesSubmit SecondaryShopImg1")
         var objCompetetor: AddShopUploadImg = AddShopUploadImg()
         var secondaryImgShopID=AppDatabase.getDBInstance()?.addShopSecondaryImgDao()!!.getUnsnycShopImage1(false) as ArrayList<SecondaryShopImg1>
 
         if(secondaryImgShopID != null && secondaryImgShopID.isNotEmpty() && secondaryImgShopID.size!=0){
+            Timber.d("tag_logout_ques syncUpdatedQuesSubmit SecondaryShopImg1 if")
             var shopId=secondaryImgShopID.get(0).lead_shop_id
             var imagePathupload=secondaryImgShopID.get(0).rubylead_image1
 
@@ -858,6 +865,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             )
 
         }else{
+            Timber.d("tag_logout_ques syncUpdatedQuesSubmit SecondaryShopImg1 else")
             addShopSeconaryUploadImg2()
         }
 
@@ -6036,6 +6044,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         }
                     }, { error ->
                         error.printStackTrace()
+
                         Timber.d("syncCallHisInfo:==>"+error.message.toString())
 
                         checkToCallActivity()
@@ -6083,7 +6092,10 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             tv_activity_retry.visibility = View.GONE
             activity_sync_img.visibility = View.GONE
 
-            take_photo_tv.text = getString(R.string.data_sync_completed)
+            // code start bt puja 23.03.2024 mantis id - 27333 v4.2.6
+            //  take_photo_tv.text = getString(R.string.data_sync_completed)
+            take_photo_tv.text = mContext.getString(R.string.data_sync_completed)
+            // code end bt puja 23.03.2024 mantis id - 27333 v4.2.6
             if (!(mContext as DashboardActivity).isChangedPassword) {
                 if ((mContext as DashboardActivity).isClearData) {
                     Handler().postDelayed(Runnable {

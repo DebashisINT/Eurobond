@@ -8,18 +8,18 @@
 
     <ImageView
         android:id="@+id/logo_new"
-        android:layout_width="@dimen/_195sdp"
-        android:layout_height="@dimen/_60sdp"
+        android:layout_width="@dimen/_205sdp"
+        android:layout_height="@dimen/_100sdp"
         android:src="@drawable/breezelogo"
         android:layout_marginTop="@dimen/_170sdp"
         android:layout_centerHorizontal="true" />
 
     <com.breezeeurobondfsm.widgets.AppCustomTextView
+        android:visibility="gone"
         android:id="@+id/Logo_name_TV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/logo_new"
-        android:visibility="gone"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/_10sdp"

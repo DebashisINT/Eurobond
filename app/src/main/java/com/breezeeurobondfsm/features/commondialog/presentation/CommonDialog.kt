@@ -36,8 +36,10 @@ class CommonDialog : DialogFragment(), View.OnClickListener {
     private var editableData = ""
 
     companion object {
-
-        private lateinit var mHeader: String
+        // code start by puja 10.04.2024 mantis id - 27333 v4.2.6
+        //private lateinit var mHeader: String
+        private var mHeader: String = ""
+        // code end by puja 10.04.2024 mantis id - 27333 v4.2.6
         private lateinit var mTitle: String
         private lateinit var mLeftBtn: String
         private lateinit var mRightBtn: String

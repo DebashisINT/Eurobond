@@ -57,9 +57,23 @@ class SystemEventReceiver : BroadcastReceiver() {
                 Timber.e("========================${text + AppUtils.getCurrentDateTime()}=======================")
 
             }else if(intent.action == "android.intent.action.ACTION_SHUTDOWN"){
-                val locationName = LocationWizard.getLocationName(context, Pref.latitude!!.toDouble(), Pref.longitude!!.toDouble())
-                Timber.e("\n======================== \n Phone Shutdown || DateTime : ${AppUtils.getCurrentDateTime()} || Location : last_lat: ${Pref.latitude} || last_long: ${Pref.longitude} || LocationName ${locationName} \n=======================")
+                // code start by puja 05.04.2024 mantis id - 27333 v4.2.6
+                /*  val locationName = LocationWizard.getLocationName(context, Pref.latitude!!.toDouble(), Pref.longitude!!.toDouble())
+                  Timber.e("\n======================== \n Phone Shutdown || DateTime : ${AppUtils.getCurrentDateTime()} || Location : last_lat: ${Pref.latitude} || last_long: ${Pref.longitude} || LocationName ${locationName} \n=======================")
+                  AppUtils.reasontagforGPS = "Phone shutdown"*/
+                if (Pref.latitude!="" && Pref.longitude!="" ) {
+                    val locationName = LocationWizard.getLocationName(
+                        context,
+                        Pref.latitude!!.toDouble(),
+                        Pref.longitude!!.toDouble()
+                    )
+                    Timber.e("\n======================== \n Phone Shutdown || DateTime : ${AppUtils.getCurrentDateTime()} || Location : last_lat: ${Pref.latitude} || last_long: ${Pref.longitude} || LocationName ${locationName} \n=======================")
+                }
+                else{
+                    Timber.e("\n LatLong not found")
+                }
                 AppUtils.reasontagforGPS = "Phone shutdown"
+                // code end by puja 05.04.2024 mantis id - 27333 v4.2.6
             }else if(intent.action == "android.os.action.POWER_SAVE_MODE_CHANGED"){
                 Timber.e("\n android.os.action.POWER_SAVE_MODE_CHANGED")
                 AppUtils.reasontagforGPS = "Power save mode on"

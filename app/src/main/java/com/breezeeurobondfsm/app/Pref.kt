@@ -1007,7 +1007,6 @@ object Pref : PreferenceHolder() {
     var storeGmailPassword: String? by bindToPreferenceFieldNullable()
     var minAccuracy: String by bindToPreferenceField("200", "minAccuracy")
     var isAutoMailProceeding: Boolean by bindToPreferenceField(false, "isAutoMailProceeding")
-
     var isTemplateDialogAlertShow: Boolean by bindToPreferenceField(true, "isTemplateDialogAlertShow")
     var logId: String by bindToPreferenceField("", "logId")
     var loginPassword: String by bindToPreferenceField("", "loginPassword")
@@ -1015,6 +1014,7 @@ object Pref : PreferenceHolder() {
     var ShowPartyWithGeoFence: Boolean by bindToPreferenceField(false, "ShowPartyWithGeoFence")
     var ShowPartyWithCreateOrder: Boolean by bindToPreferenceField(false, "ShowPartyWithCreateOrder")
     var Allow_past_days_for_apply_reimbursement: String by bindToPreferenceField("", "Allow_past_days_for_apply_reimbursement")
+    var IsShowLeaderBoard: Boolean by bindToPreferenceField(false, "IsShowLeaderBoard")
 
 
 }

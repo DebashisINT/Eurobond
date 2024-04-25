@@ -241,8 +241,10 @@ class ShopBillingListFragment : BaseFragment() {
                                     val random = Random()
                                     val m = random.nextInt(9999 - 1000) + 1000
 
-                                    //collectionDetails.collection_id = Pref.user_id + "_" + m /*+ "_" + System.currentTimeMillis().toString()*/
-                                    collectionDetails.collection_id = Pref.user_id + "c" + m
+                                    // start fix collection not sync issue sometimes puja 05-04-2024 mantis id 0027352 v4.2.6
+                                    collectionDetails.collection_id = Pref.user_id + "_" + m + "_" + System.currentTimeMillis().toString()
+                                    //collectionDetails.collection_id = Pref.user_id + "c" + m
+                                    // end fix collection not sync issue sometimes puja 05-04-2024 mantis id 0027352 v4.2.6
                                     collectionDetails.shop_id = mAddShopDataObj?.shop_id
                                     collectionDetails.date = date //AppUtils.getCurrentDate()
                                     collectionDetails.only_time = AppUtils.getCurrentTime()  //AppUtils.getCurrentDate()

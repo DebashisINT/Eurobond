@@ -161,6 +161,7 @@ import kotlin.collections.ArrayList
 // 15.0 DashboardFragment v 4.1.6 saheli mantis 0026370: Daywiseshop/Records ->Is_Newshopadd
 // 16.0 DashboardFragment v 4.1.6 Tufan 11/07/2023 mantis 26546 revisit sync time
 // 17.0 DashboardFragment v 4.1.6 Suman 13/07/2023 mantis 26555 Usersettings
+// 18.0 DashboardFragment v 4.2.6 Puja 12/03/2024 mantis 0027298 IsShowLeaderBoard functionality
 class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListener, View.OnTouchListener {
 
     var dX = 0f
@@ -1284,7 +1285,10 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                 iv_order_icon.visibility = View.GONE
                 iv_quot_icon.visibility = View.VISIBLE
             } else {
-                no_of_order_TV.text = getString(R.string.total_order_value_new)
+                // code start by puja 05.04.2024 mantis id - 27333 v4.2.6
+                //no_of_order_TV.text = getString(R.string.total_order_value_new)
+                no_of_order_TV.text = mContext.getString(R.string.total_order_value_new)
+                // code end by puja 05.04.2024 mantis id - 27333  v4.2.6
                 avgOrder.text = getString(R.string.rupee_symbol) + InfoWizard.getTotalOrderAmountForToday()
                 iv_order_icon.visibility = View.VISIBLE
                 iv_quot_icon.visibility = View.GONE
@@ -5330,11 +5334,19 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     Pref.ShowPartyWithCreateOrder = configResponse.ShowPartyWithCreateOrder!!
                                 //end mantis id 0027285 ShowPartyWithCreateOrder functionality Puja 01-03-2024
 
-                                //begin mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
-                                if (configResponse.Allow_past_days_for_apply_reimbursement != null)
-                                    Pref.Allow_past_days_for_apply_reimbursement = configResponse.Allow_past_days_for_apply_reimbursement!!
+                                //begin mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024 v4.2.6
+                                if (configResponse.Allow_past_days_for_apply_reimbursement != null) {
+                                    Pref.Allow_past_days_for_apply_reimbursement =
+                                        configResponse.Allow_past_days_for_apply_reimbursement.toString()
+                                }else{
+                                    Pref.Allow_past_days_for_apply_reimbursement = ""
+                                }
+                                //end mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024  v4.2.6
 
-                                //end mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
+                                //begin mantis id 0027298 IsShowLeaderBoard functionality Puja 12-03-2024 v4.2.6
+                                if (configResponse.IsShowLeaderBoard != null)
+                                    Pref.IsShowLeaderBoard = configResponse.IsShowLeaderBoard!!
+                                //end mantis id 0027298 IsShowLeaderBoard functionality Puja 12-03-2024  v4.2.6
 
 
 

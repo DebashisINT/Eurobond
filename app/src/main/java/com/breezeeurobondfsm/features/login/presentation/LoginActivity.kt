@@ -203,6 +203,9 @@ import kotlin.collections.ArrayList
 // 19.0  LoginActivity 0026332	mantis Suman v 4.1.6 21-06-2023
 // 20.0 LoginActivity v 4.1.6 Tufan 11/07/2023 mantis 26546 revisit sync time
 // 21.0 LoginActivity v 4.1.6 Suman 13/07/2023 mantis 26555 Usersettings
+// 22.0  DistributorGPSAccuracy issue fix Puja 04-04-2024 mantis id 0027351 v4.2.6
+
+
 class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
     override fun onLocationChanged(location: Location) {
@@ -378,7 +381,14 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
 
     override fun onStart() {
-        super.onStart()
+        // code start by puja 10.04.2024 mantis id - 27333 v4.2.6
+        //super.onStart()
+        try {
+            super.onStart()
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+        // code end by puja 10.04.2024 mantis id - 27333 v4.2.6
         //getConfigFetchApi()
     }
 
@@ -861,12 +871,22 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                 //end mantis id 0027285 ShowPartyWithCreateOrder functionality Puja 01-03-2024
 
-                                //begin mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
+                                //begin mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024 v4.2.6
+                                if (configResponse.Allow_past_days_for_apply_reimbursement != null) {
+                                    Pref.Allow_past_days_for_apply_reimbursement =
+                                        configResponse.Allow_past_days_for_apply_reimbursement.toString()
+                                }else{
+                                    Pref.Allow_past_days_for_apply_reimbursement = ""
+                                }
+                                //end mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024  v4.2.6
 
-                                if (configResponse.Allow_past_days_for_apply_reimbursement != null)
-                                    Pref.Allow_past_days_for_apply_reimbursement = configResponse.Allow_past_days_for_apply_reimbursement!!
+                                //begin mantis id 0027298 IsShowLeaderBoard functionality Puja 12-03-2024 v4.2.6
 
-                                //end mantis id 0027282 Allow_past_days_for_apply_reimbursement functionality Puja 01-03-2024
+                                if (configResponse.IsShowLeaderBoard != null)
+                                    Pref.IsShowLeaderBoard = configResponse.IsShowLeaderBoard!!
+
+                                //end mantis id 0027298 IsShowLeaderBoard functionality Puja 12-03-2024  v4.2.6
+
 
                             }
                             isApiInitiated = false
@@ -3880,12 +3900,12 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
         tvappCustomAnydeskInfo.isSelected = false
 
-        var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
+      /*  var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
         if (launchIntent != null) {
 //            activity_login_tvappCustomAnydesk.text = resources.getString(R.string.label_open_anydesk)
         } else {
 //            activity_login_tvappCustomAnydesk.text = resources.getString(R.string.label_install_anydesk)
-        }
+        }*/
 
 
 
@@ -4129,14 +4149,15 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                 simpleDialog.setCancelable(true)
                 simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 simpleDialog.setContentView(R.layout.dialog_settings)
-                val tvappCustomAnydesk = simpleDialog.findViewById(R.id.activity_login_tvappCustomAnydesk) as AppCustomTextView
-                val tvappCustomSharelog = simpleDialog.findViewById(R.id.activity_login_tvappCustomLogs) as AppCustomTextView
+               // val tvappCustomAnydesk = simpleDialog.findViewById(R.id.activity_login_tvappCustomAnydesk) as AppCustomTextView
+              //  val tvappCustomSharelog = simpleDialog.findViewById(R.id.activity_login_tvappCustomLogs) as AppCustomTextView
                 val tvappDbShare = simpleDialog.findViewById(R.id.activity_login_tvappdbLogs) as AppCustomTextView
                 val tvprivacyPolicy = simpleDialog.findViewById(R.id.activity_login_tvprivacypolicy) as AppCustomTextView // mantis 0025783 In-app privacy policy working in menu & Login
 
                 // mantis 0025783 In-app privacy policy working in menu & Login start
                 tvprivacyPolicy.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://breezefsm.in/privacy-policy/"))
+                    //val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://breezefsm.in/privacy-policy/"))
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://breezefsm.in/privacy-policy/index.html"))
                     startActivity(intent)
                 }
                 // mantis 0025783 In-app privacy policy working in menu & Login end
@@ -4150,7 +4171,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                     simpleDialog.dismiss()
 
                 }
-                tvappCustomAnydesk.setOnClickListener {
+              /*  tvappCustomAnydesk.setOnClickListener {
                     var launchIntent: Intent? = packageManager.getLaunchIntentForPackage("com.anydesk.anydeskandroid")
                     if (launchIntent != null) {
                         startActivity(launchIntent)
@@ -4170,7 +4191,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                     tvappCustomAnydesk.text = resources.getString(R.string.label_open_anydesk)
                 } else {
                     tvappCustomAnydesk.text = resources.getString(R.string.label_install_anydesk)
-                 }
+                 }*/
 
                 if (!activity_login_tvappCustomAnydeskInfo.isSelected) {
                     activity_login_tvappCustomAnydeskInfo.isSelected = true
@@ -6479,7 +6500,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     Pref.FaceDetectionAccuracyLower = response.getconfigure?.get(i)?.Value!!
                                                 }
                                                 CustomStatic.FaceDetectionAccuracyLower = Pref.FaceDetectionAccuracyLower
-                                            } else if (response.getconfigure?.get(i)?.Key.equals("DistributorGPSAccuracy")) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("DistributorGPSAccuracy", ignoreCase = true)) {
                                                 Pref.DistributorGPSAccuracy = response.getconfigure!![i].Value!!
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.DistributorGPSAccuracy = response.getconfigure?.get(i)?.Value!!
@@ -6487,8 +6508,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                 if (Pref.DistributorGPSAccuracy.length == 0 || Pref.DistributorGPSAccuracy.equals("")) {
                                                     Pref.DistributorGPSAccuracy = "500"
                                                 }
-//                                                XLog.d(    "DistributorGPSAccuracy " + Pref.DistributorGPSAccuracy)
-                                                Timber.d(    "DistributorGPSAccuracy " + Pref.DistributorGPSAccuracy)
+                                                Timber.d("DistributorGPSAccuracy " + Pref.DistributorGPSAccuracy)
                                             }
 
 

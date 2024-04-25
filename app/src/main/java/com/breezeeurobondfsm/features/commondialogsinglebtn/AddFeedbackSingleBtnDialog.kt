@@ -345,6 +345,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                         obj.isUploaded = false
                         AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.insert(obj)
 
+                        //whatsapp api call off https://theultimate.io/WAApi/send
                         if(AppUtils.isOnline(mContext)){
                             var shopWiseWhatsObj = AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getByShopIDDate(mShopID,AppUtils.getCurrentDateForShopActi())
                             try{
@@ -381,7 +382,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                                                 "*Team Eurobond*\n")
                                         params.put("wabaNumber", "917888488891")
                                         params.put("output", "json")
-                                        //params.put("mobile", "918017845376")
+                                        //params.put("mobile", "919830916971")
                                         params.put("mobile", "91${obj.contactNo}")
                                         params.put("sendMethod", "quick")
                                         params.put("msgType", "text")

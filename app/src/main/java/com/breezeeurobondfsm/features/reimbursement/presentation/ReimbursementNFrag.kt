@@ -73,6 +73,7 @@ import kotlin.collections.ArrayList
 // 1.0 ReimbursementNFrag AppV 4.0.7 Saheli    02/03/2023 Timber Log Implementation
 // 2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
 // 3.0 ReimbursementNFrag AppV 4.1.3 Suman    09/05/2023 Reimburstment submit btn visibility updation mantis id 26069
+// 4.0 Allow_past_days_for_apply_reimbursement functionality AppV 4.2.6 Puja    08/04/2024
 class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, View.OnClickListener, TabLayout.OnTabSelectedListener, RadioGroup.OnCheckedChangeListener {
 
     private val expenseTypesArrayList: ArrayList<ReimbursementConfigExpenseTypeModel> = ArrayList()
@@ -537,7 +538,7 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
         val calendarToday = Calendar.getInstance(Locale.ENGLISH)
         calendarToday.add(Calendar.DATE, 0)
         val currentToday = calendarToday.time
-        //dateList.add(currentToday)
+        dateList.add(currentToday)
 
         val calendar = Calendar.getInstance(Locale.ENGLISH)
         calendar.add(Calendar.DATE, -1)
@@ -551,15 +552,43 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
         date = AppUtils.getFormattedDateForApi(selectedDate!!)
 
         val lastPastDay = reimbursement_past_days!!.toInt() - 1
+        // sart Allow_past_days_for_apply_reimbursement functionality puja 05-04-2024 mantis id 0027282 v4.2.6
+        /* select_date_tv.text =
+             "Select Date (You can apply for past $reimbursement_past_days days only)"
 
-        select_date_tv.text = "Select Date (You can apply for past $reimbursement_past_days days only)"
+         for (i in 1..lastPastDay) {
+             calendar.add(Calendar.DAY_OF_YEAR, -1)
 
-        for (i in 1..lastPastDay) {
-            calendar.add(Calendar.DAY_OF_YEAR, -1)
+             val nextDate = calendar.time
+             dateList.add(nextDate)
+         }*/
 
-            val nextDate = calendar.time
-            dateList.add(nextDate)
+        if (Pref.Allow_past_days_for_apply_reimbursement.equals("0")){
+            Pref.Allow_past_days_for_apply_reimbursement=""
         }
+        if (Pref.Allow_past_days_for_apply_reimbursement.equals("")) {
+
+            select_date_tv.text =
+                "Select Date (You can apply for past $reimbursement_past_days days only)"
+
+            for (i in 1..lastPastDay) {
+                calendar.add(Calendar.DAY_OF_YEAR, -1)
+
+                val nextDate = calendar.time
+                dateList.add(nextDate)
+            }
+        }else{
+            select_date_tv.text =
+                "Select Date (You can apply for past ${Pref.Allow_past_days_for_apply_reimbursement} days only)"
+
+            for (i in 1..Pref.Allow_past_days_for_apply_reimbursement.toInt()-1) {
+                calendar.add(Calendar.DAY_OF_YEAR, -1)
+
+                val nextDate = calendar.time
+                dateList.add(nextDate)
+            }
+        }
+        // end Allow_past_days_for_apply_reimbursement functionality puja 05-04-2024 mantis id 0027282  v4.2.6
 
         Handler().postDelayed(Runnable {
         dateAdapter?.refreshAdapter(dateList)

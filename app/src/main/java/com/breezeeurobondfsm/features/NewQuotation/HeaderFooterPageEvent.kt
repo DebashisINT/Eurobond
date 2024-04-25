@@ -19,7 +19,13 @@ class HeaderFooterPageEvent(var companyN:String,var salesmanN:String,var salesma
 
 
     override fun onStartPage(writer: PdfWriter?, document: Document?) {
-        var bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.breezelogo)
+       // var bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.breezelogo)
+        var bm:Bitmap? = null
+        if(Pref.IsShowQuotationFooterforEurobond){
+            bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.pdf_logo)
+        }else{
+            bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.breezelogo)
+        }
         val bitmap = Bitmap.createScaledBitmap(bm, 180, 50, true);
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)

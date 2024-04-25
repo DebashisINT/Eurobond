@@ -281,7 +281,7 @@
                 android:id="@+id/shop_address_TV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/dashboard_breezeeurobondfsm_address"
+                android:text="@string/dashboard_sample_address"
                 android:textColor="@color/login_txt_color"
                 android:textSize="@dimen/_9sdp"
                 android:visibility="gone" />

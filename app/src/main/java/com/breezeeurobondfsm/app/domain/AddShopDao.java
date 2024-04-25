@@ -394,4 +394,7 @@ public interface AddShopDao {
                                  String remarks,String amount,String crm_stage,String crm_stage_ID,
                                  String crm_reference,String crm_reference_ID,String crm_reference_ID_type,String crm_saved_from,int isEditUploaded);
 
+    @Query("update shop_detail set shopLat=:shopLat, shopLong=:shopLong, address=:address, pin_code=:pinCode, actual_address=:actual_address where shop_id=:shopId")
+    void updateShopDetails(Double shopLat, Double shopLong, String address, String pinCode, String actual_address, String shopId);
+
 }

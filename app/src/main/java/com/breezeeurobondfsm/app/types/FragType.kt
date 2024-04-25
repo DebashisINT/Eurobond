@@ -47,5 +47,5 @@ enum class FragType {
     OrderProductListFrag,OrderProductCartFrag,PerformanceAppFragment,PrivacypolicyWebviewFrag,
     TaskManagementFrag,ViewTaskManagementFrag,MultipleImageFileUploadonStock,ShopListMarketAssistFrag,ShopDtlsMarketAssistFrag,OwnPerformanceFragment,
     MarketAssistTabFrag,ChurnProbFrag,allPerformanceFrag,ContactsFrag,ContactsAddFrag,ShopCallHisFrag, SchedulerViewFrag, SchedulerAddFormFrag,
-    TemplateViewFrag,TemplateAddFrag
+    TemplateViewFrag,TemplateAddFrag,LeaderBoardFrag
 }

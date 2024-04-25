@@ -43,9 +43,9 @@ class RouteActivityAdapter(context: Context, mFragment: DashboardType, val liste
 
     class RouteActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bindItems(context: Context,mFragment:DashboardType,listener:MyOrderListClickListener) {
-            val first = context.getString(R.string.breezeeurobondfsm_location)
+            val first = context.getString(R.string.sample_location)
             val second = "<font color='#177D95'>|</font>"
-            val third= context.getString(R.string.breezeeurobondfsm_shops)
+            val third= context.getString(R.string.sample_shops)
             itemView.distance_log.setText(Html.fromHtml(first +" "+second+" "+third))
 
             if(adapterPosition==0) {

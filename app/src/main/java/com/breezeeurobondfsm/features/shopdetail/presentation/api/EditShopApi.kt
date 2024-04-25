@@ -5,6 +5,8 @@ import com.breezeeurobondfsm.base.BaseResponse
 import com.breezeeurobondfsm.features.addshop.model.AddShopRequestData
 import com.breezeeurobondfsm.features.addshop.model.AddShopResponse
 import com.breezeeurobondfsm.features.addshop.model.LogFileResponse
+import com.breezeeurobondfsm.features.addshop.model.UpdateAddrReq
+import com.breezeeurobondfsm.features.addshop.model.UpdateAddressShop
 import com.breezeeurobondfsm.features.contacts.CallHisDtls
 import com.breezeeurobondfsm.features.contacts.CompanyReqData
 import com.breezeeurobondfsm.features.contacts.ContactMasterRes
@@ -81,6 +83,9 @@ interface EditShopApi {
 
     @POST("CallLogInformations/CallLogListSave")
     fun callLogListSaveApi(@Body callLogHisSave: CallHisDtls?): Observable<BaseResponse>
+
+    @POST("Shoplist/ITCShopAddressEdit")
+    fun callUpdateAddressSaveApi(@Body updateAddrReq: UpdateAddrReq?): Observable<BaseResponse>
 
     @FormUrlEncoded
     @POST("CallLogInformations/CallLogList")

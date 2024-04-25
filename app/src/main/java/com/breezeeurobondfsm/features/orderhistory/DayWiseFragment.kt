@@ -450,6 +450,11 @@ class DayWiseFragment : BaseFragment(), View.OnClickListener {
         tv_share_logs.setOnClickListener(this)
         tv_sync_all.setOnClickListener(this)
         tv_share_pdf.setOnClickListener(this)
+        if(Pref.IsShowCustomerLocationShare){
+            tv_share_logs.visibility = View.VISIBLE
+        }else{
+            tv_share_logs.visibility = View.GONE
+        }
     }
 
     @SuppressLint("WrongConstant")

@@ -13,6 +13,8 @@ import com.breezeeurobondfsm.features.addshop.model.AddLogReqData
 import com.breezeeurobondfsm.features.addshop.model.AddShopRequestData
 import com.breezeeurobondfsm.features.addshop.model.AddShopResponse
 import com.breezeeurobondfsm.features.addshop.model.LogFileResponse
+import com.breezeeurobondfsm.features.addshop.model.UpdateAddrReq
+import com.breezeeurobondfsm.features.addshop.model.UpdateAddressShop
 import com.breezeeurobondfsm.features.contacts.CallHisDtls
 import com.breezeeurobondfsm.features.contacts.CompanyReqData
 import com.breezeeurobondfsm.features.contacts.ContactMasterRes
@@ -78,6 +80,10 @@ class EditShopRepo(val apiService: EditShopApi) {
 
     fun callLogListSaveApi(callLogHisSave: CallHisDtls?): Observable<BaseResponse> {
         return apiService.callLogListSaveApi(callLogHisSave)
+    }
+
+    fun callUpdateAdressShopSaveApi(updateAddrReq: UpdateAddrReq?): Observable<BaseResponse> {
+        return apiService.callUpdateAddressSaveApi(updateAddrReq)
     }
 
     fun callCallListHisAPI(user_id: String): Observable<CallHisDtls> {

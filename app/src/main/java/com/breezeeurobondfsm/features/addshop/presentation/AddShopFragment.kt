@@ -2089,7 +2089,10 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                             progress_wheel.stopSpinning()
 //                                (mContext as DashboardActivity).showSnackMessage("SUCCESS")
                             (mContext as DashboardActivity).updateFence()
-                            (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
+                            // code start by puja 05.04.2024 mantis id - 27333
+                            //(mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
+                            (mContext as DashboardActivity).showSnackMessage(mContext.getString(R.string.shop_added_successfully))
+                            // code end by puja 05.04.2024 mantis id - 27333
                             voiceAttendanceMsg(getString(R.string.shop_added_successfully))
                             //(mContext as DashboardActivity).onBackPressed()
 

@@ -1,6 +1,6 @@
 <resources>
     <!--<string name="app_name">Field Tracking System</string>-->
-    <string name="app_name" translatable="false">BreezeEuropanel</string>
+    <string name="app_name" translatable="false">Breeze-Europanel</string>
     <string name="blank" translatable="false"></string>
     <string name="enter_a_title" translatable="false">Enter a title</string>
     <string name="entry_details_default_text" translatable="false">Entry Details!</string>
@@ -148,6 +148,7 @@
     <string name="new_conversation" translatable="false">New Conversation</string>
     <string name="scan" translatable="false">Scan QR Code</string>
     <string name="nearby_user" translatable="false">Nearby Team Members</string>
+    <string name="leaderboard" translatable="false">Leader Board</string>
     <string name="beat_list" translatable="false">Beat List</string>
     <string name="device_info" translatable="false">Device Info.</string>
     <string name="permission_info" translatable="false">Permission Info.</string>
@@ -436,11 +437,11 @@
 
 
     <!--breezeeurobondfsm-->
-    <string name="breezeeurobondfsm_user_name" translatable="false">Mr. Kinsuk Roy</string>
-    <string name="breezeeurobondfsm_login" translatable="false">Logged in at 10:55 AM</string>
-    <string name="breezeeurobondfsm_location" translatable="false">You have covered the distance of 3 KM in last hour </string>
-    <string name="breezeeurobondfsm_shops" translatable="false">You have visited 2 shops</string>
-    <string name="breezeeurobondfsm_time" translatable="false">10:30 AM</string>
+    <string name="sample_user_name" translatable="false">Mr. Kinsuk Roy</string>
+    <string name="sample_login" translatable="false">Logged in at 10:55 AM</string>
+    <string name="sample_location" translatable="false">You have covered the distance of 3 KM in last hour </string>
+    <string name="sample_shops" translatable="false">You have visited 2 shops</string>
+    <string name="sample_time" translatable="false">10:30 AM</string>
 
     <!--Change Password-->
     <string name="old_pwd" translatable="false">Old Password</string>
@@ -503,8 +504,8 @@
     <string name="capture_shop_image" translatable="false">Capture an image of shop</string>
     <string name="welcome" translatable="false">Welcome</string>
     <string name="vikas_malhotra" translatable="false">Vikash Malhotra</string>
-    <string name="dashboard_breezeeurobondfsm_item" translatable="false">10.30\nAM</string>
-    <string name="dashboard_breezeeurobondfsm_address" translatable="false">SDF Building, GP Block, Saltlake </string>
+    <string name="dashboard_sample_item" translatable="false">10.30\nAM</string>
+    <string name="dashboard_sample_address" translatable="false">SDF Building, GP Block, Saltlake </string>
     <string name="ten" translatable="false">10</string>
     <string name="five" translatable="false">5</string>
     <string name="organization_name" translatable="false">Nordusk</string>

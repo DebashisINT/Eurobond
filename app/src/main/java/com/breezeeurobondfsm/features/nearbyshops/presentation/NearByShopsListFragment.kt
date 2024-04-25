@@ -55,9 +55,12 @@ import com.breezeeurobondfsm.features.addshop.model.AddShopRequestData
 import com.breezeeurobondfsm.features.addshop.model.AddShopResponse
 import com.breezeeurobondfsm.features.addshop.model.AssignedToShopListResponseModel
 import com.breezeeurobondfsm.features.addshop.model.QuestionSubmit
+import com.breezeeurobondfsm.features.addshop.model.UpdateAddrReq
+import com.breezeeurobondfsm.features.addshop.model.UpdateAddressShop
 import com.breezeeurobondfsm.features.addshop.model.assigntoddlist.AssignToDDListResponseModel
 import com.breezeeurobondfsm.features.addshop.model.assigntopplist.AssignToPPListResponseModel
 import com.breezeeurobondfsm.features.addshop.presentation.*
+import com.breezeeurobondfsm.features.contacts.CallHisDtls
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
 import com.breezeeurobondfsm.features.location.LocationWizard
 import com.breezeeurobondfsm.features.location.SingleShotLocationProvider
@@ -73,6 +76,8 @@ import com.breezeeurobondfsm.features.nearbyshops.model.ShopData
 import com.breezeeurobondfsm.features.nearbyshops.model.ShopListResponse
 import com.breezeeurobondfsm.features.nearbyshops.model.StageListResponseModel
 import com.breezeeurobondfsm.features.nearbyshops.model.updateaddress.AddressUpdateRequest
+import com.breezeeurobondfsm.features.performance.model.Gps_status_list
+import com.breezeeurobondfsm.features.performance.model.UpdateGpsInputListParamsModel
 import com.breezeeurobondfsm.features.shopdetail.presentation.AddCollectionDialog
 import com.breezeeurobondfsm.features.shopdetail.presentation.api.EditShopRepoProvider
 import com.breezeeurobondfsm.features.shopdetail.presentation.api.addcollection.AddCollectionRepoProvider
@@ -103,6 +108,8 @@ import java.util.*
 // 7.0 NearByShopsListFragment AppV 4.0.7 saheli 21-02-2023 voice search mantis 0025683
 // 8.0 NearByShopsListFragment AppV 4.0.7 saheli 08-06-2023 0026307 mantis  Play store console report issues
 // 9.0 NearByShopsListFragment AppV 4.0.7 Suman 26-06-2023 0026307 mantis  26437
+// 10.0 fix collection not sync issue sometimes puja 05-04-2024 mantis id 0027352 v4.2.6
+
 class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
     private lateinit var mNearByShopsListAdapter: NearByShopsListAdapter
@@ -1282,9 +1289,10 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
                                         val random = Random()
                                         val m = random.nextInt(9999 - 1000) + 1000
-
-                                        //collectionDetails.collection_id = Pref.user_id + "_" + m /*+ "_" + System.currentTimeMillis().toString()*/
-                                        collectionDetails.collection_id = Pref.user_id + "c" + m
+                                        // start fix collection not sync issue sometimes puja 05-04-2024 mantis id 0027352 v4.2.6
+                                        collectionDetails.collection_id = Pref.user_id + "_" + m + "_" + System.currentTimeMillis().toString()
+                                        //collectionDetails.collection_id = Pref.user_id + "c" + m
+                                        // end fix collection not sync issue sometimes puja 05-04-2024 mantis id 0027352 v4.2.6
                                         collectionDetails.shop_id = list[position].shop_id
                                         collectionDetails.date = date //AppUtils.getCurrentDate()
                                         collectionDetails.only_time = AppUtils.getCurrentTime()  //AppUtils.getCurrentDate()
@@ -2913,7 +2921,8 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 if (isAddressUpdated) {
                     (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
 
-                    initAdapter()
+                   //
+                     initAdapter()
                     sendNotification(addShopReqData.shop_id!!)
                 }
                 else {
@@ -3033,7 +3042,6 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                                     mNearByShopsListAdapter.updateAdapter(list)
 
                                     getAssignedPPListApi(addShopReqData.shop_id, true)
-
                                 } else if (addShopResult.status == NetworkConstant.SESSION_MISMATCH) {
                                     progress_wheel.stopSpinning()
                                     (mContext as DashboardActivity).clearData()
@@ -3176,7 +3184,27 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 }
 
                 override fun onUpdateClick(address: AddShopDBModelEntity?) {
+                   /* // update address work mantis id-0027309 begin
+                    var shopObj = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(addShopModelEntity.shop_id)
+                    if (shopObj != null) {
+                        var address_ = LocationWizard.getAdressFromLatlng(mContext, address?.shopLat, address?.shopLong)
+                        if (address_.contains("http"))
+                            address_ = "Unknown"
 
+                        AppDatabase.getDBInstance()?.addShopEntryDao()?.updateShopDetails(address?.shopLat,address?.shopLong,address?.address,address?.pinCode,address_,addShopModelEntity.shop_id)
+                        shopObj = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(addShopModelEntity.shop_id)
+                        if (AppUtils.isOnline(mContext)){
+                            updateAddressAPICalling(shopObj)
+                        }else{
+                            (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
+
+                            initAdapter()
+                            sendNotification(shopObj!!.shop_id!!)
+                        }
+                    }
+                    return
+                    // update address work mantis id-0027309 end
+*/
                     /*if (AppUtils.isOnline(mContext))
                         callShopAddressUpdateApi(address!!)
                     else
@@ -3215,6 +3243,54 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
             //openAddressUpdateDialog(addShopModelEntity)
             e.printStackTrace()
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateAddressAPICalling(shop: AddShopDBModelEntity?) {
+        var updateAddrReq = UpdateAddrReq()
+        updateAddrReq.user_id = Pref.user_id.toString()
+        var updateAddressShop = UpdateAddressShop()
+        updateAddressShop.shop_id = shop!!.shop_id
+        updateAddressShop.shop_updated_lat = shop!!.shopLat.toString()
+        updateAddressShop.shop_updated_long = shop!!.shopLong.toString()
+        updateAddressShop.shop_updated_address = shop!!.address
+
+        updateAddrReq.shop_list.add(updateAddressShop)
+
+        progress_wheel.spin()
+        val repository = EditShopRepoProvider.provideEditShopWithoutImageRepository()
+            BaseActivity.compositeDisposable.add(
+                repository.callUpdateAdressShopSaveApi(updateAddrReq)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+
+                        progress_wheel.stopSpinning()
+                        val resp = result as BaseResponse
+                        if (resp.status == NetworkConstant.SUCCESS) {
+
+                            (mContext as DashboardActivity).showSnackMessage("Address updated successfully")
+                            initAdapter()
+                            sendNotification(shop!!.shop_id!!)
+                          /*  val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().all
+                            getOwnShop(allShopList)
+
+                            if (beatId.isNotEmpty())
+                                list = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBeatWise(beatId)
+                            mNearByShopsListAdapter.updateAdapter(list)
+
+                            getAssignedPPListApi(shop.shop_id, true)*/
+
+                        } else {
+                            (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                        }
+                    }, { error ->
+                        progress_wheel.stopSpinning()
+
+                        error.printStackTrace()
+                        (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                    })
+            )
     }
 
     private fun callShopAddressUpdateApi(addShopModelEntity: AddShopDBModelEntity) {
@@ -4108,6 +4184,7 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
     // 5.0 NearByShopsListFragment AppV 4.0.6 Suman 03-02-2023 updateModifiedShop + sendModifiedShopList  for shop update mantis 25624
     fun checkModifiedShop(){
+        println("checkAPIcalling>>>>>")
         if(!AppUtils.isOnline(mContext)){
             Toaster.msgShort(mContext,"No Internet connection")
             return

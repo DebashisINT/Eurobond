@@ -7,6 +7,7 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -52,12 +53,14 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
+/**Int@123
+ *
  * Created by Saikat on 31-01-2019.
  */
 // Revision History
 // 1.0 ExoPlayerActivity AppV 4.0.7 Saheli    02/03/2023 Timber Log Implementation
-class ReimbursementDetailsFragment : BaseFragment(), DateAdapter.onPetSelectedListener, View.OnClickListener, TabLayout.OnTabSelectedListener, RadioGroup.OnCheckedChangeListener {
+// 2.0 Allow_past_days_for_apply_reimbursement functionality AppV 4.2.6 Puja    08/04/2024
+class ReimbursementDetailsFragment : BaseFragment(), /*DateAdapter*/ReimbursementDateAdapter.onPetSelectedListener, View.OnClickListener, TabLayout.OnTabSelectedListener, RadioGroup.OnCheckedChangeListener {
 
     private val visittypeArrayList: ArrayList<ReimbursementConfigVisitTypeDataModel> = ArrayList()
     private val expenseTypesArrayList: ArrayList<ReimbursementConfigExpenseTypeModel> = ArrayList()
@@ -68,7 +71,12 @@ class ReimbursementDetailsFragment : BaseFragment(), DateAdapter.onPetSelectedLi
 
     private lateinit var mContext: Context
     var rvDateList: RecyclerView? = null
+    // sart Allow_past_days_for_apply_reimbursement functionality puja 08-04-2024 mantis id 0027282 v4.2.6
+/*
     var dateAdapter: DateAdapter? = null
+*/
+    var dateAdapter: ReimbursementDateAdapter? = null
+    // end Allow_past_days_for_apply_reimbursement functionality puja 08-04-2024 mantis id 0027282 v4.2.6
 
     val dateList: ArrayList<Date> = arrayListOf()
     private val convenenceType: ArrayList<String> = arrayListOf()
@@ -327,7 +335,12 @@ class ReimbursementDetailsFragment : BaseFragment(), DateAdapter.onPetSelectedLi
 
         rvDateList = view.findViewById(R.id.rvDateList)
         rvDateList?.layoutManager = LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false)
+        // sart Allow_past_days_for_apply_reimbursement functionality puja 08-04-2024 mantis id 0027282 v4.2.6
+/*
         dateAdapter = DateAdapter(mContext, false, this)
+*/
+        dateAdapter = ReimbursementDateAdapter(mContext, false, this,reimbursementDetails)
+        // end Allow_past_days_for_apply_reimbursement functionality puja 08-04-2024 mantis id 0027282 v4.2.6
         rvDateList?.adapter = dateAdapter
 
         llChildLayout = view.findViewById(R.id.llChildLayout)
@@ -550,8 +563,9 @@ class ReimbursementDetailsFragment : BaseFragment(), DateAdapter.onPetSelectedLi
         }else{
             ll_frag_reimb_img_name_root.visibility = View.GONE
         }
-
-        setDateData("7")
+       // start Allow_past_days_for_apply_reimbursement AppV 4.2.6 Puja    08/04/2024 mantis id 0027282
+        //setDateData("7")
+      // end Allow_past_days_for_apply_reimbursement AppV 4.2.6 Puja    08/04/2024 mantis id 0027282
     }
 
     private fun initClickListener() {
@@ -608,7 +622,10 @@ class ReimbursementDetailsFragment : BaseFragment(), DateAdapter.onPetSelectedLi
                                     ll_editable_location.visibility = View.GONE
                                     ll_non_editable_location.visibility = View.VISIBLE
                                 }
-
+                                if (!TextUtils.isEmpty(configResponse.reimbursement_past_days))
+                                    setDateData(configResponse.reimbursement_past_days)
+                                else
+                                    setDateData("7")
                             }
 
                             BaseActivity.isApiInitiated = false
@@ -659,11 +676,12 @@ class ReimbursementDetailsFragment : BaseFragment(), DateAdapter.onPetSelectedLi
         }
     }
 
-    @SuppressLint("SetTextI18n")
+    // sart Allow_past_days_for_apply_reimbursement functionality puja 08-04-2024 mantis id 0027282 v4.2.6
+   /* @SuppressLint("SetTextI18n")
     private fun setDateData(reimbursement_past_days: String?) {
         val calendar = Calendar.getInstance(Locale.ENGLISH)
         //calendar.add(Calendar.DAY_OF_YEAR, -1)
-        var todayDate: Date? = null /*= calendar.time*/
+        var todayDate: Date? = null *//*= calendar.time*//*
 
 
         if (!TextUtils.isEmpty(reimbursementDetails?.applied_date)) {
@@ -689,7 +707,61 @@ class ReimbursementDetailsFragment : BaseFragment(), DateAdapter.onPetSelectedLi
         }
 
         dateAdapter?.refreshAdapter(dateList)
+    }*/
+
+    @SuppressLint("SetTextI18n")
+    private fun setDateData(reimbursement_past_days: String?) {
+
+        val calendarToday = Calendar.getInstance(Locale.ENGLISH)
+        calendarToday.add(Calendar.DATE, 0)
+        val currentToday = calendarToday.time
+        dateList.add(currentToday)
+
+        val calendar = Calendar.getInstance(Locale.ENGLISH)
+        calendar.add(Calendar.DATE, -1)
+        val todayDate = calendar.time
+        dateList.add(todayDate)
+
+        selectedDate = todayDate
+        //selectedDate = currentToday
+        val dateFormat = SimpleDateFormat("dd MMM")
+        val formattedDate = dateFormat.format(selectedDate)
+        date = AppUtils.getFormattedDateForApi(selectedDate!!)
+
+        val lastPastDay = reimbursement_past_days!!.toInt() - 1
+
+        if (Pref.Allow_past_days_for_apply_reimbursement.equals("0")){
+             Pref.Allow_past_days_for_apply_reimbursement=""
+        }
+        if (Pref.Allow_past_days_for_apply_reimbursement.equals("")) {
+
+            select_date_tv.text =
+                "Select Date (You can apply for past $reimbursement_past_days days only)"
+
+            for (i in 1..lastPastDay) {
+                calendar.add(Calendar.DAY_OF_YEAR, -1)
+
+                val nextDate = calendar.time
+                dateList.add(nextDate)
+            }
+        }else{
+            select_date_tv.text =
+                "Select Date (You can apply for past ${Pref.Allow_past_days_for_apply_reimbursement} days only)"
+
+            for (i in 1..Pref.Allow_past_days_for_apply_reimbursement.toInt()-1) {
+                calendar.add(Calendar.DAY_OF_YEAR, -1)
+
+                val nextDate = calendar.time
+                dateList.add(nextDate)
+            }
+        }
+        Handler().postDelayed(Runnable {
+            dateAdapter?.refreshAdapter(dateList)
+        }, 1000)
+
     }
+    // end Allow_past_days_for_apply_reimbursement functionality puja 08-04-2024 mantis id 0027282  v4.2.6
+
 
     override fun onTabUnselected(tab: TabLayout.Tab?) {}
     override fun onTabReselected(tab: TabLayout.Tab?) {}

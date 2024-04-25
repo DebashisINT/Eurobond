@@ -889,7 +889,7 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                 }
 
                 override fun onWhatsClick(obj: AddShopDBModelEntity) {
-                    val url = "https://api.whatsapp.com/send?phone=+91${obj.ownerContactNumber}"
+                    /*val url = "https://api.whatsapp.com/send?phone=+91${obj.ownerContactNumber}&text='Hello User'"
                     try {
                         val pm = mContext.packageManager
                         pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES)
@@ -903,7 +903,24 @@ class ContactsFrag : BaseFragment(), View.OnClickListener {
                     catch (e: java.lang.Exception) {
                         e.printStackTrace()
                         (mContext as DashboardActivity).showSnackMessage("This is not whatsApp no.")
+                    }*/
+
+
+                    /*val url = "https://api.whatsapp.com/send?phone=+91${obj.ownerContactNumber}"
+                    try {
+                        val pm = mContext.packageManager
+                        pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES)
+                        val i = Intent(Intent.ACTION_VIEW)
+                        i.data = Uri.parse(url)
+                        startActivity(i)
+                    } catch (e: PackageManager.NameNotFoundException ) {
+                        e.printStackTrace()
+                        (mContext as DashboardActivity).showSnackMessage("Whatsapp app not installed in your phone.")
                     }
+                    catch (e: java.lang.Exception) {
+                        e.printStackTrace()
+                        (mContext as DashboardActivity).showSnackMessage("This is not whatsApp no.")
+                    }*/
                 }
 
                 override fun onEmailClick(obj: AddShopDBModelEntity) {

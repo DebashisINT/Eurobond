@@ -159,7 +159,7 @@
                     android:layout_gravity="right">
 
                     <LinearLayout
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:id="@+id/iv_frag_APICheckTest"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"

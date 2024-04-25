@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_1sdp"
                 android:ellipsize="end"
-                android:text="@string/dashboard_breezeeurobondfsm_address"
+                android:text="@string/dashboard_sample_address"
                 android:textColor="@color/navy_blue_dot"
                 android:textSize="@dimen/_11sdp"
                 android:textStyle="bold" />

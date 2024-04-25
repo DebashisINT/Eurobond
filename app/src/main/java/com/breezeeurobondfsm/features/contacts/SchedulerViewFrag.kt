@@ -151,7 +151,7 @@ class SchedulerViewFrag : BaseFragment(), View.OnClickListener {
 
         mFab.setCustomClickListener {
             var templateList = AppDatabase.getDBInstance()?.scheduleTemplateDao()?.getAllExceptManually() as ArrayList<ScheduleTemplateEntity>
-            if ( Pref.storeGmailId==null || Pref.storeGmailPassword==null){
+            if ( (Pref.storeGmailId==null || Pref.storeGmailPassword==null) && false){
                 val simpleDialog = Dialog(mContext)
                 simpleDialog.setCancelable(false)
                 simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))

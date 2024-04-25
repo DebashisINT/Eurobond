@@ -124,6 +124,13 @@ class RevisionNote {
 
     // ShowPartyWithCreateOrder fix puja 01-03-2024 mantis id 0027285
 
-    // Allow_past_days_for_apply_reimbursement fix puja 01-03-2024 mantis id 0027282
+    // Allow_past_days_for_apply_reimbursement fix puja 01-03-2024 mantis id 0027282 v4.2.6
 
+    // IsShowLeaderBoard settings add Puja 12-03-2024 v4.2.6 mantis id 0027298
+
+    // LeaderBoard functionality add Puja 12-03-2024 v4.2.6 mantis id 0027300
+
+    // DistributorGPSAccuracy issue for add attendance time add attendance button did not work somethimes fix Puja 04-04-2024 mantis id 0027351 v4.2.6
+
+    // fix collection not sync issue sometimes puja 05-04-2024 mantis id 0027352 v4.2.6
 }
