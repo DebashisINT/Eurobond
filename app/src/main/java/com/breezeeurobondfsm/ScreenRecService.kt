@@ -8,7 +8,6 @@ import android.os.SystemClock
 import android.widget.Chronometer
 import com.breezeeurobondfsm.app.Pref
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
-import com.breezeeurobondfsm.features.dashboard.presentation.DashboardFragment
 import java.util.*
 
 class ScreenRecService: Service() {
@@ -47,8 +46,9 @@ class ScreenRecService: Service() {
 
                 }
 
-
-                DashboardFragment.tv_timer.text= String.format("%02d",ho)+":"+String.format("%02d",mi)+":"+String.format("%02d",sec)
+                //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+               // DashboardFragment.tv_timer.text= String.format("%02d",ho)+":"+String.format("%02d",mi)+":"+String.format("%02d",sec)
+                //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
 
             }
         }

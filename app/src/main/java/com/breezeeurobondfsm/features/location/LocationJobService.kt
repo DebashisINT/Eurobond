@@ -16,11 +16,11 @@ import android.text.TextUtils
 
 import com.breezeeurobondfsm.app.Pref
 import com.breezeeurobondfsm.app.utils.AppUtils
+import com.breezeeurobondfsm.app.utils.FTStorageUtils
 import com.breezeeurobondfsm.features.dashboard.presentation.SystemEventReceiver
 import timber.log.Timber
 
 
-@SuppressLint("SpecifyJobSchedulerIdRange")
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 /**
  * Created by riddhi on 7/11/17.
@@ -46,7 +46,21 @@ class LocationJobService : JobService() {
             return true
         }
 
-        Timber.d("=============================Start Job " + AppUtils.getCurrentDateTime() + "==============================")
+        /*// Rev 25.0 LocationJobService v 4.2.6 stock optmization mantis 0027421 06-05-2024 Suman begin
+        try {
+            if (FTStorageUtils.isMyServiceRunning(LocationFuzedService::class.java, applicationContext)) {
+                println("tag_service_call_check LocationJobService LocationFuzedService running")
+                return true
+            }else{
+                println("tag_service_call_check LocationJobService LocationFuzedService not")
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            return true
+        }
+        // Rev 25.0 LocationJobService v 4.2.6 stock optmization mantis 0027421 06-05-2024 Suman end
+        println("tag_service_call_check LocationJobService onStartJob call")
+        Timber.d("=============================Start Job " + AppUtils.getCurrentDateTime() + "==============================")*/
 
         val myIntent = Intent(this, LocationFuzedService::class.java)
         Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
@@ -63,8 +77,22 @@ class LocationJobService : JobService() {
             e.printStackTrace()
             startForegroundService(myIntent)
         }*/
-        
-        startForegroundService(myIntent)
+        Timber.d("service_call_tag LocationJobService onStartJob ${AppUtils.getCurrentDateTime()} ")
+
+        try {
+            if (FTStorageUtils.isMyServiceRunning(LocationFuzedService::class.java, this)) {
+                Timber.d("MonitorService loc service check service running : Time :" + AppUtils.getCurrentDateTime())
+            }else{
+                Timber.d("MonitorService loc service check service not running : Time :" + AppUtils.getCurrentDateTime())
+                Timber.d("restarting loc service")
+                startForegroundService(myIntent)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Timber.d("error ${e.printStackTrace()}")
+        }
+
+        //startForegroundService(myIntent)
 
         /*registerReceiver(eventReceiver, IntentFilter().apply {
             addAction("android.intent.action.AIRPLANE_MODE")

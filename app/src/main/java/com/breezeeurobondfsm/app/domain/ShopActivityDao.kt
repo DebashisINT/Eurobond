@@ -18,8 +18,16 @@ interface ShopActivityDao {
     @Insert
     fun insertAll(vararg shopActivity: ShopActivityEntity)
 
-    @Query("Select * from shop_activity where date=:date")
+    /*@Query("Select * from shop_activity where date=:date")
+    fun getTotalShopVisitedForADay(date: String): List<ShopActivityEntity>*/
+
+    @Query("Select * from shop_activity where date=:date and shopid in \n" +
+            "(select shop_id from shop_detail) order by shopActivityId")
     fun getTotalShopVisitedForADay(date: String): List<ShopActivityEntity>
+
+    @Query("select * from shop_activity  left join shop_detail\n" +
+            "on shop_activity.shopid = shop_detail.shop_id where shop_activity.date=:date and type !='99'")
+    fun getTotalShopVisitedForADayWithType(date: String): List<ShopActivityEntity>
 
     @Query("Select * from shop_activity where date=:date and isUploaded=:isUploaded")
     fun getShopsNotUploaded(date: String, isUploaded: Boolean): List<ShopActivityEntity>
@@ -55,7 +63,10 @@ interface ShopActivityDao {
     @Query("Select date from shop_activity where shopid=:shopId")
     fun getVisitDateOfShop(shopId: String): String
 
-    @Query("Select * from shop_activity where shopid=:shopId and date=:date")
+/*    @Query("Select * from shop_activity where shopid=:shopId and date=:date")
+    fun getShopForDay(shopId: String, date: String): List<ShopActivityEntity>*/
+
+    @Query("Select * from shop_activity where shopid=:shopId and date=:date order by shopActivityId desc")
     fun getShopForDay(shopId: String, date: String): List<ShopActivityEntity>
 
     @Query("Select * from shop_activity where shopid=:shopId and date=:date and isUploaded=:isUploaded  and isDurationCalculated=:isDurationCalculated")

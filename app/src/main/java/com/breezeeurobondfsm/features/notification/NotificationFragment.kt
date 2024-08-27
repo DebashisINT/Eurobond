@@ -37,6 +37,7 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by Saikat on 25-02-2019.
  */
+//Rev 1.0 NotificationFragment Suman 13-05-2024 mantis id 27440
 class NotificationFragment : BaseFragment() {
 
     private lateinit var mContext: Context
@@ -207,7 +208,9 @@ class NotificationFragment : BaseFragment() {
 
         rv_order_list.adapter = NotificationAdapter(mContext, notification_list_temp, object : NotificationAdapter.OnClickListener {
             override fun onNotificationClick(adapterPosition: Int) {
-                if(notification_list?.get(adapterPosition)!!.notificationmessage!!.contains("Please take action on it")){
+                //Rev 1.0 NotificationFragment Suman 13-05-2024 mantis id 27440 begin
+                //if(notification_list?.get(adapterPosition)!!.notificationmessage!!.contains("Please take action on it")){
+                if(notification_list_temp?.get(adapterPosition)!!.notificationmessage!!.contains("Please take action on it")){//Rev 1.0 NotificationFragment Suman 13-05-2024 mantis id 27440 end
                     if (!Pref.isAddAttendence)
                         (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
                     else{

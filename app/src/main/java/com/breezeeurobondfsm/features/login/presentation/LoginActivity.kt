@@ -5,6 +5,9 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.*
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -28,6 +31,7 @@ import android.view.animation.TranslateAnimation
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.FileProvider
@@ -39,6 +43,8 @@ import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.breezedsm.app.domain.NewOrderDataEntity
+import com.breezedsm.app.domain.NewProductListEntity
 import com.bumptech.glide.Glide
 import com.breezeeurobondfsm.BuildConfig
 import com.breezeeurobondfsm.CustomStatic
@@ -75,6 +81,7 @@ import com.breezeeurobondfsm.features.billing.api.billinglistapi.BillingListRepo
 import com.breezeeurobondfsm.features.billing.model.BillingListResponseModel
 import com.breezeeurobondfsm.features.commondialog.presentation.CommonDialog
 import com.breezeeurobondfsm.features.commondialog.presentation.CommonDialogClickListener
+import com.breezeeurobondfsm.features.contacts.AutoMailDtls
 import com.breezeeurobondfsm.features.contacts.CallHisDtls
 import com.breezeeurobondfsm.features.contacts.ContactMasterRes
 import com.breezeeurobondfsm.features.contacts.SourceMasterRes
@@ -90,6 +97,8 @@ import com.breezeeurobondfsm.features.document.api.DocumentRepoProvider
 import com.breezeeurobondfsm.features.document.model.DocumentListResponseModel
 import com.breezeeurobondfsm.features.document.model.DocumentTypeResponseModel
 import com.breezeeurobondfsm.features.forgotpassword.presentation.ForgotPasswordDialog
+import com.breezeeurobondfsm.features.location.LocationFuzedService
+import com.breezeeurobondfsm.features.location.LocationJobService
 import com.breezeeurobondfsm.features.location.LocationWizard
 import com.breezeeurobondfsm.features.location.SingleShotLocationProvider
 import com.breezeeurobondfsm.features.location.UserLocationDataEntity
@@ -102,12 +111,14 @@ import com.breezeeurobondfsm.features.login.UserLoginDataEntity
 import com.breezeeurobondfsm.features.login.api.LoginRepositoryProvider
 import com.breezeeurobondfsm.features.login.api.alarmconfigapi.AlarmConfigRepoProvider
 import com.breezeeurobondfsm.features.login.api.global_config.ConfigFetchRepoProvider
+import com.breezeeurobondfsm.features.login.api.opportunity.OpportunityRepoProvider
 import com.breezeeurobondfsm.features.login.api.productlistapi.ProductListRepoProvider
 import com.breezeeurobondfsm.features.login.api.user_config.UserConfigRepoProvider
 import com.breezeeurobondfsm.features.login.model.*
 import com.breezeeurobondfsm.features.login.model.alarmconfigmodel.AlarmConfigResponseModel
 import com.breezeeurobondfsm.features.login.model.globalconfig.ConfigFetchResponseModel
 import com.breezeeurobondfsm.features.login.model.mettingListModel.MeetingListResponseModel
+import com.breezeeurobondfsm.features.login.model.opportunitymodel.OpportunityStatusListResponseModel
 import com.breezeeurobondfsm.features.login.model.productlistmodel.ModelListResponse
 import com.breezeeurobondfsm.features.login.model.productlistmodel.NewOdrScrOrderListModel
 import com.breezeeurobondfsm.features.login.model.productlistmodel.ProductListOfflineResponseModelNew
@@ -122,8 +133,13 @@ import com.breezeeurobondfsm.features.nearbyshops.model.*
 import com.breezeeurobondfsm.features.newcollection.model.NewCollectionListResponseModel
 import com.breezeeurobondfsm.features.newcollection.model.PaymentModeResponseModel
 import com.breezeeurobondfsm.features.newcollection.newcollectionlistapi.NewCollectionListRepoProvider
+import com.breezeeurobondfsm.features.orderITC.GetOpptStatusLReq
+import com.breezeeurobondfsm.features.orderITC.GetOrderHistory
+import com.breezeeurobondfsm.features.orderITC.GetProductRateReq
+import com.breezeeurobondfsm.features.orderITC.GetProductReq
 import com.breezeeurobondfsm.features.orderList.api.neworderlistapi.NewOrderListRepoProvider
 import com.breezeeurobondfsm.features.orderList.model.NewOrderListResponseModel
+import com.breezeeurobondfsm.features.orderList.model.OpportunityListResponseModel
 import com.breezeeurobondfsm.features.orderList.model.ReturnListResponseModel
 import com.breezeeurobondfsm.features.orderhistory.activitiesapi.LocationFetchRepositoryProvider
 import com.breezeeurobondfsm.features.orderhistory.model.FetchLocationRequest
@@ -134,6 +150,8 @@ import com.breezeeurobondfsm.features.quotation.api.QuotationRepoProvider
 import com.breezeeurobondfsm.features.quotation.model.BSListResponseModel
 import com.breezeeurobondfsm.features.quotation.model.QuotationListResponseModel
 import com.breezeeurobondfsm.features.shopdetail.presentation.api.EditShopRepoProvider
+import com.breezeeurobondfsm.features.splash.presentation.CallLogPermissionDialog
+import com.breezeeurobondfsm.features.splash.presentation.LocationPermissionDialog
 import com.breezeeurobondfsm.features.stock.api.StockRepositoryProvider
 import com.breezeeurobondfsm.features.stock.model.NewStockListResponseModel
 import com.breezeeurobondfsm.features.stockAddCurrentStock.api.ShopAddStockProvider
@@ -204,6 +222,9 @@ import kotlin.collections.ArrayList
 // 20.0 LoginActivity v 4.1.6 Tufan 11/07/2023 mantis 26546 revisit sync time
 // 21.0 LoginActivity v 4.1.6 Suman 13/07/2023 mantis 26555 Usersettings
 // 22.0  DistributorGPSAccuracy issue fix Puja 04-04-2024 mantis id 0027351 v4.2.6
+// 23.0  LoginActivity Automail details Suman 16-04-2024 mantis id 27368 v4.2.6
+// 24.0  LoginActivity Login parameter user_ShopStatus Suman 29-04-2024 mantis id 0027391 v4.2.6
+// 25.0  LoginActivity Fingerprint flow update Suman 14-05-2024 mantis id 0027450 v4.2.8
 
 
 class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
@@ -280,8 +301,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         mContext = this@LoginActivity
         println("xyz - login oncreate started" + AppUtils.getCurrentDateTime());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            initPermissionCheck()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            //initPermissionCheck()
+            showCallLogProminentDisclosure()
+        }
         else
             getIMEI()
 
@@ -887,7 +910,20 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                 //end mantis id 0027298 IsShowLeaderBoard functionality Puja 12-03-2024  v4.2.6
 
+                                //begin mantis id 0027432 loc_k functionality Puja 08-05-2024 v4.2.7
+                                if (configResponse.loc_k != null)
+                                    Pref.loc_k = configResponse.loc_k!!
+                                //end mantis id 0027432 loc_k functionality Puja 08-05-2024  v4.2.7
 
+                                //begin mantis id 0027432 firebase_k functionality Puja 08-05-2024 v4.2.7
+                                if (configResponse.firebase_k != null)
+                                    Pref.firebase_k = "key="+configResponse.firebase_k!!
+                                //end mantis id 0027432 firebase_k functionality Puja 08-05-2024  v4.2.7
+
+                                //begin mantis id 0027432 Question_After_No_Of_Content functionality Puja 08-05-2024 v4.2.7
+                                if (configResponse.Question_After_No_Of_Content != null)
+                                    Pref.Question_After_No_Of_Content = configResponse.Question_After_No_Of_Content!!
+                                //end mantis id 0027432 Question_After_No_Of_Content functionality Puja 08-05-2024  v4.2.7
                             }
                             isApiInitiated = false
                             /*API_Optimization 02-03-2022*/
@@ -3613,12 +3649,151 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         )
     }
 
+    private lateinit var callDiscloserDialog : Dialog
+
+    fun showCallLogProminentDisclosure(){
+        if(Pref.isCallLogHintPermissionGranted){
+            initPermissionCheck()
+        }else{
+            callDiscloserDialog = Dialog(this)
+            callDiscloserDialog.setCancelable(false)
+            callDiscloserDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            callDiscloserDialog.setContentView(R.layout.dialog_call_log)
+
+            var tv_body = callDiscloserDialog.findViewById(R.id.tv_call_log_body) as TextView
+            var tv_ok = callDiscloserDialog.findViewById(R.id.tv_dialog_call_log_ok) as AppCustomTextView
+            val tv_not_ok = callDiscloserDialog.findViewById(R.id.tv_dialog_call_log_not_ok) as AppCustomTextView
+            tv_body.text = "In order to generate business report for CRM need to access " +
+                    "call logs and to add contact into app need to access Phone Contact also to make " +
+                    "phone calls for parties. Allow app to get call logs, contacts and make phone " +
+                    "calls?"
+
+            tv_ok.setOnClickListener {
+                if (Pref.isCallLogHintPermissionGranted == false){
+                    Pref.isCallLogHintPermissionGranted = true
+                    initPermissionCheckCall()
+                }
+            }
+            tv_not_ok.setOnClickListener {
+                callDiscloserDialog.dismiss()
+                initPermissionCheckAdv()
+            }
+
+            callDiscloserDialog.show()
+
+           /* CallLogPermissionDialog.newInstance(object : CallLogPermissionDialog.OnItemSelectedListener {
+                override fun onOkClick() {
+                    if (Pref.isCallLogHintPermissionGranted == false){
+                        Pref.isCallLogHintPermissionGranted = true
+                        initPermissionCheck()
+                    }
+                }
+
+                override fun onCrossClick() {
+                    initPermissionCheck()
+                }
+            }).show(supportFragmentManager, "")*/
+        }
+
+    }
+
+    private fun initPermissionCheckCall(){
+        var permissionList = arrayOf<String>(Manifest.permission.READ_PHONE_STATE,)
+        permissionList+=Manifest.permission.READ_CALL_LOG
+        permissionList+=Manifest.permission.READ_CONTACTS
+        permissionList+=Manifest.permission.WRITE_CALL_LOG
+
+        permissionUtils = PermissionUtils(this, object : PermissionUtils.OnPermissionListener {
+            @TargetApi(Build.VERSION_CODES.M)
+            override fun onPermissionGranted() {
+                initPermissionCheckAdv()
+            }
+            override fun onPermissionNotGranted() {
+                initPermissionCheckAdv()
+            }
+        },permissionList)
+    }
+
+    private fun initPermissionCheckAdv() {
+        callDiscloserDialog.dismiss()
+        //begin mantis id 26741 Storage permission updation Suman 22-08-2023
+        var permissionList = arrayOf<String>( Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO,)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            permissionList += Manifest.permission.READ_MEDIA_IMAGES
+            permissionList += Manifest.permission.READ_MEDIA_AUDIO
+            permissionList += Manifest.permission.READ_MEDIA_VIDEO
+            permissionList += Manifest.permission.POST_NOTIFICATIONS
+        }else{
+            permissionList += Manifest.permission.WRITE_EXTERNAL_STORAGE
+            permissionList += Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+        //permissionList +=Manifest.permission.POST_NOTIFICATIONS
+//end mantis id 26741 Storage permission updation Suman 22-08-2023
+
+        if (Build.VERSION.SDK_INT >= 34){
+            Timber.d("Permission Namelist USE_FULL_SCREEN_INTENT "+ " Status : if")
+            permissionList += Manifest.permission.USE_FULL_SCREEN_INTENT
+        }else{
+            Timber.d("Permission Namelist USE_FULL_SCREEN_INTENT "+ " Status : else")
+        }
+
+        permissionUtils = PermissionUtils(this, object : PermissionUtils.OnPermissionListener {
+            @TargetApi(Build.VERSION_CODES.M)
+            override fun onPermissionGranted() {
+                getIMEI()
+
+                /*if(Build.VERSION.SDK_INT>=30){
+                    if (!Environment.isExternalStorageManager()){
+                        fileManagePermii()
+                    }else{
+                        Handler().postDelayed(Runnable {
+                            if (!Settings.canDrawOverlays(this@LoginActivity)) {
+                                getOverlayPermission()
+                            }
+                        }, 1000)
+                    }
+                }else{*/
+                Handler().postDelayed(Runnable {
+                    try{
+                        if (!Settings.canDrawOverlays(this@LoginActivity)) {
+                            getOverlayPermission()
+                        }
+                    }catch (ex:java.lang.Exception){
+                        ex.printStackTrace()
+                    }
+                }, 1000)
+                //}
+
+
+            }
+
+            override fun onPermissionNotGranted() {
+                //AppUtils.showButtonSnackBar(this@SplashActivity, rl_splash_main, getString(R.string.error_loc_permission_request_msg))
+                //showSnackMessage(getString(R.string.accept_permission)) test code
+                /*Handler().postDelayed(Runnable {
+                    finish()
+                    System.exit(0)
+                },3000)*/
+            }
+// mantis id 26741 Storage permission updation Suman 22-08-2023
+        },permissionList /*arrayOf<String>(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO,
+
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.READ_MEDIA_AUDIO,
+            Manifest.permission.READ_MEDIA_VIDEO
+
+            )*/
+
+        )
+    }
+
     private fun initPermissionCheck() {
         //begin mantis id 26741 Storage permission updation Suman 22-08-2023
         var permissionList = arrayOf<String>( Manifest.permission.CAMERA,Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO,)
         permissionList+=Manifest.permission.READ_CALL_LOG
         permissionList+=Manifest.permission.READ_CONTACTS
         permissionList+=Manifest.permission.WRITE_CALL_LOG
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
             permissionList += Manifest.permission.READ_MEDIA_IMAGES
@@ -3629,6 +3804,17 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             permissionList += Manifest.permission.WRITE_EXTERNAL_STORAGE
             permissionList += Manifest.permission.READ_EXTERNAL_STORAGE
         }
+
+
+        if (Build.VERSION.SDK_INT >= 34){
+            permissionList += Manifest.permission.USE_FULL_SCREEN_INTENT
+            Timber.d("Permission Namelist"+ " Status : Granted")
+
+        }else{
+            Timber.d("Permission Namelist"+ " Status : Denied")
+
+        }
+
 //end mantis id 26741 Storage permission updation Suman 22-08-2023
         permissionUtils = PermissionUtils(this, object : PermissionUtils.OnPermissionListener {
             @TargetApi(Build.VERSION_CODES.M)
@@ -3662,7 +3848,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
             override fun onPermissionNotGranted() {
                 //AppUtils.showButtonSnackBar(this@SplashActivity, rl_splash_main, getString(R.string.error_loc_permission_request_msg))
-                showSnackMessage(getString(R.string.accept_permission))
+                //showSnackMessage(getString(R.string.accept_permission)) test code
                 /*Handler().postDelayed(Runnable {
                     finish()
                     System.exit(0)
@@ -4394,7 +4580,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                     Pref.isSelfieMandatoryForAttendance = newSettings.isSelfieMandatoryForAttendance!!
 
                                 if (newSettings.isAddAttendence!!) {
-                                    if (Pref.isFingerPrintMandatoryForAttendance) {
+                                    // 25.0  LoginActivity Fingerprint flow update Suman 14-05-2024 mantis id 0027450 v4.2.8
+                                    //if (Pref.isFingerPrintMandatoryForAttendance) {
+                                    if (Pref.isFingerPrintMandatoryForAttendance && false) {
+                                        println("tag_finger_check 1")
                                         if (isFingerPrintSupported) {
                                             checkForFingerPrint()
 
@@ -4518,7 +4707,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                 Pref.isSelfieMandatoryForAttendance = newSettings.isSelfieMandatoryForAttendance!!
 
                             if (newSettings.isAddAttendence!!) {
-                                if (Pref.isFingerPrintMandatoryForAttendance) {
+                                // 25.0  LoginActivity Fingerprint flow update Suman 14-05-2024 mantis id 0027450 v4.2.8
+                                //if (Pref.isFingerPrintMandatoryForAttendance) {
+                                if (Pref.isFingerPrintMandatoryForAttendance && false) {
                                     if (isFingerPrintSupported) {
                                         checkForFingerPrint()
 
@@ -4654,7 +4845,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             }
 
             override fun onPermissionNotGranted() {
-                showSnackMessage(getString(R.string.accept_permission))
+               // showSnackMessage(getString(R.string.accept_permission)) test code
             }
 
         },permissionList) //arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
@@ -4691,6 +4882,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
     fun prapareLogin(context: Context) {
         println("xyz - callNewSettingsApi end" + AppUtils.getCurrentDateTime());
+        getIMEI()
         if (!AppUtils.isLocationEnabled(this)) {
             showSnackMessage(getString(R.string.alert_nolocation))
             login_TV.isEnabled = true
@@ -5047,6 +5239,20 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         println("xyz - doAfterLoginFunctionality started" + AppUtils.getCurrentDateTime());
         // setEveningAlarm(this, 15, 9)
 
+    // 24.0  LoginActivity Login parameter user_ShopStatus Suman 29-04-2024 mantis id 0027391 v4.2.6 begin
+        try {
+            Pref.user_ShopStatus = loginResponse.user_details!!.user_ShopStatus!!
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            Pref.user_ShopStatus = false
+        }
+        if(Pref.user_ShopStatus){
+            AppDatabase.getDBInstance()!!.addShopEntryDao().deleteAll()
+            AppDatabase.getDBInstance()!!.shopActivityDao().deleteAll()
+        }
+        Timber.d("tag_login_shop_status ${Pref.user_ShopStatus}")
+    // 24.0  LoginActivity Login parameter user_ShopStatus Suman 29-04-2024 mantis id 0027391 v4.2.6 end
+
         Pref.user_id = loginResponse.user_details!!.user_id
         Pref.temp_user_id = loginResponse.user_details!!.user_id
         Pref.user_name = loginResponse.user_details!!.name
@@ -5115,7 +5321,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         } else if (loginResponse.user_details?.isOnLeave.equals("false")) {
             Pref.IsLeavePressed = false
         }
-        Log.e("leave", Pref.IsLeavePressed.toString())
+        Timber.d("leave ", Pref.IsLeavePressed.toString())
 
 
 
@@ -5367,6 +5573,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
     private fun callShopListApi() {
         println("xyz - getListFromDatabase end" + AppUtils.getCurrentDateTime());
+        Timber.d("tag_login_shop_status call shoplist api")
         val repository = ShopListRepositoryProvider.provideShopListRepository()
         /*progress_wheel.spin()*/
         BaseActivity.compositeDisposable.add(
@@ -5435,6 +5642,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         //list = AppDatabase.getDBInstance()!!.addShopEntryDao().uniqueShoplist
         if (true){
             try{
+                println("tag_login_check callExtraTeamShopListApi calling")
                 val repository = ShopListRepositoryProvider.provideShopListRepository()
                 /*progress_wheel.spin()*/
                 BaseActivity.compositeDisposable.add(
@@ -5443,8 +5651,18 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                 .subscribeOn(Schedulers.io())
                                 .subscribe({ result ->
                                     var shopList = result as ShopListResponse
+                                    println("tag_login_check callExtraTeamShopListApi status ${shopList.status}")
                                     if (shopList.status == NetworkConstant.SUCCESS) {
-                                        convertToShopListTeamSetAdapter(shopList.data!!.shop_list!!)
+                                        try {
+                                            if(shopList.data!!.shop_list!!.size>0){
+                                                convertToShopListTeamSetAdapter(shopList.data!!.shop_list!!)
+                                            }else{
+                                                deleteImei()
+                                            }
+                                        }catch (ex:Exception){
+                                            ex.printStackTrace()
+                                            deleteImei()
+                                        }
                                     }  else {
 //                                        gotoHomeActivity()
                                         deleteImei()  //1.0 LoginActivity  AppV 4.0.6
@@ -5477,7 +5695,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         if((Pref.isOrderShow && AppDatabase.getDBInstance()?.productListDao()?.getAll()!!.isEmpty()) || Pref.IsShowQuotationFooterforEurobond){
 //            XLog.d("API_Optimization getProductList Login : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
             Timber.d("API_Optimization getProductList Login : enable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
-        println("xyzzz - getProductList started" + AppUtils.getCurrentDateTime());
+        println("xyzzz - getProductList started " + AppUtils.getCurrentDateTime());
         val repository = ProductListRepoProvider.productListProvider()
         /*progress_wheel.spin()*/
         BaseActivity.compositeDisposable.add(
@@ -6288,14 +6506,18 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                 } else {
                                                     AppUtils.saveSharedPreferencesIsFaceDetectionWithCaptcha(this, false)
                                                 }
-                                            } else if (response.getconfigure!![i].Key.equals("IsScreenRecorderEnable", ignoreCase = true)) {
+                                            }
+                                            //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+                                            /*else if (response.getconfigure!![i].Key.equals("IsScreenRecorderEnable", ignoreCase = true)) {
                                                 Pref.IsScreenRecorderEnable = response.getconfigure!![i].Value == "1"
                                                 if (Pref.IsScreenRecorderEnable) {
                                                     AppUtils.saveSharedPreferencesIsScreenRecorderEnable(this, true)
                                                 } else {
                                                     AppUtils.saveSharedPreferencesIsScreenRecorderEnable(this, false)
                                                 }
-                                            }
+                                            }*/
+                                            //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+
 //                                            else if (response.getconfigure?.get(i)?.Key.equals("IsFromPortal", ignoreCase = true)) {
                                             else if (response.getconfigure?.get(i)?.Key.equals("IsDocRepoFromPortal", ignoreCase = true)) {
                                                 Pref.IsFromPortal = response.getconfigure!![i].Value == "1"
@@ -6500,15 +6722,22 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     Pref.FaceDetectionAccuracyLower = response.getconfigure?.get(i)?.Value!!
                                                 }
                                                 CustomStatic.FaceDetectionAccuracyLower = Pref.FaceDetectionAccuracyLower
-                                            } else if (response.getconfigure?.get(i)?.Key.equals("DistributorGPSAccuracy", ignoreCase = true)) {
+                                            } else if (response.getconfigure?.get(i)?.Key.equals("DistributorGPSAccuracy")) {
                                                 Pref.DistributorGPSAccuracy = response.getconfigure!![i].Value!!
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.DistributorGPSAccuracy = response.getconfigure?.get(i)?.Value!!
                                                 }
+                                                //begin mantis id 0027351 DistributorGPSAccuracy issue fix Puja 04-04-2024 v4.2.6
                                                 if (Pref.DistributorGPSAccuracy.length == 0 || Pref.DistributorGPSAccuracy.equals("")) {
                                                     Pref.DistributorGPSAccuracy = "500"
                                                 }
-                                                Timber.d("DistributorGPSAccuracy " + Pref.DistributorGPSAccuracy)
+//                                                XLog.d(    "DistributorGPSAccuracy " + Pref.DistributorGPSAccuracy)
+                                                Timber.d(    "DistributorGPSAccuracy " + Pref.DistributorGPSAccuracy)
+                                                //end mantis id 0027351 DistributorGPSAccuracy issue fix Puja 04-04-2024 v4.2.6
+
+                                                /*if (Pref.Allow_past_days_for_apply_reimbursement.equals("")) {
+                                                    Pref.Allow_past_days_for_apply_reimbursement = ""
+                                                }*/
                                             }
 
 
@@ -6996,7 +7225,112 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     Pref.IsCallLogHistoryActivated = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
+                                            //begin mantis id 0027389 AdditionalinfoRequiredforContactListing functionality Puja 23-04-2024 v4.0.6
+                                            else if (response.getconfigure?.get(i)?.Key.equals("AdditionalinfoRequiredforContactListing", ignoreCase = true)) {
+                                                Pref.AdditionalinfoRequiredforContactListing = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.AdditionalinfoRequiredforContactListing = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            //end mantis id 0027389 AdditionalinfoRequiredforContactListing functionality Puja 23-04-2024 v4.0.6
 
+                                            //begin mantis id 0027389 AdditionalinfoRequiredforContactAdd functionality Puja 23-04-2024 v4.0.6
+                                            else if (response.getconfigure?.get(i)?.Key.equals("AdditionalinfoRequiredforContactAdd", ignoreCase = true)) {
+                                                Pref.AdditionalinfoRequiredforContactAdd = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.AdditionalinfoRequiredforContactAdd = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            //end mantis id 0027389 AdditionalinfoRequiredforContactAdd functionality Puja 23-04-2024 v4.0.6
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ContactAddresswithGeofence", ignoreCase = true)) {
+                                                Pref.ContactAddresswithGeofence = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ContactAddresswithGeofence = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsShowOtherInfoinActivity", ignoreCase = true)) {
+                                                Pref.IsShowOtherInfoinActivity = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowOtherInfoinActivity = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowUserwisePartyWithGeoFence", ignoreCase = true)) {
+                                                Pref.ShowUserwisePartyWithGeoFence = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowUserwisePartyWithGeoFence = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("ShowUserwisePartyWithCreateOrder", ignoreCase = true)) {
+                                                Pref.ShowUserwisePartyWithCreateOrder = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowUserwisePartyWithCreateOrder = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsRouteUpdateForShopUser", ignoreCase = true)) {
+                                                Pref.IsRouteUpdateForShopUser = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsRouteUpdateForShopUser = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsCRMPhonebookSyncEnable", ignoreCase = true)) {
+                                                Pref.IsCRMPhonebookSyncEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCRMPhonebookSyncEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsCRMSchedulerEnable", ignoreCase = true)) {
+                                                Pref.IsCRMSchedulerEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCRMSchedulerEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsCRMAddEnable", ignoreCase = true)) {
+                                                Pref.IsCRMAddEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCRMAddEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsCRMEditEnable", ignoreCase = true)) {
+                                                Pref.IsCRMEditEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCRMEditEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            //code start mantis id 27436 IsShowCRMOpportunity,IsEditEnableforOpportunity,IsDeleteEnableforOpportunity functionality Puja 21.05.2024 V4.2.8
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsShowCRMOpportunity", ignoreCase = true)) {
+                                                Pref.IsShowCRMOpportunity = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowCRMOpportunity = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsEditEnableforOpportunity", ignoreCase = true)) {
+                                                Pref.IsEditEnableforOpportunity = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsEditEnableforOpportunity = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsDeleteEnableforOpportunity", ignoreCase = true)) {
+                                                Pref.IsDeleteEnableforOpportunity = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsDeleteEnableforOpportunity = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            //code end mantis id 27436 IsShowCRMOpportunity,IsEditEnableforOpportunity,IsDeleteEnableforOpportunity functionality Puja 21.05.2024 V4.2.8
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsUserWiseLMSEnable", ignoreCase = true)) {
+                                                Pref.IsUserWiseLMSEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsUserWiseLMSEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsUserWiseLMSFeatureOnly", ignoreCase = true)) {
+                                                Pref.IsUserWiseLMSFeatureOnly = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsUserWiseLMSFeatureOnly = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsUserWiseRecordAudioEnableForVisitRevisit", ignoreCase = true)) {
+                                                Pref.IsUserWiseRecordAudioEnableForVisitRevisit = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsUserWiseRecordAudioEnableForVisitRevisit = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
                                             /*else if (response.getconfigure?.get(i)?.Key.equals("isFingerPrintMandatoryForAttendance", ignoreCase = true)) {
                                                 if (!TextUtilsDash.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.isFingerPrintMandatoryForAttendance = response.getconfigure?.get(i)?.Value == "1"
@@ -7353,7 +7687,11 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             shopObj.crm_saved_from = if(shop_list[i].saved_from_status.isNullOrEmpty()) "" else shop_list[i].saved_from_status
             shopObj.crm_firstName = if(shop_list[i].shop_firstName.isNullOrEmpty()) "" else shop_list[i].shop_firstName
             shopObj.crm_lastName = if(shop_list[i].shop_lastName.isNullOrEmpty()) "" else shop_list[i].shop_lastName
-
+            try {
+                shopObj.Shop_NextFollowupDate = if(shop_list[i].Shop_NextFollowupDate.isNullOrEmpty() || shop_list[i].Shop_NextFollowupDate.equals("1900-01-01")) "" else shop_list[i].Shop_NextFollowupDate
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
 
             list.add(shopObj)
             AppDatabase.getDBInstance()!!.addShopEntryDao().insert(shopObj)
@@ -7373,217 +7711,226 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     private fun convertToShopListTeamSetAdapter(shop_list: List<ShopData>) {
         val list: MutableList<AddShopDBModelEntity> = ArrayList()
 
-        for (i in 0 until shop_list.size) {
+        doAsync {
+            try {
+                for (i in 0 until shop_list.size) {
+                    println("tag_login_check callExtraTeamShopListApi loop ${i}")
+                    val listCheck = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdList(shop_list[i].shop_id) as ArrayList<AddShopDBModelEntity>
+                    if(listCheck.size == 0){
+                        val shopObj = AddShopDBModelEntity()
+                        shopObj.shop_id = shop_list[i].shop_id
+                        shopObj.shopName = shop_list[i].shop_name
+                        shopObj.shopImageLocalPath = shop_list[i].Shop_Image
+                        shopObj.shopLat = shop_list[i].shop_lat!!.toDouble()
+                        shopObj.shopLong = shop_list[i].shop_long!!.toDouble()
+                        shopObj.duration = ""
+                        shopObj.endTimeStamp = ""
+                        shopObj.timeStamp = ""
+                        shopObj.dateOfBirth = shop_list[i].dob
+                        shopObj.dateOfAniversary = shop_list[i].date_aniversary
+                        shopObj.visitDate = AppUtils.getCurrentDate()
+                        if (shop_list[i].total_visit_count == "0")
+                            shopObj.totalVisitCount = "1"
+                        else
+                            shopObj.totalVisitCount = shop_list[i].total_visit_count
+                        shopObj.address = shop_list[i].address
+                        shopObj.ownerEmailId = shop_list[i].owner_email
+                        shopObj.ownerContactNumber = shop_list[i].owner_contact_no
+                        shopObj.pinCode = shop_list[i].pin_code
+                        shopObj.isUploaded = true
+                        shopObj.ownerName = shop_list[i].owner_name
+                        shopObj.user_id = Pref.user_id
+                        shopObj.orderValue = 0
+                        shopObj.type = shop_list[i].type
+                        shopObj.assigned_to_dd_id = shop_list[i].assigned_to_dd_id
+                        shopObj.assigned_to_pp_id = shop_list[i].assigned_to_pp_id
+                        shopObj.isAddressUpdated = shop_list[i].isAddressUpdated == "1"
+                        shopObj.is_otp_verified = shop_list[i].is_otp_verified
+                        shopObj.added_date = shop_list[i].added_date
 
-            val listCheck = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdList(shop_list[i].shop_id) as ArrayList<AddShopDBModelEntity>
-            if(listCheck.size == 0){
-                val shopObj = AddShopDBModelEntity()
-                shopObj.shop_id = shop_list[i].shop_id
-                shopObj.shopName = shop_list[i].shop_name
-                shopObj.shopImageLocalPath = shop_list[i].Shop_Image
-                shopObj.shopLat = shop_list[i].shop_lat!!.toDouble()
-                shopObj.shopLong = shop_list[i].shop_long!!.toDouble()
-                shopObj.duration = ""
-                shopObj.endTimeStamp = ""
-                shopObj.timeStamp = ""
-                shopObj.dateOfBirth = shop_list[i].dob
-                shopObj.dateOfAniversary = shop_list[i].date_aniversary
-                shopObj.visitDate = AppUtils.getCurrentDate()
-                if (shop_list[i].total_visit_count == "0")
-                    shopObj.totalVisitCount = "1"
-                else
-                    shopObj.totalVisitCount = shop_list[i].total_visit_count
-                shopObj.address = shop_list[i].address
-                shopObj.ownerEmailId = shop_list[i].owner_email
-                shopObj.ownerContactNumber = shop_list[i].owner_contact_no
-                shopObj.pinCode = shop_list[i].pin_code
-                shopObj.isUploaded = true
-                shopObj.ownerName = shop_list[i].owner_name
-                shopObj.user_id = Pref.user_id
-                shopObj.orderValue = 0
-                shopObj.type = shop_list[i].type
-                shopObj.assigned_to_dd_id = shop_list[i].assigned_to_dd_id
-                shopObj.assigned_to_pp_id = shop_list[i].assigned_to_pp_id
-                shopObj.isAddressUpdated = shop_list[i].isAddressUpdated == "1"
-                shopObj.is_otp_verified = shop_list[i].is_otp_verified
-                shopObj.added_date = shop_list[i].added_date
+                        if (shop_list[i].amount == null || shop_list[i].amount == "0.00")
+                            shopObj.amount = ""
+                        else
+                            shopObj.amount = shop_list[i].amount
 
-                if (shop_list[i].amount == null || shop_list[i].amount == "0.00")
-                    shopObj.amount = ""
-                else
-                    shopObj.amount = shop_list[i].amount
+                        if (shop_list[i].last_visit_date!!.contains("."))
+                            shopObj.lastVisitedDate = AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!.split(".")[0])
+                        else
+                            shopObj.lastVisitedDate = AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!)
 
-                if (shop_list[i].last_visit_date!!.contains("."))
-                    shopObj.lastVisitedDate = AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!.split(".")[0])
-                else
-                    shopObj.lastVisitedDate = AppUtils.changeAttendanceDateFormat(shop_list[i].last_visit_date!!)
+                        if (shopObj.lastVisitedDate == AppUtils.getCurrentDateChanged())
+                            shopObj.visited = true
+                        else
+                            shopObj.visited = false
 
-                if (shopObj.lastVisitedDate == AppUtils.getCurrentDateChanged())
-                    shopObj.visited = true
-                else
-                    shopObj.visited = false
-
-                if (shop_list[i].entity_code == null)
-                    shopObj.entity_code = ""
-                else
-                    shopObj.entity_code = shop_list[i].entity_code
+                        if (shop_list[i].entity_code == null)
+                            shopObj.entity_code = ""
+                        else
+                            shopObj.entity_code = shop_list[i].entity_code
 
 
-                if (shop_list[i].area_id == null)
-                    shopObj.area_id = ""
-                else
-                    shopObj.area_id = shop_list[i].area_id
+                        if (shop_list[i].area_id == null)
+                            shopObj.area_id = ""
+                        else
+                            shopObj.area_id = shop_list[i].area_id
 
-                if (TextUtils.isEmpty(shop_list[i].model_id))
-                    shopObj.model_id = ""
-                else
-                    shopObj.model_id = shop_list[i].model_id
+                        if (TextUtils.isEmpty(shop_list[i].model_id))
+                            shopObj.model_id = ""
+                        else
+                            shopObj.model_id = shop_list[i].model_id
 
-                if (TextUtils.isEmpty(shop_list[i].primary_app_id))
-                    shopObj.primary_app_id = ""
-                else
-                    shopObj.primary_app_id = shop_list[i].primary_app_id
+                        if (TextUtils.isEmpty(shop_list[i].primary_app_id))
+                            shopObj.primary_app_id = ""
+                        else
+                            shopObj.primary_app_id = shop_list[i].primary_app_id
 
-                if (TextUtils.isEmpty(shop_list[i].secondary_app_id))
-                    shopObj.secondary_app_id = ""
-                else
-                    shopObj.secondary_app_id = shop_list[i].secondary_app_id
+                        if (TextUtils.isEmpty(shop_list[i].secondary_app_id))
+                            shopObj.secondary_app_id = ""
+                        else
+                            shopObj.secondary_app_id = shop_list[i].secondary_app_id
 
-                if (TextUtils.isEmpty(shop_list[i].lead_id))
-                    shopObj.lead_id = ""
-                else
-                    shopObj.lead_id = shop_list[i].lead_id
+                        if (TextUtils.isEmpty(shop_list[i].lead_id))
+                            shopObj.lead_id = ""
+                        else
+                            shopObj.lead_id = shop_list[i].lead_id
 
-                if (TextUtils.isEmpty(shop_list[i].stage_id))
-                    shopObj.stage_id = ""
-                else
-                    shopObj.stage_id = shop_list[i].stage_id
+                        if (TextUtils.isEmpty(shop_list[i].stage_id))
+                            shopObj.stage_id = ""
+                        else
+                            shopObj.stage_id = shop_list[i].stage_id
 
-                if (TextUtils.isEmpty(shop_list[i].funnel_stage_id))
-                    shopObj.funnel_stage_id = ""
-                else
-                    shopObj.funnel_stage_id = shop_list[i].funnel_stage_id
+                        if (TextUtils.isEmpty(shop_list[i].funnel_stage_id))
+                            shopObj.funnel_stage_id = ""
+                        else
+                            shopObj.funnel_stage_id = shop_list[i].funnel_stage_id
 
-                if (TextUtils.isEmpty(shop_list[i].booking_amount))
-                    shopObj.booking_amount = ""
-                else
-                    shopObj.booking_amount = shop_list[i].booking_amount
+                        if (TextUtils.isEmpty(shop_list[i].booking_amount))
+                            shopObj.booking_amount = ""
+                        else
+                            shopObj.booking_amount = shop_list[i].booking_amount
 
-                if (TextUtils.isEmpty(shop_list[i].type_id))
-                    shopObj.type_id = ""
-                else
-                    shopObj.type_id = shop_list[i].type_id
+                        if (TextUtils.isEmpty(shop_list[i].type_id))
+                            shopObj.type_id = ""
+                        else
+                            shopObj.type_id = shop_list[i].type_id
 
-                shopObj.family_member_dob = shop_list[i].family_member_dob
-                shopObj.director_name = shop_list[i].director_name
-                shopObj.person_name = shop_list[i].key_person_name
-                shopObj.person_no = shop_list[i].phone_no
-                shopObj.add_dob = shop_list[i].addtional_dob
-                shopObj.add_doa = shop_list[i].addtional_doa
+                        shopObj.family_member_dob = shop_list[i].family_member_dob
+                        shopObj.director_name = shop_list[i].director_name
+                        shopObj.person_name = shop_list[i].key_person_name
+                        shopObj.person_no = shop_list[i].phone_no
+                        shopObj.add_dob = shop_list[i].addtional_dob
+                        shopObj.add_doa = shop_list[i].addtional_doa
 
-                shopObj.doc_degree = shop_list[i].degree
-                shopObj.doc_family_dob = shop_list[i].doc_family_member_dob
-                shopObj.specialization = shop_list[i].specialization
-                shopObj.patient_count = shop_list[i].average_patient_per_day
-                shopObj.category = shop_list[i].category
-                shopObj.doc_address = shop_list[i].doc_address
-                shopObj.doc_pincode = shop_list[i].doc_pincode
-                shopObj.chamber_status = shop_list[i].is_chamber_same_headquarter.toInt()
-                shopObj.remarks = shop_list[i].is_chamber_same_headquarter_remarks
-                shopObj.chemist_name = shop_list[i].chemist_name
-                shopObj.chemist_address = shop_list[i].chemist_address
-                shopObj.chemist_pincode = shop_list[i].chemist_pincode
-                shopObj.assistant_name = shop_list[i].assistant_name
-                shopObj.assistant_no = shop_list[i].assistant_contact_no
-                shopObj.assistant_dob = shop_list[i].assistant_dob
-                shopObj.assistant_doa = shop_list[i].assistant_doa
-                shopObj.assistant_family_dob = shop_list[i].assistant_family_dob
+                        shopObj.doc_degree = shop_list[i].degree
+                        shopObj.doc_family_dob = shop_list[i].doc_family_member_dob
+                        shopObj.specialization = shop_list[i].specialization
+                        shopObj.patient_count = shop_list[i].average_patient_per_day
+                        shopObj.category = shop_list[i].category
+                        shopObj.doc_address = shop_list[i].doc_address
+                        shopObj.doc_pincode = shop_list[i].doc_pincode
+                        shopObj.chamber_status = shop_list[i].is_chamber_same_headquarter.toInt()
+                        shopObj.remarks = shop_list[i].is_chamber_same_headquarter_remarks
+                        shopObj.chemist_name = shop_list[i].chemist_name
+                        shopObj.chemist_address = shop_list[i].chemist_address
+                        shopObj.chemist_pincode = shop_list[i].chemist_pincode
+                        shopObj.assistant_name = shop_list[i].assistant_name
+                        shopObj.assistant_no = shop_list[i].assistant_contact_no
+                        shopObj.assistant_dob = shop_list[i].assistant_dob
+                        shopObj.assistant_doa = shop_list[i].assistant_doa
+                        shopObj.assistant_family_dob = shop_list[i].assistant_family_dob
 
-                if (TextUtils.isEmpty(shop_list[i].entity_id))
-                    shopObj.entity_id = ""
-                else
-                    shopObj.entity_id = shop_list[i].entity_id
+                        if (TextUtils.isEmpty(shop_list[i].entity_id))
+                            shopObj.entity_id = ""
+                        else
+                            shopObj.entity_id = shop_list[i].entity_id
 
-                if (TextUtils.isEmpty(shop_list[i].party_status_id))
-                    shopObj.party_status_id = ""
-                else
-                    shopObj.party_status_id = shop_list[i].party_status_id
+                        if (TextUtils.isEmpty(shop_list[i].party_status_id))
+                            shopObj.party_status_id = ""
+                        else
+                            shopObj.party_status_id = shop_list[i].party_status_id
 
-                if (TextUtils.isEmpty(shop_list[i].retailer_id))
-                    shopObj.retailer_id = ""
-                else
-                    shopObj.retailer_id = shop_list[i].retailer_id
+                        if (TextUtils.isEmpty(shop_list[i].retailer_id))
+                            shopObj.retailer_id = ""
+                        else
+                            shopObj.retailer_id = shop_list[i].retailer_id
 
-                if (TextUtils.isEmpty(shop_list[i].dealer_id))
-                    shopObj.dealer_id = ""
-                else
-                    shopObj.dealer_id = shop_list[i].dealer_id
+                        if (TextUtils.isEmpty(shop_list[i].dealer_id))
+                            shopObj.dealer_id = ""
+                        else
+                            shopObj.dealer_id = shop_list[i].dealer_id
 
-                if (TextUtils.isEmpty(shop_list[i].beat_id))
-                    shopObj.beat_id = ""
-                else
-                    shopObj.beat_id = shop_list[i].beat_id
+                        if (TextUtils.isEmpty(shop_list[i].beat_id))
+                            shopObj.beat_id = ""
+                        else
+                            shopObj.beat_id = shop_list[i].beat_id
 
-                if (TextUtils.isEmpty(shop_list[i].account_holder))
-                    shopObj.account_holder = ""
-                else
-                    shopObj.account_holder = shop_list[i].account_holder
+                        if (TextUtils.isEmpty(shop_list[i].account_holder))
+                            shopObj.account_holder = ""
+                        else
+                            shopObj.account_holder = shop_list[i].account_holder
 
-                if (TextUtils.isEmpty(shop_list[i].account_no))
-                    shopObj.account_no = ""
-                else
-                    shopObj.account_no = shop_list[i].account_no
+                        if (TextUtils.isEmpty(shop_list[i].account_no))
+                            shopObj.account_no = ""
+                        else
+                            shopObj.account_no = shop_list[i].account_no
 
-                if (TextUtils.isEmpty(shop_list[i].bank_name))
-                    shopObj.bank_name = ""
-                else
-                    shopObj.bank_name = shop_list[i].bank_name
+                        if (TextUtils.isEmpty(shop_list[i].bank_name))
+                            shopObj.bank_name = ""
+                        else
+                            shopObj.bank_name = shop_list[i].bank_name
 
-                if (TextUtils.isEmpty(shop_list[i].ifsc_code))
-                    shopObj.ifsc_code = ""
-                else
-                    shopObj.ifsc_code = shop_list[i].ifsc_code
+                        if (TextUtils.isEmpty(shop_list[i].ifsc_code))
+                            shopObj.ifsc_code = ""
+                        else
+                            shopObj.ifsc_code = shop_list[i].ifsc_code
 
-                if (TextUtils.isEmpty(shop_list[i].upi))
-                    shopObj.upi_id = ""
-                else
-                    shopObj.upi_id = shop_list[i].upi
+                        if (TextUtils.isEmpty(shop_list[i].upi))
+                            shopObj.upi_id = ""
+                        else
+                            shopObj.upi_id = shop_list[i].upi
 
-                if (TextUtils.isEmpty(shop_list[i].assigned_to_shop_id))
-                    shopObj.assigned_to_shop_id = ""
-                else
-                    shopObj.assigned_to_shop_id = shop_list[i].assigned_to_shop_id
+                        if (TextUtils.isEmpty(shop_list[i].assigned_to_shop_id))
+                            shopObj.assigned_to_shop_id = ""
+                        else
+                            shopObj.assigned_to_shop_id = shop_list[i].assigned_to_shop_id
 
-                shopObj.project_name=shop_list[i].project_name
-                shopObj.landline_number=shop_list[i].landline_number
-                shopObj.agency_name=shop_list[i].agency_name
-                /*10-2-2022*/
-                shopObj.alternateNoForCustomer=shop_list[i].alternateNoForCustomer
-                shopObj.whatsappNoForCustomer=shop_list[i].whatsappNoForCustomer
-                shopObj.isShopDuplicate=shop_list[i].isShopDuplicate
+                        shopObj.project_name=shop_list[i].project_name
+                        shopObj.landline_number=shop_list[i].landline_number
+                        shopObj.agency_name=shop_list[i].agency_name
+                        /*10-2-2022*/
+                        shopObj.alternateNoForCustomer=shop_list[i].alternateNoForCustomer
+                        shopObj.whatsappNoForCustomer=shop_list[i].whatsappNoForCustomer
+                        shopObj.isShopDuplicate=shop_list[i].isShopDuplicate
 
-                shopObj.purpose=shop_list[i].purpose
-                //start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
-                try {
-                    shopObj.FSSAILicNo = shop_list[i].FSSAILicNo
-                }catch (ex:Exception){
-                    ex.printStackTrace()
-                    shopObj.FSSAILicNo = ""
+                        shopObj.purpose=shop_list[i].purpose
+                        //start AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+                        try {
+                            shopObj.FSSAILicNo = shop_list[i].FSSAILicNo
+                        }catch (ex:Exception){
+                            ex.printStackTrace()
+                            shopObj.FSSAILicNo = ""
+                        }
+    //end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+
+
+                        shopObj.isOwnshop = false
+
+                        list.add(shopObj)
+
+                        AppDatabase.getDBInstance()!!.addShopEntryDao().insert(shopObj)
+                    }
                 }
-//end AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
-
-
-                shopObj.isOwnshop = false
-
-                list.add(shopObj)
-
-                AppDatabase.getDBInstance()!!.addShopEntryDao().insert(shopObj)
+            } catch (e: Exception) {
+                println("tag_login_check callExtraTeamShopListApi status ${e.message}")
+                Timber.d("tag_extra_shop err ${e.message}")
             }
-        }
-       /* progress_wheel.stopSpinning()*/
-        loadNotProgress()// mantis 0025667
+            uiThread {
+                /* progress_wheel.stopSpinning()*/
+                //loadNotProgress()// mantis 0025667
 //        gotoHomeActivity()
-        deleteImei()//1.0 LoginActivity  AppV 4.0.6
+                Timber.d("call deleteImei ")
+                println("tag_login_check callExtraTeamShopListApi calling deleteImei")
+                deleteImei()//1.0 LoginActivity  AppV 4.0.6
 //
 //        val stockList = AppDatabase.getDBInstance()!!.stockListDao().getAll()
 //        if (stockList == null || stockList.isEmpty()) {
@@ -7591,6 +7938,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 //        } else {
 //            checkToCallAssignedDDListApi()
 //        }
+            }
+        }
+
+
     }
 
     private fun checkToCallAssignedDDListApi() {
@@ -8027,7 +8378,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
     fun callCallListHisAPI(){
         if((AppDatabase.getDBInstance()?.callhisDao()?.getAllData() as ArrayList<CallHisEntity>).size>0){
-            gotoHomeActivity()
+            getAutoMailDtls()
         }else{
             val repository = EditShopRepoProvider.provideEditShopWithoutImageRepository()
             BaseActivity.compositeDisposable.add(
@@ -8040,25 +8391,360 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             doAsync {
                                 AppDatabase.getDBInstance()?.callhisDao()?.insertAll(resp.call_his_list)
                                 uiThread {
-                                    gotoHomeActivity()
+                                    getAutoMailDtls()
                                 }
                             }
                         }else{
-                            gotoHomeActivity()
+                            getAutoMailDtls()
                         }
                     }, { error ->
                         error.printStackTrace()
-                        gotoHomeActivity()
+                        getAutoMailDtls()
                     })
             )
         }
     }
 
-    private fun gotoHomeActivity() {
-       /* Pref.IsShowEmployeePerformanceGlobal = true
-        Pref.IsShowEmployeePerformance = true
-        Pref.IsMenuShowAIMarketAssistant= true*/
+    // 23.0  LoginActivity Automail details Suman 16-04-2024 mantis id 27368 v4.2.6 begin
+    fun getAutoMailDtls(){
+        try{
+            val repository = EditShopRepoProvider.provideEditShopWithoutImageRepository()
+            BaseActivity.compositeDisposable.add(
+                repository.autoMailDtls(Pref.user_id.toString())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val resp = result as AutoMailDtls
+                        if(resp.status == NetworkConstant.SUCCESS){
+                            doAsync {
+                                Pref.automail_sending_email = resp.automail_sending_email
+                                Pref.automail_sending_pass = resp.automail_sending_pass
+                                Pref.recipient_email_ids = resp.recipient_email_ids
+                                uiThread {
+                                    getNewProductList()
+                                }
+                            }
+                        }else{
+                            getNewProductList()
+                        }
+                    }, { error ->
+                        error.printStackTrace()
+                        getNewProductList()
+                    })
+            )
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            getNewProductList()
+        }
+    }
+    // 23.0  LoginActivity Automail details Suman 16-04-2024 mantis id 27368 v4.2.6 end
 
+    // Revision 2.0   Suman App V4.4.6  04-04-2024  mantis id 27291: New Order Module api implement & room insertion begin
+
+    private fun getNewProductList() {
+        if(Pref.ShowPartyWithCreateOrder && Pref.ShowUserwisePartyWithCreateOrder){
+
+            val repository = ProductListRepoProvider.productListProvider()
+            BaseActivity.compositeDisposable.add(
+                repository.getProductListITC(Pref.session_token!!, Pref.user_id!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as GetProductReq
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            var list = response.product_list
+                            if (list != null && list.isNotEmpty()) {
+                                doAsync {
+                                    AppDatabase.getDBInstance()!!.newProductListDao().deleteAll()
+                                    AppDatabase.getDBInstance()?.newProductListDao()?.insertAll(list!!)
+                                    uiThread {
+                                        getNewProductRateList()
+                                    }
+                                }
+                            } else {
+                                getNewProductRateList()
+                            }
+                        } else {
+                            getNewProductRateList()
+                        }
+                    }, { error ->
+                        getNewProductRateList()
+                    })
+            )
+        }else{
+            getNewProductRateList()
+        }
+    }
+
+    private fun getNewProductRateList() {
+        if(Pref.ShowPartyWithCreateOrder && Pref.ShowUserwisePartyWithCreateOrder){
+            val repository = ProductListRepoProvider.productListProvider()
+            BaseActivity.compositeDisposable.add(
+                repository.getProductRateListITC(Pref.session_token!!, Pref.user_id!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as GetProductRateReq
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            var list = response.product_rate_list
+                            if (list != null && list.isNotEmpty()) {
+                                doAsync {
+                                    Timber.d("rate insert process start ${AppUtils.getCurrentDateTime()}")
+                                    AppDatabase.getDBInstance()!!.newRateListDao().deleteAll()
+                                    AppDatabase.getDBInstance()?.newRateListDao()?.insertAll(list!!)
+                                    Timber.d("rate insert process end ${AppUtils.getCurrentDateTime()}")
+                                    uiThread {
+                                        getOrderHistoryList()
+                                    }
+                                }
+                            } else {
+                                getOrderHistoryList()
+                            }
+                        } else {
+                            getOrderHistoryList()
+                        }
+                    }, { error ->
+                        getOrderHistoryList()
+                    })
+            )
+        }else{
+            getOrderHistoryList()
+        }
+    }
+
+    private fun getOrderHistoryList(){
+        var ordHisL = AppDatabase.getDBInstance()!!.newOrderDataDao().getAllOrder() as ArrayList<NewOrderDataEntity>
+        if(Pref.ShowPartyWithCreateOrder && ordHisL.size==0 && Pref.ShowUserwisePartyWithCreateOrder){
+            Timber.d("getOrderHistoryList call")
+            val repository = ProductListRepoProvider.productListProvider()
+            BaseActivity.compositeDisposable.add(
+                repository.getOrderHistory(Pref.user_id!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as GetOrderHistory
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            doAsync {
+                                Timber.d("getOrderHistoryList data save begin ${AppUtils.getCurrentDateTime()}")
+                                var order_list = response.order_list
+                                for(i in 0..order_list.size-1){
+                                    var obj = NewOrderDataEntity()
+                                    obj.order_id = order_list.get(i).order_id
+                                    obj.order_date = order_list.get(i).order_date
+                                    obj.order_time = order_list.get(i).order_time
+                                    obj.order_date_time = order_list.get(i).order_date_time
+                                    obj.shop_id = order_list.get(i).shop_id
+                                    obj.shop_name = order_list.get(i).shop_name
+                                    obj.shop_type = order_list.get(i).shop_type
+                                    obj.isInrange = if(order_list.get(i).isInrange==1) true else false
+                                    obj.order_lat = order_list.get(i).order_lat
+                                    obj.order_long = order_list.get(i).order_long
+                                    obj.shop_addr = order_list.get(i).shop_addr
+                                    obj.shop_pincode = order_list.get(i).shop_pincode
+                                    obj.order_total_amt = order_list.get(i).order_total_amt.toString()
+                                    obj.order_remarks = order_list.get(i).order_remarks
+                                    obj.isUploaded = true
+
+                                    var objProductL:ArrayList<NewOrderProductDataEntity> = ArrayList()
+                                    for( j in 0..order_list.get(i).product_list.size-1){
+                                        var objProduct = NewOrderProductDataEntity()
+                                        objProduct.order_id = order_list.get(i).product_list.get(j).order_id
+                                        objProduct.product_id = order_list.get(i).product_list.get(j).product_id
+                                        objProduct.product_name = order_list.get(i).product_list.get(j).product_name
+                                        objProduct.submitedQty = order_list.get(i).product_list.get(j).submitedQty.toInt().toString()
+                                        objProduct.submitedSpecialRate = order_list.get(i).product_list.get(j).submitedSpecialRate.toString()
+                                        objProductL.add(objProduct)
+                                    }
+
+                                    AppDatabase.getDBInstance()!!.newOrderDataDao().insert(obj)
+                                    AppDatabase.getDBInstance()!!.newOrderProductDataDao().insertAll(objProductL)
+
+                                }
+                                uiThread {
+                                    Timber.d("getOrderHistoryList data save end ${AppUtils.getCurrentDateTime()}")
+                                    getOpportunityStatusList()
+                                }
+                            }
+                        } else {
+                            getOpportunityStatusList()
+                        }
+                    }, { error ->
+                        getOpportunityStatusList()
+                    })
+            )
+        }else{
+            Timber.d("getOrderHistoryList call bypass")
+            getOpportunityStatusList()
+        }
+    }
+
+    private fun getOpportunityStatusList() {
+        var opptStatusL = AppDatabase.getDBInstance()!!.opportunityStatusDao().getAll() as ArrayList<OpportunityStatusEntity>
+        if(Pref.IsShowCRMOpportunity && opptStatusL.size==0 ){
+            val repository = OpportunityRepoProvider.opportunityListRepo()
+            BaseActivity.compositeDisposable.add(
+                repository.getOpportunityStatus(Pref.session_token!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as OpportunityStatusListResponseModel
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            var list = response.status_list
+                            if (list != null && list.isNotEmpty()) {
+                                doAsync {
+                                    AppDatabase.getDBInstance()!!.opportunityStatusDao().deleteAll()
+                                    AppDatabase.getDBInstance()?.opportunityStatusDao()?.insertAll(list!!)
+                                    uiThread {
+                                        getOpportunityLAPI()
+                                    }
+                                }
+                            } else {
+                                getOpportunityLAPI()
+                            }
+                        } else {
+                            getOpportunityLAPI()
+                        }
+                    }, { error ->
+                        getOpportunityLAPI()
+                    })
+            )
+        }
+        else{
+            getOpportunityLAPI()
+        }
+    }
+
+    fun getOpportunityLAPI(){
+        var opptL = AppDatabase.getDBInstance()!!.opportunityAddDao().getAllL() as ArrayList<OpportunityAddEntity>
+        println("opptlsize"+opptL.size)
+        println("IsShowCRMOpportunity"+Pref.IsShowCRMOpportunity)
+        if(Pref.IsShowCRMOpportunity && opptL.size==0 ){
+            println("tag_oppt_check calling getOpportunityL")
+            val repository = OpportunityRepoProvider.opportunityListRepo()
+            BaseActivity.compositeDisposable.add(
+                repository.getOpportunityL(Pref.user_id!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as OpportunityListResponseModel
+                        println("tag_oppt_check ${response.status}")
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            var oppt_list = response.opportunity_list
+                            if (oppt_list != null && oppt_list.isNotEmpty()) {
+                                doAsync {
+                                    try {
+                                        for (i in oppt_list.indices) {
+                                            val opportunityAddList = OpportunityAddEntity()
+                                            opportunityAddList.shop_id = oppt_list.get(i).shop_id.toString()
+                                            opportunityAddList.shop_name = oppt_list.get(i).shop_name.toString()
+                                            opportunityAddList.shop_type = oppt_list.get(i).shop_type.toString()
+                                            opportunityAddList.opportunity_id = oppt_list.get(i).opportunity_id.toString()
+                                            opportunityAddList.opportunity_description = oppt_list.get(i).opportunity_description.toString()
+                                            opportunityAddList.opportunity_amount = oppt_list.get(i).opportunity_amount.toString()
+                                            opportunityAddList.opportunity_status_id = oppt_list.get(i).opportunity_status_id.toString()
+                                            opportunityAddList.opportunity_status_name = oppt_list.get(i).opportunity_status_name.toString()
+                                            opportunityAddList.opportunity_created_date = oppt_list.get(i).opportunity_created_date.toString()
+                                            opportunityAddList.opportunity_created_time = oppt_list.get(i).opportunity_created_time.toString()
+                                            opportunityAddList.opportunity_created_date_time = oppt_list.get(i).opportunity_created_date_time.toString()
+                                            opportunityAddList.opportunity_edited_date_time = oppt_list.get(i).opportunity_edited_date_time.toString()
+                                            if (oppt_list[i].opportunity_product_list != null && oppt_list[i].opportunity_product_list?.size!! > 0) {
+                                                for (j in oppt_list[i].opportunity_product_list?.indices!!) {
+                                                    val opportunityProductList = OpportunityProductEntity()
+                                                    opportunityProductList.shop_id = oppt_list[i].opportunity_product_list!!.get(j).shop_id.toString()
+                                                    opportunityProductList.opportunity_id = oppt_list[i].opportunity_product_list!!.get(j).opportunity_id.toString()
+                                                    opportunityProductList.product_id = oppt_list[i].opportunity_product_list!!.get(j).product_id.toString()
+                                                    opportunityProductList.product_name = oppt_list[i].opportunity_product_list!!.get(j).product_name.toString()
+                                                    AppDatabase.getDBInstance()!!.opportunityProductDao().insert(opportunityProductList)
+                                                }
+                                            }
+                                            AppDatabase.getDBInstance()!!.opportunityAddDao().insert(opportunityAddList)
+                                        }
+                                    } catch (e: Exception) {
+                                        println("tag_oppt_check error ${e.printStackTrace()}")
+                                    }
+                                    uiThread {
+                                        getAudioL()
+                                    }
+                                }
+                            } else {
+                                getAudioL()
+                            }
+                        } else {
+                            getAudioL()
+                        }
+                    }, { error ->
+                        println("tag_oppt_check errorr ${error.printStackTrace()}")
+                        getAudioL()
+                    })
+            )
+        }
+        else{
+            getAudioL()
+        }
+    }
+// Revision 2.0   Suman App V4.4.6  04-04-2024  mantis id 27291: New Order Module api implement & room insertion end
+
+    fun getAudioL(){
+        var audioL =  AppDatabase.getDBInstance()?.shopAudioDao()?.getAll() as ArrayList<ShopAudioEntity>
+        if(Pref.IsUserWiseRecordAudioEnableForVisitRevisit && audioL.size==0){
+            val repository = OpportunityRepoProvider.opportunityListRepo()
+            BaseActivity.compositeDisposable.add(
+                repository.getAudioL(Pref.user_id!!,"30")
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as AudioFetchDataCLass
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            var audioL = response.audio_list
+                            if (audioL.size>0) {
+                                doAsync {
+                                    try {
+                                        for(i in 0..audioL.size-1){
+                                            var obj = ShopAudioEntity()
+                                            obj.shop_id = audioL.get(i).shop_id
+                                            obj.audio_path = audioL.get(i).audio_path
+                                            obj.isUploaded = true
+                                            obj.datetime = audioL.get(i).datetime
+                                            obj.revisitYN = audioL.get(i).revisitORvisit
+                                            println("tag_audio_insert ${audioL.get(i).shop_id} ${audioL.get(i).datetime} ${audioL.get(i).revisitORvisit}")
+                                            AppDatabase.getDBInstance()?.shopAudioDao()?.insert(obj)
+                                        }
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        gotoHomeActivity()
+                                    }
+                                    uiThread {
+                                        gotoHomeActivity()
+                                    }
+                                }
+                            } else {
+                                gotoHomeActivity()
+                            }
+                        } else {
+                            gotoHomeActivity()
+                        }
+                    }, { error ->
+                        gotoHomeActivity()
+                    })
+            )
+        }else{
+            gotoHomeActivity()
+        }
+    }
+
+    private fun gotoHomeActivity() {
+
+        try {
+            checkAttendanceToStartService()
+            //openGmap()
+        } catch (e: Exception) {
+            Timber.d("tag_login_service error ${e.printStackTrace()}" )
+        }
+
+        /* Pref.IsShowEmployeePerformanceGlobal = true
+         Pref.IsShowEmployeePerformance = true
+         Pref.IsMenuShowAIMarketAssistant= true*/
+        loadNotProgress()
         login_TV.isEnabled = true
         enableScreen()
 // 7.0 LoginActivity AppV 4.0.6 Suman    03/02/2023  Insert login address into location_db
@@ -8118,7 +8804,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                 //AppDatabase.getDBInstance()?.shopActivityDao()?.trash2("2022-04-04","432_1879749092874","28")
                 //AppDatabase.getDBInstance()!!.leadActivityDao().trash2("0d181797-65b8-4d96-929d-15a71ae16192","2022-04-05")
                 Timber.d("login_time_tracker ends ${AppUtils.getCurrentDateTime()} ${Pref.current_latitude} ${Pref.current_latitude}")
-
+                Log.d("login_test_calling","")
                 val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
                 intent.putExtra("fromClass", "LoginActivity")
                 overridePendingTransition(0, 0)
@@ -8128,6 +8814,54 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
         }
 
+    }
+
+    fun checkAttendanceToStartService(){
+        if(Pref.isAddAttendence){
+            try {
+                Timber.d("tag_login_service attendance found" )
+                val serviceLauncher = Intent(this, LocationFuzedService::class.java)
+                if (Pref.user_id != null && Pref.user_id!!.isNotEmpty()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                       val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+                        val componentName = ComponentName(this, LocationJobService::class.java)
+                        val jobInfo = JobInfo.Builder(12, componentName)
+                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                            .setOverrideDeadline(1000)
+                            .build()
+                        val resultCode = jobScheduler.schedule(jobInfo)
+
+                        if (resultCode == JobScheduler.RESULT_SUCCESS) {
+                           Timber.d("===============================Job scheduled (Base Activity) " + AppUtils.getCurrentDateTime() + "============================")
+                        } else {
+                           Timber.d("=====================Job not scheduled (Base Activity) " + AppUtils.getCurrentDateTime() + "====================================")
+                        }
+                        Timber.d("tag_login_service service started from login" )
+                    } else {
+                        Timber.d("tag_login_service service started from login from else" )
+                       startService(serviceLauncher)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Timber.d("tag_login_service err ${e.localizedMessage}" )
+            }
+        }
+    }
+
+    fun openGmap(){
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=loc:" + Pref.current_latitude + "," + Pref.current_longitude))
+            intent.setPackage("com.google.android.apps.maps")
+            var pendingIntent = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+            var alarmManager : AlarmManager =  this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000*20, pendingIntent)
+            Timber.d("tag_login_service gmap set" )
+        } catch (e: Exception) {
+            Timber.d("tag_login_service gmap set error ${e.printStackTrace()}" )
+        }
     }
 
     //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
@@ -8284,7 +9018,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             Timber.d("API_Optimization GET getCurrentStockApi Login : enable " + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
             /*progress_wheel.spin()*/
             var shopAll = AppDatabase.getDBInstance()!!.shopCurrentStockEntryDao().getShopStockAll()
-            if (shopAll != null && shopAll?.isNotEmpty()) {
+            if (shopAll != null && shopAll.isNotEmpty()) {
                /* progress_wheel.stopSpinning()*/
                 getCompStockApi()
             } else {
@@ -8317,8 +9051,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                             var objjj = CurrentStockEntryProductModelEntity()
                                                             objjj.stock_id = response.stock_list?.get(i)?.stock_id!!
                                                             objjj.shop_id = response.stock_list?.get(i)?.shop_id!!
-                                                            objjj.product_id = proDuctList?.get(j).product_id.toString()!!
-                                                            objjj.product_stock_qty = proDuctList?.get(j).product_stock_qty!!
+                                                            objjj.product_id = proDuctList?.get(j)?.product_id.toString()!!
+                                                            objjj.product_stock_qty = proDuctList?.get(j)?.product_stock_qty!!
                                                             objjj.user_id = Pref.user_id
                                                             objjj.isUploaded = true
 
@@ -8372,7 +9106,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             Timber.d("API_Optimization GET getCompStockApi Login : enable " + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name)
             /*progress_wheel.spin()*/
             var comListAll = AppDatabase.getDBInstance()!!.competetorStockEntryDao().getCompetetorStockAll()
-            if (comListAll != null && comListAll?.isNotEmpty()) {
+            if (comListAll != null && comListAll.isNotEmpty()) {
                /* progress_wheel.stopSpinning()*/
                 getShopTypeStockVisibility()
             } else {
@@ -9372,6 +10106,20 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         simpleDialog.setCancelable(false)
         simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         simpleDialog.setContentView(R.layout.dialog_ok)
+
+        try {
+            simpleDialog.setCancelable(true)
+            simpleDialog.setCanceledOnTouchOutside(false)
+            val dialogName = simpleDialog.findViewById(R.id.tv_dialog_ok_name) as AppCustomTextView
+            val dialogCross = simpleDialog.findViewById(R.id.tv_dialog_ok_cancel) as ImageView
+            dialogName.text = AppUtils.hiFirstNameText()
+            dialogCross.setOnClickListener {
+                simpleDialog.cancel()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
         dialogHeader.text = text
         val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
@@ -9401,11 +10149,12 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     private fun deleteImei(){
         if(Pref.IsIMEICheck){
 //            XLog.d("deleteImei IsIMEICheck : " + Pref.IsIMEICheck.toString() + "Time : " + AppUtils.getCurrentDateTime())
-            Timber.d("deleteImei IsIMEICheck : " + Pref.IsIMEICheck.toString() + "Time : " + AppUtils.getCurrentDateTime())
+            Timber.d("deleteImei IsIMEICheck : " + Pref.IsIMEICheck.toString() + " Time : " + AppUtils.getCurrentDateTime())
 //            gotoHomeActivity() // 3.0 LoginActivity AppV 4.0.6 Data fetch multiple contact
             fetchMultiContactDetails()
         }else{
             try {
+                Timber.d("deleteImei call" + AppUtils.getCurrentDateTime())
                 val repository = ShopListRepositoryProvider.provideShopListRepository()
                 BaseActivity.compositeDisposable.add(
                     repository.deleteImei()
@@ -9423,13 +10172,15 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                 fetchMultiContactDetails()
                             }
                         }, { error ->
-                           /* progress_wheel.stopSpinning()*/
+                            /* progress_wheel.stopSpinning()*/
 //                            gotoHomeActivity() // 3.0 LoginActivity AppV 4.0.6 Data fetch multiple contact
+                            Timber.d("deleteImei error ${error.message}" + AppUtils.getCurrentDateTime())
                             fetchMultiContactDetails()
                         })
                 )
             } catch (ex: Exception) {
                 ex.printStackTrace()
+                Timber.d("deleteImei error1 ${ex.message}" + AppUtils.getCurrentDateTime())
 //                gotoHomeActivity() // 3.0 LoginActivity AppV 4.0.6 Data fetch multiple contact
                 fetchMultiContactDetails()
             }
@@ -9438,6 +10189,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     // 3.0 LoginActivity AppV 4.0.6 Data fetch multiple contact
     fun fetchMultiContactDetails(){
         try{
+            Timber.d("fetchMultiContactDetails call" + AppUtils.getCurrentDateTime())
             var existingL = AppDatabase.getDBInstance()?.shopExtraContactDao()?.getExtraContList()
             if(existingL!!.size == 0  && Pref.IsMultipleContactEnableforShop){
                 val repository = AddShopRepositoryProvider.provideAddShopWithoutImageRepository()
@@ -9450,81 +10202,88 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             if (viewResult!!.status == NetworkConstant.SUCCESS) {
                                 if(viewResult.shop_list.size>0){
                                     doAsync {
-                                        for(b in 0..viewResult.shop_list.size-1){
+                                        try {
+                                            Timber.d("fetchMultiContactDetails call err loop begin")
+                                            for(b in 0..viewResult.shop_list.size-1){
 //                                        val ShopExtraContactEntity = ShopExtraContactEntity()
-                                            if(viewResult.shop_list.get(b).contact_serial1.toString().equals("1") && !viewResult.shop_list.get(b).contact_name1.toString().equals("")){
-                                                val shopExtraContactEntity = ShopExtraContactEntity()
-                                                shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
-                                                shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial1.toString()
-                                                shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name1.toString()
-                                                shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number1.toString()
-                                                shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email1 == null) "" else viewResult.shop_list.get(b).contact_email1.toString()
-                                                shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob1==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob1.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa1==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa1.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.isUploaded = true
-                                                AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
+                                                if(viewResult.shop_list.get(b).contact_serial1.toString().equals("1") && !viewResult.shop_list.get(b).contact_name1.toString().equals("")){
+                                                    val shopExtraContactEntity = ShopExtraContactEntity()
+                                                    shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
+                                                    shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial1.toString()
+                                                    shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name1.toString()
+                                                    shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number1.toString()
+                                                    shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email1 == null) "" else viewResult.shop_list.get(b).contact_email1.toString()
+                                                    shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob1==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob1.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa1==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa1.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.isUploaded = true
+                                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
+                                                }
+                                                if(viewResult.shop_list.get(b).contact_serial2.toString().equals("2") && !viewResult.shop_list.get(b).contact_name2.toString().equals("")){
+                                                    val shopExtraContactEntity = ShopExtraContactEntity()
+                                                    shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
+                                                    shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial2.toString()
+                                                    shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name2.toString()
+                                                    shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number2.toString()
+                                                    shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email2 == null) "" else viewResult.shop_list.get(b).contact_email2.toString()
+                                                    shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob2==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob2.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa2==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa2.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.isUploaded = true
+                                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
+                                                }
+                                                if(viewResult.shop_list.get(b).contact_serial3.toString().equals("3") && !viewResult.shop_list.get(b).contact_name3.toString().equals("")){
+                                                    val shopExtraContactEntity = ShopExtraContactEntity()
+                                                    shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
+                                                    shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial3.toString()
+                                                    shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name3.toString()
+                                                    shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number3.toString()
+                                                    shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email3 == null) "" else viewResult.shop_list.get(b).contact_email3.toString()
+                                                    shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob3==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob3.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa3==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa3.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.isUploaded = true
+                                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
+                                                }
+                                                if(viewResult.shop_list.get(b).contact_serial4.toString().equals("4")&& !viewResult.shop_list.get(b).contact_name4.toString().equals("")){
+                                                    val shopExtraContactEntity = ShopExtraContactEntity()
+                                                    shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
+                                                    shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial4.toString()
+                                                    shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name4.toString()
+                                                    shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number4.toString()
+                                                    shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email4 == null) "" else viewResult.shop_list.get(b).contact_email4.toString()
+                                                    shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob4==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob4.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa4==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa4.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.isUploaded = true
+                                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
+                                                }
+                                                if(viewResult.shop_list.get(b).contact_serial5.toString().equals("5") && !viewResult.shop_list.get(b).contact_name5.toString().equals("")){
+                                                    val shopExtraContactEntity = ShopExtraContactEntity()
+                                                    shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
+                                                    shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial5.toString()
+                                                    shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name5.toString()
+                                                    shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number5.toString()
+                                                    shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email5 == null) "" else viewResult.shop_list.get(b).contact_email5.toString()
+                                                    shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob5==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob5.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa5==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa5.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.isUploaded = true
+                                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
+                                                }
+                                                if(viewResult.shop_list.get(b).contact_serial6.toString().equals("6") && !viewResult.shop_list.get(b).contact_name6.toString().equals("")){
+                                                    val shopExtraContactEntity = ShopExtraContactEntity()
+                                                    shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
+                                                    shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial6.toString()
+                                                    shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name6.toString()
+                                                    shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number6.toString()
+                                                    shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email6 == null) "" else viewResult.shop_list.get(b).contact_email6.toString()
+                                                    shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob6==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob6.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa6==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa6.toString(), "dd-mm-yyyy","yyyy-mm-dd")
+                                                    shopExtraContactEntity.isUploaded = true
+                                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
+                                                }
                                             }
-                                            if(viewResult.shop_list.get(b).contact_serial2.toString().equals("2") && !viewResult.shop_list.get(b).contact_name2.toString().equals("")){
-                                                val shopExtraContactEntity = ShopExtraContactEntity()
-                                                shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
-                                                shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial2.toString()
-                                                shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name2.toString()
-                                                shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number2.toString()
-                                                shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email2 == null) "" else viewResult.shop_list.get(b).contact_email2.toString()
-                                                shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob2==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob2.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa2==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa2.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.isUploaded = true
-                                                AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
-                                            }
-                                            if(viewResult.shop_list.get(b).contact_serial3.toString().equals("3") && !viewResult.shop_list.get(b).contact_name3.toString().equals("")){
-                                                val shopExtraContactEntity = ShopExtraContactEntity()
-                                                shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
-                                                shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial3.toString()
-                                                shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name3.toString()
-                                                shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number3.toString()
-                                                shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email3 == null) "" else viewResult.shop_list.get(b).contact_email3.toString()
-                                                shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob3==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob3.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa3==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa3.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.isUploaded = true
-                                                AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
-                                            }
-                                            if(viewResult.shop_list.get(b).contact_serial4.toString().equals("4")&& !viewResult.shop_list.get(b).contact_name4.toString().equals("")){
-                                                val shopExtraContactEntity = ShopExtraContactEntity()
-                                                shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
-                                                shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial4.toString()
-                                                shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name4.toString()
-                                                shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number4.toString()
-                                                shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email4 == null) "" else viewResult.shop_list.get(b).contact_email4.toString()
-                                                shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob4==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob4.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa4==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa4.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.isUploaded = true
-                                                AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
-                                            }
-                                            if(viewResult.shop_list.get(b).contact_serial5.toString().equals("5") && !viewResult.shop_list.get(b).contact_name5.toString().equals("")){
-                                                val shopExtraContactEntity = ShopExtraContactEntity()
-                                                shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
-                                                shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial5.toString()
-                                                shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name5.toString()
-                                                shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number5.toString()
-                                                shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email5 == null) "" else viewResult.shop_list.get(b).contact_email5.toString()
-                                                shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob5==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob5.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa5==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa5.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.isUploaded = true
-                                                AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
-                                            }
-                                            if(viewResult.shop_list.get(b).contact_serial6.toString().equals("6") && !viewResult.shop_list.get(b).contact_name6.toString().equals("")){
-                                                val shopExtraContactEntity = ShopExtraContactEntity()
-                                                shopExtraContactEntity.shop_id = viewResult.shop_list.get(b).shop_id.toString()
-                                                shopExtraContactEntity.contact_serial = viewResult.shop_list.get(b).contact_serial6.toString()
-                                                shopExtraContactEntity.contact_name = viewResult.shop_list.get(b).contact_name6.toString()
-                                                shopExtraContactEntity.contact_number = viewResult.shop_list.get(b).contact_number6.toString()
-                                                shopExtraContactEntity.contact_email = if(viewResult.shop_list.get(b).contact_email6 == null) "" else viewResult.shop_list.get(b).contact_email6.toString()
-                                                shopExtraContactEntity.contact_dob = if(viewResult.shop_list.get(b).contact_dob6==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_dob6.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.contact_doa = if(viewResult.shop_list.get(b).contact_doa6==null) "" else AppUtils.getFormatedDateNew(viewResult.shop_list.get(b).contact_doa6.toString(), "dd-mm-yyyy","yyyy-mm-dd")
-                                                shopExtraContactEntity.isUploaded = true
-                                                AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactEntity)
-                                            }
+                                        }catch (ex:Exception){
+                                            ex.printStackTrace()
+                                            Timber.d("fetchMultiContactDetails call err loop ${ex.message}")
                                         }
+
                                         uiThread {
                                             //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
                                             checkLocationFetch()

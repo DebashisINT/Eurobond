@@ -212,11 +212,13 @@ class LeadInProcessFrag : BaseFragment(),  DatePickerDialog.OnDateSetListener,Vi
                 var List:ArrayList<String> = ArrayList()
                 List.add("IndiaMart")
                 List.add("IndiaMart (ARCHER)")
-                List.add("MccoyMart")
+                //List.add("MccoyMart")
                 List.add("Website")
                 List.add("Direct Call")
                 List.add("Exhibition")
                 List.add("Twak")
+                List.add("Exporters India")
+                List.add("Other")
                 EnqListDialog.newInstance(List,"Select Enquiry"){
                     enquiryTypeSelectSpinner.text=it
                 }.show((mContext as DashboardActivity).supportFragmentManager, "")

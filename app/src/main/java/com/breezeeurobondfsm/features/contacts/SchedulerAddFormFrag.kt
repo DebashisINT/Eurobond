@@ -449,11 +449,11 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
         min_numPicker.maxValue = 59
         var hrL = Array<String>(24) { "" }
         for(i in 0..23){
-            hrL[i] = "${i} h"
+            hrL[i] = "${i}"
         }
         var minL = Array<String>(60) { "" }
         for(i in 0..59){
-            minL[i] = "${i} min"
+            minL[i] = "${i}"
         }
 
         if (editShchedulerID!=""){
@@ -500,18 +500,18 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
         hour_numPicker.displayedValues = hrL
         min_numPicker.displayedValues =minL
 
-        selectedHr = adjustedHour.toString()+" h"
-        selectedMin = currentMinute.toString()+" min"
+        selectedHr = adjustedHour.toString()//+" h"
+        selectedMin = currentMinute.toString()//+" min"
 
 
-        tv_selectedTime.text = adjustedHour.toString()+"h"+" "+ currentMinute.toString()+"min"
+        tv_selectedTime.text = adjustedHour.toString()+""+" : "+ currentMinute.toString()+""
 
 
         hour_numPicker.setOnValueChangedListener(object : NumberPicker.OnValueChangeListener {
             override fun onValueChange(numberPicker: NumberPicker, i: Int, i2: Int) {
                 try{
                     selectedHr = hrL[i2].toString()
-                    tv_selectedTime.text = selectedHr+" "+ selectedMin
+                    tv_selectedTime.text = selectedHr+" : "+ selectedMin+""
 
                 }catch (ex:Exception){
                     ex.printStackTrace()
@@ -523,7 +523,7 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
             override fun onValueChange(numberPicker: NumberPicker, i: Int, i2: Int) {
                 try{
                     selectedMin = minL[i2].toString()
-                    tv_selectedTime.text =selectedHr+" "+ selectedMin
+                    tv_selectedTime.text =selectedHr+" : "+ selectedMin+" "
 
                 }catch (ex:Exception){
                     ex.printStackTrace()
@@ -725,6 +725,9 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
         }
         if(et_templateContent.text.toString().length==0 || et_templateContent.text.toString().trim().equals("") && et_templateContent.isEnabled==true){
             (mContext as DashboardActivity).showSnackMessage("Write template content")
+            schedulername.requestFocus()
+            schedulername.setError("Enter Scheduler Name")
+            progress_wheel.stopSpinning()
             progress_wheel.stopSpinning()
             return
         }
@@ -869,6 +872,20 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
                         simpleDialog.getWindow()!!
                             .setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         simpleDialog.setContentView(R.layout.dialog_ok)
+
+                        try {
+                            simpleDialog.setCancelable(true)
+                            simpleDialog.setCanceledOnTouchOutside(false)
+                            val dialogName = simpleDialog.findViewById(R.id.tv_dialog_ok_name) as AppCustomTextView
+                            val dialogCross = simpleDialog.findViewById(R.id.tv_dialog_ok_cancel) as ImageView
+                            dialogName.text = AppUtils.hiFirstNameText()
+                            dialogCross.setOnClickListener {
+                                simpleDialog.cancel()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+
                         val dialogHeader =
                             simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
                         dialogHeader.text = "Wow! Schedular configured successfully.\n" +
@@ -932,7 +949,11 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
             return
         }
         if(et_templateContent.text.toString().length==0 || et_templateContent.text.toString().trim().equals("") && et_templateContent.isEnabled==true){
-            (mContext as DashboardActivity).showSnackMessage("Write template content")
+            //(mContext as DashboardActivity).showSnackMessage("Write template content")
+
+            et_templateContent.requestFocus()
+            et_templateContent.setError("Write template content")
+
             progress_wheel.stopSpinning()
             return
         }
@@ -1083,6 +1104,20 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
                         simpleDialog.getWindow()!!
                             .setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         simpleDialog.setContentView(R.layout.dialog_ok)
+
+                        try {
+                            simpleDialog.setCancelable(true)
+                            simpleDialog.setCanceledOnTouchOutside(false)
+                            val dialogName = simpleDialog.findViewById(R.id.tv_dialog_ok_name) as AppCustomTextView
+                            val dialogCross = simpleDialog.findViewById(R.id.tv_dialog_ok_cancel) as ImageView
+                            dialogName.text = AppUtils.hiFirstNameText()
+                            dialogCross.setOnClickListener {
+                                simpleDialog.cancel()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+
                         val dialogHeader =
                             simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
                         dialogHeader.text = "Wow! Schedular configured successfully.\n" //+ "Communication with template will sent automatically."
@@ -1207,7 +1242,7 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
                 var templateBody = AppDatabase.getDBInstance()?.scheduleTemplateDao()?.getByTemplate(it.id)
                 selectTemplate.setText(templateBody!!.template_name)
                 str_templateID = it.id
-                if (!selectTemplate.text.toString().contains("manually",ignoreCase = true)){
+                if (!selectTemplate.text.toString().contains("Manual Template",ignoreCase = true)){
                     et_templateContent.isEnabled = false
                     Pref.scheduler_template=  templateBody!!.template_desc
                     et_templateContent.setText(Pref.scheduler_template)
@@ -1509,7 +1544,7 @@ class SchedulerAddFormFrag : BaseFragment(), View.OnClickListener {
         if((AppDatabase.getDBInstance()?.scheduleTemplateDao()?.getAll() as ArrayList<ScheduleTemplateEntity>).size == 0){
             var obj = ScheduleTemplateEntity()
             obj.template_id = Pref.user_id+System.currentTimeMillis().toString()
-            obj.template_name = "Send Manually"
+            obj.template_name = "Manual Template"
             obj.template_desc = ""
             AppDatabase.getDBInstance()?.scheduleTemplateDao()?.insert(obj)
         }

@@ -74,15 +74,15 @@ class SurveyViewFrag: BaseFragment() {
         return view
     }
 
-    private fun initView(view: View?) {
-        progress_wheel=view?.findViewById(R.id.progress_wheel) as ProgressWheel
-        addData= view?.findViewById(R.id.add_new_survey_tv) as FloatingActionButton
-        shop_IV =  view?.findViewById(R.id.shop_IV)
-        myshop_name_TV = view?.findViewById(R.id.myshop_name_TV)
-        myshop_addr_TV = view?.findViewById(R.id.myshop_address_TV)
-        myshop_contact_TV = view?.findViewById(R.id.tv_contact_number)
-        rv_survey_product_list=view?.findViewById(R.id.rv_survey_product_list)
-        noDataTV=view?.findViewById(R.id.no_survey_data_tv)
+    private fun initView(view: View) {
+        progress_wheel=view.findViewById(R.id.progress_wheel) as ProgressWheel
+        addData= view.findViewById(R.id.add_new_survey_tv) as FloatingActionButton
+        shop_IV =  view.findViewById(R.id.shop_IV)
+        myshop_name_TV = view.findViewById(R.id.myshop_name_TV)
+        myshop_addr_TV = view.findViewById(R.id.myshop_address_TV)
+        myshop_contact_TV = view.findViewById(R.id.tv_contact_number)
+        rv_survey_product_list=view.findViewById(R.id.rv_survey_product_list)
+        noDataTV=view.findViewById(R.id.no_survey_data_tv)
 
         if(mAddShopDataObj !=null){
             myshop_name_TV.text= mAddShopDataObj?.shopName

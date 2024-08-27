@@ -384,6 +384,7 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             var font1: Font = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL)
             var font1Big: Font = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL)
             var font2Big: Font = Font(Font.FontFamily.HELVETICA, 9f, Font.NORMAL)
+            var font2BigBold: Font = Font(Font.FontFamily.HELVETICA, 9f, Font.BOLD)
             var font1small: Font = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL)
 //            val grayFront = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL, BaseColor.GRAY)
             val grayFront = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL, BaseColor.BLACK)
@@ -741,6 +742,13 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
             // end 4.0 rev mantis 26139 PDF remarks field added saheli v 4.0.8 16-05-2023
 
+            // Suman 06-06-2024 mantis id 0027513 begin
+            val note = Paragraph("Note : Unloading of the material will in scope of Client.", font2BigBold)
+            note.alignment = Element.ALIGN_LEFT
+            note.spacingAfter = 6f
+            document.add(note)
+            // Suman 06-06-2024 mantis id 0027513 end
+
 
             val end = Paragraph("Anticipating healthy business relation with your esteemed organization.", grayFront)
             end.alignment = Element.ALIGN_LEFT
@@ -933,23 +941,28 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             var m = Mail()
             var toArr = arrayOf("")
 
-            if(Pref.IsShowQuotationFooterforEurobond){
-                m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
-                toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
-            }else{
-                //m = Mail("suman.bachar@indusnet.co.in", "jfek uhst ltfk arrv")
-                m = Mail("suman.bachar@indusnet.co.in", "jfekuhstltfkarrv") // generate under 2-step verification -> app password
-                toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
-            }
 
-            m.setTo(toArr)
-            m.setFrom("TEAM");
-            m.setSubject("Quotation for $shop_name created on dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)}.")
-            m.setBody("Hello Team,  \n Please find attached Quotation No. ${addQuotEditResult.quotation_number} Dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)} for $shop_name \n\n\n Regards \n${Pref.user_name}.")
+
             doAsync {
                 try{
-                    val fileUrl = Uri.parse(sendingPath)
-                    val i = m.send(fileUrl.path)
+                    if(!Pref.automail_sending_email.equals("") && !Pref.automail_sending_pass.equals("") && !Pref.recipient_email_ids.equals("")){
+                        var emailRecpL = Pref.recipient_email_ids.split(",")
+                        m = Mail(Pref.automail_sending_email, Pref.automail_sending_pass)
+                        toArr = Array<String>(emailRecpL.size){""}
+                        for(i in 0..emailRecpL.size-1){
+                            toArr[i]=emailRecpL[i]
+                        }
+
+                        m.setTo(toArr)
+                        m.setFrom("TEAM");
+                        m.setSubject("Quotation for $shop_name created on dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)}.")
+                        m.setBody("Hello Team,  \n Please find attached Quotation No. ${addQuotEditResult.quotation_number} Dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)} for $shop_name \n\n\n Regards \n${Pref.user_name}.")
+                        //m.send()
+                        val fileUrl = Uri.parse(sendingPath)
+                        m.send(fileUrl.path)
+                    }
+
+
                 }catch (ex:Exception){
                     ex.printStackTrace()
                 }

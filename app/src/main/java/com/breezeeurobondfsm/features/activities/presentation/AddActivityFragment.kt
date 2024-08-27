@@ -9,25 +9,35 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import androidx.appcompat.app.AlertDialog
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.RelativeLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.NetworkConstant
 import com.breezeeurobondfsm.app.Pref
-import com.breezeeurobondfsm.app.domain.*
+import com.breezeeurobondfsm.app.domain.ActivityDropDownEntity
+import com.breezeeurobondfsm.app.domain.ActivityEntity
+import com.breezeeurobondfsm.app.domain.AddShopDBModelEntity
+import com.breezeeurobondfsm.app.domain.PriorityListEntity
+import com.breezeeurobondfsm.app.domain.ProductListEntity
+import com.breezeeurobondfsm.app.domain.TypeEntity
 import com.breezeeurobondfsm.app.utils.AppUtils
 import com.breezeeurobondfsm.app.utils.PermissionUtils
 import com.breezeeurobondfsm.base.BaseResponse
 import com.breezeeurobondfsm.base.presentation.BaseActivity
 import com.breezeeurobondfsm.base.presentation.BaseFragment
 import com.breezeeurobondfsm.features.activities.api.ActivityRepoProvider
-import com.breezeeurobondfsm.features.activities.model.*
+import com.breezeeurobondfsm.features.activities.model.ActivityDropdownListResponseModel
+import com.breezeeurobondfsm.features.activities.model.ActivityImage
+import com.breezeeurobondfsm.features.activities.model.AddActivityInputModel
+import com.breezeeurobondfsm.features.activities.model.PriorityListResponseModel
+import com.breezeeurobondfsm.features.activities.model.TypeListResponseModel
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
 import com.breezeeurobondfsm.features.login.api.productlistapi.ProductListRepoProvider
 import com.breezeeurobondfsm.features.login.model.productlistmodel.ProductListResponseModel
@@ -36,10 +46,8 @@ import com.breezeeurobondfsm.features.nearbyshops.model.ShopData
 import com.breezeeurobondfsm.features.nearbyshops.model.ShopListResponse
 import com.breezeeurobondfsm.widgets.AppCustomEditText
 import com.breezeeurobondfsm.widgets.AppCustomTextView
-
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.themechangeapp.pickimage.PermissionHelper
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
@@ -47,9 +55,10 @@ import org.jetbrains.anko.uiThread
 import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
+import java.util.Calendar
+import java.util.Locale
 
+// Rev 1.0 AddActivityFragment v 4.2.6 Suman 29-04-2024 Hide Fields mantis 27380
 class AddActivityFragment : BaseFragment(), View.OnClickListener {
 
     private lateinit var mContext: Context
@@ -73,11 +82,21 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
     private lateinit var submit_button_TV: AppCustomTextView
     private lateinit var iv_party_dropdown_icon: ImageView
     private lateinit var et_photo: AppCustomEditText
-    private lateinit var rl_add_activity_main: RelativeLayout
+    //private lateinit var rl_add_activity_main: RelativeLayout
     private lateinit var iv_activity_dropdown_icon: ImageView
     private lateinit var iv_type_dropdown_icon: ImageView
     private lateinit var iv_product_dropdown_icon: ImageView
     private lateinit var iv_priority_dropdown_icon: ImageView
+
+    private lateinit var ll_date_time: LinearLayout
+    private lateinit var ll_name_main: LinearLayout
+    private lateinit var ll_product: LinearLayout
+    private lateinit var ll_subject: LinearLayout
+    private lateinit var ll_duration: LinearLayout
+    private lateinit var ll_priority: LinearLayout
+    private lateinit var tv_frag_add_acti_due_date_time_heading: TextView
+    private lateinit var tv_frag_add_acti_due_date_time_heading_star: TextView
+    private lateinit var v_due_time_view: View
 
     private var partyId = ""
     private var activityId = ""
@@ -125,7 +144,7 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_add_activity, container, false)
+        val view = inflater.inflate(R.layout.fragment_add_activity_new, container, false)
 
         initView(view)
         initClickListener()
@@ -154,11 +173,21 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
             submit_button_TV = findViewById(R.id.submit_button_TV)
             iv_party_dropdown_icon = findViewById(R.id.iv_party_dropdown_icon)
             et_photo = findViewById(R.id.et_photo)
-            rl_add_activity_main = findViewById(R.id.rl_add_activity_main)
+            //rl_add_activity_main = findViewById(R.id.rl_add_activity_main)
             iv_activity_dropdown_icon = findViewById(R.id.iv_activity_dropdown_icon)
             iv_type_dropdown_icon = findViewById(R.id.iv_type_dropdown_icon)
             iv_product_dropdown_icon = findViewById(R.id.iv_product_dropdown_icon)
             iv_priority_dropdown_icon = findViewById(R.id.iv_priority_dropdown_icon)
+
+            ll_date_time = findViewById(R.id.ll_date_time)
+            ll_name_main = findViewById(R.id.ll_name_main)
+            ll_product = findViewById(R.id.ll_product)
+            ll_subject = findViewById(R.id.ll_subject)
+            ll_duration = findViewById(R.id.ll_duration)
+            ll_priority = findViewById(R.id.ll_priority)
+            tv_frag_add_acti_due_date_time_heading = findViewById(R.id.tv_frag_add_acti_due_date_time_heading)
+            tv_frag_add_acti_due_date_time_heading_star = findViewById(R.id.tv_frag_add_acti_due_date_time_heading_star)
+            v_due_time_view = findViewById(R.id.v_due_time_view)
         }
 
         progress_wheel.stopSpinning()
@@ -177,6 +206,21 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
                     shopList.add(it)
             }
         }
+
+        // Rev 1.0 AddActivityFragment v 4.2.6 Suman 29-04-2024 Hide Fields mantis 27380 begin
+        if(Pref.IsShowOtherInfoinActivity == false){
+            ll_date_time.visibility = View.GONE
+            ll_name_main.visibility = View.GONE
+            ll_product.visibility = View.GONE
+            ll_subject.visibility = View.GONE
+            ll_duration.visibility = View.GONE
+            ll_priority.visibility = View.GONE
+            tv_due_time.visibility = View.GONE
+            v_due_time_view.visibility = View.GONE
+            tv_frag_add_acti_due_date_time_heading.text = "Enter Due Date"
+            tv_frag_add_acti_due_date_time_heading_star.visibility = View.GONE
+        }
+        // Rev 1.0 AddActivityFragment v 4.2.6 Suman 29-04-2024 Hide Fields mantis 27380 end
     }
 
     private fun initClickListener() {
@@ -192,7 +236,7 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
         et_attachment.setOnClickListener(this)
         submit_button_TV.setOnClickListener(this)
         et_photo.setOnClickListener(this)
-        rl_add_activity_main.setOnClickListener(null)
+        //rl_add_activity_main.setOnClickListener(null)
         iv_party_dropdown_icon.setOnClickListener(this)
         iv_activity_dropdown_icon.setOnClickListener(this)
         iv_type_dropdown_icon.setOnClickListener(this)
@@ -276,7 +320,7 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
             }
 
             R.id.tv_due_date -> {
-                if (TextUtils.isEmpty(tv_date.text.toString().trim())) {
+                if (TextUtils.isEmpty(tv_date.text.toString().trim()) && Pref.IsShowOtherInfoinActivity) {
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_date_first))
                 }
                 else {
@@ -317,7 +361,17 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
             }
 
             R.id.submit_button_TV -> {
-                checkValidation()
+                AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                //checkValidation()
+                // Rev 1.0 AddActivityFragment v 4.2.6 Suman 29-04-2024 Hide Fields mantis 27380 begin
+                submit_button_TV.isEnabled=false
+                if(Pref.IsShowOtherInfoinActivity){
+                    checkValidation()
+                }
+                else{
+                    checkValidationNew()
+                }
+                // Rev 1.0 AddActivityFragment v 4.2.6 Suman 29-04-2024 Hide Fields mantis 27380 end
             }
 
             R.id.et_photo -> {
@@ -597,6 +651,7 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
             tv_party_dropdown.text = it.shopName
             partyId = it.shop_id
             et_name.setText(it.ownerName)
+            shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(partyId)
         }.show((mContext as DashboardActivity).supportFragmentManager, "")
     }
 
@@ -952,6 +1007,7 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun checkValidation() {
+        submit_button_TV.isEnabled=true
         when {
             TextUtils.isEmpty(partyId) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_party))
             TextUtils.isEmpty(tv_date.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_date))
@@ -969,6 +1025,7 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
             TextUtils.isEmpty(tv_due_time.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_due_time))
             dueTimeMilis <= timeMilis -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_proper_time))
             else -> {
+                submit_button_TV.isEnabled=false
                 val activity = ActivityEntity()
                 AppDatabase.getDBInstance()?.activDao()?.insertAll(activity.apply {
                     activity_id = Pref.user_id + "_activity_" + System.currentTimeMillis()
@@ -1011,10 +1068,95 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
+    // Rev 1.0 AddActivityFragment v 4.2.6 Suman 29-04-2024 Hide Fields mantis 27380 begin
+    private fun checkValidationNew() {
+        selectedDate = AppUtils.getCurrentDateForShopActi()
+        tv_date.text = selectedDate
+        tv_time.text = AppUtils.getCurrentTimeWithMeredian()
+        et_name.setText(shop!!.shopName)
+        et_subject.setText("Activity for ${shop!!.shopName}")
+
+        var currentT = AppUtils.getCurrentTimeWithMeredian().split(":")
+        var hr = String.format("%02d",currentT.get(0).toInt())
+        var min = String.format("%02d",currentT.get(1).split(" ").get(0).toInt())
+
+        et_hrs.setText("$hr")
+        et_mins.setText("$min")
+        tv_due_time.setText(AppUtils.getCurrentTimeWithMeredian())
+
+        priorityId = "1"
+        submit_button_TV.isEnabled=true
+
+        when {
+            TextUtils.isEmpty(partyId) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_party))
+            TextUtils.isEmpty(tv_date.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_date))
+            TextUtils.isEmpty(tv_time.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_time))
+            TextUtils.isEmpty(activityId) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_activity))
+            TextUtils.isEmpty(typeId) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_type))
+            TextUtils.isEmpty(et_subject.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_subject))
+            TextUtils.isEmpty(et_details.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_details))
+            TextUtils.isEmpty(et_hrs.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_hrs))
+            TextUtils.isEmpty(et_mins.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_mins))
+            et_hrs.text.toString().trim().toInt() > 23 -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_valid_hrs))
+            et_mins.text.toString().trim().toInt() > 59 -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_valid_mins))
+            TextUtils.isEmpty(priorityId) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_priority))
+            //TextUtils.isEmpty(tv_due_date.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_due_date))
+            TextUtils.isEmpty(tv_due_time.text.toString().trim()) -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_due_time))
+            //dueTimeMilis <= timeMilis -> (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_proper_time))
+            else -> {
+                submit_button_TV.isEnabled=false
+                val activity = ActivityEntity()
+                AppDatabase.getDBInstance()?.activDao()?.insertAll(activity.apply {
+                    activity_id = Pref.user_id + "_activity_" + System.currentTimeMillis()
+                    party_id = partyId
+                    date = selectedDate
+                    time = tv_time.text.toString().trim()
+                    name = et_name.text.toString().trim()
+                    activity_dropdown_id = activityId
+                    type_id = typeId
+                    product_id = productId
+                    subject = et_subject.text.toString().trim()
+                    details = et_details.text.toString().trim()
+
+                    var hrs = ""
+                    var mins = ""
+
+                    hrs = if (et_hrs.text.toString().trim().length == 1)
+                        "0" + et_hrs.text.toString().trim()
+                    else
+                        et_hrs.text.toString().trim()
+
+                    mins = if (et_mins.text.toString().trim().length == 1)
+                        "0" + et_mins.text.toString().trim()
+                    else
+                        et_mins.text.toString().trim()
+
+                    val time = "$hrs:$mins"
+
+                    duration = time
+                    priority_id = priorityId
+                    if(selectedDueDate.equals("")){
+                        due_date = AppUtils.getCurrentDateForShopActi()
+                    }  else{
+                        due_date = selectedDueDate
+                    }
+                    due_time = tv_due_time.text.toString().trim()
+                    attachments = dataPath
+                    image = imagePath
+                    isUploaded = false
+                })
+
+                callAddActivityApi(activity)
+            }
+        }
+    }
+    // Rev 1.0 AddActivityFragment v 4.2.6 Suman 29-04-2024 Hide Fields mantis 27380 end
+
     private fun callAddActivityApi(activity: ActivityEntity) {
         if (!AppUtils.isOnline(mContext)) {
             (mContext as DashboardActivity).showSnackMessage("Activity added successfully")
             (mContext as DashboardActivity).onBackPressed()
+            submit_button_TV.isEnabled=true
             return
         }
 
@@ -1058,6 +1200,7 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
                                 if (response.status == NetworkConstant.SUCCESS) {
                                     AppDatabase.getDBInstance()?.activDao()?.updateIsUploaded(true, activity.activity_id!!)
                                     progress_wheel.stopSpinning()
+                                    submit_button_TV.isEnabled=true
                                     (mContext as DashboardActivity).showSnackMessage(response.message!!)
                                 } else {
                                     progress_wheel.stopSpinning()
@@ -1069,6 +1212,7 @@ class AddActivityFragment : BaseFragment(), View.OnClickListener {
                             }, { error ->
                                 error.printStackTrace()
                                 progress_wheel.stopSpinning()
+                                submit_button_TV.isEnabled=true
                                 (mContext as DashboardActivity).showSnackMessage("Activity added successfully")
                                 (mContext as DashboardActivity).onBackPressed()
                             })

@@ -99,6 +99,8 @@ import timber.log.Timber
 // 1.0 NewDateWiseOrderListFragment AppV 4.0.6 saheli 12-01-2023 multiple contact Data added on Api called
 // 2.0 NewDateWiseOrderListFragment AppV 4.0.6 saheli 20-01-2023 Pdf module updation mantis 25595
 // 3.0 NewDateWiseOrderListFragment AppV 4.0.6 saheli 20-01-2023 Pdf module Mrp & discount mantis 25601
+// 4.0 NewOrderListFragment AppV 4.2.6 Puja 23-04-2024 issue of sharing mantis 0027395
+
 class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.OnClickListener {
 
     lateinit var OrderListAdapter: OrderListAdapter
@@ -411,6 +413,17 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
         // 1.0 NewDateWiseOrderListFragment AppV 4.0.6  multiple contact Data added on Api called
         shopDurationData.multi_contact_name = shopActivity.multi_contact_name
         shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+        // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+        try {
+            var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+            shopDurationData.shop_lat=shopOb.shopLat.toString()
+            shopDurationData.shop_long=shopOb.shopLong.toString()
+            shopDurationData.shop_addr=shopOb.address.toString()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
 
         shopDataList.add(shopDurationData)
 
@@ -1158,13 +1171,23 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
 
         val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() +"/breezeeurobondfsmApp/ORDERDETALIS/"
 
+        var pathNew = ""
+
         val dir = File(path)
         if (!dir.exists()) {
             dir.mkdirs()
         }
 
         try {
-            PdfWriter.getInstance(document, FileOutputStream(path + fileName + ".pdf"))
+            try {
+                PdfWriter.getInstance(document, FileOutputStream(path + fileName + ".pdf"))
+            }catch (ex:Exception){
+                ex.printStackTrace()
+
+                pathNew = mContext.filesDir.toString() + "/" + fileName+".pdf"
+                //val file = File(mContext.filesDir.toString() + "/" + fileName)
+                PdfWriter.getInstance(document, FileOutputStream(pathNew))
+            }
 
 
 
@@ -1179,15 +1202,18 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
 
 
             //image add
-            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
-            val bitmap = Bitmap.createScaledBitmap(bm, 50, 50, true);
+            //code start by Puja mantis-0027395 date-23.04.24 v4.2.6
+            //val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo)
+            //code end by Puja mantis-0027395 date-23.04.24 v4.2.6
+            val bitmap = Bitmap.createScaledBitmap(bm, 80, 80, true);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
             var img: Image? = null
             val byteArray: ByteArray = stream.toByteArray()
             try {
                 img = Image.getInstance(byteArray)
-                img.scaleToFit(90f, 90f)
+                img.scaleToFit(110f, 110f)
                 img.scalePercent(70f)
                 img.alignment = Image.ALIGN_LEFT
             } catch (e: BadElementException) {
@@ -1618,6 +1644,9 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
             document.close()
 
             var sendingPath = path + fileName + ".pdf"
+            if(!pathNew.equals("")){
+                sendingPath = pathNew
+            }
             if (!TextUtils.isEmpty(sendingPath)) {
                 try {
                     val shareIntent = Intent(Intent.ACTION_SEND)
@@ -2865,6 +2894,17 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
             shopDurationData.multi_contact_name = shopActivity.multi_contact_name
             shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+            try {
+                var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                shopDurationData.shop_lat=shopOb.shopLat.toString()
+                shopDurationData.shop_long=shopOb.shopLong.toString()
+                shopDurationData.shop_addr=shopOb.address.toString()
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
             shopDataList.add(shopDurationData)
         }
         else {
@@ -2954,7 +2994,16 @@ class NewDateWiseOrderListFragment : BaseFragment(), DatePickerListener, View.On
                 shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                 shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
-
+// Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+                try {
+                    var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                    shopDurationData.shop_lat=shopOb.shopLat.toString()
+                    shopDurationData.shop_long=shopOb.shopLong.toString()
+                    shopDurationData.shop_addr=shopOb.address.toString()
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
 
                 shopDataList.add(shopDurationData)
             }

@@ -24,11 +24,11 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <include
+           <!-- <include
                 layout="@layout/inflate_doc_item_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
+-->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_document_list"
                 android:layout_width="match_parent"

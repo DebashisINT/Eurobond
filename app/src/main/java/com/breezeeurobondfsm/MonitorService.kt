@@ -84,10 +84,17 @@ class MonitorService:Service() {
     fun serviceStatusActionable() {
 
         Timber.d("MonitorService running : Time :" + AppUtils.getCurrentDateTime())
-        if (FTStorageUtils.isMyServiceRunning(LocationFuzedService::class.java, this)) {
-            Timber.d("MonitorService loc service check service running : Time :" + AppUtils.getCurrentDateTime())
-        }else{
-            Timber.d("MonitorService loc service check service not running : Time :" + AppUtils.getCurrentDateTime())
+        try {
+            if (FTStorageUtils.isMyServiceRunning(LocationFuzedService::class.java, this)) {
+                Timber.d("MonitorService loc service check service running : Time :" + AppUtils.getCurrentDateTime())
+            }else{
+                Timber.d("MonitorService loc service check service not running : Time :" + AppUtils.getCurrentDateTime())
+                Timber.d("restarting loc service")
+                restartLocationService()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Timber.d("tag_error ${e.printStackTrace()}")
         }
         return
 

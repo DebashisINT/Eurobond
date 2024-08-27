@@ -60,7 +60,10 @@ object MultiFun {
             var fontBoldUHeader: Font = Font(Font.FontFamily.HELVETICA, 12f, Font.UNDERLINE or Font.BOLD)
 
             //image add
-            val bm: Bitmap = BitmapFactory.decodeResource(mContext.resources, R.mipmap.ic_launcher)
+            //code start by Puja mantis-0027395 date-23.04.24 v4.2.6
+            //val bm: Bitmap = BitmapFactory.decodeResource(mContext.resources, R.mipmap.ic_launcher)
+            val bm: Bitmap = BitmapFactory.decodeResource(mContext.resources, R.drawable.breezelogo)
+            //code end by Puja mantis-0027395 date-23.04.24 v4.2.6
             val bitmap = Bitmap.createScaledBitmap(bm, 50, 50, true);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)

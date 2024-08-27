@@ -125,7 +125,7 @@ class PendingOutLocationFrag: BaseFragment(),
             R.id.visit_icon , R.id.frag_pending_visit_TV ->{
 
                 feedbackDialog = AddFeedbackSingleBtnDialog.getInstance(shopNameStr + "\n" + shopContactStr, getString(R.string.confirm_revisit), shopIdStr, object : AddFeedbackSingleBtnDialog.OnOkClickListener {
-                    override fun onOkClick(mFeedback: String, mNextVisitDate: String, filePath: String, mapproxValue: String, mprosId: String,sel_extraContNameStr:String,sel_extraContPhStr:String) {
+                    override fun onOkClick(mFeedback: String, mNextVisitDate: String, filePath: String, mapproxValue: String, mprosId: String,sel_extraContNameStr:String,sel_extraContPhStr:String,filePathNW:String) {
                         AppDatabase.getDBInstance()!!.shopActivityDao().updateFeedbackVisitdate(mFeedback,mNextVisitDate, shopIdStr, AppUtils.getCurrentDateForShopActi())
                         proceed()
                     }
@@ -156,6 +156,20 @@ class PendingOutLocationFrag: BaseFragment(),
         simpleDialog.setCancelable(false)
         simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         simpleDialog.setContentView(R.layout.dialog_ok)
+
+        try {
+            simpleDialog.setCancelable(true)
+            simpleDialog.setCanceledOnTouchOutside(false)
+            val dialogName = simpleDialog.findViewById(R.id.tv_dialog_ok_name) as AppCustomTextView
+            val dialogCross = simpleDialog.findViewById(R.id.tv_dialog_ok_cancel) as ImageView
+            dialogName.text = AppUtils.hiFirstNameText()
+            dialogCross.setOnClickListener {
+                simpleDialog.cancel()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
         dialogHeader.text = "Your spend duration for the outlet ${obL.get(0).shop_name} is ${obL.get(0).duration_spent}"
         val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView

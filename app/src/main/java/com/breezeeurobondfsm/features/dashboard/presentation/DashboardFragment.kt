@@ -14,6 +14,8 @@ import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.*
 import android.speech.tts.TextToSpeech
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.util.Log
 import android.view.*
@@ -22,6 +24,7 @@ import androidx.core.content.FileProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.breezedsm.app.domain.NewOrderDataEntity
 import com.breezeeurobondfsm.CustomConstants
 import com.breezeeurobondfsm.CustomStatic
 import com.breezeeurobondfsm.Customdialog.CustomDialog
@@ -101,6 +104,9 @@ import com.breezeeurobondfsm.features.member.model.UserPjpResponseModel
 import com.breezeeurobondfsm.features.nearbyshops.api.ShopListRepositoryProvider
 import com.breezeeurobondfsm.features.nearbyshops.model.*
 import com.breezeeurobondfsm.features.nearbyshops.presentation.ShopCallHisFrag
+import com.breezeeurobondfsm.features.orderITC.GetOrderHistory
+import com.breezeeurobondfsm.features.orderITC.GetProductRateReq
+import com.breezeeurobondfsm.features.orderITC.GetProductReq
 import com.breezeeurobondfsm.features.photoReg.api.GetUserListPhotoRegProvider
 import com.breezeeurobondfsm.features.photoReg.model.UserFacePicUrlResponse
 import com.breezeeurobondfsm.features.report.presentation.ReportAdapter
@@ -118,8 +124,6 @@ import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.hbisoft.hbrecorder.HBRecorder
-import com.hbisoft.hbrecorder.HBRecorderListener
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -162,7 +166,8 @@ import kotlin.collections.ArrayList
 // 16.0 DashboardFragment v 4.1.6 Tufan 11/07/2023 mantis 26546 revisit sync time
 // 17.0 DashboardFragment v 4.1.6 Suman 13/07/2023 mantis 26555 Usersettings
 // 18.0 DashboardFragment v 4.2.6 Puja 12/03/2024 mantis 0027298 IsShowLeaderBoard functionality
-class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListener, View.OnTouchListener {
+// 19.0 DashboardFragment v 4.2.6 Suman 03/05/2024 mantis 27424 Order show update
+class DashboardFragment : BaseFragment(), View.OnClickListener/*, HBRecorderListener*/, View.OnTouchListener {
 
     var dX = 0f
     var dY = 0f
@@ -187,13 +192,14 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 //    private lateinit var shops_RL: RelativeLayout
 //    private lateinit var time_RL: RelativeLayout
 //    private lateinit var price_RL: RelativeLayout
-    private lateinit var best_performing_shop_TV: AppCustomTextView
+    private lateinit var best_performing_shop_TV: TextView
     private lateinit var no_shop_tv: AppCustomTextView
     private lateinit var progress_wheel: ProgressWheel
     private lateinit var tv_view_all: AppCustomTextView
     private lateinit var rv_pjp_list: RecyclerView
     private lateinit var rl_dashboard_fragment_main: RelativeLayout
     private lateinit var tv_shop: TextView
+    private lateinit var tv_newParty: TextView
     private lateinit var tv_order: TextView
     private lateinit var no_of_order_TV: AppCustomTextView
     private lateinit var iv_order_icon: ImageView
@@ -441,7 +447,9 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     override fun onResume() {
         super.onResume()
 
-        if (hbRecorder != null) {
+        //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+
+/*        if (hbRecorder != null) {
             if (hbRecorder!!.isBusyRecording) {
                 iv_screen_status.setImageResource(R.drawable.green_round)
                 pause_record.visibility = View.VISIBLE
@@ -457,7 +465,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         } else {
             pause_record.visibility = View.GONE
             iv_screen_status.setImageResource(R.drawable.red_circle)
-        }
+        }*/
+        //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
 
 
 
@@ -610,7 +619,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         /*val parentObject = JSONObject()
         parentObject.put("accurate_loc", accurateObject)*/
 
-        try {
+        /*try {
             var output: Writer? = null
             val folderPath = FTStorageUtils.getFolderPath(mContext)
             val file = File("$folderPath/FTS_Todays_Accurate_Location.txt")
@@ -631,7 +640,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
         } catch (e: Exception) {
               e.printStackTrace()
-        }
+        }*/
 
         if (AppUtils.isOnline(mContext)) {
             if(CustomStatic.IsPJPAddEdited){
@@ -742,28 +751,34 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     private fun initView(view: View?) {
         ll_beat_shop_wise = view!!.findViewById(R.id.ll_beat_shop_wise)
         tv_beatNamenew =  view!!.findViewById(R.id.tv_beatNamenew)
-        cancel_timer = view!!.findViewById(R.id.cancel_timer)
-        iv_screen_status = view!!.findViewById(R.id.iv_screen_status)
-        tv_timer = view!!.findViewById(R.id.tv_timer)
-        pause_record = view!!.findViewById(R.id.pause_record)
-        ll_recorder_root = view!!.findViewById(R.id.ll_recorder_root)
-        ll_recorder_root.setOnTouchListener(this);
 
-        cancel_timer.setOnClickListener(this)
-        iv_screen_status.setOnClickListener(this)
-        pause_record.setOnClickListener(this)
+        //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+        /* cancel_timer = view!!.findViewById(R.id.cancel_timer)
+         iv_screen_status = view!!.findViewById(R.id.iv_screen_status)
+         tv_timer = view!!.findViewById(R.id.tv_timer)
+         pause_record = view!!.findViewById(R.id.pause_record)
+         ll_recorder_root = view!!.findViewById(R.id.ll_recorder_root)
+         ll_recorder_root.setOnTouchListener(this);
 
-        if (isRecordRootVisible) {
+         cancel_timer.setOnClickListener(this)
+         iv_screen_status.setOnClickListener(this)
+         pause_record.setOnClickListener(this)*/
+        //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+
+        //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+       /* if (isRecordRootVisible) {
             ll_recorder_root.visibility = View.VISIBLE
         } else {
             ll_recorder_root.visibility = View.GONE
-        }
-
-       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            fab.setImageDrawable(getResources().getDrawable(R.drawable.custom_toolbar_back,mContext.theme))
-        } else {
-            fab.setImageDrawable(getResources().getDrawable(R.drawable.custom_toolbar_back))
         }*/
+        //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+
+
+        /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+             fab.setImageDrawable(getResources().getDrawable(R.drawable.custom_toolbar_back,mContext.theme))
+         } else {
+             fab.setImageDrawable(getResources().getDrawable(R.drawable.custom_toolbar_back))
+         }*/
 
 
         fab = view!!.findViewById(R.id.fab)
@@ -1302,7 +1317,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     tv_order.text = getString(R.string.orders)
                     iv_order_icon.setImageResource(R.drawable.ic_dashboard_order_icon)
 
-                    if (Pref.isOrderShow) {
+                    //if (Pref.isOrderShow) {
+                    if (Pref.isOrderShow || (Pref.ShowPartyWithCreateOrder && Pref.ShowUserwisePartyWithCreateOrder)) {// 19.0 DashboardFragment v 4.2.6 Suman 03/05/2024 mantis 27424 Order show update
                         order_ll.visibility = View.VISIBLE
                         //30-08-21
 
@@ -1608,6 +1624,20 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                         simpleDialog.setCancelable(false)
                         simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         simpleDialog.setContentView(R.layout.dialog_ok)
+
+                        try {
+                            simpleDialog.setCancelable(true)
+                            simpleDialog.setCanceledOnTouchOutside(false)
+                            val dialogName = simpleDialog.findViewById(R.id.tv_dialog_ok_name) as AppCustomTextView
+                            val dialogCross = simpleDialog.findViewById(R.id.tv_dialog_ok_cancel) as ImageView
+                            dialogName.text = AppUtils.hiFirstNameText()
+                            dialogCross.setOnClickListener {
+                                simpleDialog.cancel()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+
                         val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
                         dialogHeader.text = "Shop out location is pending."
                         val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
@@ -1749,46 +1779,50 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     (mContext as DashboardActivity).loadFragment(FragType.TimeLineFragment, false, "")
 
             }
-            R.id.cancel_timer -> {
-                if (!tv_timer.text.toString().trim().equals("00.00.00")) {
-                    tv_timer.text = "00.00.00"
-                } else {
-                    ll_recorder_root.visibility = View.GONE
-                    DashboardFragment.isRecordRootVisible = false
-                    (mContext as DashboardActivity).updateScreenRecStatus()
-                }
-            }
-            R.id.pause_record -> {
-                if (hbRecorder != null) {
-                    if (hbRecorder!!.isBusyRecording) {
-                        if (hbRecorder!!.isRecordingPaused) {
-                            hbRecorder!!.resumeScreenRecording()
-                            ScreenRecService.isPause = false
-                            pause_record.text = "||"
-                        } else {
-                            hbRecorder!!.pauseScreenRecording()
-                            ScreenRecService.isPause = true
-                            pause_record.text = ">"
-                        }
+            //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+            /*           R.id.cancel_timer -> {
+                          if (!tv_timer.text.toString().trim().equals("00.00.00")) {
+                              tv_timer.text = "00.00.00"
+                          } else {
+                              ll_recorder_root.visibility = View.GONE
+                              DashboardFragment.isRecordRootVisible = false
+                              (mContext as DashboardActivity).updateScreenRecStatus()
+                          }
+                      }
 
-                    }
-                }
-            }
-            R.id.iv_screen_status -> {
-                if (hbRecorder != null) {
-                    if (hbRecorder!!.isBusyRecording) {
-                        pause_record.visibility = View.GONE
-                        hbRecorder!!.stopScreenRecording()
-                    } else {
-                        pause_record.visibility = View.VISIBLE
-                        startRecordingScreen()
-                    }
-                } else {
-                    pause_record.visibility = View.VISIBLE
-                    startRecordingScreen()
-                }
 
-            }
+                     R.id.pause_record -> {
+                          if (hbRecorder != null) {
+                              if (hbRecorder!!.isBusyRecording) {
+                                  if (hbRecorder!!.isRecordingPaused) {
+                                      hbRecorder!!.resumeScreenRecording()
+                                      ScreenRecService.isPause = false
+                                      pause_record.text = "||"
+                                  } else {
+                                      hbRecorder!!.pauseScreenRecording()
+                                      ScreenRecService.isPause = true
+                                      pause_record.text = ">"
+                                  }
+
+                              }
+                          }
+                      }
+                      R.id.iv_screen_status -> {
+                          if (hbRecorder != null) {
+                              if (hbRecorder!!.isBusyRecording) {
+                                  pause_record.visibility = View.GONE
+                                  hbRecorder!!.stopScreenRecording()
+                              } else {
+                                  pause_record.visibility = View.VISIBLE
+                                  startRecordingScreen()
+                              }
+                          } else {
+                              pause_record.visibility = View.VISIBLE
+                              startRecordingScreen()
+                          }
+
+                      }*/
+            //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
             R.id.shop_ll -> {
 
                 /*val list = ArrayList<ShopDurationRequestData>()
@@ -1919,7 +1953,15 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                             CustomStatic.IsOrderFromTotalOrder=false
                             (mContext as DashboardActivity).loadFragment(FragType.NewOdrScrListFragment, false, "")
                         }else{
-                            (mContext as DashboardActivity).loadFragment(FragType.NewOrderListFragment, false, "")
+                            //(mContext as DashboardActivity).loadFragment(FragType.NewOrderListFragment, false, "")
+                            // 19.0 DashboardFragment v 4.2.6 Suman 03/05/2024 mantis 27424 Order show update
+                            if(Pref.isOrderShow && Pref.ShowUserwisePartyWithCreateOrder){
+                                (mContext as DashboardActivity).loadFragment(FragType.NewOrderListFragment, true, "")
+                            }else if(Pref.isOrderShow && !Pref.ShowUserwisePartyWithCreateOrder){
+                                (mContext as DashboardActivity).loadFragment(FragType.NewOrderListFragment, true, "")
+                            }else if(!Pref.isOrderShow && Pref.ShowUserwisePartyWithCreateOrder){
+                                (mContext as DashboardActivity).loadFragment(FragType.ViewNewOrdHisAllFrag, true, "")
+                            }
                         }
 
                     }
@@ -1948,7 +1990,17 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     }
                     Pref.willActivityShow -> (mContext as DashboardActivity).loadFragment(FragType.DateWiseActivityListFragment, true, "")
                     Pref.isQuotationShow -> (mContext as DashboardActivity).loadFragment(FragType.DateWiseQuotationList, true, "")
-                    else -> (mContext as DashboardActivity).loadFragment(FragType.NewDateWiseOrderListFragment, true, "")
+                    else -> {
+                        //(mContext as DashboardActivity).loadFragment(FragType.NewDateWiseOrderListFragment, true, "")
+                        // 19.0 DashboardFragment v 4.2.6 Suman 03/05/2024 mantis 27424 Order show update
+                        if(Pref.isOrderShow && Pref.ShowUserwisePartyWithCreateOrder){
+                            (mContext as DashboardActivity).loadFragment(FragType.NewDateWiseOrderListFragment, true, "")
+                        }else if(Pref.isOrderShow && !Pref.ShowUserwisePartyWithCreateOrder){
+                            (mContext as DashboardActivity).loadFragment(FragType.NewDateWiseOrderListFragment, true, "")
+                        }else if(!Pref.isOrderShow && Pref.ShowUserwisePartyWithCreateOrder){
+                            (mContext as DashboardActivity).loadFragment(FragType.ViewNewOrdHistoryFrag, true, "")
+                        }
+                    }
                 }
             }
 
@@ -2317,7 +2369,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
             //adapter = ReportAdapter(mContext, work_type_list)
             layoutManager = LinearLayoutManager(mContext, LinearLayout.VERTICAL, false)
             reportList.layoutManager = layoutManager
-            reportList.adapter = TodaysWorkAdapter(mContext, work_type_list)
+            //reportList.adapter = TodaysWorkAdapter(mContext, work_type_list)
+            reportList.adapter = TodaysWorkAdapter1(mContext, work_type_list)
             reportList.isNestedScrollingEnabled = false
         }
         else {
@@ -3096,7 +3149,47 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         //getBeatListApi()
         //getProductRateListApi()
 
-        getBeatListApi()
+        //getBeatListApi()
+
+        getShopTypeListApi()
+    }
+
+    private fun getShopTypeListApi() {
+        val repository = ShopListRepositoryProvider.provideShopListRepository()
+        BaseActivity.compositeDisposable.add(
+            repository.getShopTypeList()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    val response = result as ShopTypeResponseModel
+                    if (response.status == NetworkConstant.SUCCESS) {
+                        val list = response.Shoptype_list
+                        if (list != null && list.isNotEmpty()) {
+                            doAsync {
+                                AppDatabase.getDBInstance()?.shopTypeDao()?.deleteAll()
+                                list.forEach {
+                                    val shop = ShopTypeEntity()
+                                    AppDatabase.getDBInstance()?.shopTypeDao()?.insertAll(shop.apply {
+                                        shoptype_id = it.shoptype_id
+                                        shoptype_name = it.shoptype_name
+                                    })
+                                }
+                                uiThread {
+                                    getBeatListApi()
+                                }
+                            }
+                        } else {
+                            getBeatListApi()
+                        }
+                    } else {
+                        getBeatListApi()
+                    }
+
+                }, { error ->
+                    error.printStackTrace()
+                    getBeatListApi()
+                })
+        )
     }
 
 
@@ -3370,6 +3463,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                 AppDatabase.getDBInstance()?.assignToShopDao()?.delete()
 
                                 doAsync {
+                                    println("tag_assignsh doAsync")
                                     list?.forEach {
                                         val shop = AssignToShopEntity()
                                         AppDatabase.getDBInstance()?.assignToShopDao()?.insert(shop.apply {
@@ -3381,6 +3475,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     }
 
                                     uiThread {
+                                        println("tag_assignsh uiThread")
                                         progress_wheel.stopSpinning()
                                         if (AppDatabase.getDBInstance()?.productListDao()?.getAll()!!.isEmpty())
                                             getProductList("")
@@ -3399,6 +3494,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                         }, { error ->
                             progress_wheel.stopSpinning()
                             error.printStackTrace()
+                            println("tag_assignsh uiThread error"+error.message)
                             if (AppDatabase.getDBInstance()?.productListDao()?.getAll()!!.isEmpty())
                                 getProductList("")
                             else
@@ -3418,6 +3514,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
             else
                 progress_wheel = this.progress_wheel
             Timber.d("api_call_dash  getProductList()")
+            println("tag_dash_product api call start")
             progress_wheel?.spin()
             BaseActivity.compositeDisposable.add(
                 //repository.getProductList(Pref.session_token!!, Pref.user_id!!, date!!)
@@ -3426,17 +3523,20 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     .subscribeOn(Schedulers.io())
                     .subscribe({ result ->
                         val response = result as ProductListResponseModel
+                        println("tag_dash_product api call response ${response.status}")
                         if (response.status == NetworkConstant.SUCCESS) {
                             val list = response.product_list
 
                             if (list != null && list.isNotEmpty()) {
 
                                 doAsync {
-
+                                    println("tag_dash_product api call response start ${AppUtils.getCurrentDateTime()}")
                                     if (!TextUtils.isEmpty(date))
                                         AppDatabase.getDBInstance()?.productListDao()?.deleteAllProduct()
 
                                     AppDatabase.getDBInstance()?.productListDao()?.insertAll(list!!)
+
+                                    println("tag_dash_product api call response end ${AppUtils.getCurrentDateTime()}")
 
                                     /*for (i in list.indices) {
                                         val productEntity = ProductListEntity()
@@ -3455,21 +3555,26 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     uiThread {
                                         progress_wheel.stopSpinning()
                                         getProductRateListApi()
+                                        println("tag_dash_product api call response start1 getProductRateListApi")
                                     }
                                 }
                             } else {
                                 progress_wheel.stopSpinning()
                                 getProductRateListApi()
+                                println("tag_dash_product api call response start1 getProductRateListApi")
                             }
                         } else {
                             progress_wheel.stopSpinning()
                             getProductRateListApi()
+                            println("tag_dash_product api call response start2 getProductRateListApi")
                         }
 
                     }, { error ->
                         error.printStackTrace()
                         progress_wheel.stopSpinning()
                         getProductRateListApi()
+                        println("tag_dash_product api call response error"+error)
+
                     })
             )
         }else{
@@ -4189,14 +4294,18 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 } else {
                                                     AppUtils.saveSharedPreferencesIsFaceDetectionWithCaptcha(mContext, false)
                                                 }
-                                            } else if (response.getconfigure!![i].Key.equals("IsScreenRecorderEnable", ignoreCase = true)) {
+                                            }
+                                            //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+                                            /*else if (response.getconfigure!![i].Key.equals("IsScreenRecorderEnable", ignoreCase = true)) {
                                                 Pref.IsScreenRecorderEnable = response.getconfigure!![i].Value == "1"
                                                 if (Pref.IsScreenRecorderEnable) {
                                                     AppUtils.saveSharedPreferencesIsScreenRecorderEnable(mContext, true)
                                                 } else {
                                                     AppUtils.saveSharedPreferencesIsScreenRecorderEnable(mContext, false)
                                                 }
-                                            }
+                                            }*/
+                                            //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+
 //                                            else if (response.getconfigure?.get(i)?.Key.equals("IsFromPortal", ignoreCase = true)) {
                                             else if (response.getconfigure?.get(i)?.Key.equals("IsDocRepoFromPortal", ignoreCase = true)) {
                                                 Pref.IsFromPortal = response.getconfigure!![i].Value == "1"
@@ -4208,6 +4317,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsDocRepShareDownloadAllowed = response.getconfigure?.get(i)?.Value == "1"
                                                 }
+                                                println("tag_IsDocRepShareDownloadAllowed dash ${Pref.IsDocRepShareDownloadAllowed}")
                                             } else if (response.getconfigure?.get(i)?.Key.equals("IsShowMenuAddAttendance", ignoreCase = true)) {
                                                 Pref.IsShowMenuAddAttendance = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
@@ -4861,6 +4971,114 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                             }
                                             //end mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 20-02-2024
 
+                                            //begin mantis id 0027389 AdditionalinfoRequiredforContactListing functionality Puja 23-04-2024
+                                            else if (response.getconfigure?.get(i)?.Key.equals("AdditionalinfoRequiredforContactListing", ignoreCase = true)) {
+                                                Pref.AdditionalinfoRequiredforContactListing = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.AdditionalinfoRequiredforContactListing = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            //end mantis id 0027389 AdditionalinfoRequiredforContactListing functionality Puja 23-04-2024
+                                            //begin mantis id 0027389 AdditionalinfoRequiredforContactAdd functionality Puja 23-04-2024
+                                            else if (response.getconfigure?.get(i)?.Key.equals("AdditionalinfoRequiredforContactAdd", ignoreCase = true)) {
+                                                Pref.AdditionalinfoRequiredforContactAdd = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.AdditionalinfoRequiredforContactAdd = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            //end mantis id 0027389 AdditionalinfoRequiredforContactAdd functionality Puja 23-04-2024
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ContactAddresswithGeofence", ignoreCase = true)) {
+                                                Pref.ContactAddresswithGeofence = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ContactAddresswithGeofence = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsShowOtherInfoinActivity", ignoreCase = true)) {
+                                                Pref.IsShowOtherInfoinActivity = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowOtherInfoinActivity = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("ShowUserwisePartyWithGeoFence", ignoreCase = true)) {
+                                                Pref.ShowUserwisePartyWithGeoFence = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowUserwisePartyWithGeoFence = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("ShowUserwisePartyWithCreateOrder", ignoreCase = true)) {
+                                                Pref.ShowUserwisePartyWithCreateOrder = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.ShowUserwisePartyWithCreateOrder = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsRouteUpdateForShopUser", ignoreCase = true)) {
+                                                Pref.IsRouteUpdateForShopUser = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsRouteUpdateForShopUser = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsCRMPhonebookSyncEnable", ignoreCase = true)) {
+                                                Pref.IsCRMPhonebookSyncEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCRMPhonebookSyncEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsCRMSchedulerEnable", ignoreCase = true)) {
+                                                Pref.IsCRMSchedulerEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCRMSchedulerEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsCRMAddEnable", ignoreCase = true)) {
+                                                Pref.IsCRMAddEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCRMAddEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsCRMEditEnable", ignoreCase = true)) {
+                                                Pref.IsCRMEditEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsCRMEditEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            //code start mantis id 27436 IsShowCRMOpportunity,IsEditEnableforOpportunity,IsDeleteEnableforOpportunity functionality Puja 21.05.2024 V4.2.8
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsShowCRMOpportunity", ignoreCase = true)) {
+                                                Pref.IsShowCRMOpportunity = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowCRMOpportunity = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsEditEnableforOpportunity", ignoreCase = true)) {
+                                                Pref.IsEditEnableforOpportunity = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsEditEnableforOpportunity = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsDeleteEnableforOpportunity", ignoreCase = true)) {
+                                                Pref.IsDeleteEnableforOpportunity = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsDeleteEnableforOpportunity = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
+                                            //code end mantis id 27436 IsShowCRMOpportunity,IsEditEnableforOpportunity,IsDeleteEnableforOpportunity functionality Puja 21.05.2024 V4.2.8
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsUserWiseLMSEnable", ignoreCase = true)) {
+                                                Pref.IsUserWiseLMSEnable = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsUserWiseLMSEnable = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsUserWiseLMSFeatureOnly", ignoreCase = true)) {
+                                                Pref.IsUserWiseLMSFeatureOnly = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsUserWiseLMSFeatureOnly = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }else if (response.getconfigure?.get(i)?.Key.equals("IsUserWiseRecordAudioEnableForVisitRevisit", ignoreCase = true)) {
+                                                Pref.IsUserWiseRecordAudioEnableForVisitRevisit = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsUserWiseRecordAudioEnableForVisitRevisit = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+
                                         }
                                     }
                                 } catch (e: Exception) {
@@ -5348,7 +5566,20 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     Pref.IsShowLeaderBoard = configResponse.IsShowLeaderBoard!!
                                 //end mantis id 0027298 IsShowLeaderBoard functionality Puja 12-03-2024  v4.2.6
 
+                                //begin mantis id 0027432 loc_k functionality Puja 08-05-2024 v4.2.7
+                                if (configResponse.loc_k != null)
+                                    Pref.loc_k = configResponse.loc_k!!
+                                //end mantis id 0027432 loc_k functionality Puja 08-05-2024  v4.2.7
 
+                                //begin mantis id 0027432 firebase_k functionality Puja 08-05-2024 v4.2.7
+                                if (configResponse.firebase_k != null)
+                                    Pref.firebase_k = "key="+configResponse.firebase_k!!
+                                //end mantis id 0027432 firebase_k functionality Puja 08-05-2024  v4.2.7
+
+                                //begin mantis id 0027663 Question_After_No_Of_Content functionality Puja 10-08-2024 v4.2.9
+                                if (configResponse.Question_After_No_Of_Content != null)
+                                    Pref.Question_After_No_Of_Content = configResponse.Question_After_No_Of_Content!!
+                                //end mantis id 0027663 Question_After_No_Of_Content functionality Puja 10-08-2024  v4.2.9
 
                             }
                             BaseActivity.isApiInitiated = false
@@ -6247,7 +6478,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         }
         else{
             Timber.d("API_Optimization GET getDocumentListApi  dashboard : disable " +  "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name )
-            changeUI()
+            getNewProductList()
         }
     }
 
@@ -6299,27 +6530,187 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
                                         uiThread {
                                             progress_wheel.stopSpinning()
-                                            changeUI()
+                                            getNewProductList()
                                         }
                                     }
 
                                 } else {
                                     progress_wheel.stopSpinning()
-                                    changeUI()
+                                    getNewProductList()
                                 }
                             } else {
                                 progress_wheel.stopSpinning()
-                                changeUI()
+                                getNewProductList()
                             }
 
                         }, { error ->
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
-                            changeUI()
+                            getNewProductList()
                             Timber.d("DOCUMENT LIST ERROR=======> " + error.localizedMessage)
                         })
         )
     }
+
+    // Revision 2.0   Suman App V4.4.6  04-04-2024  mantis id 27291: New Order Module api implement & room insertion begin
+
+    private fun getNewProductList() {
+        if(Pref.ShowPartyWithCreateOrder && Pref.ShowUserwisePartyWithCreateOrder){
+            progress_wheel.spin()
+            val repository = ProductListRepoProvider.productListProvider()
+            BaseActivity.compositeDisposable.add(
+                repository.getProductListITC(Pref.session_token!!, Pref.user_id!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as GetProductReq
+                        Timber.d("getNewProductList response ${response.status}")
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            var list = response.product_list
+                            if (list != null && list.isNotEmpty()) {
+                                doAsync {
+                                    AppDatabase.getDBInstance()!!.newProductListDao().deleteAll()
+                                    AppDatabase.getDBInstance()?.newProductListDao()?.insertAll(list!!)
+                                    uiThread {
+                                        progress_wheel.stopSpinning()
+                                        getNewProductRateList()
+                                    }
+                                }
+                            } else {
+                                progress_wheel.stopSpinning()
+                                getNewProductRateList()
+                            }
+                        } else {
+                            progress_wheel.stopSpinning()
+                            getNewProductRateList()
+                        }
+                    }, { error ->
+                        progress_wheel.stopSpinning()
+                        Timber.d("getNewProductList error ${error.message}")
+                        getNewProductRateList()
+                    })
+            )
+        }else{
+            getNewProductRateList()
+        }
+    }
+
+    private fun getNewProductRateList() {
+        if(Pref.ShowPartyWithCreateOrder && Pref.ShowUserwisePartyWithCreateOrder){
+            progress_wheel.spin()
+            val repository = ProductListRepoProvider.productListProvider()
+            BaseActivity.compositeDisposable.add(
+                repository.getProductRateListITC(Pref.session_token!!, Pref.user_id!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as GetProductRateReq
+                        Timber.d("getNewProductRateList response ${response.status}")
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            var list = response.product_rate_list
+                            if (list != null && list.isNotEmpty()) {
+                                doAsync {
+                                    Timber.d("rate insert process start ${AppUtils.getCurrentDateTime()}")
+                                    AppDatabase.getDBInstance()!!.newRateListDao().deleteAll()
+                                    AppDatabase.getDBInstance()?.newRateListDao()?.insertAll(list!!)
+                                    Timber.d("rate insert process end ${AppUtils.getCurrentDateTime()}")
+                                    uiThread {
+                                        progress_wheel.stopSpinning()
+                                        getOrderHistoryList()
+                                    }
+                                }
+                            } else {
+                                progress_wheel.stopSpinning()
+                                getOrderHistoryList()
+                            }
+                        } else {
+                            progress_wheel.stopSpinning()
+                            getOrderHistoryList()
+                        }
+                    }, { error ->
+                        progress_wheel.stopSpinning()
+                        Timber.d("getNewProductRateList error ${error.message}")
+                        getOrderHistoryList()
+                    })
+            )
+        }else{
+            getOrderHistoryList()
+        }
+    }
+
+    private fun getOrderHistoryList(){
+        var ordHisL = AppDatabase.getDBInstance()!!.newOrderDataDao().getAllOrder() as java.util.ArrayList<NewOrderDataEntity>
+        if(Pref.ShowPartyWithCreateOrder && ordHisL.size==0 && Pref.ShowUserwisePartyWithCreateOrder){
+            Timber.d("getOrderHistoryList call")
+            progress_wheel.spin()
+            val repository = ProductListRepoProvider.productListProvider()
+            BaseActivity.compositeDisposable.add(
+                repository.getOrderHistory(Pref.user_id!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as GetOrderHistory
+                        Timber.d("getOrderHistoryList response ${response.status}")
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            doAsync {
+                                Timber.d("getOrderHistoryList data save begin ${AppUtils.getCurrentDateTime()}")
+                                var order_list = response.order_list
+                                for(i in 0..order_list.size-1){
+                                    var obj = NewOrderDataEntity()
+                                    obj.order_id = order_list.get(i).order_id
+                                    obj.order_date = order_list.get(i).order_date
+                                    obj.order_time = order_list.get(i).order_time
+                                    obj.order_date_time = order_list.get(i).order_date_time
+                                    obj.shop_id = order_list.get(i).shop_id
+                                    obj.shop_name = order_list.get(i).shop_name
+                                    obj.shop_type = order_list.get(i).shop_type
+                                    obj.isInrange = if(order_list.get(i).isInrange==1) true else false
+                                    obj.order_lat = order_list.get(i).order_lat
+                                    obj.order_long = order_list.get(i).order_long
+                                    obj.shop_addr = order_list.get(i).shop_addr
+                                    obj.shop_pincode = order_list.get(i).shop_pincode
+                                    obj.order_total_amt = order_list.get(i).order_total_amt.toString()
+                                    obj.order_remarks = order_list.get(i).order_remarks
+                                    obj.isUploaded = true
+
+                                    var objProductL:ArrayList<NewOrderProductDataEntity> = ArrayList()
+                                    for( j in 0..order_list.get(i).product_list.size-1){
+                                        var objProduct = NewOrderProductDataEntity()
+                                        objProduct.order_id = order_list.get(i).product_list.get(j).order_id
+                                        objProduct.product_id = order_list.get(i).product_list.get(j).product_id
+                                        objProduct.product_name = order_list.get(i).product_list.get(j).product_name
+                                        objProduct.submitedQty = order_list.get(i).product_list.get(j).submitedQty.toInt().toString()
+                                        objProduct.submitedSpecialRate = order_list.get(i).product_list.get(j).submitedSpecialRate.toString()
+                                        objProductL.add(objProduct)
+                                    }
+
+                                    AppDatabase.getDBInstance()!!.newOrderDataDao().insert(obj)
+                                    AppDatabase.getDBInstance()!!.newOrderProductDataDao().insertAll(objProductL)
+
+                                }
+                                uiThread {
+                                    Timber.d("getOrderHistoryList data save end ${AppUtils.getCurrentDateTime()}")
+                                    progress_wheel.stopSpinning()
+                                    changeUI()
+                                }
+                            }
+                        } else {
+                            progress_wheel.stopSpinning()
+                            changeUI()
+                        }
+                    }, { error ->
+                        progress_wheel.stopSpinning()
+                        Timber.d("getOrderHistoryList error ${error.message}")
+                        changeUI()
+                    })
+            )
+        }else{
+            Timber.d("getOrderHistoryList call bypass")
+            changeUI()
+        }
+    }
+
+// Revision 2.0   Suman App V4.4.6  04-04-2024  mantis id 27291: New Order Module api implement & room insertion end
 
     @SuppressLint("RestrictedApi")
     private fun changeUI() {
@@ -6392,7 +6783,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     tv_order.text = getString(R.string.orders)
                     iv_order_icon.setImageResource(R.drawable.ic_dashboard_order_icon)
 
-                    if (Pref.isOrderShow) {
+                    //if (Pref.isOrderShow) {
+                    if (Pref.isOrderShow || (Pref.ShowPartyWithCreateOrder && Pref.ShowUserwisePartyWithCreateOrder)) {// 19.0 DashboardFragment v 4.2.6 Suman 03/05/2024 mantis 27424 Order show update
                         order_ll.visibility = View.VISIBLE
                         //price_RL.visibility = View.VISIBLE
                         ll_dash_total_order_newD.visibility = View.VISIBLE
@@ -6517,11 +6909,14 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
 
     companion object {
-        lateinit var iv_screen_status: ImageView
-        lateinit var tv_timer: TextView
-        var hbRecorder: HBRecorder? = null
-        lateinit var ll_recorder_root: LinearLayout
-        var isRecordRootVisible: Boolean = false
+        //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+
+        /* lateinit var iv_screen_status: ImageView
+         lateinit var tv_timer: TextView
+         var hbRecorder: HBRecorder? = null
+         lateinit var ll_recorder_root: LinearLayout
+         var isRecordRootVisible: Boolean = false*/
+        //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
 
     }
 
@@ -6542,8 +6937,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         screen_timer.setBase(SystemClock.elapsedRealtime())
     }*/
 
-
-    @SuppressLint("UseRequireInsteadOfGet")
+    //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+/*    @SuppressLint("UseRequireInsteadOfGet")
     private fun startRecordingScreen() {
 
         if (hbRecorder == null) {
@@ -6624,7 +7019,8 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         simpleDialog.show()
 
 
-    }
+    }*/
+    //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -6634,7 +7030,9 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                            intent.action = CustomConstants.START_Screen_SERVICE
                            mContext.startService(intent)*/
 //                hbRecorder!!.startScreenRecording(data, resultCode, mContext as Activity)
-                hbRecorder!!.startScreenRecording(data, resultCode) // 9.0 DashboardFragment  AppV 4.0.7 Saheli    15/02/2023  mantis 0025673  screen recoreder gradle & finction update
+                //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+             //   hbRecorder!!.startScreenRecording(data, resultCode) // 9.0 DashboardFragment  AppV 4.0.7 Saheli    15/02/2023  mantis 0025673  screen recoreder gradle & finction update
+                //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
             }
             if (requestCode == 171){
                 println("reg_face - dashboard_frag face Detect Face Match"+AppUtils.getCurrentDateTime());
@@ -8231,147 +8629,152 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     }
 
     fun onFacesDetected(currTimestamp: Long, faces: List<Face>, add: Boolean) {
-        val paint = Paint()
-        paint.color = Color.RED
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 2.0f
-        val mappedRecognitions: MutableList<SimilarityClassifier.Recognition> = LinkedList()
+        try {
+            val paint = Paint()
+            paint.color = Color.RED
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 2.0f
+            val mappedRecognitions: MutableList<SimilarityClassifier.Recognition> = LinkedList()
 
 
-        //final List<Classifier.Recognition> results = new ArrayList<>();
+            //final List<Classifier.Recognition> results = new ArrayList<>();
 
-        // Note this can be done only once
-        val sourceW = rgbFrameBitmap!!.width
-        val sourceH = rgbFrameBitmap!!.height
-        val targetW = portraitBmp!!.width
-        val targetH = portraitBmp!!.height
-        val transform = createTransform(
-                sourceW,
-                sourceH,
-                targetW,
-                targetH,
-                90)
-        val mutableBitmap = portraitBmp!!.copy(Bitmap.Config.ARGB_8888, true)
-        val cv = Canvas(mutableBitmap)
+            // Note this can be done only once
+            val sourceW = rgbFrameBitmap!!.width
+            val sourceH = rgbFrameBitmap!!.height
+            val targetW = portraitBmp!!.width
+            val targetH = portraitBmp!!.height
+            val transform = createTransform(
+                    sourceW,
+                    sourceH,
+                    targetW,
+                    targetH,
+                    90)
+            val mutableBitmap = portraitBmp!!.copy(Bitmap.Config.ARGB_8888, true)
+            val cv = Canvas(mutableBitmap)
 
-        // draws the original image in portrait mode.
-        cv.drawBitmap(rgbFrameBitmap!!, transform!!, null)
-        val cvFace = Canvas(faceBmp!!)
-        val saved = false
-        for (face in faces) {
-            //results = detector.recognizeImage(croppedBitmap);
-            val boundingBox = RectF(face.boundingBox)
+            // draws the original image in portrait mode.
+            cv.drawBitmap(rgbFrameBitmap!!, transform!!, null)
+            val cvFace = Canvas(faceBmp!!)
+            val saved = false
+            for (face in faces) {
+                //results = detector.recognizeImage(croppedBitmap);
+                val boundingBox = RectF(face.boundingBox)
 
-            //final boolean goodConfidence = result.getConfidence() >= minimumConfidence;
-            val goodConfidence = true //face.get;
-            if (boundingBox != null && goodConfidence) {
+                //final boolean goodConfidence = result.getConfidence() >= minimumConfidence;
+                val goodConfidence = true //face.get;
+                if (boundingBox != null && goodConfidence) {
 
-                // maps crop coordinates to original
-                cropToFrameTransform?.mapRect(boundingBox)
+                    // maps crop coordinates to original
+                    cropToFrameTransform?.mapRect(boundingBox)
 
-                // maps original coordinates to portrait coordinates
-                val faceBB = RectF(boundingBox)
-                transform.mapRect(faceBB)
+                    // maps original coordinates to portrait coordinates
+                    val faceBB = RectF(boundingBox)
+                    transform.mapRect(faceBB)
 
-                // translates portrait to origin and scales to fit input inference size
-                //cv.drawRect(faceBB, paint);
-                val sx = TF_OD_API_INPUT_SIZE.toFloat() / faceBB.width()
-                val sy = TF_OD_API_INPUT_SIZE.toFloat() / faceBB.height()
-                val matrix = Matrix()
-                matrix.postTranslate(-faceBB.left, -faceBB.top)
-                matrix.postScale(sx, sy)
-                cvFace.drawBitmap(portraitBmp!!, matrix, null)
+                    // translates portrait to origin and scales to fit input inference size
+                    //cv.drawRect(faceBB, paint);
+                    val sx = TF_OD_API_INPUT_SIZE.toFloat() / faceBB.width()
+                    val sy = TF_OD_API_INPUT_SIZE.toFloat() / faceBB.height()
+                    val matrix = Matrix()
+                    matrix.postTranslate(-faceBB.left, -faceBB.top)
+                    matrix.postScale(sx, sy)
+                    cvFace.drawBitmap(portraitBmp!!, matrix, null)
 
-                //canvas.drawRect(faceBB, paint);
-                var label = ""
-                var confidence = -1f
-                var color = Color.BLUE
-                var extra: Any? = null
-                var crop: Bitmap? = null
-                if (add) {
-                    try {
-                        crop = Bitmap.createBitmap(portraitBmp!!,
-                                faceBB.left.toInt(),
-                                faceBB.top.toInt(),
-                                faceBB.width().toInt(),
-                                faceBB.height().toInt())
-                    } catch (eon: java.lang.Exception) {
-                        //runOnUiThread(Runnable { Toast.makeText(mContext, "Failed to detect", Toast.LENGTH_LONG) })
-                    }
-                }
-                val startTime = SystemClock.uptimeMillis()
-                val resultsAux = FaceStartActivity.detector.recognizeImage(faceBmp, add)
-                val lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime
-                if (resultsAux.size > 0) {
-                    val result = resultsAux[0]
-                    extra = result.extra
-                    //          Object extra = result.getExtra();
-//          if (extra != null) {
-//            LOGGER.i("embeeding retrieved " + extra.toString());
-//          }
-                    val conf = result.distance
-                    if (conf < 1.0f) {
-                        confidence = conf
-                        label = result.title
-                        color = if (result.id == "0") {
-                            Color.GREEN
-                        } else {
-                            Color.RED
+                    //canvas.drawRect(faceBB, paint);
+                    var label = ""
+                    var confidence = -1f
+                    var color = Color.BLUE
+                    var extra: Any? = null
+                    var crop: Bitmap? = null
+                    if (add) {
+                        try {
+                            crop = Bitmap.createBitmap(portraitBmp!!,
+                                    faceBB.left.toInt(),
+                                    faceBB.top.toInt(),
+                                    faceBB.width().toInt(),
+                                    faceBB.height().toInt())
+                        } catch (eon: java.lang.Exception) {
+                            //runOnUiThread(Runnable { Toast.makeText(mContext, "Failed to detect", Toast.LENGTH_LONG) })
                         }
                     }
+                    val startTime = SystemClock.uptimeMillis()
+                    val resultsAux = FaceStartActivity.detector.recognizeImage(faceBmp, add)
+                    val lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime
+                    if (resultsAux.size > 0) {
+                        val result = resultsAux[0]
+                        extra = result.extra
+                        //          Object extra = result.getExtra();
+    //          if (extra != null) {
+    //            LOGGER.i("embeeding retrieved " + extra.toString());
+    //          }
+                        val conf = result.distance
+                        if (conf < 1.0f) {
+                            confidence = conf
+                            label = result.title
+                            color = if (result.id == "0") {
+                                Color.GREEN
+                            } else {
+                                Color.RED
+                            }
+                        }
+                    }
+                    val flip = Matrix()
+                    flip.postScale(1f, -1f, previewWidth / 2.0f, previewHeight / 2.0f)
+
+                    //flip.postScale(1, -1, targetW / 2.0f, targetH / 2.0f);
+                    flip.mapRect(boundingBox)
+                    val result = SimilarityClassifier.Recognition(
+                            "0", label, confidence, boundingBox)
+                    result.color = color
+                    result.location = boundingBox
+                    result.extra = extra
+                    result.crop = crop
+                    mappedRecognitions.add(result)
                 }
-                val flip = Matrix()
-                flip.postScale(1f, -1f, previewWidth / 2.0f, previewHeight / 2.0f)
-
-                //flip.postScale(1, -1, targetW / 2.0f, targetH / 2.0f);
-                flip.mapRect(boundingBox)
-                val result = SimilarityClassifier.Recognition(
-                        "0", label, confidence, boundingBox)
-                result.color = color
-                result.location = boundingBox
-                result.extra = extra
-                result.crop = crop
-                mappedRecognitions.add(result)
             }
-        }
 
-        //    if (saved) {
+            //    if (saved) {
 //      lastSaved = System.currentTimeMillis();
 //    }
 
-        Log.e("xc", "startabc" )
-        val rec = mappedRecognitions[0]
-        FaceStartActivity.detector.register("", rec)
-        val intent = Intent(mContext, DetectorActivity::class.java)
-        startActivityForResult(intent, 171)
+            Log.e("xc", "startabc" )
+            val rec = mappedRecognitions[0]
+            FaceStartActivity.detector.register("", rec)
+            val intent = Intent(mContext, DetectorActivity::class.java)
+            startActivityForResult(intent, 171)
 //        startActivity(new Intent(this,DetectorActivity.class));
 //        finish();
 
-        // detector.register("Sakil", rec);
-        /*   runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ivFace.setImageBitmap(rec.getCrop());
-                //showAddFaceDialog(rec);
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                LayoutInflater inflater = getLayoutInflater();
-                View dialogLayout = inflater.inflate(R.layout.image_edit_dialog, null);
-                ImageView ivFace = dialogLayout.findViewById(R.id.dlg_image);
-                TextView tvTitle = dialogLayout.findViewById(R.id.dlg_title);
-                EditText etName = dialogLayout.findViewById(R.id.dlg_input);
+            // detector.register("Sakil", rec);
+            /*   runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ivFace.setImageBitmap(rec.getCrop());
+                        //showAddFaceDialog(rec);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        LayoutInflater inflater = getLayoutInflater();
+                        View dialogLayout = inflater.inflate(R.layout.image_edit_dialog, null);
+                        ImageView ivFace = dialogLayout.findViewById(R.id.dlg_image);
+                        TextView tvTitle = dialogLayout.findViewById(R.id.dlg_title);
+                        EditText etName = dialogLayout.findViewById(R.id.dlg_input);
 
-                tvTitle.setText("Register Your Face");
-                ivFace.setImageBitmap(rec.getCrop());
-                etName.setHint("Please tell your name");
-                detector.register("sam", rec); //for register a face
+                        tvTitle.setText("Register Your Face");
+                        ivFace.setImageBitmap(rec.getCrop());
+                        etName.setHint("Please tell your name");
+                        detector.register("sam", rec); //for register a face
 
-                //button.setPressed(true);
-                //button.performClick();
-            }
+                        //button.setPressed(true);
+                        //button.performClick();
+                    }
 
-        });*/
+                });*/
 
-        // updateResults(currTimestamp, mappedRecognitions);
+            // updateResults(currTimestamp, mappedRecognitions);
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Timber.d("onfacedetected error ${e.printStackTrace()}")
+        }
     }
 
     fun createTransform(srcWidth: Int, srcHeight: Int, dstWidth: Int, dstHeight: Int, applyRotation: Int): Matrix? {
@@ -9417,6 +9820,17 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                 shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                                 shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+                                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+                                try {
+                                    var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                                    shopDurationData.shop_lat=shopOb.shopLat.toString()
+                                    shopDurationData.shop_long=shopOb.shopLong.toString()
+                                    shopDurationData.shop_addr=shopOb.address.toString()
+                                }catch (ex:Exception){
+                                    ex.printStackTrace()
+                                }
+                                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
                                 shopDataList.add(shopDurationData)
 
                                 //////////////////////////
@@ -9527,6 +9941,17 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                 // 6.0 DashboardFragment AppV 4.0.6  multiple contact Data added on Api called
                                 shopDurationData.multi_contact_name = it.multi_contact_name
                                 shopDurationData.multi_contact_number = it.multi_contact_number
+
+                                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+                                try {
+                                    var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                                    shopDurationData.shop_lat=shopOb.shopLat.toString()
+                                    shopDurationData.shop_long=shopOb.shopLong.toString()
+                                    shopDurationData.shop_addr=shopOb.address.toString()
+                                }catch (ex:Exception){
+                                    ex.printStackTrace()
+                                }
+                                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
 
                                 shopDataList.add(shopDurationData)
 

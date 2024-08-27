@@ -392,7 +392,7 @@
                     android:paddingTop="@dimen/_15sdp"
                     android:paddingRight="@dimen/_17sdp"
                     android:paddingBottom="@dimen/_7sdp"
-                    android:text="Contacts"
+                    android:text="CRM"
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp"
                     android:visibility="visible" />
@@ -1134,7 +1134,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawablePadding="@dimen/_15sdp"
-                    android:drawableStart="@drawable/ic_chat"
+                    android:drawableStart="@drawable/ic_chat_1"
                     android:paddingBottom="@dimen/_7sdp"
                     android:paddingLeft="@dimen/_17sdp"
                     android:paddingRight="@dimen/_17sdp"
@@ -1204,6 +1204,21 @@
                     android:textSize="@dimen/_12sdp"
                     android:visibility="visible" />
 
+                <com.breezeeurobondfsm.widgets.AppCustomTextView
+                    android:id="@+id/my_learning_TV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:drawableStart="@drawable/ic_machine_learning"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:text="LMS"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp"
+                    android:visibility="gone" />
+
 
                 <com.breezeeurobondfsm.widgets.AppCustomTextView
                     android:id="@+id/anydesk_info_TV"
@@ -1233,7 +1248,7 @@
                     android:text=""
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
 
                 <com.breezeeurobondfsm.widgets.AppCustomTextView
                     android:id="@+id/check_custom_status_TV"

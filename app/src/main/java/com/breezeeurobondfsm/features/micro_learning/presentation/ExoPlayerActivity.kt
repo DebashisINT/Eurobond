@@ -8,11 +8,11 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatImageView
 import android.util.Log
 import android.view.Window
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.NetworkConstant
 import com.breezeeurobondfsm.app.Pref
@@ -22,22 +22,21 @@ import com.breezeeurobondfsm.base.BaseResponse
 import com.breezeeurobondfsm.base.presentation.BaseActivity
 import com.breezeeurobondfsm.features.micro_learning.api.MicroLearningRepoProvider
 import com.breezeeurobondfsm.features.micro_learning.model.MicroLearningDataModel
-
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player.*
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.source.TrackGroupArray
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.util.Util
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.text.DecimalFormat
-import kotlin.math.roundToLong
+
+
 // Revision History
 // 1.0 ExoPlayerActivity AppV 4.0.7 Saheli    02/03/2023 Timber Log Implementation
 class ExoPlayerActivity : AppCompatActivity() {
@@ -60,7 +59,7 @@ class ExoPlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         setContentView(R.layout.activity_exoplayer)
 
@@ -92,11 +91,13 @@ class ExoPlayerActivity : AppCompatActivity() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun initializePlayer() {
-        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this)
+        //simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this)
+        simpleExoPlayer =  SimpleExoPlayer.Builder(this).build()
 
         mediaDataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, "mediaPlayerSample"))
 
-        val mediaSource = ProgressiveMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse(mMicroLearning?.url))
+        //val mediaSource = ProgressiveMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse(mMicroLearning?.url))
+        val mediaSource = ProgressiveMediaSource.Factory(mediaDataSourceFactory).createMediaSource(MediaItem.fromUri(Uri.parse(mMicroLearning?.url)))
 
         simpleExoPlayer.playWhenReady = mMicroLearning?.play_when_ready!!
         simpleExoPlayer.seekTo(mMicroLearning?.current_window?.toInt()!!, mMicroLearning?.play_back_position?.toLong()!!)
@@ -119,7 +120,7 @@ class ExoPlayerActivity : AppCompatActivity() {
             }
         }*/
 
-        simpleExoPlayer.addListener( object : Player.EventListener{
+/*        simpleExoPlayer.addListener( object : Player.EventListener{
             override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
             }
 
@@ -130,7 +131,7 @@ class ExoPlayerActivity : AppCompatActivity() {
                 error?.printStackTrace()
             }
 
-            /** 4 playbackState exists */
+            *//** 4 playbackState exists *//*
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 when(playbackState){
                     STATE_BUFFERING -> {
@@ -156,6 +157,27 @@ class ExoPlayerActivity : AppCompatActivity() {
             }
 
             override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
+            }
+        })*/
+
+        simpleExoPlayer.addListener(object : Listener {
+            override fun onPlaybackStateChanged(@State state: Int) {
+                when(state){
+                    STATE_BUFFERING -> {
+                        progress_wheel.spin()
+                    }
+                    STATE_READY -> {
+                        progress_wheel.stopSpinning()
+                    }
+                    STATE_IDLE -> {
+                    }
+                    STATE_ENDED -> {
+                    }
+                }
+            }
+
+            override fun onPlayerError(error: PlaybackException) {
+                error?.printStackTrace()
             }
         })
 

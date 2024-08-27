@@ -12,7 +12,7 @@ import timber.log.Timber
 class RestartBroadcast : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        Timber.e("RestartBroadcast: " + "=======================Received====================")
+        Timber.d("RestartBroadcast: " + "=======================Received====================")
 
         //if (!FTStorageUtils.isMyServiceRunning(LocationFuzedService::class.java, context)) {
             Timber.e("RestartBroadcast: " + "=======================Start Service====================")

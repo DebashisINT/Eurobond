@@ -6,7 +6,8 @@
         android:endColor="@color/white"
         android:angle="-90"/>
     <corners
-        android:radius="@dimen/_30sdp"/>
+        android:radius="@dimen/_30sdp"
+        />
     <stroke android:width="@dimen/_1sdp"
         android:color="@color/approved_green"/>
 </shape>

@@ -24,17 +24,19 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import com.breezeeurobondfsm.R
 
 import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
-import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.MaterialSearchView
 import com.breezeeurobondfsm.app.Pref
 import com.breezeeurobondfsm.app.SearchListener
 import com.breezeeurobondfsm.app.domain.AddShopDBModelEntity
+import com.breezeeurobondfsm.app.domain.ShopActivityEntity
 import com.breezeeurobondfsm.app.types.FragType
 import com.breezeeurobondfsm.app.uiaction.IntentActionable
 import com.breezeeurobondfsm.app.utils.AppUtils
@@ -308,6 +310,30 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
 
             Timber.d("Local Shop List:== selected list size=====> " + list.size)
 
+            // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration begin
+            var isType99InTypeMaster = false
+
+            var type99 =  AppDatabase.getDBInstance()?.shopTypeDao()?.getSingleType("99")
+            if(type99 == null){
+                println("tag_type99 no type found")
+                isType99InTypeMaster = false
+            }else{
+                println("tag_type99 type found")
+                isType99InTypeMaster = true
+            }
+
+            if(!isType99InTypeMaster){
+                var rectifyShopListWithType :ArrayList<AddShopDBModelEntity> = ArrayList()
+                for(i in 0..list.size-1){
+                    var shopDtls = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(list.get(i).shop_id)
+                    if(!shopDtls.type.equals("99")){
+                        rectifyShopListWithType.add(list.get(i))
+                    }
+                }
+                list = rectifyShopListWithType
+            }
+            // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration end
+
             val newList = ArrayList<AddShopDBModelEntity>()
 
             for (i in list.indices) {
@@ -330,7 +356,7 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
                             var ob = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shop_id)
                             var feedbackDialog: AddFeedbackSingleBtnDialog? = null
                             feedbackDialog = AddFeedbackSingleBtnDialog.getInstance(ob.shopName + "\n" + ob.ownerContactNumber, getString(R.string.confirm_revisit), shop_id, object : AddFeedbackSingleBtnDialog.OnOkClickListener {
-                                override fun onOkClick(mFeedback: String, mNextVisitDate: String, filePath: String, mapproxValue: String, mprosId: String,sel_extraContNameStr:String,sel_extraContPhStr:String) {
+                                override fun onOkClick(mFeedback: String, mNextVisitDate: String, filePath: String, mapproxValue: String, mprosId: String,sel_extraContNameStr:String,sel_extraContPhStr:String,filePathNW:String) {
                                     AppDatabase.getDBInstance()!!.shopActivityDao().updateFeedbackVisitdate(mFeedback,mNextVisitDate, shop_id, AppUtils.getCurrentDateForShopActi())
                                     manualProceed(shop_id)
                                 }
@@ -447,6 +473,20 @@ class LocalShopListFragment : BaseFragment(), View.OnClickListener {
         simpleDialog.setCancelable(false)
         simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         simpleDialog.setContentView(R.layout.dialog_ok)
+
+        try {
+            simpleDialog.setCancelable(true)
+            simpleDialog.setCanceledOnTouchOutside(false)
+            val dialogName = simpleDialog.findViewById(R.id.tv_dialog_ok_name) as AppCustomTextView
+            val dialogCross = simpleDialog.findViewById(R.id.tv_dialog_ok_cancel) as ImageView
+            dialogName.text = AppUtils.hiFirstNameText()
+            dialogCross.setOnClickListener {
+                simpleDialog.cancel()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
         dialogHeader.text = "Your spend duration for the outlet ${statusL.get(0).shop_name} is $duration"
         val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView

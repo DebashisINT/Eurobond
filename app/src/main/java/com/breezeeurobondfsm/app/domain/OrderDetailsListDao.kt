@@ -51,6 +51,11 @@ interface OrderDetailsListDao {
     @Query("SELECT * FROM " + AppConstant.ORDER_DETAILS_LIST_TABLE + " where only_date=:date order by id desc")
     fun getListAccordingDate(date: String): List<OrderDetailsListEntity>
 
+    @Query("select case when sum(amount) IS NULL then '0.00' else sum(amount) END as totalAmt\n" +
+            "             from order_details_list where only_date=:only_date")
+    fun getOrderSumByDate(only_date:String): Double
+
+
     @Query("DELETE FROM " + AppConstant.ORDER_DETAILS_LIST_TABLE)
     fun delete()
 

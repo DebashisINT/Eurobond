@@ -19,7 +19,6 @@ class HeaderFooterPageEvent(var companyN:String,var salesmanN:String,var salesma
 
 
     override fun onStartPage(writer: PdfWriter?, document: Document?) {
-       // var bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.breezelogo)
         var bm:Bitmap? = null
         if(Pref.IsShowQuotationFooterforEurobond){
             bm = BitmapFactory.decodeResource(AppUtils.contx!!.resources, R.drawable.pdf_logo)

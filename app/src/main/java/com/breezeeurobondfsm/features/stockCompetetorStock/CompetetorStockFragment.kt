@@ -94,7 +94,7 @@ class CompetetorStockFragment: BaseFragment(), View.OnClickListener {
         super.onResume()
 
         var comListAll= AppDatabase.getDBInstance()!!.competetorStockEntryDao().getCompetetorStockAll()
-        if (comListAll != null && comListAll?.isNotEmpty()){
+        if (comListAll != null && comListAll.isNotEmpty()){
             getStockList()
         }else{
             if (AppUtils.isOnline(mContext)){

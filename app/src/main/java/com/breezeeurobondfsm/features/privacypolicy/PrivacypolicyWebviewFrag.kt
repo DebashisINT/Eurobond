@@ -1,5 +1,6 @@
 package com.breezeeurobondfsm.features.privacypolicy
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -30,10 +31,9 @@ class PrivacypolicyWebviewFrag: BaseFragment() {
     private lateinit var rl_webview_main: RelativeLayout
     private lateinit var progress_wheel: ProgressWheel
     private lateinit var ll_loader: LinearLayout
+    private var isOnPageStarted = false
     private lateinit var wait_for_preview: TextView
     private lateinit var no_internet: TextView
-    private var isOnPageStarted = false
-
 
 
 
@@ -50,21 +50,21 @@ class PrivacypolicyWebviewFrag: BaseFragment() {
         return view
     }
 
+    @SuppressLint("NewApi")
     private fun initView(view: View) {
         view.apply {
             webview = findViewById(R.id.webview)
-            no_internet = findViewById(R.id.no_internet)
             rl_webview_main = findViewById(R.id.rl_webview_main)
             progress_wheel = findViewById(R.id.progress_wheel)
             ll_loader = findViewById(R.id.ll_loader)
             wait_for_preview = findViewById(R.id.wait_for_preview)
+            no_internet = findViewById(R.id.no_internet)
+
         }
         progress_wheel.stopSpinning()
 
         if (AppUtils.isOnline(mContext)) {
             webview.visibility = View.VISIBLE
-            wait_for_preview.visibility = View.VISIBLE
-            no_internet.visibility = View.GONE
 
             webview.settings.run {
                 javaScriptEnabled = true

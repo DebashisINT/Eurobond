@@ -41,7 +41,8 @@ class TodaysWorkAdapter(context: Context, list: ArrayList<SelectedWorkTypeEntity
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val v = layoutInflater.inflate(R.layout.inflate_work_plan_item, parent, false)
+          val v = layoutInflater.inflate(R.layout.inflate_work_plan_item, parent, false)
+          //val v = layoutInflater.inflate(R.layout.inflate_work_plan_item1, parent, false)
         return MyViewHolder(v)
     }
 

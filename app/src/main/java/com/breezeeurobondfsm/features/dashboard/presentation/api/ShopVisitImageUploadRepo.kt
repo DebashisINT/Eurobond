@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.breezeeurobondfsm.app.FileUtils
 import com.breezeeurobondfsm.base.BaseResponse
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
+import com.breezeeurobondfsm.features.dashboard.presentation.model.AudioSyncModel
 import com.breezeeurobondfsm.features.dashboard.presentation.model.ShopVisitImageUploadInputModel
 import com.breezeeurobondfsm.features.location.LocationFuzedService
 import io.reactivex.Observable
@@ -76,6 +77,58 @@ class ShopVisitImageUploadRepo(val apiService: ShopVisitImageUploadApi) {
             e.printStackTrace()
         }
         return apiService.visitShopWithAudio(jsonInString, profile_img_data)
+        // return apiService.getAddShopWithoutImage(jsonInString)
+    }
+
+    fun syncNewShopAudio(obj: AudioSyncModel, audio_link: String, context: Context): Observable<BaseResponse> {
+        var profile_img_data: MultipartBody.Part? = null
+        val profile_img_file = File(audio_link) //FileUtils.getFile(context, Uri.parse(audio_link))
+        if (profile_img_file != null && profile_img_file.exists()) {
+            val profileImgBody = RequestBody.create(MediaType.parse("multipart/form-data"), profile_img_file)
+            profile_img_data = MultipartBody.Part.createFormData("audio", profile_img_file.name, profileImgBody)
+        } else {
+            var mFile: File? = null
+            if (context is DashboardActivity)
+                mFile = (context as DashboardActivity).getShopDummyImageFile()
+            else
+                mFile = (context as LocationFuzedService).getShopDummyImageFile()
+            val profileImgBody = RequestBody.create(MediaType.parse("multipart/form-data"), mFile)
+            profile_img_data = MultipartBody.Part.createFormData("audio", mFile.name, profileImgBody)
+        }
+
+        var jsonInString = ""
+        try {
+            jsonInString = ObjectMapper().writeValueAsString(obj)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+        return apiService.syncNewShopAudioApi(jsonInString, profile_img_data)
+    }
+
+    fun syncShopNewAudio(shop: ShopVisitImageUploadInputModel, audio_link: String, context: Context): Observable<BaseResponse> {
+        var profile_img_data: MultipartBody.Part? = null
+        val profile_img_file = File(audio_link) //FileUtils.getFile(context, Uri.parse(audio_link))
+        if (profile_img_file != null && profile_img_file.exists()) {
+            val profileImgBody = RequestBody.create(MediaType.parse("multipart/form-data"), profile_img_file)
+            profile_img_data = MultipartBody.Part.createFormData("audio", profile_img_file.name, profileImgBody)
+        } else {
+            var mFile: File? = null
+            if (context is DashboardActivity)
+                mFile = (context as DashboardActivity).getShopDummyImageFile()
+            else
+                mFile = (context as LocationFuzedService).getShopDummyImageFile()
+            val profileImgBody = RequestBody.create(MediaType.parse("multipart/form-data"), mFile)
+            profile_img_data = MultipartBody.Part.createFormData("audio", mFile.name, profileImgBody)
+        }
+        //var shopObject: RequestBody? = null
+        var jsonInString = ""
+        try {
+            jsonInString = ObjectMapper().writeValueAsString(shop)
+            //  shopObject = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonInString)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+        return apiService.syncShopNewAudioApi(jsonInString, profile_img_data)
         // return apiService.getAddShopWithoutImage(jsonInString)
     }
 

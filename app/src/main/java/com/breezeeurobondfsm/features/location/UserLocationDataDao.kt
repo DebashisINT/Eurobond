@@ -44,6 +44,9 @@ interface UserLocationDataDao {
     @Query("Select * from location_db where updateDate=:date and isUploaded=:isUploaded")
     fun getLocationUpdateForADayNotSyn(date: String, isUploaded: Boolean): List<UserLocationDataEntity>
 
+    @Query("Select * from location_db where updateDate=:date and isUploaded=:isUploaded order by locationId desc")
+    fun getLocationUpdateForADayNotSynOrderDesc(date: String, isUploaded: Boolean): List<UserLocationDataEntity>
+
     @Query("Select SUM(CAST(distance as DOUBLE)) from location_db where updateDate=:date")
     fun getTotalDistanceForADay(date: String): Double
 

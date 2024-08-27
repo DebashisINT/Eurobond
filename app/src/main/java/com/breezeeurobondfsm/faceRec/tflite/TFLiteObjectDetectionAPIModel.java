@@ -51,8 +51,7 @@ import java.util.Vector;
  * - https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
  * - https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_on_mobile_tensorflowlite.md#running-our-model-on-android
  */
-public class TFLiteObjectDetectionAPIModel
-        implements SimilarityClassifier {
+public class TFLiteObjectDetectionAPIModel implements SimilarityClassifier {
 
   private static final Logger LOGGER = new Logger();
 
@@ -163,7 +162,7 @@ public class TFLiteObjectDetectionAPIModel
     d.imgData.order(ByteOrder.nativeOrder());
     d.intValues = new int[d.inputSize * d.inputSize];
 
-    d.tfLite.setNumThreads(NUM_THREADS);
+    //d.tfLite.setNumThreads(NUM_THREADS);
     d.outputLocations = new float[1][NUM_DETECTIONS][4];
     d.outputClasses = new float[1][NUM_DETECTIONS];
     d.outputScores = new float[1][NUM_DETECTIONS];
@@ -302,12 +301,21 @@ public class TFLiteObjectDetectionAPIModel
   @Override
   public void close() {}
 
+  @Override
   public void setNumThreads(int num_threads) {
+  }
+
+  @Override
+  public void setUseNNAPI(boolean isChecked) {
+
+  }
+
+/*  public void setNumThreads(int num_threads) {
     if (tfLite != null) tfLite.setNumThreads(num_threads);
   }
 
   @Override
   public void setUseNNAPI(boolean isChecked) {
     if (tfLite != null) tfLite.setUseNNAPI(isChecked);
-  }
+  }*/
 }

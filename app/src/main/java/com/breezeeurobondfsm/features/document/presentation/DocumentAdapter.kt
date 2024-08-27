@@ -119,6 +119,7 @@ class DocumentAdapter(private val mContext: Context, private val docList: ArrayL
                 /*tv_attachment.setOnClickListener {
                     onAttchmentClick(docList[adapterPosition], tv_attachment.text.toString().trim())
                 }*/
+
                 if(CustomStatic.IsDocZero==true){
                   if(Pref.IsDocRepShareDownloadAllowed){
                       iv_share.visibility = View.VISIBLE
@@ -139,6 +140,7 @@ class DocumentAdapter(private val mContext: Context, private val docList: ArrayL
                       sync_status_iv.visibility = View.GONE
                       tv_doc_file_name.visibility = View.VISIBLE
                   }
+
                 }
                 else{
                     iv_share.visibility = View.VISIBLE
@@ -147,7 +149,6 @@ class DocumentAdapter(private val mContext: Context, private val docList: ArrayL
                     sync_status_iv.visibility = View.VISIBLE
                     tv_doc_file_name.visibility = View.GONE
                 }
-
 
             }
         }

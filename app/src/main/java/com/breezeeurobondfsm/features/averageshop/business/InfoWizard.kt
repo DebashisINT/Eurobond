@@ -3,6 +3,8 @@ package com.breezeeurobondfsm.features.averageshop.business
 import android.text.TextUtils
 import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.Pref
+import com.breezeeurobondfsm.app.domain.AddShopDBModelEntity
+import com.breezeeurobondfsm.app.domain.ShopActivityEntity
 import com.breezeeurobondfsm.app.utils.AppUtils
 
 import timber.log.Timber
@@ -12,6 +14,7 @@ import timber.log.Timber
  */
 // Revision History
 // 1.0 ReimbursementFragment AppV 4.0.7 Saheli    02/03/2023 Timber Log Implementation
+// 2.0 InfoWizard AppV 4.2.6 Suman    003-05-2024 mantis id 0027424
 class InfoWizard {
 
     companion object {
@@ -26,7 +29,38 @@ class InfoWizard {
             var shopsVisitedPerDay: Float = (AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi()).size.toFloat() + Pref.totalShopVisited.toFloat()) /
                     (Pref.totalAttendance.toFloat())*/
 
-            val list = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi())
+
+            var list = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(AppUtils.getCurrentDateForShopActi())
+
+            // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration begin
+            try{
+                var isType99InTypeMaster = false
+
+                var type99 =  AppDatabase.getDBInstance()?.shopTypeDao()?.getSingleType("99")
+                if(type99 == null){
+                    println("tag_type99 no type found")
+                    isType99InTypeMaster = false
+                }else{
+                    println("tag_type99 type found")
+                    isType99InTypeMaster = true
+                }
+                if(!isType99InTypeMaster){
+                    var rectifyShopListWithType :ArrayList<ShopActivityEntity> = ArrayList()
+                    for(i in 0..list.size-1){
+                        var shopDtls = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(list.get(i).shopid)
+                        if(shopDtls!=null){
+                            if(!shopDtls.type.equals("99")){
+                                rectifyShopListWithType.add(list.get(i))
+                            }
+                        }
+                    }
+                    list = rectifyShopListWithType
+                }
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+
+            // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration end
 
             if (list == null)
                 return "0"
@@ -385,7 +419,8 @@ class InfoWizard {
         }
 
         fun getTotalOrderAmountForToday(): String {
-            try {
+            // 2.0 InfoWizard AppV 4.2.6 Suman    003-05-2024 mantis id 0027424 comment begin
+            /*try {
                 val list = AppDatabase.getDBInstance()!!.orderDetailsListDao().getListAccordingDate(AppUtils.getCurrentDate())
                 return if (list != null && list.isNotEmpty()) {
                     var amount = 0.0
@@ -403,7 +438,25 @@ class InfoWizard {
             } catch (e: Exception) {
                 e.printStackTrace()
                 return "0.00"
+            }*/
+    // 2.0 InfoWizard AppV 4.2.6 Suman    003-05-2024 mantis id 0027424 comment end
+
+            // 2.0 InfoWizard AppV 4.2.6 Suman    003-05-2024 mantis id 0027424 begin
+            try{
+                var totalAmt = "0.00"
+                if(Pref.isOrderShow && Pref.ShowUserwisePartyWithCreateOrder){
+                    totalAmt = AppDatabase.getDBInstance()!!.orderDetailsListDao().getOrderSumByDate(AppUtils.getCurrentDate()).toBigDecimal().toString()
+                }else if(Pref.isOrderShow && !Pref.ShowUserwisePartyWithCreateOrder){
+                    totalAmt = AppDatabase.getDBInstance()!!.orderDetailsListDao().getOrderSumByDate(AppUtils.getCurrentDate()).toBigDecimal().toString()
+                }else if(!Pref.isOrderShow && Pref.ShowUserwisePartyWithCreateOrder){
+                    totalAmt = AppDatabase.getDBInstance()!!.newOrderDataDao().getOrderSumByDate(AppUtils.getCurrentDateForShopActi()).toBigDecimal().toString()
+                }
+                return String.format("%.02f",totalAmt.toDouble())
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                return "0.00"
             }
+            // 2.0 InfoWizard AppV 4.2.6 Suman    003-05-2024 mantis id 0027424 end
         }
 
         fun getTotalQuotAmountForToday(): String {

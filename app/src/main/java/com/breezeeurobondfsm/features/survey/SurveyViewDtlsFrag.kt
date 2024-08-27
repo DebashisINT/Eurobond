@@ -95,10 +95,10 @@ class SurveyViewDtlsFrag: BaseFragment() {
 
     private fun initView(view: View?) {
         progress_wheel=view?.findViewById(R.id.progress_wheel) as ProgressWheel
-        headingTV=view?.findViewById(R.id.tv_frag_survey_view_dtls_head)
+        headingTV=view.findViewById(R.id.tv_frag_survey_view_dtls_head)
         progress_wheel.stopSpinning()
-        rvDtls=view?.findViewById(R.id.rv_frag_survey_view_dtls)
-        shareFB=view?.findViewById(R.id.fb_frag_survey_view_share)
+        rvDtls=view.findViewById(R.id.rv_frag_survey_view_dtls)
+        shareFB=view.findViewById(R.id.fb_frag_survey_view_share)
 
         shareFB.setCustomClickListener{
             imageLinkList = qaList.filter { it.image_link!!.startsWith("http") }.map { it.image_link } as ArrayList<String>
@@ -267,7 +267,8 @@ class SurveyViewDtlsFrag: BaseFragment() {
             val grayFront = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL, BaseColor.GRAY)
 
             //image add
-            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+            //val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo)
             val bitmap = Bitmap.createScaledBitmap(bm, 50, 50, true);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)

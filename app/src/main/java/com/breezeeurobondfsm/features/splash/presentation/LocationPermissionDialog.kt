@@ -16,6 +16,7 @@ class LocationPermissionDialog : DialogFragment(), View.OnClickListener {
     private lateinit var mContext: Context
 
     private lateinit var tv_ok: AppCustomTextView
+    private lateinit var tv_body: AppCustomTextView
     private lateinit var iv_close_icon: ImageView
 
     companion object {
@@ -56,6 +57,11 @@ class LocationPermissionDialog : DialogFragment(), View.OnClickListener {
         v.apply {
             tv_ok = findViewById(R.id.tv_ok)
             iv_close_icon = findViewById(R.id.iv_close_icon)
+            tv_body = findViewById(R.id.tv_body)
+
+            tv_body.text = "${context.getResources().getString(R.string.app_name)} App collects location data after you open and login into the App, to identify nearby Parties location even when the app is running in the background and not in use.This app collects location data to enable nearby shops, GPS route,\n" +
+                    " even when the app is closed or not in use.Reimbursement is issued with distance traveled for specific GPS route.\n" +
+                    " This is a core functionality of this app."
         }
     }
 

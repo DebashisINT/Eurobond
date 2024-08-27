@@ -3,6 +3,8 @@ package com.breezeeurobondfsm.features.addshop.presentation
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Activity.RESULT_CANCELED
+import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.ActivityNotFoundException
@@ -18,6 +20,7 @@ import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
 import android.speech.RecognizerIntent
@@ -26,7 +29,6 @@ import android.text.Editable
 import android.text.InputFilter
 import android.text.TextUtils
 import android.text.TextWatcher
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -39,13 +41,11 @@ import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder
-import com.android.volley.AuthFailureError
-import com.android.volley.DefaultRetryPolicy
-import com.android.volley.Response
-import com.android.volley.VolleyError
-import com.android.volley.toolbox.JsonObjectRequest
+import cafe.adriel.androidaudiorecorder.AudioRecorderActivity
+import cafe.adriel.androidaudiorecorder.model.AudioChannel
+import cafe.adriel.androidaudiorecorder.model.AudioSampleRate
+import cafe.adriel.androidaudiorecorder.model.AudioSource
 import com.breezeeurobondfsm.CustomStatic
-import com.breezeeurobondfsm.MySingleton
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.NetworkConstant
@@ -56,7 +56,6 @@ import com.breezeeurobondfsm.app.utils.*
 import com.breezeeurobondfsm.base.BaseResponse
 import com.breezeeurobondfsm.base.presentation.BaseActivity
 import com.breezeeurobondfsm.base.presentation.BaseFragment
-import com.breezeeurobondfsm.features.NewQuotation.AddQuotFormFragment
 import com.breezeeurobondfsm.features.SearchLocation.locationInfoModel
 import com.breezeeurobondfsm.features.addAttendence.FingerprintDialog
 import com.breezeeurobondfsm.features.addshop.api.AddShopRepositoryProvider
@@ -85,18 +84,14 @@ import com.breezeeurobondfsm.features.location.model.ShopDurationRequest
 import com.breezeeurobondfsm.features.location.model.ShopDurationRequestData
 import com.breezeeurobondfsm.features.location.shopdurationapi.ShopDurationRepositoryProvider
 import com.breezeeurobondfsm.features.login.ShopFeedbackEntity
-import com.breezeeurobondfsm.features.login.model.GetQtsAnsSubmitDtlsResponseModel
 import com.breezeeurobondfsm.features.login.model.productlistmodel.ModelListResponse
 import com.breezeeurobondfsm.features.login.presentation.LoginActivity
 import com.breezeeurobondfsm.features.nearbyshops.api.ShopListRepositoryProvider
 import com.breezeeurobondfsm.features.nearbyshops.model.*
-import com.breezeeurobondfsm.features.photoReg.PhotoRegAadhaarFragment
 import com.breezeeurobondfsm.features.shopdetail.presentation.api.EditShopRepoProvider
 import com.breezeeurobondfsm.features.viewAllOrder.interf.QaOnCLick
-import com.breezeeurobondfsm.features.viewAllOrder.orderOptimized.CustomProductRate
 import com.breezeeurobondfsm.widgets.AppCustomEditText
 import com.breezeeurobondfsm.widgets.AppCustomTextView
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
@@ -106,12 +101,10 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_add_shop.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
-import org.json.JSONArray
-import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
+
 
 /**
  * Created by Pratishruti on 27-10-2017.
@@ -123,6 +116,7 @@ import kotlin.collections.ArrayList
 // 5.0 AddShopFragment AppV 4.0.7 saheli 20-02-2023  add feedback voice added mantis 0025684
 // 6.0 AddShopFragment AppV 4.1.3 Suman 18-05-2023  mantis 26162
 // 7.0.AddShopFragment AppV 4.1.5 Saheli 06-06-2023  mantis 26297
+// 8.0.AddShopFragment AppV 4.2.9 Suman 24-07-2024  mantis 27647
 
 
 class AddShopFragment : BaseFragment(), View.OnClickListener {
@@ -308,6 +302,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private var typeId = ""
     private var nextVisitDate = ""
     private var filePath = ""
+    private var filePathNewAudio = ""
     private var isDocDegree = -1
     private var degreeImgLink = ""
     private var reasonDialog: ReasonDialog? = null
@@ -350,6 +345,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
     private lateinit var iv_image_cross_icon_1: AppCompatImageView
     private lateinit var iv_image_cross_icon_2: AppCompatImageView
+
+
+    private lateinit var llRecordAudioNew: LinearLayout
+    private lateinit var et_recordAudioNw: AppCustomEditText
+    private lateinit var iv_recordAudioNw: ImageView
 
 
 
@@ -838,6 +838,19 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         rl_frag_addshop_stage_view = view.findViewById(R.id.rl_frag_addshop_stage_view)
         rl_frag_addshop_funnelstage_view = view.findViewById(R.id.rl_frag_addshop_funnelstage_view)
         //End Puja 16.11.23 mantis-0026997 //
+
+        // 8.0.AddShopFragment AppV 4.2.9 Suman 24-07-2024  mantis 27647 begin
+        llRecordAudioNew = view.findViewById(R.id.ll_frag_add_shop_new_audio_rec)
+        et_recordAudioNw = view.findViewById(R.id.et_frag_add_shop_record_audio_nw)
+        iv_recordAudioNw = view.findViewById(R.id.iv_frag_add_shop_record_audio_nw)
+        et_recordAudioNw.setOnClickListener(this)
+        iv_recordAudioNw.setOnClickListener(this)
+        if(Pref.IsUserWiseRecordAudioEnableForVisitRevisit){
+            llRecordAudioNew.visibility = View.VISIBLE
+        }else{
+            llRecordAudioNew.visibility = View.GONE
+        }
+        // 8.0.AddShopFragment AppV 4.2.9 Suman 24-07-2024  mantis 27647 end
 
         if(Pref.IsMultipleContactEnableforShop){
             ll_addExtraContactRoot.visibility = View.VISIBLE
@@ -2911,6 +2924,17 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         shopDurationData.multi_contact_name = shopActivity.multi_contact_name
         shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+        // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+        try {
+            var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+            shopDurationData.shop_lat=shopOb.shopLat.toString()
+            shopDurationData.shop_long=shopOb.shopLong.toString()
+            shopDurationData.shop_addr=shopOb.address.toString()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
         shopDataList.add(shopDurationData)
 
         if (shopDataList.isEmpty()) {
@@ -3254,6 +3278,20 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 visit_datetime = currentDateTime
             })
         }
+        //Suman 29-07-2024 mantis id 27647
+        if(Pref.IsUserWiseRecordAudioEnableForVisitRevisit){
+            try {
+                val shopAudio = ShopAudioEntity()
+                shopAudio.shop_id = shopDataModel.shop_id
+                shopAudio.audio_path = filePathNewAudio
+                shopAudio.isUploaded = false
+                shopAudio.datetime = AppUtils.getCurrentDateTime()
+                shopAudio.revisitYN="0"
+                AppDatabase.getDBInstance()?.shopAudioDao()?.insert(shopAudio)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun showRevisitReasonDialog(addShop: AddShopRequestData, startTimeStamp: String) {
@@ -3275,6 +3313,32 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
     override fun onClick(p0: View?) {
         when (p0!!.id) {
+            et_recordAudioNw.id,iv_recordAudioNw.id ->{
+                try {
+                    AppUtils.isRevisit = false
+                    //filePathNewAudio = Environment.getExternalStorageDirectory().toString() + "/${System.currentTimeMillis()}recorded_audio.wav"
+                    filePathNewAudio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/recorded_audio${System.currentTimeMillis()}.wav"
+                    val color = resources.getColor(R.color.deep_green)
+                    val requestCode = PermissionHelper.REQUEST_CODE_AUDIO_REC_NW
+
+                    AndroidAudioRecorder.with(mContext as DashboardActivity)
+                        // Required
+                        .setFilePath(filePathNewAudio)
+                        .setColor(color)
+                        .setRequestCode(requestCode)
+                        // Optional
+                        .setSource(AudioSource.MIC)
+                        .setChannel(AudioChannel.STEREO)
+                        .setSampleRate(AudioSampleRate.HZ_100)
+                        .setAutoStart(true)
+                        .setKeepDisplayOn(true)
+                        // Start recording
+                        .record();
+                } catch (e: Exception) {
+                   e.printStackTrace()
+                }
+
+            }
             R.id.questionnaire_TV -> {
                 dialogOpenQa()
             }
@@ -4434,6 +4498,12 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             }
 
 //            feedback_EDT.setText(t)
+        }else if(requestCode == 9987){
+            if (resultCode == Activity.RESULT_OK) {
+                println("tag_rec_audio RESULT_OK")
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                println("tag_rec_audio RESULT_CANCELED")
+            }
         }
     }
     // 5.0 AddShopFragment AppV 4.0.7  add feedback voice added mantis 0025684 end
@@ -6419,6 +6489,20 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             simpleDialog.setCancelable(false)
             simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             simpleDialog.setContentView(R.layout.dialog_ok)
+
+            try {
+                simpleDialog.setCancelable(true)
+                simpleDialog.setCanceledOnTouchOutside(false)
+                val dialogName = simpleDialog.findViewById(R.id.tv_dialog_ok_name) as AppCustomTextView
+                val dialogCross = simpleDialog.findViewById(R.id.tv_dialog_ok_cancel) as ImageView
+                dialogName.text = AppUtils.hiFirstNameText()
+                dialogCross.setOnClickListener {
+                    simpleDialog.cancel()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
             val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
             dialogHeader.text = "You are creating a ${Pref.shopText} with Duplicate Name under same ${Pref.ddText} and in the same location. Please make unique ${Pref.shopText}."
             val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
@@ -6675,6 +6759,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             BaseActivity.isApiInitiated = false
             return
         }
+        if(Pref.IsUserWiseRecordAudioEnableForVisitRevisit && filePathNewAudio.equals("")){
+            (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_message_audio))
+            BaseActivity.isApiInitiated = false
+            return
+        }
 
         if(Pref.IsDistributorSelectionRequiredinAttendance){
             if(Pref.isShowBeatGroup && TextUtils.isEmpty(tv_select_beat.text.toString().trim())) {
@@ -6746,7 +6835,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         val allShopList= AppDatabase.getDBInstance()?.addShopEntryDao()?.all
         shopDataModel.isShopDuplicate=false
         if(allShopList != null){
-            for(i in 0..allShopList?.size-1){
+            for(i in 0..allShopList?.size!!-1){
                 var shopLat = allShopList.get(i).shopLat
                 var shopLon = allShopList.get(i).shopLong
                 if(shopLat == shopDataModel.shopLat && shopLon == shopDataModel.shopLong){
@@ -8132,6 +8221,16 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         try {
             filePath = audioFile?.absolutePath!!
             audio_record_date_EDT.setText(filePath)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun saveNewAudio() {
+        try {
+            filePathNewAudio = filePathNewAudio
+            et_recordAudioNw.setText(filePathNewAudio)
+            println("tag_new_audio $filePathNewAudio")
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -15,7 +15,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.breezeeurobondfsm.R
-import com.breezeeurobondfsm.features.addAttendence.model.LocationDataModel
 import com.breezeeurobondfsm.widgets.AppCustomEditText
 import com.breezeeurobondfsm.widgets.AppCustomTextView
 
@@ -45,15 +44,24 @@ class GenericDialog: DialogFragment() {
             headerStr=headerText
             return dialogFragment
         }
+
+        fun newInstance1(headerText:String,pList: ArrayList<CustomData>, function: (CustomData) -> Unit , function1: (CustomData) -> Unit): GenericDialog {
+            val dialogFragment = GenericDialog()
+            mList = pList
+            onSelectItem = function
+            headerStr=headerText
+            return dialogFragment
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
         dialog?.window!!.requestFeature(Window.FEATURE_NO_TITLE)
-        dialog?.setCanceledOnTouchOutside(true)
+        dialog?.setCanceledOnTouchOutside(false)
+        dialog?.setCancelable(true)
         dialog?.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         val v = inflater.inflate(R.layout.dialog_generic, container, false)
-        isCancelable = false
+      //  isCancelable = false
         initView(v)
         initTextChangeListener()
         return v

@@ -3,15 +3,13 @@ package com.breezeeurobondfsm.app.domain
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.breezeeurobondfsm.app.AppConstant
 
-
-
+import com.breezeeurobondfsm.app.AppConstant.TA_TABLE
 
 /**
  * Created by sayantan.sarkar on 2/11/17.
  */
-@Entity(tableName = AppConstant.TA_TABLE)
+@Entity(tableName = TA_TABLE)
 class TaListDBModelEntity {
 
     @PrimaryKey(autoGenerate = true)

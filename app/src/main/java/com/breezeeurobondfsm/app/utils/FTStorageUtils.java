@@ -322,17 +322,22 @@ public class FTStorageUtils {
 
 
     public static boolean isMyServiceRunning(Class<?> serviceClass, Context mContext) {
-        ActivityManager manager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-        Timber.d("TAG_CHECK_LOC_SERVICE_STATUS");
+        try {
+            ActivityManager manager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+            Timber.d("TAG_CHECK_LOC_SERVICE_STATUS");
 
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                Timber.d("TAG_CHECK_LOC_SERVICE_STATUS");
-
-                return true;
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    Timber.d("TAG_CHECK_LOC_SERVICE_STATUS");
+                    Timber.d("Service running status true");
+                    return true;
+                }
             }
+            Timber.d("Service running status false");
+            return false;
+        } catch (SecurityException e) {
+            return false;
         }
-        return false;
     }
 
     public static boolean isMyActivityRunning(Context mContext) {

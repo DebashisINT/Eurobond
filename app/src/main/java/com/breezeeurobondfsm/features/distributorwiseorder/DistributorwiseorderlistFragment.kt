@@ -345,7 +345,8 @@ class DistributorwiseorderlistFragment : BaseFragment(), View.OnClickListener {
             val redFront = Font(Font.FontFamily.HELVETICA, 12f, Font.UNDERLINE or Font.BOLD, BaseColor.BLUE)
             var fontBlueBoldU: Font = Font(Font.FontFamily.HELVETICA, 12f, Font.UNDERLINE or Font.BOLD, BaseColor.ORANGE)
             //image add
-            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+            //val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo)
             val bitmap = Bitmap.createScaledBitmap(bm, 50, 50, true);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)

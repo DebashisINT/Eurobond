@@ -1,30 +1,18 @@
 package com.breezeeurobondfsm.features.viewAllOrder.orderOptimized
 
-import android.app.Dialog
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.text.InputFilter
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.breezeeurobondfsm.CustomStatic
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.Pref
 import com.breezeeurobondfsm.app.utils.*
 import com.breezeeurobondfsm.features.DecimalDigitsInputFilter
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
-import com.breezeeurobondfsm.widgets.AppCustomTextView
-import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.customnotification.view.*
 import kotlinx.android.synthetic.main.row_ord_opti_cart_list.view.*
 import kotlinx.android.synthetic.main.row_ord_opti_product_list.view.*
@@ -160,14 +148,14 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
                 }catch (ex:Exception){
                     changingRate = "0.0"
                 }
-                if(Pref.IsViewMRPInOrder && Pref.IsDiscountInOrder){
+                if(Pref.IsViewMRPInOrder && Pref.IsDiscountInOrder && prooductList.get(adapterPosition).product_mrp_show.toDouble()!=0.0){
                     if(changingRate.toDouble()>prooductList.get(adapterPosition).product_mrp_show.toDouble()){
                         ToasterMiddle.msgShort(mContext,"Rate can't be greater than MRP.")
                         return@setOnClickListener
                     }
                     changingDisc = String.format("%.2f",(100-((changingRate.toString().toDouble()*100)/prooductList.get(adapterPosition).product_mrp_show.toDouble())))
                 }
-
+                println("ord_load_test list prepare begin")
                 if((finalOrderDataList.filter { it.product_id.equals(prooductList.get(adapterPosition).product_id)} as ArrayList<FinalOrderData>).size>0 ){
                     finalOrderDataList.filter { it.product_id.equals(prooductList.get(adapterPosition).product_id)}.first().qty=itemView.tv_row_ord_opti_product_list_qty.text.toString()
                     finalOrderDataList.filter { it.product_id.equals(prooductList.get(adapterPosition).product_id)}.first().rate=if(itemView.tv_row_ord_opti_product_list_rate.text.toString().equals("")) "0.00" else itemView.tv_row_ord_opti_product_list_rate.text.toString()
@@ -176,7 +164,8 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
                     }
                     ToasterMiddle.msgShort(mContext,"Product updated.")
                     //notifyDataSetChanged()
-                }else{
+                }
+                else{
                     var obj = FinalOrderData()
                     obj.apply {
                         product_id = prooductList.get(adapterPosition).product_id
@@ -206,25 +195,37 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
                     ToasterMiddle.msgShort(mContext,prooductList.get(adapterPosition).product_name + " added.")
                     //notifyDataSetChanged()
                 }
-                listner.onProductAddClick(finalOrderDataList.size,finalOrderDataList.sumOf { it.rate.toDouble() * it.qty.toDouble() })
+                println("ord_load_test list prepare end")
+                println("ord_load_test sum counting.....")
+                var sumAmt = finalOrderDataList.sumOf { it.rate.toDouble() * it.qty.toDouble() }
+                println("ord_load_test sum counted onProductAddClick calling")
+                listner.onProductAddClick(finalOrderDataList.size,sumAmt)
             }
 
             itemView.tv_row_ord_opti_product_list_qty.setOnFocusChangeListener(object :View.OnFocusChangeListener{
                 override fun onFocusChange(v: View?, hasFocus: Boolean) {
+                    println("ord_load_test  focus : $hasFocus")
                     if(hasFocus){
-                        itemView.tv_row_ord_opti_product_list_qty.addTextChangedListener(
+                        println("ord_load_test  focus : if $adapterPosition")
+
+                        //new filter
+                        itemView.tv_row_ord_opti_product_list_qty.setFilters(arrayOf<InputFilter>(DecimalDigitsInputFilterAdv(5, 3)))
+
+                        /*itemView.tv_row_ord_opti_product_list_qty.addTextChangedListener(
                             CustomSpecialTextWatcher1(itemView.tv_row_ord_opti_product_list_qty, 5, 3, object : CustomSpecialTextWatcher1.GetCustomTextChangeListener {
                                 override fun beforeTextChange(text: String) {
-
+                                    println("ord_load_test  beforeTextChange $adapterPosition")
                                 }
 
                                 override fun customTextChange(text: String) {
-
+                                    println("ord_load_test  customTextChange $adapterPosition")
                                 }
                             })
-                        )
+                        )*/
+                        println("ord_load_test  focus : if end $adapterPosition")
                     }else{
                         AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                        println("ord_load_test  focus : else $adapterPosition")
                     }
                 }
             })
@@ -241,7 +242,10 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
                             ex.printStackTrace()
                         }
 
-                        itemView.tv_row_ord_opti_product_list_rate.addTextChangedListener(
+                        //new filter
+                        itemView.tv_row_ord_opti_product_list_rate.setFilters(arrayOf<InputFilter>(DecimalDigitsInputFilterAdv(6, 2)))
+
+                        /*itemView.tv_row_ord_opti_product_list_rate.addTextChangedListener(
                             CustomSpecialTextWatcher1(itemView.tv_row_ord_opti_product_list_rate, 6, 2, object : CustomSpecialTextWatcher1.GetCustomTextChangeListener {
                                 override fun beforeTextChange(text: String) {
 
@@ -251,7 +255,7 @@ class AdapterOrdProductOptimized(val mContext: Context,var proList : ArrayList<P
 
                                 }
                             })
-                        )
+                        )*/
                     }else{
                         AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
                     }

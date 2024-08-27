@@ -44,5 +44,6 @@ class UserDetail {
     var profile_longitude: String? = null
 
     var visit_location_id: String? = null
+    var user_ShopStatus: Boolean = false
 
 }

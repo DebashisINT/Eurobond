@@ -72,7 +72,7 @@ class AdapterContactCompany(var mContext:Context, var companyNameL:ArrayList<Com
             filterL?.clear()
 
             tempL?.indices!!
-                .filter { tempL?.get(it)?.company_name.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!! }
+                .filter { tempL?.get(it)?.company_name?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!! }
                 .forEach { filterL?.add(tempL?.get(it)!!) }
 
             results.values = filterL

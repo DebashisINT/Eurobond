@@ -14,7 +14,9 @@ import android.text.TextUtils
 import androidx.core.app.NotificationManagerCompat
 
 import com.breezeeurobondfsm.R
+import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.Pref
+import com.breezeeurobondfsm.app.domain.LMSNotiEntity
 import com.breezeeurobondfsm.app.types.FragType
 import com.breezeeurobondfsm.app.utils.AppUtils
 
@@ -85,7 +87,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        println("Refreshed token onMessageReceived");
+        println("Refreshed token onMessageReceived"+remoteMessage);
         Timber.e("FirebaseMessageService : ============Push has come============ ${AppUtils.getCurrentDateTime()}")
 
 
@@ -171,6 +173,30 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 //val intent = Intent()
                 //intent.action = "FCM_ACTION_RECEIVER_LEAD"
                 //LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+            }else if(remoteMessage?.data?.get("type").equals("lms_content_assign")){
+
+                try {
+                    var obj : LMSNotiEntity = LMSNotiEntity()
+                    obj.noti_datetime = AppUtils.getCurrentDateTime()
+                    obj.noti_date = AppUtils.getCurrentDateForShopActi()//.replace("-20","-19")
+                    obj.noti_time = AppUtils.getCurrentTime()
+                    obj.noti_header = remoteMessage?.data?.get("header").toString()
+                    if(obj.noti_header == "null"){
+                        obj.noti_header = "New Assignment"
+                    }
+                    obj.noti_message = remoteMessage?.data?.get("body").toString()
+                    obj.isViwed=false
+                    AppDatabase.getDBInstance()!!.lmsNotiDao().insert(obj)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+
+                notification.sendFCMNotificaiton(applicationContext, remoteMessage)
+
+                val intent = Intent()
+                intent.action = "FCM_ACTION_RECEIVER"
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
             }
             else {
                 notification.sendFCMNotificaiton(applicationContext, remoteMessage)

@@ -1,5 +1,6 @@
 package com.breezeeurobondfsm.features.leaderboard
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,41 +8,53 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.breezeeurobondfsm.R
+import com.breezeeurobondfsm.app.Pref
+import com.breezeeurobondfsm.features.leaderboard.api.OverallUserListData
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import de.hdodenhof.circleimageview.CircleImageView
 
-class LeaderBoardAdapter(private val mLeaderBoardData : ArrayList<LeaderBoardData>):RecyclerView.Adapter<FoodViewHolder>(){
+class LeaderBoardAdapter(
+    private val mLeaderBoardData: ArrayList<OverallUserListData>,
+    private val mContext: Context
+):RecyclerView.Adapter<FoodViewHolder>(){
     // class FoodViewHolder here..
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FoodViewHolder {
         val viewLayout = LayoutInflater.from(parent.context).inflate(
             R.layout.row_leaderboard_frag,
             parent,false)
-        return FoodViewHolder(viewLayout)    }
+        return FoodViewHolder(viewLayout)
+    }
 
     override fun getItemCount(): Int {
       return  mLeaderBoardData.size
     }
 
     override fun onBindViewHolder(holder: FoodViewHolder, position: Int) {
-        val currentFood = mLeaderBoardData[position]
-        holder.name_TV.text = currentFood.name
-        holder.tv_designation.text = currentFood.tv_designation
-        holder.tv_mobile.text = currentFood.phonenumber
-        holder.tv_score.text = currentFood.totalscore
-
-        if (currentFood.rank==1){
+        val mLeaderBoardPositionData = mLeaderBoardData[position]
+        holder.name_TV.text = mLeaderBoardPositionData.user_name
+        //holder.tv_designation.text = mLeaderBoardPositionData.user_list.get(position).user_name
+        holder.tv_mobile.text = mLeaderBoardPositionData.user_phone
+        holder.tv_score.text = mLeaderBoardPositionData.totalscore.toString()
+        Glide.with(mContext)
+            .load(mLeaderBoardPositionData.profile_pictures_url)
+            .apply(RequestOptions.placeholderOf(R.drawable.user_blank).error(R.drawable.user_blank))
+            .into(holder.iv_logoOfPerson)
+        if (mLeaderBoardPositionData.position == 1){
             holder.iv_badge.setBackgroundResource(R.drawable.first_icon)
 
-        }else if (currentFood.rank==2){
+        }else if (mLeaderBoardPositionData.position == 2){
             holder.iv_badge.setBackgroundResource(R.drawable.second_icon)
 
         }
-        else if (currentFood.rank==3){
+        else if (mLeaderBoardPositionData.position == 3){
             holder.iv_badge.setBackgroundResource(R.drawable.third_icon)
 
         }
         else{
             holder.leader_rank_TV.visibility=View.VISIBLE
-            holder.leader_rank_TV.text = "#"+currentFood.rank.toString()
+            holder.leader_rank_TV.text = "#"+mLeaderBoardPositionData.position.toString()
 
         }
     }
@@ -56,4 +69,5 @@ class FoodViewHolder(itemView:View):RecyclerView.ViewHolder(itemView)
     val tv_designation : TextView = itemView.findViewById(R.id.tv_designation)
     val tv_score : TextView = itemView.findViewById(R.id.tv_score)
     val tv_mobile : TextView = itemView.findViewById(R.id.tv_mobile)
+    val iv_logoOfPerson : CircleImageView = itemView.findViewById(R.id.iv_logoOfPerson)
 }

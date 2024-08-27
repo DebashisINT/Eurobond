@@ -25,6 +25,15 @@ interface ShopVisitImageUploadApi {
     @POST("FileUpload/UploadAudioforShop")
     fun visitShopWithAudio(@Query("data") addShop: String, @Part logo_audio_data: MultipartBody.Part?): Observable<BaseResponse>
 
+    @Multipart
+    @POST("FileUpload/UploadShopRevisitAudio")
+    fun syncNewShopAudioApi(@Query("data") addShop: String, @Part logo_audio_data: MultipartBody.Part?): Observable<BaseResponse>
+
+    @Multipart
+    @POST("FileUpload/UploadAudioforShop")
+    fun syncShopNewAudioApi(@Query("data") addShop: String, @Part logo_audio_data: MultipartBody.Part?): Observable<BaseResponse>
+
+
     /**
      * Companion object to create the GithubApiService
      */

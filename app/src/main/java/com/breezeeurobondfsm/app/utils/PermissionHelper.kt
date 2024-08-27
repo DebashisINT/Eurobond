@@ -17,6 +17,7 @@ class PermissionHelper {
         var REQUEST_CODE_CAMERA = 100
         var REQUEST_CODE_STORAGE = 102
         var REQUEST_CODE_PHONE_STATE = 104
+        var REQUEST_CODE_AUDIO_REC_NW = 9987
 
         val TAG_LOCATION_RESULTCODE = 1001
 

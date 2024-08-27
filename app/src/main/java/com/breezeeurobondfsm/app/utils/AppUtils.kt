@@ -3,6 +3,7 @@ package com.breezeeurobondfsm.app.utils
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -24,6 +25,7 @@ import android.os.SystemClock
 import android.provider.CalendarContract
 import android.provider.CallLog
 import android.provider.ContactsContract
+import android.provider.ContactsContract.CommonDataKinds.StructuredPostal
 import android.provider.MediaStore
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
@@ -41,6 +43,8 @@ import androidx.core.content.ContextCompat
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.Pref
+import com.breezeeurobondfsm.app.domain.PhoneContact1Entity
+import com.breezeeurobondfsm.app.domain.PhoneContactEntity
 import com.breezeeurobondfsm.features.contacts.ContactDtls
 import com.breezeeurobondfsm.features.contacts.ContactGr
 import com.breezeeurobondfsm.features.location.LocationWizard
@@ -53,17 +57,18 @@ import com.google.gson.reflect.TypeToken
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.WriterException
 import com.google.zxing.qrcode.QRCodeWriter
-import kotlinx.coroutines.delay
 import okhttp3.CacheControl
 import okhttp3.Interceptor
 import org.apache.commons.lang3.StringEscapeUtils
 import timber.log.Timber
 import java.io.*
 import java.math.BigDecimal
+import java.security.SecureRandom
 import java.sql.Timestamp
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -72,6 +77,12 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import android.util.Base64
+import java.math.BigInteger
+import javax.crypto.spec.SecretKeySpec
 
 
 /**
@@ -112,6 +123,7 @@ class AppUtils {
         var isAppInfoUpdating = false
         var notificationChannelId = "fts_1"
         var notificationChannelName = "FTS Channel"
+        var notificationGroupName = "FTS Group"
         var isGpsReceiverCalled = false
         //var timer: Timer? = null
         var isFromAttendance = false
@@ -1899,6 +1911,16 @@ class AppUtils {
             return f.format(convertedDate)
 
         }
+        fun getMonthDayFromDate(dateString: String):String{
+            var convertedDate =""
+            try {
+                convertedDate = dateString.substring(0,10).substring(5,10)
+
+            }catch (e:Exception){
+                e.printStackTrace()
+            }
+            return convertedDate
+        }
 
         fun getCurrentDateMonth(): String {
             val df = SimpleDateFormat("ddMMyy", Locale.ENGLISH)
@@ -2606,9 +2628,10 @@ class AppUtils {
             return mPrefs.getBoolean("IsFaceDetectionWithCaptcha",false)
         }
 
+        //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
 
 
-        fun saveSharedPreferencesIsScreenRecorderEnable(context: Context,value:Boolean){
+       /* fun saveSharedPreferencesIsScreenRecorderEnable(context: Context,value:Boolean){
             val mPrefs = context.getSharedPreferences("IsScreenRecorderEnable_STATUS", Context.MODE_PRIVATE)
             val prefsEditor = mPrefs.edit()
             prefsEditor.putBoolean("IsScreenRecorderEnable", value)
@@ -2619,7 +2642,8 @@ class AppUtils {
             val mPrefs = context.getSharedPreferences("IsScreenRecorderEnable_STATUS", Context.MODE_PRIVATE)
             return mPrefs.getBoolean("IsScreenRecorderEnable",false)
         }
-
+*/
+        //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
 
 
 
@@ -3041,6 +3065,15 @@ class AppUtils {
             return formattedDate.toString()
         }
 
+        fun gethhmmssFromSeconds(sec:Int):String{
+            var hours = sec / 3600;
+            var minutes = (sec % 3600) / 60;
+            var seconds = sec % 60;
+
+            var timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+            return timeString
+        }
+
         fun getPrevMonth3CurrentYear_MMM_YYYY(): String {
             val aCalendar = Calendar.getInstance(Locale.ENGLISH)
             aCalendar.add(Calendar.MONTH, -3)
@@ -3172,6 +3205,11 @@ class AppUtils {
             val days = hours / 24
 
             return minutes.toInt()
+        }
+
+        fun getDateOnlyFromTimestamp(millisec:String){
+            var dt = DateTimeFormatter.ofPattern("dd MM yyyy",Locale.getDefault())
+                .format(Instant.ofEpochMilli(millisec.toLong()))
         }
 
         data class PhoneCallDtls(var number:String?="",var type:String?="",var callDate:String?="",var callDateTime:String?="",var callDuration:String?="")
@@ -3383,11 +3421,11 @@ class AppUtils {
                     while (it.moveToNext()) {
                         val groupName = it.getString(it.getColumnIndex(ContactsContract.Groups.TITLE))
                         val groupId = it.getString(it.getColumnIndex(ContactsContract.Groups._ID))
+                        Timber.d("tag_contact_gr $groupName $groupId")
                         if(!groups.map { it.gr_name }.contains(groupName)){
                             groups.add(ContactGr(groupId,groupName))
                             //println("tag_contact_gr $groupId $groupName")
                         }
-
                     }
                 }
                 return groups
@@ -3420,8 +3458,7 @@ class AppUtils {
                 do {
                     val nameCoumnIndex = groupCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
                     val name = groupCursor.getString(nameCoumnIndex)
-                    val contactId =
-                        groupCursor.getLong(groupCursor.getColumnIndex(ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID))
+                    val contactId = groupCursor.getLong(groupCursor.getColumnIndex(ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID))
                     val numberCursor = context.contentResolver.query(
                         ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                         arrayOf<String>(ContactsContract.CommonDataKinds.Phone.NUMBER),
@@ -3438,7 +3475,7 @@ class AppUtils {
                             var ph = phoneNumber.toString().replace(" ","")
                             if(!contactDtls.map { it.number }.contains(ph)){
                                 contactDtls.add(ContactDtls(grName,name,ph))
-                                println("tag_cont ___________________ $name $ph")
+                                //println("tag_cont ___________________ $name $ph")
                             }
                         } while (numberCursor!!.moveToNext())
                         numberCursor!!.close()
@@ -3450,6 +3487,289 @@ class AppUtils {
             return contactDtls
         }
 
-    }
+        data class ContactDtlsByGr(var id:String="",var name:String="",var ph:String="")
+        @SuppressLint("Range")
+        fun getContactByGr(groupId:String, mContext:Context){
 
+            var contaL:ArrayList<ContactDtlsByGr> = ArrayList()
+
+            val contentResolver: ContentResolver = mContext.getContentResolver()
+
+            //get contact by group
+            var cProjection = arrayOf<String>(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID)
+            val xCursor = contentResolver.query(ContactsContract.Data.CONTENT_URI, cProjection,
+                ContactsContract.CommonDataKinds.GroupMembership.GROUP_ROW_ID + "= ?" + " AND "
+                        + ContactsContract.CommonDataKinds.GroupMembership.MIMETYPE + "='"
+                        + ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE + "'",
+                arrayOf<String>(groupId.toString()), null)
+            while (xCursor != null && xCursor.moveToNext()) {
+                var contactId = ""
+                var name = ""
+                try {
+                    @SuppressLint("Range") val contactIdExtra = xCursor.getString(xCursor.getColumnIndex(ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID))
+                    @SuppressLint("Range") val nameExtra = xCursor.getString(xCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)).replace(" ", "")
+                    contactId=contactIdExtra
+                    name=nameExtra
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+
+                var objProjection = arrayOf<String>(ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+                val selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?"
+                val selectionArguments = arrayOf(contactId)
+                val phonesCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, objProjection,
+                    selection, selectionArguments, null)
+                try {
+                    while (phonesCursor != null && phonesCursor.moveToNext()) {
+                        @SuppressLint("Range") val contID = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                        @SuppressLint("Range") val phoneNo = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replace(" ", "")
+                        try {
+                            contaL.add(ContactDtlsByGr(id =contactId,name = name, ph =phoneNo))
+                            println("tag_conta_super $name $phoneNo")
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+                phonesCursor?.close()
+            }
+            xCursor?.close()
+
+            var ff = contaL.distinctBy { it.id }
+            var fff = ff
+
+        }
+
+        @SuppressLint("Range")
+        fun getContactByGrNw(groupId:String,groupName:String, mContext:Context):ArrayList<ContactDtls>{
+
+            var contaL:ArrayList<PhoneContactEntity> = ArrayList()
+            var contaLAll:ArrayList<PhoneContact1Entity> = ArrayList()
+
+            AppDatabase.getDBInstance()?.phoneContactDao()?.deleteAll()
+            AppDatabase.getDBInstance()?.phoneContact1Dao()?.deleteAll()
+
+            val contentResolver: ContentResolver = mContext.getContentResolver()
+
+            //get contact by group
+            var cProjection = arrayOf<String>(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID)
+            val xCursor = contentResolver.query(ContactsContract.Data.CONTENT_URI, cProjection,
+                ContactsContract.CommonDataKinds.GroupMembership.GROUP_ROW_ID + "= ?" + " AND "
+                        + ContactsContract.CommonDataKinds.GroupMembership.MIMETYPE + "='"
+                        + ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE + "'",
+                arrayOf<String>(groupId.toString()), null)
+            while (xCursor != null && xCursor.moveToNext()) {
+                try {
+                    @SuppressLint("Range") val contactIdExtra = xCursor.getString(xCursor.getColumnIndex(ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID))
+                    @SuppressLint("Range") val nameExtra = xCursor.getString(xCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)).replace(" ", "")
+                    var contObj = PhoneContactEntity(contact_id = contactIdExtra, contact_name =nameExtra, contact_phone = "")
+                    if(!contObj.contact_name.contains("@")){
+                        AppDatabase.getDBInstance()?.phoneContactDao()?.insert(contObj)
+                    }
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+            }
+            xCursor?.close()
+
+
+            // add all mobiles contact
+            cProjection = arrayOf<String>(ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+            val phonesCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, cProjection, null, null, null)
+            while (phonesCursor != null && phonesCursor.moveToNext()) {
+                try {
+                    @SuppressLint("Range") val contactId = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                    @SuppressLint("Range") val phoneNumber = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replace(" ", "")
+                    var contObj = PhoneContact1Entity(contact_id = contactId, contact_name ="", contact_phone = phoneNumber)
+                    AppDatabase.getDBInstance()?.phoneContact1Dao()?.insert(contObj)
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+            }
+            phonesCursor?.close()
+
+            var dtlss =AppDatabase.getDBInstance()?.phoneContactDao()?.getCUstomData1(groupName) as ArrayList<ContactDtls>
+
+            return dtlss
+        }
+
+        @SuppressLint("Range")
+        fun getContactByGrNwWithAddr(groupId:String,groupName:String, mContext:Context):ArrayList<ContactDtls>{
+
+            AppDatabase.getDBInstance()?.phoneContactDao()?.deleteAll()
+            AppDatabase.getDBInstance()?.phoneContact1Dao()?.deleteAll()
+
+            val contentResolver: ContentResolver = mContext.getContentResolver()
+
+            //get contact by group
+            var cProjection = arrayOf<String>(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID)
+            val xCursor = contentResolver.query(ContactsContract.Data.CONTENT_URI, cProjection,
+                ContactsContract.CommonDataKinds.GroupMembership.GROUP_ROW_ID + "= ?" + " AND "
+                        + ContactsContract.CommonDataKinds.GroupMembership.MIMETYPE + "='"
+                        + ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE + "'",
+                arrayOf<String>(groupId.toString()), null)
+            while (xCursor != null && xCursor.moveToNext()) {
+                try {
+                    @SuppressLint("Range") val contactIdExtra = xCursor.getString(xCursor.getColumnIndex(ContactsContract.CommonDataKinds.GroupMembership.CONTACT_ID))
+                    @SuppressLint("Range") val nameExtra = xCursor.getString(xCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))//.replace(" ", "")
+                    var contObj = PhoneContactEntity(contact_id = contactIdExtra, contact_name =nameExtra, contact_phone = "")
+                    println("tag_conta 1 ${contObj.contact_name} ${contObj.contact_phone}")
+                    if(!contObj.contact_name.contains("@")){
+                        AppDatabase.getDBInstance()?.phoneContactDao()?.insert(contObj)
+                    }
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+            }
+            xCursor?.close()
+
+
+            // add all mobiles contact
+            cProjection = arrayOf<String>(ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+            val phonesCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, cProjection, null, null, null)
+            while (phonesCursor != null && phonesCursor.moveToNext()) {
+                try {
+                    @SuppressLint("Range") val contactId = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                    @SuppressLint("Range") val phoneNumber = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replace(" ", "")
+                    var contObj = PhoneContact1Entity(contact_id = contactId, contact_name ="", contact_phone = phoneNumber)
+                    //checkContactWhatsapp(mContext,contactId.toString(),contObj.contact_name,contObj.contact_phone)
+                    println("tag_conta 2 ${contObj.contact_name} ${contObj.contact_phone}")
+                    AppDatabase.getDBInstance()?.phoneContact1Dao()?.insert(contObj)
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+            }
+            phonesCursor?.close()
+
+            var dtlss =AppDatabase.getDBInstance()?.phoneContactDao()?.getCUstomData1(groupName) as ArrayList<ContactDtls>
+            try {
+                for(i in 0..dtlss.size-1){
+                    //dtlss.get(i).addr = getAddrByContactID(dtlss.get(i).contact_id,mContext)
+                    var addr = getAddrByContactID(dtlss.get(i).contact_id.toLong(),mContext)
+                    dtlss.get(i).addr = if(addr.isNullOrEmpty()) "" else addr
+                    println("tag_conta_addr ${dtlss.get(i)}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            return dtlss
+        }
+
+        @SuppressLint("Range")
+        fun getAddrByContactID(rawContactId: Long, mContext:Context): String? {
+            val contentResolver = mContext.contentResolver
+            val projection: Array<out String> = arrayOf(
+                ContactsContract.Data.CONTACT_ID,
+                ContactsContract.Data.MIMETYPE,
+                ContactsContract.Data.DATA1,
+                ContactsContract.Data.DATA2,
+            )
+            val selection = "${ContactsContract.Data.CONTACT_ID} = ?"
+            val selectionArgs: Array<String> = arrayOf("")
+            selectionArgs[0] = rawContactId.toString()
+            val cursor = contentResolver.query(
+                ContactsContract.Data.CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
+            )
+            var address: String? = null
+
+            cursor?.apply {
+                while (moveToNext()) {
+                    if (rawContactId == getLong(getColumnIndex(ContactsContract.Data.CONTACT_ID))) {
+                        val mimeType: String = getString(getColumnIndex(ContactsContract.Data.MIMETYPE))
+                        if (mimeType == ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                            address = getString(getColumnIndex(ContactsContract.Data.DATA1))
+
+                    }
+                }
+            }
+            cursor?.close()
+
+            return address
+        }
+
+        fun checkContactWhatsapp(mContext:Context,contact_ID:String,name:String,ph:String):Boolean{
+            try {
+                val contentResolver = mContext.contentResolver
+                var projection = arrayOf<String>(ContactsContract.RawContacts._ID)
+                val selection = ContactsContract.Data.CONTACT_ID + " = ? AND account_type IN (?)";
+                val selectionArgs = arrayOf<String>( contact_ID, "com.whatsapp" )
+
+                val xCursor = contentResolver.query(ContactsContract.RawContacts.CONTENT_URI, projection, selection, selectionArgs, null)
+
+                var hasWhatsApp = xCursor!!.moveToNext();
+                return hasWhatsApp
+                /*if (hasWhatsApp){
+                    println("tag_whatsapp present $name $ph")
+                    var rowContactId = xCursor.getString(0);
+                }else{
+                    println("tag_whatsapp not present $name $ph")
+                }*/
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                return false
+            }
+
+        }
+
+        fun checkContactWhatsappAll(mContext:Context,contact_ID:String,name:String,ph:String,rawContactId:String){
+            try {
+                val contentResolver = mContext.contentResolver
+                var projection = arrayOf<String>(ContactsContract.Data.DATA3)
+                val selection = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ? "
+                val selectionArgs = arrayOf<String>( "vnd.android.cursor.item/vnd.com.whatsapp.profile",  rawContactId )
+
+                val xCursor = contentResolver.query(ContactsContract.Data.CONTENT_URI, projection, selection, selectionArgs, "1 LIMIT 1")
+
+                var phNumb = ""
+                if(xCursor!!.moveToNext()){
+                    phNumb = xCursor.getString(0)
+                }
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+
+        }
+
+
+        private const val ALGORITHM = "AES"
+        private const val TRANSFORMATION = "AES"
+
+        fun generateKey(): SecretKey {
+            val keyGen = KeyGenerator.getInstance(ALGORITHM)
+            keyGen.init(256, SecureRandom())
+            return keyGen.generateKey()
+        }
+
+        fun encrypt(data: String, secretKey: SecretKey): String {
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+            val encryptedBytes = cipher.doFinal(data.toByteArray(Charsets.UTF_8))
+            return Base64.encodeToString(encryptedBytes, Base64.URL_SAFE)
+        }
+
+        fun decrypt(encryptedData: String, secretKey: SecretKey): String {
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(Cipher.DECRYPT_MODE, secretKey)
+            val decodedBytes = Base64.decode(encryptedData, Base64.URL_SAFE)
+            val decryptedBytes = cipher.doFinal(decodedBytes)
+            return String(decryptedBytes, Charsets.UTF_8)
+        }
+
+        fun keyToString(secretKey: SecretKey): String {
+            return Base64.encodeToString(secretKey.encoded, Base64.URL_SAFE)
+        }
+
+        fun stringToKey(encodedKey: String): SecretKey {
+            val decodedKey = Base64.decode(encodedKey, Base64.URL_SAFE)
+            return SecretKeySpec(decodedKey, 0, decodedKey.size, ALGORITHM)
+        }
+
+    }
 }

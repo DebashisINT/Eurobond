@@ -117,13 +117,13 @@ class DocumentListFragment : BaseFragment() {
         if(CustomStatic.IsDocZero){
             var type = "oraganizer"
             tv_add_document.visibility = View.GONE
-            file_name.visibility = View.VISIBLE
+           // file_name.visibility = View.VISIBLE
 
         }
         else{
             var type = "own"
             tv_add_document.visibility = View.VISIBLE
-            file_name.visibility = View.GONE
+          //  file_name.visibility = View.GONE
         }
 
 
@@ -147,7 +147,7 @@ class DocumentListFragment : BaseFragment() {
             tv_add_document = findViewById(R.id.tv_add_document)
             tv_no_data = findViewById(R.id.tv_no_data)
             rl_doc_list_main = findViewById(R.id.rl_doc_list_main)
-            file_name = findViewById(R.id.file_name)
+           // file_name = findViewById(R.id.file_name)
 
 
         }
@@ -497,7 +497,8 @@ class DocumentListFragment : BaseFragment() {
             }
             else
                 openFile(file)
-        }*/{ document ->
+        }*/{  //onAttachmentClick
+            document ->
             val fileName: String = document.attachment!!
             if (document.attachment!!.startsWith("http")) {
                 var strFileName = File(document.attachment!!).name
@@ -508,7 +509,8 @@ class DocumentListFragment : BaseFragment() {
                 Log.e("Attachment", "Attachment downloading=======> " + "Already Downloading..")
             }
         },
-                { doc ->
+                {   //view click
+                    doc ->
 //                    val file = File(FTStorageUtils.getFolderPath(mContext) + "/" + doc.attachment)
                     var tt="aer"
                     if(doc.attachment!!.contains("Commonfolder") &&  AppUtils.isOnline(mContext)){

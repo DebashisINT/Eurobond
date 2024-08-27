@@ -113,6 +113,7 @@ class CheckFingerPrint {
             e.printStackTrace()
         }
 
+
         try {
             // Check if the fingerprint sensor is present
             if (!fingerPrintManager.isHardwareDetected) {

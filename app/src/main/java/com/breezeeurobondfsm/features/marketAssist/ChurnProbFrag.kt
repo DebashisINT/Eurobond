@@ -486,6 +486,10 @@ class ChurnProbFrag : BaseFragment(), View.OnClickListener{
             uiThread {
                 progress.stopSpinning()
 
+                var tempL = finalS.clone() as  ArrayList<ChurnShopL>
+                var tempL1 = tempL.distinctBy { it.shop_id }
+                finalS = tempL1 as  ArrayList<ChurnShopL>
+
                 if(filter.length==0){
                     rvShopL.adapter = AdapterChurnShopL(mContext,finalS)
                 }else{

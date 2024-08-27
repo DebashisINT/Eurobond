@@ -49,8 +49,8 @@ class ShopDetailsInstructionDialog : DialogFragment(), View.OnClickListener {
         return v
     }
 
-    private fun initView(v: View) {
-        rb_enter_collection = v.findViewById(R.id.rb_enter_collection)
+    private fun initView(v: View?) {
+        rb_enter_collection = v!!.findViewById(R.id.rb_enter_collection)
         rb_view_create_order = v.findViewById(R.id.rb_view_create_order)
         iv_close_icon = v.findViewById(R.id.iv_close_icon)
     }

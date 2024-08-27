@@ -33,6 +33,9 @@ interface ActivityDao {
     @Query("SELECT * FROM " + AppConstant.Activity + " where party_id=:party_id")
     fun getShopIdWise(party_id: String): List<ActivityEntity>
 
+    @Query("SELECT * FROM " + AppConstant.Activity + " where party_id=:party_id order by date,time desc")
+    fun getShopIdWiseDesc(party_id: String): List<ActivityEntity>
+
     @Query("SELECT * FROM " + AppConstant.Activity + " where due_date=:due_date")
     fun getDueDateWise(due_date: String): List<ActivityEntity>
 

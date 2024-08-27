@@ -1555,7 +1555,7 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
                         else{
                             AddShopFragment.isOrderEntryPressed=true
                             ShopDetailFragment.isOrderEntryPressed=true
-                            AddShopFragment.newShopID=addShopData?.shop_id
+                            AddShopFragment.newShopID=addShopData?.shop_id!!
                             if(Pref.IsActivateNewOrderScreenwithSize){//13-09-2021
                                 (mContext as DashboardActivity).loadFragment(FragType.NewOrderScrOrderDetailsFragment, true, addShopData!!.shop_id)
                             }else {
@@ -1639,7 +1639,7 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
                         else{
                             AddShopFragment.isOrderEntryPressed=true
                             ShopDetailFragment.isOrderEntryPressed=true
-                            AddShopFragment.newShopID=addShopData?.shop_id
+                            AddShopFragment.newShopID=addShopData.shop_id
                             if(Pref.IsActivateNewOrderScreenwithSize){//13-09-2021
                                 (mContext as DashboardActivity).loadFragment(FragType.NewOrderScrOrderDetailsFragment, true, addShopData!!.shop_id)
                             }else {
@@ -1836,7 +1836,7 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
                         else{
                             AddShopFragment.isOrderEntryPressed=true
                             ShopDetailFragment.isOrderEntryPressed=true
-                            AddShopFragment.newShopID=addShopData?.shop_id
+                            AddShopFragment.newShopID=addShopData.shop_id
                             if(Pref.IsActivateNewOrderScreenwithSize){//13-09-2021
                                 (mContext as DashboardActivity).loadFragment(FragType.NewOrderScrOrderDetailsFragment, true, addShopData!!.shop_id)
                             }else {
@@ -1916,7 +1916,7 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
                         else{
                             AddShopFragment.isOrderEntryPressed=true
                             ShopDetailFragment.isOrderEntryPressed=true
-                            AddShopFragment.newShopID=addShopData?.shop_id
+                            AddShopFragment.newShopID=addShopData?.shop_id!!
                             if(Pref.IsActivateNewOrderScreenwithSize){//13-09-2021
                                 (mContext as DashboardActivity).loadFragment(FragType.NewOrderScrOrderDetailsFragment, true, addShopData!!.shop_id)
                             }else {
@@ -3516,9 +3516,9 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
 
                 /////////
                 if(programFab5?.labelText.equals("Current Stock") || programFab6?.labelText.equals("Current Stock")){
-                    (mContext as DashboardActivity).loadFragment(FragType.UpdateShopStockFragment, true, addShopData?.shop_id)
+                    (mContext as DashboardActivity).loadFragment(FragType.UpdateShopStockFragment, true, addShopData?.shop_id!!)
                 }else if(programFab5?.labelText.equals("Competitor Stock") || programFab6?.labelText.equals("Competitor Stock")){
-                    (context as DashboardActivity).loadFragment(FragType.CompetetorStockFragment, true, addShopData?.shop_id)
+                    (context as DashboardActivity).loadFragment(FragType.CompetetorStockFragment, true, addShopData?.shop_id!!)
                 }else{
                     (mContext as DashboardActivity).loadFragment(FragType.StockListFragment, true, addShopData)
                 }
@@ -3578,7 +3578,7 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
                 programFab7?.setImageResource(R.drawable.ic_tick_float_icon)
                 programFab7?.colorNormal = mContext.resources.getColor(R.color.delivery_status_green)
 
-                (mContext as DashboardActivity).loadFragment(FragType.UpdateShopStockFragment, true, addShopData?.shop_id)
+                (mContext as DashboardActivity).loadFragment(FragType.UpdateShopStockFragment, true, addShopData.shop_id)
             }
             702 ->{
                 floating_fab.close(true)
@@ -3602,7 +3602,7 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
                 programFab7?.setImageResource(R.drawable.ic_tick_float_icon)
                 programFab7?.colorNormal = mContext.resources.getColor(R.color.delivery_status_green)
 
-                (mContext as DashboardActivity).loadFragment(FragType.CompetetorStockFragment, true, addShopData?.shop_id)
+                (mContext as DashboardActivity).loadFragment(FragType.CompetetorStockFragment, true, addShopData?.shop_id!!)
             }
         }
     }

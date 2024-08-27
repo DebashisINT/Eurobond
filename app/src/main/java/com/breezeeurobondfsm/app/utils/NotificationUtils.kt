@@ -29,6 +29,9 @@ import com.breezeeurobondfsm.features.chat.model.ChatListDataModel
 import com.breezeeurobondfsm.features.chat.model.ChatUserDataModel
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
 import com.breezeeurobondfsm.features.login.UserLoginDataEntity
+import com.breezeeurobondfsm.features.mylearning.MyLearningFragment
+import com.breezeeurobondfsm.features.mylearning.NotificationLMSFragment
+import com.breezeeurobondfsm.features.notification.NotificationFragment
 
 import com.google.firebase.messaging.RemoteMessage
 import timber.log.Timber
@@ -243,6 +246,8 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
             shopIntent.putExtra("TYPE", "REIMBURSEMENT")
         else if (!TextUtils.isEmpty(remoteMessage?.data?.get("type")) && remoteMessage?.data?.get("type") == "video_upload")
             shopIntent.putExtra("TYPE", "VIDEO")
+        else if(!TextUtils.isEmpty(remoteMessage?.data?.get("type")) && remoteMessage?.data?.get("type") == "lms_content_assign")
+            shopIntent.putExtra("TYPE", "lms_content_assign")
         else
             shopIntent.putExtra("TYPE", "PUSH")
         shopIntent.action = Intent.ACTION_MAIN
@@ -281,6 +286,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
                     .setGroupSummary(true)
                     .setContentText(remoteMessage?.data?.get("body").toString()) //1.0 Notification Design  AppV 4.0.6 mantis 25630
 //                    .setContent(remoteView)  //1.0 Notification Design  AppV 4.0.6 mantis 25630 off
+                .setStyle(NotificationCompat.BigTextStyle().bigText(remoteMessage?.data?.get("body").toString()))
                     .build()
 
             notificationmanager.notify(m, notificationBuilder)
@@ -675,7 +681,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
 
         val random = Random()
         val m = random.nextInt(9999 - 1000) + 1000
-
+        println("body"+body+" "+m.toString())
         val notificationmanager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val remoteView = RemoteViews(applicationContext.packageName, R.layout.customnotificationsmall)
@@ -686,6 +692,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
         remoteView.setTextViewText(R.id.text_small, "Nordusk")
 
         val notificationIntent = Intent(applicationContext, DashboardActivity::class.java)
+        //val notificationIntent = Intent(applicationContext, NotificationFragment::class.java)
         notificationIntent.apply {
             action = AppConstant.MAIN_ACTION
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -752,7 +759,103 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
             notificationmanager.notify(m, notification)
         }
 
+
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun sendLocNotificationNew(applicationContext: Context, body: String) {
+
+        if (Pref.isAttendanceFeatureOnly)
+            return
+
+        val random = Random()
+        val m = random.nextInt(9999 - 1000) + 1000
+        println("body"+body+" "+m.toString())
+        val notificationmanager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val remoteView = RemoteViews(applicationContext.packageName, R.layout.customnotificationsmall)
+
+
+        remoteView.setImageViewResource(R.id.imagenotileft_small, R.drawable.ic_logo)
+        remoteView.setTextViewText(R.id.title_small, body)
+        remoteView.setTextViewText(R.id.text_small, "Nordusk")
+
+        val notificationIntent = Intent(applicationContext, DashboardActivity::class.java)
+        //val notificationIntent = Intent(applicationContext, NotificationFragment::class.java)
+        notificationIntent.apply {
+            action = AppConstant.MAIN_ACTION
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+
+
+//        val pendingIntent: PendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
+        // FLAG_IMMUTABLE update
+        val requestcode = m.toString()+"1"
+
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(applicationContext, requestcode.toInt(), notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId = AppUtils.notificationChannelId
+
+            val channelName = AppUtils.notificationChannelName
+            val groupName = m.toString()+"_"+1
+
+
+
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val notificationChannel = NotificationChannel(channelId, channelName, importance)
+            notificationChannel.enableLights(true)
+            //notificationChannel.setLightColor(getResources().getColor(R.color.material_progress_color));
+            notificationChannel.enableVibration(true)
+            //notificationChannel.setVibrationPattern(new Long[100, 200, 300, 400, 500, 400, 300, 200, 400]);
+            notificationmanager.createNotificationChannel(notificationChannel)
+
+            val notificationBuilder = NotificationCompat.Builder(applicationContext)
+                //.setContentTitle(applicationContext.getString(R.string.app_name))
+                .setContentText(body)
+                //.setStyle(NotificationCompat.BigTextStyle().bigText(body))
+                .setSmallIcon(R.drawable.ic_notifications_icon)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setAutoCancel(true)
+                .setChannelId(channelId)
+                .setContentIntent(pendingIntent)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setGroup(groupName)
+                .setGroupSummary(true)
+                //.setContent(remoteView)
+                .setCustomBigContentView(remoteView)
+                .setPriority(NotificationManager.IMPORTANCE_MAX)
+                .build()
+
+            notificationmanager.notify(m, notificationBuilder)
+        } else {
+            val notification = NotificationCompat.Builder(applicationContext)
+                //.setContentTitle(applicationContext.getString(R.string.app_name))
+                .setContentText(body)
+                //.setStyle(NotificationCompat.BigTextStyle().bigText(body))
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(R.drawable.ic_notifications_icon)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setAutoCancel(true)
+                // .setStyle(new
+                // NotificationCompat.BigPictureStyle()
+                // .bigPicture(bmp))
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setGroup("FTS Group")
+                .setGroupSummary(true)
+                //.setContent(remoteView)
+                .setCustomBigContentView(remoteView)
+
+                .setPriority(NotificationManager.IMPORTANCE_MAX)
+                .build()
+
+            notificationmanager.notify(m, notification)
+        }
+
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun sendClearDataNotification(applicationContext: Context, body: String) {
@@ -1578,6 +1681,5 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
         }
 
     }
-
 
 }

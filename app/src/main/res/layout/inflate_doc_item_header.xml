@@ -18,7 +18,7 @@
         android:textColor="@color/white"
         android:textSize="@dimen/_11sdp"
         android:textStyle="bold"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
     <com.breezeeurobondfsm.widgets.AppCustomTextView
         android:layout_width="0dp"

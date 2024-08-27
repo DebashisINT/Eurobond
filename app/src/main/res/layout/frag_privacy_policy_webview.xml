@@ -43,5 +43,6 @@
             android:text="@string/no_internet"
             android:textColor="@color/colorPrimary"
             android:textSize="@dimen/_13sdp"/>
+
     </LinearLayout>
 </RelativeLayout>

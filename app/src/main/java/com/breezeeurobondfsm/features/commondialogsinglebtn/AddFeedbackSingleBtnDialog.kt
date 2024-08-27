@@ -20,6 +20,7 @@ import android.text.Editable
 import android.text.Selection
 import android.text.TextUtils
 import android.view.*
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.RelativeLayout
@@ -32,7 +33,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder
+import cafe.adriel.androidaudiorecorder.AudioRecorderActivity
+import cafe.adriel.androidaudiorecorder.model.AudioChannel
 import cafe.adriel.androidaudiorecorder.model.AudioSampleRate
+import cafe.adriel.androidaudiorecorder.model.AudioSource
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -109,6 +113,8 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
     private lateinit var et_approxvalue_name: AppCustomEditText
     private lateinit var rl_multiContact: RelativeLayout
     private lateinit var tv_multiContact: AppCustomTextView
+    private lateinit var audioRecRoot: RelativeLayout
+    private lateinit var et_audioNW: EditText
 
     private var sel_extraContName : String = ""
     private var sel_extraContPh : String = ""
@@ -119,8 +125,10 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
     private var visitRemarksPopupWindow: PopupWindow? = null
     private var visitMultiContactPopupWindow: PopupWindow? = null
     private  var audioFile: File? = null
+    private  var audioFileNW: File? = null
     private var nextVisitDate = ""
     private var filePath = ""
+    private var filePathNW = ""
 
     private var ProsId = ""
 
@@ -197,6 +205,16 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
         tv_multiContact = v.findViewById(R.id.tv_dialog_add_feed_single_extra_contact_dropdown)
         iv_dialog_add_feedback_mic =  v.findViewById(R.id.iv_dialog_add_feedback_mic)// 3.0  AppV 4.0.7  AddFeedbackSingleBtnDialog mantis 25649 add feedback using voice
         tv_multiContact.setOnClickListener(this)
+
+        audioRecRoot = v.findViewById(R.id.ll_frag_revisit_shop_new_audio_rec)
+        et_audioNW = v.findViewById(R.id.et_frag_revisit_shop_record_audio_nw)
+        audioRecRoot.setOnClickListener(this)
+        et_audioNW.setOnClickListener(this)
+        if(Pref.IsUserWiseRecordAudioEnableForVisitRevisit){
+            audioRecRoot.visibility = View.VISIBLE
+        }else{
+            audioRecRoot.visibility = View.GONE
+        }
 
         if(Pref.IsContactPersonSelectionRequiredinRevisit){
             rl_multiContact.visibility = View.VISIBLE
@@ -412,16 +430,16 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
 //                        mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId)
                             // 1.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  start
                             if (!Pref.isShowVisitRemarks)
-                                mListener.onOkClick(et_feedback.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh)
+                                mListener.onOkClick(et_feedback.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh,filePathNW)
                             else
-                                mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh)
+                                mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh,filePathNW)
                             // 1.0  AppV 4.0.6  AddFeedbackSingleBtnDialog  end
                         }
                         else{
                             if (!Pref.isShowVisitRemarks)
-                                mListener.onOkClick(et_feedback.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh)
+                                mListener.onOkClick(et_feedback.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh,filePathNW)
                             else
-                                mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh)
+                                mListener.onOkClick(tv_remarks_dropdown.text.toString().trim(), nextVisitDate, filePath,et_approxvalue_name.text.toString(),ProsId,sel_extraContName,sel_extraContPh,filePathNW)
                         }
                     }, 1700)
 
@@ -477,6 +495,25 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
                     .setSampleRate(AudioSampleRate.HZ_100)
                         // Start recording
                         .record()
+            }
+            audioRecRoot.id,et_audioNW.id ->{
+                AppUtils.isRevisit = true
+                val folderPath = FTStorageUtils.getFolderPath(mContext)
+                audioFileNW = File("$folderPath/" + System.currentTimeMillis() + ".wav")
+
+                AndroidAudioRecorder.with(mContext as DashboardActivity)
+                    // Required
+                    .setFilePath(audioFileNW?.absolutePath)
+                    .setColor(resources.getColor(R.color.deep_green))
+                    .setRequestCode(PermissionHelper.REQUEST_CODE_AUDIO_REC_NW)
+                    // Optional
+                    .setSource(AudioSource.MIC)
+                    .setChannel(AudioChannel.STEREO)
+                    .setSampleRate(AudioSampleRate.HZ_100)
+                    .setAutoStart(true)
+                    .setKeepDisplayOn(true)
+                    // Start recording
+                    .record();
             }
 
             R.id.tv_remarks_dropdown -> {
@@ -693,7 +730,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
     }
 
     interface OnOkClickListener {
-        fun onOkClick(feedback: String, nextVisitDate: String, filePath: String,approxValue:String,prosId:String,sel_extraContNameStr :String,sel_extraContPhStr : String)
+        fun onOkClick(feedback: String, nextVisitDate: String, filePath: String,approxValue:String,prosId:String,sel_extraContNameStr :String,sel_extraContPhStr : String,filePathNW:String)
 
         fun onCloseClick(mfeedback: String,sel_extraContNameStr :String,sel_extraContPhStr : String)
 
@@ -703,6 +740,12 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
     fun setAudio(){
         filePath = audioFile?.absolutePath!!
         et_audio.setText(audioFile?.absolutePath)
+    }
+
+    fun setAudioNW(){
+        filePathNW = audioFileNW?.absolutePath!!
+        et_audioNW.setText(audioFileNW?.absolutePath)
+        println("tag_rev_audio captures")
     }
 
     fun setImage(imgRealPath: Uri, fileSizeInKB: Long) {
@@ -791,6 +834,7 @@ class AddFeedbackSingleBtnDialog : DialogFragment(), View.OnClickListener {
             a.printStackTrace()
         }
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == 7009){

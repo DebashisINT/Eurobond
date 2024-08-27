@@ -36,6 +36,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onReceive(context: Context, intent: Intent) {
+        println("tag_alarm_view onReceive")
 //        Pref.user_id="";
 //        if(Pref.login_date!= AppUtils.getCurrentDateChanged() && Pref.user_id!!.isNotEmpty())
 //        Pref.isAutoLogout=true

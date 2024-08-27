@@ -3,6 +3,7 @@ package com.breezeeurobondfsm.features.member.api
 import com.breezeeurobondfsm.app.NetworkConstant
 import com.breezeeurobondfsm.base.BaseResponse
 import com.breezeeurobondfsm.features.addshop.model.AreaListResponseModel
+import com.breezeeurobondfsm.features.contacts.TeamAllListRes
 import com.breezeeurobondfsm.features.contacts.TeamListRes
 import com.breezeeurobondfsm.features.member.model.*
 import io.reactivex.Observable
@@ -28,6 +29,11 @@ interface TeamApi {
     @POST("UserHierarchy/HierarchyMemberList")
     fun getTeamListNew(@Field("session_token") session_token: String, @Field("user_id") user_id: String,
                     @Field("isFirstScreen") isFirstScreen: Boolean, @Field("isAllTeam") isAllTeam: Boolean): Observable<TeamListRes>
+
+    @FormUrlEncoded
+    @POST("UserHierarchy/HierarchyMemberList")
+    fun getTeamAllListNew(@Field("session_token") session_token: String, @Field("user_id") user_id: String,
+                       @Field("isFirstScreen") isFirstScreen: Boolean, @Field("isAllTeam") isAllTeam: Boolean): Observable<TeamAllListRes>
 
     @FormUrlEncoded
     @POST("UserHierarchy/HierarchyShopList")

@@ -360,6 +360,9 @@ public class AddShopDBModelEntity {
     @ColumnInfo(name = "crm_lastName")
     public String crm_lastName = null;
 
+    @ColumnInfo(name = "Shop_NextFollowupDate")
+    public String Shop_NextFollowupDate = null;
+
     public String getCrm_assignTo_ID() {
         return crm_assignTo_ID;
     }

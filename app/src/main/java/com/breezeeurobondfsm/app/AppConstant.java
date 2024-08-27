@@ -168,6 +168,7 @@ public interface AppConstant {
     String CRM_STAGE_MASTER = "crm_stage_master";
 
     String TEAM_LIST = "team_list";
+    String TEAM_LIST_ALL = "team_list_all";
     String CONTACT_ACTIVITY = "contact_activity";
 
     String SCHEDULE_TEMPLATE = "schedule_template";
@@ -179,4 +180,24 @@ public interface AppConstant {
     String CRM_SCHEDULER_MASTER = "crm_scheduler_master";
     String CRM_SCHEDULER_MASTER_DATETIME = "crm_scheduler_master_date_time";
     String CRM_SCHEDULER_MASTER_CONTACTS = "crm_scheduler_master_contacts";
+
+    String PHONE_CONTACT = "phone_contact";
+    String PHONE_CONTACT1 = "phone_contact1";
+
+    String NEW_PRODUCT_LIST = "new_product_list";
+    String NEW_RATE_LIST = "new_rate_list";
+
+    String NEW_ORDER_DATA = "new_order_data";
+    String NEW_ORDER_PRODUCT_DATA = "new_order_product_data";
+    String CRM_Opportunity_Status = "CRM_Opportunity_Status";
+    String CRM_Opportunity_Add = "CRM_Opportunity_Add";
+    String CRM_Opportunity_Product = "CRM_Opportunity_Product";
+
+    String LMS_USER_INFO = "LMS_USER_INFO";
+
+    //Suman 29-07-2024 mantis id 27647
+    String SHOP_AUDIO = "shop_audio";
+    String LMS_NOTIFICATION = "lms_notification";
+
+
 }

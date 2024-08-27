@@ -35,4 +35,6 @@ interface NearByShopsListClickListener {
     fun onExtraContactClick(shop_idSel: String)
 
     fun onUpdateStatusClick(obj: AddShopDBModelEntity)
+
+    fun createITCOrderClick(obj: AddShopDBModelEntity)
 }

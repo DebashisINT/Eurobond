@@ -2,7 +2,6 @@ package com.breezeeurobondfsm.features.splash.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.app.Activity
 import android.app.Dialog
 import android.content.ComponentName
@@ -10,24 +9,27 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.location.LocationManager
+import android.media.MediaMetadataRetriever
+import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.*
+import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.lifecycleScope
 import com.breezeeurobondfsm.BuildConfig
 import com.breezeeurobondfsm.R
-import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.NetworkConstant
 import com.breezeeurobondfsm.app.Pref
-import com.breezeeurobondfsm.app.domain.AddShopDBModelEntity
-import com.breezeeurobondfsm.app.domain.CallHisEntity
 import com.breezeeurobondfsm.app.uiaction.DisplayAlert
 import com.breezeeurobondfsm.app.utils.AppUtils
 import com.breezeeurobondfsm.app.utils.FileLoggingTree
@@ -40,24 +42,30 @@ import com.breezeeurobondfsm.features.commondialog.presentation.CommonDialogClic
 import com.breezeeurobondfsm.features.commondialogsinglebtn.CommonDialogSingleBtn
 import com.breezeeurobondfsm.features.commondialogsinglebtn.OnDialogClickListener
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
-import com.breezeeurobondfsm.features.location.LocationWizard
 import com.breezeeurobondfsm.features.location.SingleShotLocationProvider
 import com.breezeeurobondfsm.features.login.presentation.LoginActivity
-import com.breezeeurobondfsm.features.nearbyshops.presentation.ShopCallHisFrag
 import com.breezeeurobondfsm.features.splash.presentation.api.VersionCheckingRepoProvider
 import com.breezeeurobondfsm.features.splash.presentation.model.VersionCheckingReponseModel
 import com.breezeeurobondfsm.widgets.AppCustomTextView
-
+import com.itextpdf.text.pdf.PdfFileSpecification.url
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_splash.*
 import kotlinx.android.synthetic.main.fragment_new_order_screen_activity.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.alexandroid.gps.GpsStatusDetector
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import timber.log.Timber
-import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.net.URL
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.system.exitProcess
 
 
@@ -73,6 +81,8 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
     private var permissionUtils: PermissionUtils? = null
     private var mGpsStatusDetector: GpsStatusDetector? = null
     private lateinit var progress_wheel: com.pnikosis.materialishprogress.ProgressWheel
+
+    private lateinit var locDiscloserDialog : Dialog
 
     var permList = mutableListOf<PermissionDetails>()
     var permListDenied = mutableListOf<PermissionDetails>()
@@ -102,6 +112,16 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
     Timber.plant(Timber.DebugTree())
     Timber.plant(FileLoggingTree())
 
+    /*val mediaMetadataRetriever = MediaMetadataRetriever()
+    mediaMetadataRetriever.setDataSource("http://3.7.30.86:8073/Commonfolder/LMS/ContentUpload/Sell Me This Pen.mp4", HashMap<String, String>())
+    val bmFrame = mediaMetadataRetriever.getFrameAtTime(1000) //unit in microsecond
+    var bb = bmFrame
+
+    val mediaMetadataRetriever1 = MediaMetadataRetriever()
+    mediaMetadataRetriever1.setDataSource("http://3.7.30.86:8073/Commonfolder/LMS/nature shorts video.mp4", HashMap<String, String>())
+    val bmFrame1 = mediaMetadataRetriever.getFrameAtTime(1000) //unit in microsecond
+    var bb1 = bmFrame1*/
+
 
     //startActivity( Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS))
 
@@ -125,7 +145,6 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
     //email.type = "message/rfc822"
     startActivity(Intent.createChooser(email, "Send mail..."))*/
 
-
     val receiver = ComponentName(this, AlarmBootReceiver::class.java)
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
 
@@ -137,21 +156,66 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
             if (Pref.isLocationPermissionGranted)
                 initPermissionCheck()
             else {
-                LocationPermissionDialog.newInstance(object : LocationPermissionDialog.OnItemSelectedListener {
+                /*LocationPermissionDialog.newInstance(object : LocationPermissionDialog.OnItemSelectedListener {
                     override fun onOkClick() {
                         //initPermissionCheck()
-
                         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R && Pref.isLocationHintPermissionGranted == false){
                             locDesc()
                         }else{
                             initPermissionCheck()
                         }
                     }
+                    override fun onCrossClick() {
+                        finish()
+                    }
+                }).show(supportFragmentManager, "")*/
+
+
+
+                locDiscloserDialog = Dialog(this)
+                locDiscloserDialog.setCancelable(false)
+                locDiscloserDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                locDiscloserDialog.setContentView(R.layout.dialog_loc)
+
+                val tv_body = locDiscloserDialog.findViewById(R.id.tv_loc_dialog_body) as AppCustomTextView
+                var tv_ok = locDiscloserDialog.findViewById(R.id.tv_loc_dialog_ok) as AppCustomTextView
+                val tv_not_ok = locDiscloserDialog.findViewById(R.id.tv_loc_dialog_not_ok) as AppCustomTextView
+                var appN ="This"
+                try {
+                     appN = this.getResources().getString(R.string.app_name)
+                } catch (e: Exception) {
+                    TODO("Not yet implemented")
+                }
+                tv_body.text = "$appN App collects location data after you open and " +
+                        "login into the App, to identify nearby Parties location even when the app is " +
+                        "running in the background and not in use. This app collects location data to " +
+                        "enable nearby shops, GPS route, even when the app is closed or not in use. " +
+                        "Reimbursement is issued with distance travelled for specific GPS route. This is " +
+                        "a core functionality of this app."
+
+                tv_ok.setOnClickListener {
+                    initPermissionCheck()
+                }
+                tv_not_ok.setOnClickListener {
+                    finish()
+                }
+                locDiscloserDialog.show()
+
+                /*LocPermissionDialog.newInstance(object :LocPermissionDialog.OnItemSelectedListener{
+                    override fun onOkClick() {
+                        *//*if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R && Pref.isLocationHintPermissionGranted == false){
+                            locDesc()
+                        }else{
+                            initPermissionCheck()
+                        }*//*
+
+                        initPermissionCheck()
+                    }
 
                     override fun onCrossClick() {
                         finish()
                     }
-                }).show(supportFragmentManager, "")
+                }).show(supportFragmentManager, "")*/
             }
         else {
             checkGPSProvider()
@@ -159,8 +223,18 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
         permissionCheck()
     }
 
-
-
+    private fun extractFrameFromVideo(videoPath: String): Bitmap? {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(videoPath)
+            retriever.getFrameAtTime(1000000) // 1 second (1000000 microseconds)
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            null
+        } finally {
+            retriever.release()
+        }
+    }
 
     fun checkBatteryOptiSettings(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -289,6 +363,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
         var permissionLists : Array<String> ?= null
 
         permissionLists = arrayOf<String>( Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        permissionLists += Manifest.permission.FOREGROUND_SERVICE
         permissionUtils = PermissionUtils(this, object : PermissionUtils.OnPermissionListener {
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onPermissionGranted() {
@@ -310,6 +385,11 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun checkGPSProvider() {
+        try {
+            locDiscloserDialog.dismiss()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         val manager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER) /*&& PermissionHelper.checkLocationPermission(this, 0)*/) {
             checkGPSAvailability()

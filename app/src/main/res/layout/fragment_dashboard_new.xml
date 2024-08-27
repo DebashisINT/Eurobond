@@ -898,9 +898,9 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/shape_custom_border_blue_button">
+                android:background="#177D94">
 
-                <com.breezeeurobondfsm.widgets.AppCustomTextView
+                <TextView
                     android:id="@+id/best_performing_shop_TV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -912,7 +912,8 @@
                     android:padding="@dimen/_5sdp"
                     android:text="@string/best_performing_shop"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/_11sdp" />
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_13sdp" />
 
                 <com.breezeeurobondfsm.widgets.AppCustomTextView
                     android:id="@+id/tv_view_all"
@@ -956,6 +957,8 @@
                             android:paddingRight="@dimen/_5sdp"
                             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+
+                        <!--Pjpwise beat name show-->
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rv_pjp_list"
                             android:layout_width="match_parent"
@@ -966,7 +969,6 @@
                             android:paddingBottom="@dimen/_5sdp"
                             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-                        <!--Pjpwise beat name show-->
                         <LinearLayout
                             android:id="@+id/ll_beat_shop_wise"
                             android:layout_width="match_parent"
@@ -1026,9 +1028,47 @@
             </RelativeLayout>
 
         </LinearLayout>
+        <LinearLayout
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/_45sdp"
+            android:background="#177D94"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:gravity="center"
+            >
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_marginBottom="@dimen/_5sdp"
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    android:src="@drawable/ic_plus"
+                    android:tint="@color/white"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="New Shop"
+                    android:layout_marginStart="@dimen/_7sdp"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_12sdp"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+        </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"

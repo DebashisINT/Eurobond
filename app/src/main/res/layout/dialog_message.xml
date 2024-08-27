@@ -15,6 +15,7 @@
         android:background="@drawable/rounded_corner_white_bg"
         android:orientation="vertical">
 
+
         <com.breezeeurobondfsm.widgets.AppCustomTextView
             android:id="@+id/dialog_message_headerTV"
             android:layout_width="match_parent"

@@ -82,6 +82,8 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
     var syncAllInc: Int = 0
     private var j: Int = 0
 
+    private var isType99InTypeMaster:Boolean = false
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -96,6 +98,22 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
     }
 
     private fun initView(view: View) {
+
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration begin
+        try {
+            var type99 =  AppDatabase.getDBInstance()?.shopTypeDao()?.getSingleType("99")
+            if(type99 == null){
+                println("tag_type99 no type found")
+                isType99InTypeMaster = false
+            }else{
+                println("tag_type99 type found")
+                isType99InTypeMaster = true
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration end
+
         if (AppUtils.isOnline(mContext)) {
             syncShopList()
         }
@@ -366,6 +384,18 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
             // 1.0 AvgTimespentShopListFragment AppV 4.0.6  multiple contact Data added on Api called
             shopDurationData.multi_contact_name = shopActivity.multi_contact_name
             shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+            try {
+                var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                shopDurationData.shop_lat=shopOb.shopLat.toString()
+                shopDurationData.shop_long=shopOb.shopLong.toString()
+                shopDurationData.shop_addr=shopOb.address.toString()
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
             shopDataList.add(shopDurationData)
 
             Timber.d("========SYNC ALL VISITED SHOP DATA (AVERAGE SHOP)=====")
@@ -724,6 +754,25 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
 
         noOfShop.text = InfoWizard.getAverageShopVisitTimeDuration(selectedDate)
         total_time_spent_tv.text = InfoWizard.getTotalShopVisitTime(selectedDate)
+
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration begin
+        try {
+            if(!isType99InTypeMaster){
+                var rectifyShopListWithType :ArrayList<ShopActivityEntity> = ArrayList()
+                for(i in 0..shopActivityEntityList.size-1){
+                    var shopDtls = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopActivityEntityList.get(i).shopid)
+                    if (shopDtls!=null){
+                        if(!shopDtls.type.equals("99")){
+                            rectifyShopListWithType.add(shopActivityEntityList.get(i))
+                        }
+                    }
+                }
+                shopActivityEntityList = rectifyShopListWithType
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration end
 
         mAvgTimeSpentListAdapter = AvgTimeSpentListAdapter(this.context!!, shopActivityEntityList, object : AvgTimeSpentListClickListener {
             override fun onSyncClick(position: Int) {
@@ -1185,6 +1234,18 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
             }catch (ex:Exception){
                 shopDurationData.spent_duration="00:00:10"
             }
+
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+            try {
+                var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                shopDurationData.shop_lat=shopOb.shopLat.toString()
+                shopDurationData.shop_long=shopOb.shopLong.toString()
+                shopDurationData.shop_addr=shopOb.address.toString()
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
             shopDataList.add(shopDurationData)
         }
         else {
@@ -1283,6 +1344,18 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
                 // 1.0 AvgTimespentShopListFragment AppV 4.0.6  multiple contact Data added on Api called
                 shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                 shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+                try {
+                    var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                    shopDurationData.shop_lat=shopOb.shopLat.toString()
+                    shopDurationData.shop_long=shopOb.shopLong.toString()
+                    shopDurationData.shop_addr=shopOb.address.toString()
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
                 shopDataList.add(shopDurationData)
             }
         }
@@ -1597,6 +1670,18 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
             // 1.0 AvgTimespentShopListFragment AppV 4.0.6  multiple contact Data added on Api called
             shopDurationData.multi_contact_name = shopActivity.multi_contact_name
             shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+            try {
+                var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                shopDurationData.shop_lat=shopOb.shopLat.toString()
+                shopDurationData.shop_long=shopOb.shopLong.toString()
+                shopDurationData.shop_addr=shopOb.address.toString()
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
             shopDataList.add(shopDurationData)
 
             if (shopDataList.isEmpty()) {
@@ -1905,6 +1990,18 @@ class AvgTimespentShopListFragment : BaseFragment(), DatePickerListener, View.On
         // 1.0 AvgTimespentShopListFragment AppV 4.0.6  multiple contact Data added on Api called
         shopDurationData.multi_contact_name = shopActivity.multi_contact_name
         shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+        // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+        try {
+            var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+            shopDurationData.shop_lat=shopOb.shopLat.toString()
+            shopDurationData.shop_long=shopOb.shopLong.toString()
+            shopDurationData.shop_addr=shopOb.address.toString()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
         shopDataList.add(shopDurationData)
 
         if (shopDataList.isEmpty()) {

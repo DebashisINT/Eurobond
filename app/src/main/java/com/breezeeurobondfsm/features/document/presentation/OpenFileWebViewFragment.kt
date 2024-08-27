@@ -40,12 +40,18 @@ class OpenFileWebViewFragment : BaseFragment() {
         fun newInstance(fileurl: Any): OpenFileWebViewFragment {
             val fragment = OpenFileWebViewFragment()
 
-            if (!TextUtils.isEmpty(fileurl.toString())) {
-                val bundle = Bundle()
-                bundle.putString("file_url", fileurl as String?)
-                fragment.arguments = bundle
-                uurl=fileurl.toString()
+            try{
+                if (!TextUtils.isEmpty(fileurl.toString())) {
+                    val bundle = Bundle()
+                    bundle.putString("file_url", fileurl as String?)
+                    fragment.arguments = bundle
+                    uurl=fileurl.toString()
+                }
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                uurl = fileurl.toString()
             }
+
 
             return fragment
         }
@@ -55,7 +61,11 @@ class OpenFileWebViewFragment : BaseFragment() {
         super.onAttach(context)
         mContext = context
 
-        url_Str = arguments?.getSerializable("file_url").toString()
+        try{
+            url_Str = arguments?.getSerializable("file_url").toString()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

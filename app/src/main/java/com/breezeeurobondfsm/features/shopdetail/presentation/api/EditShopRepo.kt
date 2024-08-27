@@ -15,6 +15,7 @@ import com.breezeeurobondfsm.features.addshop.model.AddShopResponse
 import com.breezeeurobondfsm.features.addshop.model.LogFileResponse
 import com.breezeeurobondfsm.features.addshop.model.UpdateAddrReq
 import com.breezeeurobondfsm.features.addshop.model.UpdateAddressShop
+import com.breezeeurobondfsm.features.contacts.AutoMailDtls
 import com.breezeeurobondfsm.features.contacts.CallHisDtls
 import com.breezeeurobondfsm.features.contacts.CompanyReqData
 import com.breezeeurobondfsm.features.contacts.ContactMasterRes
@@ -88,6 +89,10 @@ class EditShopRepo(val apiService: EditShopApi) {
 
     fun callCallListHisAPI(user_id: String): Observable<CallHisDtls> {
         return apiService.callCallListHisAPI(user_id)
+    }
+
+    fun autoMailDtls(user_id: String): Observable<AutoMailDtls> {
+        return apiService.autoMailDtlsAPI(user_id)
     }
 
     fun addShopWithImage(shop: AddShopRequestData, shop_image: String?, context: Context): Observable<AddShopResponse> {

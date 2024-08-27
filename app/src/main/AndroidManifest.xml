@@ -75,7 +75,10 @@
     <!-- <uses-permission android:name="android.permission.GET_ACCOUNTS" /> -->
     <!-- <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" /> -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.START_FOREGROUND_SERVICES_FROM_BACKGROUND"
+        tools:ignore="ProtectedPermissions" />
+    <!--<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />-->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -162,6 +165,7 @@
             android:name=".features.micro_learning.presentation.ExoPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.google.android.exoplayer.breezeeurobondfsm.action.VIEW" />
@@ -187,7 +191,7 @@
             android:name=".features.location.LocationFuzedService"
             android:enabled="true"
             android:foregroundServiceType="location"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.LOCATIONSERVICE" />
             </intent-filter>
@@ -234,6 +238,9 @@
             android:exported="true"/>
         <receiver android:name=".app.NewAlarmReceiver"
             android:exported="true"/>
+        <receiver android:name=".AlarmServiceRestart"
+            android:exported="true"
+            android:enabled="true"/>
         <receiver
             android:name=".features.alarm.presetation.AlarmBootReceiver"
             android:enabled="true"
@@ -303,7 +310,9 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
             android:name=".features.location.LocationJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="true"
+            android:exported="true"/>
         <service
             android:name=".features.geofence.GeofenceService"
             android:enabled="true" />
@@ -382,11 +391,14 @@
             android:name=".faceRec.FaceStartActivity"
             android:screenOrientation="portrait" />
 
+        <!--code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+
         <service
             android:name=".ScreenRecService"
             android:enabled="true"
             android:exported="false" />
-
+        code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+-->
         <activity
             android:name=".features.powerSavingSettings.PowerSavingSettingsActivity"
             android:screenOrientation="portrait" />

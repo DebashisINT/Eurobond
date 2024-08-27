@@ -379,7 +379,8 @@ class ShopDamageProductListFrag: BaseFragment(), DatePickerDialog.OnDateSetListe
             var font1: Font = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL)
             val grayFront = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL, BaseColor.GRAY)
             //image add
-            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+            //val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo)
             val bitmap = Bitmap.createScaledBitmap(bm, 50, 50, true);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)

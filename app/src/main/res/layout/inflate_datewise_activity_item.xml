@@ -119,6 +119,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_product_root"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/_10sdp"
@@ -143,6 +144,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_subject_root"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/_10sdp"
@@ -191,6 +193,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_duration_root"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/_10sdp"
@@ -215,6 +218,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_priority_root"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/_10sdp"
@@ -245,6 +249,7 @@
         android:layout_marginTop="@dimen/_10sdp">
 
         <com.breezeeurobondfsm.widgets.AppCustomTextView
+            android:id="@+id/tv_due_Date_time_text_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"

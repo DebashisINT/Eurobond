@@ -73,6 +73,7 @@ import kotlin.collections.ArrayList
 // 1.0 AddQuotFormFragment  AppV 4.0.6  Saheli    06/01/2023 addQuot contactmulti design functionlity add
 // 2.0 AddQuotFormFragment  AppV 4.0.6 Saheli    09/01/2023 addQuot pdf design add template
 // 3.0 AddQuotFormFragment  AppV 4.0.6 Saheli    09/01/2023 addQuot contactmulti  functionlity
+// 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix
 
 class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
     private lateinit var mContext: Context
@@ -404,6 +405,9 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
 
             }
             R.id.btn_frag_add_quot_save_TV -> {
+                // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+                btnSave.isEnabled = false
+                // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
               checkValidation(p0)
             }
             R.id.tv_frag_add_quot_form_date -> {
@@ -628,11 +632,17 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
         if (TextUtils.isEmpty(date.text.toString())) {
             (mContext as DashboardActivity).showSnackMessage("Please select date ")
             BaseActivity.isApiInitiated = false
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+            btnSave.isEnabled = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
             return
         }
         else if (TextUtils.isEmpty(projName.text.toString())) {
             (mContext as DashboardActivity).showSnackMessage("Please select Project Name ")
             BaseActivity.isApiInitiated = false
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+            btnSave.isEnabled = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
             return
         }
 //        else if (TextUtils.isEmpty(custName.text.toString())) {
@@ -643,11 +653,17 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
         else if (TextUtils.isEmpty(taxes.text.toString())) {
             (mContext as DashboardActivity).showSnackMessage("Please select taxes ")
             BaseActivity.isApiInitiated = false
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+            btnSave.isEnabled = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
             return
         }
         else if (TextUtils.isEmpty(freight.text.toString())) {
             (mContext as DashboardActivity).showSnackMessage("Please select Freight ")
             BaseActivity.isApiInitiated = false
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+            btnSave.isEnabled = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
             return
         }
 //        else if (TextUtils.isEmpty(del_time.text.toString())) {
@@ -673,17 +689,26 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
         else if (TextUtils.isEmpty(salesmsan.text.toString())) {
             (mContext as DashboardActivity).showSnackMessage("Please select Salesman ")
             BaseActivity.isApiInitiated = false
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+            btnSave.isEnabled = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
             return
         }
         if (Pref.user_id == null || Pref.user_id == "" || Pref.user_id == " ") {
             (mContext as DashboardActivity).showSnackMessage("Please login again")
             BaseActivity.isApiInitiated = false
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+            btnSave.isEnabled = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
             return
         }
 
         if (addedProdList.size==0) {
             (mContext as DashboardActivity).showSnackMessage("Please add a product")
             BaseActivity.isApiInitiated = false
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+            btnSave.isEnabled = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
             return
         }
         // 3.0 AddQuotFormFragment functionlity
@@ -691,6 +716,9 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
         if(selectedTemplateId == -1){
             (mContext as DashboardActivity).showSnackMessage("Please select any template")
             BaseActivity.isApiInitiated = false
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+            btnSave.isEnabled = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
             return
         }
 
@@ -703,6 +731,9 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
             if(selectedContactL.size==0){
                 (mContext as DashboardActivity).showSnackMessage("Please select Contact Person")
                 BaseActivity.isApiInitiated = false
+                // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+                btnSave.isEnabled = true
+                // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
                 return
             }else{
                 var finalExtCntL : ArrayList<Extra_contact_list> = ArrayList()
@@ -755,6 +786,9 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
     private fun saveButtonCall(addQuot: AddQuotRequestData) {
         try{
             BaseActivity.isApiInitiated = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix begin
+            btnSave.isEnabled = true
+            // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix end
             progress_wheel.spin()
             val repository = GetQuotRegProvider.provideSaveButton()
             BaseActivity.compositeDisposable.add(
@@ -818,33 +852,64 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
     fun sendSuccessEmail(addQuot: AddQuotRequestData){
         try {
             progress_wheel.spin()
+            //Suman 28-06-2024 mantis id 27584
+            var isMailSend = true
             doAsync {
 
 
-                var m = Mail()
-                var toArr = arrayOf("")
+                try {
+                    var m = Mail()
+                    var toArr = arrayOf("")
 
-                if(Pref.IsShowQuotationFooterforEurobond){
-                    m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
-                    toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
-                }else{
-                    //m = Mail("suman.bachar@indusnet.co.in", "dqridqtwsqxatmyt")
-                    toArr = arrayOf("saheli.bhattacharjee@indusnet.co.in","suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
+
+
+                    if(!Pref.automail_sending_email.equals("") && !Pref.automail_sending_pass.equals("") && !Pref.recipient_email_ids.equals("")){
+                        var emailRecpL = Pref.recipient_email_ids.split(",")
+                        m = Mail(Pref.automail_sending_email, Pref.automail_sending_pass)
+                        toArr = Array<String>(emailRecpL.size){""}
+                        for(i in 0..emailRecpL.size-1){
+                            toArr[i]=emailRecpL[i]
+                        }
+
+                        m.setTo(toArr)
+                        m.setFrom("TEAM");
+                        m.setSubject("Quotation Generated by ${Pref.user_name}.")
+                        m.setBody("Quotation Generated by  ${Pref.user_name} dated  ${AppUtils.getCurrentDate_DD_MM_YYYY()}.")
+                        m.send()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    isMailSend = false
+                    Timber.d("Automail send error ${e.printStackTrace()}")
                 }
-                m.setTo(toArr)
-                m.setFrom("TEAM");
-                m.setSubject("Quotation Generated by ${Pref.user_name}.")
-                m.setBody("Quotation Generated by  ${Pref.user_name} dated  ${AppUtils.getCurrentDate_DD_MM_YYYY()}.")
-                m.send()
+
                 uiThread {
                     progress_wheel.stopSpinning()
-                    showSuccessDialog("Quotation saved successfully.")
+                    if(isMailSend == false){
+                        val simpleDialog = Dialog(mContext)
+                        simpleDialog.setCancelable(false)
+                        simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        simpleDialog.setContentView(R.layout.dialog_message)
+                        val dialogHeader = simpleDialog.findViewById(R.id.dialog_message_header_TV) as AppCustomTextView
+                        val dialog_yes_no_headerTV = simpleDialog.findViewById(R.id.dialog_message_headerTV) as AppCustomTextView
+                        dialog_yes_no_headerTV.text = AppUtils.hiFirstNameText()+"!"
+                        dialogHeader.text = "Either e-mail ID or password is incorrect. Auto mail can't be send. Please contact to Administrator."
+                        val dialogYes = simpleDialog.findViewById(R.id.tv_message_ok) as AppCustomTextView
+                        dialogYes.setOnClickListener({ view ->
+                            simpleDialog.cancel()
+                            Handler().postDelayed(Runnable {
+                                showSuccessDialog("Quotation saved successfully.")
+                            }, 500)
+                        })
+                        simpleDialog.show()
+                    }else{
+                        showSuccessDialog("Quotation saved successfully.")
+                    }
                 }
             }
-
-
         }catch (ex:Exception){
             ex.printStackTrace()
+            progress_wheel.stopSpinning()
         }
 
     }
@@ -1024,7 +1089,7 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
                                     }
                                 }
                             }
-                            rv_multiContact.layoutParams.height=220*extraContL.size
+                            rv_multiContact.layoutParams.height=120*extraContL.size
                             rv_multiContact.adapter = AdapterMultiContactQuto(mContext,extraContL, object : AdapterMultiContactQuto.OnClickListener {
                                 override fun onTickUntickView(obj: ShopExtraContactEntity, isTick: Boolean) {
                                     if(isTick){

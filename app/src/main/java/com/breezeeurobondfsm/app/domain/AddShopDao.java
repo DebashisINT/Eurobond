@@ -41,6 +41,9 @@ public interface AddShopDao {
     @Query("SELECT * FROM " + SHOP_TABLE+" where isOwnshop=:isOwnshop")
     List<AddShopDBModelEntity> getAllOwn(Boolean isOwnshop);
 
+    @Query("SELECT * FROM " + SHOP_TABLE+" where isOwnshop=:isOwnshop and type!=:type")
+    List<AddShopDBModelEntity> getAllOwnFilterType99(Boolean isOwnshop,String type);
+
     @Query("select distinct shop_detail.* from shop_detail inner join order_details_list on shop_detail.shop_id = order_details_list.shop_id ")
     List<AddShopDBModelEntity> getShopIdHasOrder();
 
@@ -173,6 +176,13 @@ public interface AddShopDao {
    // @Query("Select * from shop_detail where shop_name LIKE '%' || :shopNameorNum )
     List<AddShopDBModelEntity> getShopBySearchDataNew(String shopNameorNum);
 
+    @Query("Select * from shop_detail where (shop_name LIKE '%' || :shopNameorNum  || '%' OR owner_contact_number LIKE '%' || :shopNameorNum  ||  '%' OR owner_name LIKE '%' || :shopNameorNum  || '%') and isOwnshop=:isOwnshop")
+        // @Query("Select * from shop_detail where shop_name LIKE '%' || :shopNameorNum )
+    List<AddShopDBModelEntity> getShopBySearchDataNewWithOwnShop(String shopNameorNum,Boolean isOwnshop);
+
+    @Query("Select * from shop_detail where (shop_name LIKE '%' || :shopNameorNum  || '%' OR owner_contact_number LIKE '%' || :shopNameorNum  ||  '%' OR owner_name LIKE '%' || :shopNameorNum  || '%') and isOwnshop=:isOwnshop and type!=:type ")
+        // @Query("Select * from shop_detail where shop_name LIKE '%' || :shopNameorNum )
+    List<AddShopDBModelEntity> getShopBySearchDataNewWithOwnShopType(String shopNameorNum,Boolean isOwnshop,String type);
 
     @Update
     int updateAddShop(AddShopDBModelEntity mAddShopDBModelEntity);
@@ -368,14 +378,35 @@ public interface AddShopDao {
     @Query("select * from shop_detail where type='99' and isOwnshop = 1 and shopStatusUpdate = 1 order by shop_name COLLATE NOCASE ASC")
     List<AddShopDBModelEntity> getContatcShops();
 
+    @Query("select * from shop_detail where shop_name LIKE '%' || :searchParam  || '%' OR owner_contact_number LIKE '%' || :searchParam  || '%' OR " +
+            "crm_stage LIKE '%' || :searchParam  || '%' OR crm_source LIKE '%' || :searchParam  || '%' OR crm_status LIKE '%' || :searchParam  || '%' OR " +
+            "crm_type LIKE '%' || :searchParam  || '%' OR crm_saved_from LIKE '%' || :searchParam  || '%' OR owner_email LIKE '%' || :searchParam  || '%' " +
+            "and type='99' and isOwnshop = 1 and shopStatusUpdate = 1 order by shop_name COLLATE NOCASE ASC")
+    List<AddShopDBModelEntity> getContatcShopsFilter(String searchParam);
+
     @Query("select * from shop_detail where type = '99' order by added_date desc")
     List<AddShopDBModelEntity> getContatcShopsByAddedDate();
+
+    @Query("select * from shop_detail where type = '99' and crm_status_ID=:crm_status_ID")
+    List<AddShopDBModelEntity> getContatcShopsBycrm_status_ID(String crm_status_ID);
+
+    @Query("select * from shop_detail where type = '99' and crm_stage_ID=:crm_stage_ID")
+    List<AddShopDBModelEntity> getContatcShopsBycrm_stage_ID(String crm_stage_ID);
+
+    @Query("select * from shop_detail where type = '99' and crm_type_ID=:crm_type_ID")
+    List<AddShopDBModelEntity> getContatcShopsBycrm_type_ID(String crm_type_ID);
+
+    @Query("select * from shop_detail where type = '99' and crm_source_ID=:crm_source_ID")
+    List<AddShopDBModelEntity> getContatcShopsBycrm_source_ID(String crm_source_ID);
 
     @Query("select * from shop_detail where type = '99' order by shop_name COLLATE NOCASE ASC")
     List<AddShopDBModelEntity> getContatcShopsByName();
 
     @Query("select * from shop_detail where type = '99' and isUploaded=:isUploaded")
     List<AddShopDBModelEntity> getContatcUnsyncList(Boolean isUploaded);
+
+    @Query("select * from shop_detail where type = '99' and isUploaded=:isUploaded limit :count")
+    List<AddShopDBModelEntity> getContatcUnsyncListTopX(Boolean isUploaded,Integer count);
 
     @Query("delete from shop_detail where type='99'")
     void del99();
@@ -387,14 +418,27 @@ public interface AddShopDao {
     List<String> getOwnerContactLWithPrefix();
 
     @Query("update shop_detail\n" +
-            "set jobTitle=:jobTitle, owner_email=:ownerEmailId, owner_contact_number=:ownerContactNumber, address=:address, pin_code=:pinCode, shopLat=:shopLat, shopLong=:shopLong, crm_assignTo=:crm_assignTo, crm_assignTo_ID=:crm_assignTo_ID, crm_type=:crm_type, crm_type_ID=:crm_type_ID, crm_status=:crm_status, crm_source=:crm_source, crm_source_ID=:crm_source_ID, remarks=:remarks, amount=:amount, crm_stage=:crm_stage, crm_stage_ID=:crm_stage_ID, crm_reference=:crm_reference, crm_reference_ID=:crm_reference_ID, crm_reference_ID_type=:crm_reference_ID_type, crm_saved_from=:crm_saved_from, isEditUploaded=:isEditUploaded" +
+            "set jobTitle=:jobTitle,shop_name=:shopName,owner_name=:ownerName,crm_firstName=:crm_firstName,crm_lastName=:crm_lastName,companyName_id=:companyName_id,companyName=:companyName, owner_email=:ownerEmailId, owner_contact_number=:ownerContactNumber, address=:address, pin_code=:pinCode, shopLat=:shopLat, shopLong=:shopLong, crm_assignTo=:crm_assignTo, crm_assignTo_ID=:crm_assignTo_ID, crm_type=:crm_type, crm_type_ID=:crm_type_ID, crm_status=:crm_status, crm_source=:crm_source, crm_source_ID=:crm_source_ID, remarks=:remarks, amount=:amount, crm_stage=:crm_stage, crm_stage_ID=:crm_stage_ID, crm_reference=:crm_reference, crm_reference_ID=:crm_reference_ID, crm_reference_ID_type=:crm_reference_ID_type, crm_saved_from=:crm_saved_from, isEditUploaded=:isEditUploaded,whatsappNoForCustomer=:whatsappNoForCustomer," +
+            "Shop_NextFollowupDate=:Shop_NextFollowupDate,dateOfBirth=:dob,dateOfAniversary=:doa " +
             " where shop_id =:shopId ")
-    public int updateContactDtls(String shopId,String jobTitle,String ownerEmailId,String ownerContactNumber,String address,String pinCode,Double shopLat,Double shopLong,
+    public int updateContactDtls(String shopId,String shopName,String ownerName,String crm_firstName,String crm_lastName,String companyName_id,String companyName,String jobTitle,String ownerEmailId,String ownerContactNumber,String address,String pinCode,Double shopLat,Double shopLong,
                                  String crm_assignTo,String crm_assignTo_ID,String crm_type,String crm_type_ID,String crm_status,String crm_source,String crm_source_ID,
                                  String remarks,String amount,String crm_stage,String crm_stage_ID,
-                                 String crm_reference,String crm_reference_ID,String crm_reference_ID_type,String crm_saved_from,int isEditUploaded);
+                                 String crm_reference,String crm_reference_ID,String crm_reference_ID_type,String crm_saved_from,int isEditUploaded,String whatsappNoForCustomer,String Shop_NextFollowupDate,String dob,String doa);
 
     @Query("update shop_detail set shopLat=:shopLat, shopLong=:shopLong, address=:address, pin_code=:pinCode, actual_address=:actual_address where shop_id=:shopId")
     void updateShopDetails(Double shopLat, Double shopLong, String address, String pinCode, String actual_address, String shopId);
+
+    @Query("update shop_detail set crm_source=:crm_source, crm_source_ID=:crm_source_ID,isEditUploaded=:isEditUploaded where shop_id=:shopId")
+    void updateSourceOnly(String shopId,String crm_source_ID,String crm_source,int isEditUploaded);
+
+    @Query("update shop_detail set crm_stage=:crm_stage, crm_stage_ID=:crm_stage_ID,isEditUploaded=:isEditUploaded where shop_id=:shopId")
+    void updateStageOnly(String shopId,String crm_stage_ID,String crm_stage,int isEditUploaded);
+
+    @Query("update shop_detail set crm_status=:crm_status, crm_status_ID=:crm_status_ID,isEditUploaded=:isEditUploaded where shop_id=:shopId")
+    void updateStatusOnly(String shopId,String crm_status_ID,String crm_status,int isEditUploaded);
+
+    @Query("update shop_detail set crm_assignTo=:crm_assignTo, crm_assignTo_ID=:crm_assignTo_ID,isEditUploaded=:isEditUploaded where shop_id=:shopId")
+    void updateAssignToOnly(String shopId,String crm_assignTo_ID,String crm_assignTo,int isEditUploaded);
 
 }

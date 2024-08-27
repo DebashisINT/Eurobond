@@ -1,5 +1,6 @@
 package com.breezeeurobondfsm.features.addshop.model
 
+import com.breezeeurobondfsm.app.domain.ShopAudioEntity
 import com.breezeeurobondfsm.base.BaseResponse
 import java.io.Serializable
 
@@ -40,5 +41,9 @@ var PLAN_ASSNAREAID:String,
 var PLAN_ASSNAREAName:String,
 var PLAN_ASSNROUTEID:String,
 var PLAN_ASSNROUTEName:String)
+
+data class AudioFetchDataCLass(var audio_list:ArrayList<AudioFetchData> = ArrayList()):BaseResponse()
+
+data class AudioFetchData(var shop_id:String="",var audio_path:String="",var isUploaded:String="",var datetime:String="",var revisitORvisit:String="")
 
 

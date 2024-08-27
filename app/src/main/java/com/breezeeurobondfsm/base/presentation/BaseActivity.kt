@@ -28,7 +28,7 @@ import android.widget.EditText
 import android.widget.Toast
 import com.breezeeurobondfsm.CustomConstants
 import com.breezeeurobondfsm.CustomStatic
-
+import com.breezeeurobondfsm.features.login.presentation.LoginActivity
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.*
 import com.breezeeurobondfsm.app.utils.AppUtils
@@ -42,7 +42,6 @@ import com.breezeeurobondfsm.features.commondialogsinglebtn.CommonDialogSingleBt
 import com.breezeeurobondfsm.features.commondialogsinglebtn.OnDialogClickListener
 import com.breezeeurobondfsm.features.dashboard.presentation.ToastBroadcastReceiver
 import com.breezeeurobondfsm.features.geofence.GeofenceService
-import com.breezeeurobondfsm.features.login.presentation.LoginActivity
 import com.breezeeurobondfsm.features.logout.presentation.api.LogoutRepositoryProvider
 import com.breezeeurobondfsm.features.orderhistory.api.LocationUpdateRepositoryProviders
 import com.breezeeurobondfsm.features.orderhistory.model.LocationData
@@ -96,6 +95,7 @@ import kotlin.collections.ArrayList
 // 3.0 BaseActivity AppV 4.0.7  Saheli    20/02/2023 mantis gps with list issue 0025685
 // 4.0 BaseActivity AppV 4.0.7 Saheli    02/03/2023 Timber Log Implementation
 // 5.0 BaseActivity AppV 4.2.2 tufan    20/09/2023 FSSAI Lic No Implementation 26813
+// Rev 6.0 Suman 06-05-2024 Suman BaseActivity mantis 27335
 open class BaseActivity : AppCompatActivity(), GpsStatusDetector.GpsStatusDetectorCallBack {
 
     private val mRegistry = LifecycleRegistry(this)
@@ -1204,12 +1204,8 @@ fun serviceStatusActionable() {
             return
         }
         val serviceLauncher = Intent(this, LocationFuzedService::class.java)
-        Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
-
         if (Pref.user_id != null && Pref.user_id!!.isNotEmpty()) {
-
             Timber.e("MID: 26980 in serviceStatusActionable method if user_id is not null")
-
             startMonitorService()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -1400,6 +1396,7 @@ override fun onDestroy() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 fun startMonitorService() {
+    return
     if (!isMonitorServiceRunning()) {
         try{
             //        XLog.d("MonitorService Started : " + " Time :" + AppUtils.getCurrentDateTime())
@@ -1690,6 +1687,17 @@ val revisitStatusList : MutableList<ShopRevisitStatusRequestData> = ArrayList()
             shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
             shopDurationData.stationCode = shopActivity.stationCode
 
+            // Rev 6.0 Suman 06-05-2024 Suman BaseActivity mantis 27335  begin
+            try {
+                var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                shopDurationData.shop_lat=shopOb.shopLat.toString()
+                shopDurationData.shop_long=shopOb.shopLong.toString()
+                shopDurationData.shop_addr=shopOb.address.toString()
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+            // Rev 6.0 Suman 06-05-2024 Suman BaseActivity mantis 27335  end
+
             shopDataList.add(shopDurationData)
 
 
@@ -1729,7 +1737,7 @@ val revisitStatusList : MutableList<ShopRevisitStatusRequestData> = ArrayList()
         BaseActivity.isShopActivityUpdating = true
 /////////////
         revisitStatusList.clear()
-        for(i in 0..shopDataList?.size-1){
+        for(i in 0..shopDataList?.size!!-1){
             var data=AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.getSingleItem(shopDataList?.get(i)?.shop_revisit_uniqKey!!.toString())
             if(data!=null ){
                 var revisitStatusObj= ShopRevisitStatusRequestData()
@@ -1764,7 +1772,7 @@ val revisitStatusList : MutableList<ShopRevisitStatusRequestData> = ArrayList()
                                 if(!revisitStatusList.isEmpty()){
                                     callRevisitStatusUploadApi(revisitStatusList!!)
                                 }
-                                for(i in 0..shopDataList?.size-1){
+                                for(i in 0..shopDataList?.size!!-1){
                                     callCompetetorImgUploadApi(shopDataList?.get(i)?.shop_id!!)
                                 }
 
@@ -1924,6 +1932,17 @@ val revisitStatusList : MutableList<ShopRevisitStatusRequestData> = ArrayList()
         shopDurationData.multi_contact_name = shopActivity.multi_contact_name
         shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+        // Rev 6.0 Suman 06-05-2024 Suman BaseActivity mantis 27335  begin
+        try {
+            var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+            shopDurationData.shop_lat=shopOb.shopLat.toString()
+            shopDurationData.shop_long=shopOb.shopLong.toString()
+            shopDurationData.shop_addr=shopOb.address.toString()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        // Rev 6.0 Suman 06-05-2024 Suman BaseActivity mantis 27335  end
+
         shopDataList.add(shopDurationData)
 
         if (shopDataList.isEmpty()) {
@@ -1987,7 +2006,7 @@ val revisitStatusList : MutableList<ShopRevisitStatusRequestData> = ArrayList()
         ////////
         revisitStatusList.clear()
         var key:String = ""
-        for(i in 0..list_?.size-1){
+        for(i in 0..list_?.size!!-1){
             if(list_.get(i).shopid.equals(shopId)){
                 key=list_.get(i).shop_revisit_uniqKey!!.toString()
             }

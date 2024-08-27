@@ -133,4 +133,18 @@ class RevisionNote {
     // DistributorGPSAccuracy issue for add attendance time add attendance button did not work somethimes fix Puja 04-04-2024 mantis id 0027351 v4.2.6
 
     // fix collection not sync issue sometimes puja 05-04-2024 mantis id 0027352 v4.2.6
+
+    // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration
+
+    // 23.0  LoginActivity Automail details Suman 16-04-2024 mantis id 27368 v4.2.6
+
+    // 4.0 AddQuotFormFragment  AppV 4.2.6 Suman    25/04/2024 save button multi click fix
+
+    // Suman 06-05-2024 Suman SyncActivity update mantis 27335
+    //Rev 1.0 NotificationFragment Suman 13-05-2024 mantis id 27440
+    // 25.0  LoginActivity Fingerprint flow update Suman 14-05-2024 mantis id 0027450 v4.2.8
+    // 26.0  DashboardActivity Fingerprint flow update Suman 14-05-2024 mantis id 0027450 v4.2.8
+    //Rev 27.0 Mantis- 27446 by puja for clear attendance functionality 17.05.2024 v4.2.8
+    //5.0 LogoutSyncFragment AppV 4.1.6 Suman 30-05-2024 mantis 0027501
+// 2.0 AverageShopFragment AppV 4.2.8 Suman 04-06-2024 multivisit mantis id 0027490
 }

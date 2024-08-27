@@ -45,7 +45,11 @@ class ShopDurationRequestData {
     var distFromProfileAddrKms: String? = null
     var stationCode: String? = null
 
-
+    // Rev 1.0 Suman 06-05-2024 Suman mantis 27335 begin
+    var shop_lat: String = "0"
+    var shop_long: String = "0"
+    var shop_addr: String? = "NA"
+    // Rev 1.0 Suman 06-05-2024 Suman mantis 27335 end
 
 //    "visited_date": "yyyy-MM-dd",
 //    "visited_time": "yyyy-MM-dd HH:mm:ss",

@@ -751,14 +751,11 @@
                 android:visibility="gone">
 
                 <LinearLayout
+                    android:id="@+id/ll_nearby_shop_create_order_root"
                     android:layout_width="@dimen/_205sdp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal">
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
 
                     <LinearLayout
                         android:layout_width="@dimen/_30sdp"
@@ -792,14 +789,12 @@
                         android:visibility="gone"
                         android:gravity="center_vertical"/>
                 </LinearLayout>
-                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/ll_range"
                     android:layout_width="@dimen/_135sdp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    >
+                    android:layout_weight="1">
 
                     <LinearLayout
                         android:layout_width="match_parent"

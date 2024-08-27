@@ -3,10 +3,15 @@ package com.breezeeurobondfsm.features.login.api.productlistapi
 import com.breezeeurobondfsm.app.Pref
 import com.breezeeurobondfsm.app.domain.ProductListEntity
 import com.breezeeurobondfsm.app.utils.AppUtils
+import com.breezeeurobondfsm.base.BaseResponse
 import com.breezeeurobondfsm.features.login.model.productlistmodel.ProductListOfflineResponseModel
 import com.breezeeurobondfsm.features.login.model.productlistmodel.ProductListOfflineResponseModelNew
 import com.breezeeurobondfsm.features.login.model.productlistmodel.ProductListResponseModel
 import com.breezeeurobondfsm.features.login.model.productlistmodel.ProductRateListResponseModel
+import com.breezeeurobondfsm.features.orderITC.GetOrderHistory
+import com.breezeeurobondfsm.features.orderITC.GetProductRateReq
+import com.breezeeurobondfsm.features.orderITC.GetProductReq
+import com.breezeeurobondfsm.features.orderITC.SyncOrd
 import com.breezeeurobondfsm.features.viewAllOrder.orderOptimized.ProductRateOnlineListResponseModel
 import io.reactivex.Observable
 import timber.log.Timber
@@ -38,4 +43,22 @@ class ProductListRepo(val apiService: ProductListApi) {
     fun getProductRateOfflineListNew(): Observable<ProductListOfflineResponseModelNew> {
         return apiService.getOfflineProductRateListNew(Pref.session_token!!, Pref.user_id!!)
     }
+
+    fun syncProductListITC(obj: SyncOrd): Observable<BaseResponse> {
+        return apiService.syncProductListITC(obj)
+    }
+
+    fun getProductListITC(session_token: String, user_id: String): Observable<GetProductReq> {
+        return apiService.getProductListITC(session_token, user_id)
+    }
+
+    fun getProductRateListITC(session_token: String, user_id: String): Observable<GetProductRateReq> {
+        return apiService.getProductRateListITC(session_token, user_id)
+    }
+
+    fun getOrderHistory(user_id:String): Observable<GetOrderHistory> {
+        return apiService.getOrderHistoryApi(user_id)
+    }
+
+
 }

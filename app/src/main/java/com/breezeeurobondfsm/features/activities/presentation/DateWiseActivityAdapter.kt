@@ -10,6 +10,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import com.breezeeurobondfsm.R
 import com.breezeeurobondfsm.app.AppDatabase
+import com.breezeeurobondfsm.app.Pref
 import com.breezeeurobondfsm.app.domain.ActivityEntity
 import com.breezeeurobondfsm.app.utils.AppUtils
 import kotlinx.android.synthetic.main.inflate_datewise_activity_item.view.*
@@ -49,13 +50,25 @@ class DateWiseActivityAdapter(private val context: Context, private val list: Ar
                 else
                     tv_details.text = "N.A."
 
-                if (!TextUtils.isEmpty(list?.get(adapterPosition)?.attachments))
-                    tv_attachment.text = list?.get(adapterPosition)?.attachments
+                if (!TextUtils.isEmpty(list?.get(adapterPosition)?.attachments)){
+                    try {
+                        var l = list?.get(adapterPosition)?.attachments!!.split("/")
+                        tv_attachment.text = l.get(l.size-1)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
                 else
                     tv_attachment.text = "N.A."
 
-                if (!TextUtils.isEmpty(list?.get(adapterPosition)?.image))
-                    tv_image.text = list?.get(adapterPosition)?.image
+                if (!TextUtils.isEmpty(list?.get(adapterPosition)?.image)){
+                    try {
+                        var ll = list?.get(adapterPosition)?.image?.split("/")
+                        tv_image.text = ll?.get(ll.size-1).toString()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
                 else
                     tv_image.text = "N.A."
 
@@ -136,6 +149,21 @@ class DateWiseActivityAdapter(private val context: Context, private val list: Ar
                 edit_icon.setOnClickListener {
                     onEditClick(list[adapterPosition])
                 }
+                if(Pref.IsShowMenuCRMContacts){
+                    edit_icon.visibility = View.GONE
+                }else{
+                    edit_icon.visibility = View.VISIBLE
+                }
+
+                if(Pref.IsShowOtherInfoinActivity == false){
+                    ll_product_root.visibility = View.GONE
+                    ll_subject_root.visibility = View.GONE
+                    ll_duration_root.visibility = View.GONE
+                    ll_priority_root.visibility = View.GONE
+                    tv_due_Date_time_text_header.text = "Due Date : "
+                    tv_due_date_time.text = AppUtils.convertToBillingFormat(list?.get(adapterPosition)?.due_date!!)
+                }
+
             }
         }
     }

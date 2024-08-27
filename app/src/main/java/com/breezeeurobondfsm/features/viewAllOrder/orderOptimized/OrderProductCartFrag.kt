@@ -14,6 +14,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import java.text.SimpleDateFormat
@@ -52,10 +54,13 @@ import com.breezeeurobondfsm.features.viewAllOrder.model.AddOrderInputParamsMode
 import com.breezeeurobondfsm.features.viewAllOrder.model.AddOrderInputProductList
 import com.breezeeurobondfsm.features.viewAllOrder.model.NewOrderCartModel
 import com.breezeeurobondfsm.widgets.AppCustomTextView
+import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.ui.TimeBar
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_login_new.iv_background_color_set
+import kotlinx.android.synthetic.main.activity_login_new.iv_loader_spin
 import kotlinx.android.synthetic.main.customnotification.view.text
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -98,7 +103,6 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
     }
     //End 14.0 Pref v 4.1.6 Tufan 11/08/2023 mantis 26655 Order Past Days
 
-    var isOrderProcessing:Boolean = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -121,10 +125,13 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
         }
     }
 
+    private lateinit var mView:View
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         val view = inflater.inflate(R.layout.order_product_cart_frag, container, false)
         initView(view)
+        mView = view
         return view
     }
     fun updateLabel() {
@@ -254,38 +261,45 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
 
     override fun onClick(v: View?) {
         when (v!!.id) {
-            R.id.ll_ord_prod_cart_frag_place_order ->{
+            llPlaceOrder.id ->{
                 // start Rev 3.0 v 4.1.6  0026439: Order Edit in cart optimization saheli 26-06-2023
+                println("btn_click_check llPlaceOrder clicked")
                 if(iseditCommit){
                     if(OrderProductListFrag.finalOrderDataList!!.size>0 ){
                         progrwss_wheel.spin()
+                        llPlaceOrder.isEnabled = false
 
                         var isValidQty = true
                         var isValidRate = true
-                        for(i in 0..OrderProductListFrag.finalOrderDataList!!.size-1){
-                            if(OrderProductListFrag.finalOrderDataList!!.get(i).qty.toDouble() == 0.0){
-                                isValidQty = false
-                                break
+                        try {
+                            for(i in 0..OrderProductListFrag.finalOrderDataList!!.size-1){
+                                if(OrderProductListFrag.finalOrderDataList!!.get(i).qty.toDouble() == 0.0){
+                                    isValidQty = false
+                                    break
+                                }
+                                if(OrderProductListFrag.finalOrderDataList!!.get(i).rate.toDouble() == 0.0){
+                                    isValidRate = false
+                                    break
+                                }
                             }
-                            if(OrderProductListFrag.finalOrderDataList!!.get(i).rate.toDouble() == 0.0){
-                                isValidRate = false
-                                break
-                            }
+                        } catch (e: Exception) {
+                            Timber.d("err ${e.printStackTrace()}")
                         }
                         if(!isValidQty) {
                             progrwss_wheel.stopSpinning()
                             ToasterMiddle.msgShort(mContext,"Please enter valid quantity.")
+                            llPlaceOrder.isEnabled = true
                             return
                         }
                         // Rev 1.0 OrderProductCartFrag AppV 4.0.8 Suman    21/04/2023 IsAllowZeroRateOrder updation 25879
-                        else if(!isValidRate && !Pref.IsAllowZeroRateOrder){
+                         else if(!isValidRate && !Pref.IsAllowZeroRateOrder){
                             // End of Rev 1.0
                             progrwss_wheel.stopSpinning()
                             ToasterMiddle.msgShort(mContext,"Please enter valid Rate.")
+                            llPlaceOrder.isEnabled = true
                             return
                         }
                         // start 2.0 OrderProductCartFrag v 4.1.6 stock optmization mantis 0026391 20-06-2023 saheli
-                        isOrderProcessing=false
                         if(Pref.savefromOrderOrStock){
                             showCheckAlert("Order Confirmation", "Would you like to confirm the order?")
                         }else{
@@ -295,6 +309,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
 
                     }
                 }else{
+                    llPlaceOrder.isEnabled = true
                     openDialog("Please click on tick to save this edit.")
                 }
                 // end Rev 3.0 v 4.1.6  0026439: Order Edit in cart optimization saheli 26-06-2023
@@ -319,7 +334,6 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
     }
 
     private fun saveOrder(){
-        isOrderProcessing = true
         Handler().postDelayed(Runnable {
             // Rev 1.0 OrderProductCartFrag AppV 4.0.8 Suman    21/04/2023 IsAllowZeroRateOrder updation 25879
             if(tv_totalAmt.text.toString().toDouble() !=0.0 || Pref.IsAllowZeroRateOrder){
@@ -413,15 +427,15 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
                             AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.insert(obj)
                     }catch (ex:Exception){
                         ex.printStackTrace()
+                        llPlaceOrder.isEnabled=true
                     }
 
                     uiThread {
                         progrwss_wheel.stopSpinning()
-                        isOrderProcessing=false
                         if(shopDtls.isUploaded && AppUtils.isOnline(mContext)){
                             syncOrder(orderListDetails,productOrderList)
                         }else{
-                            msgShow("${AppUtils.hiFirstNameText()}. Your order for ${shopDtls.shopName} has been placed successfully.Order No. is ${orderListDetails.order_id}")
+                            msgShow("${AppUtils.hiFirstNameText()}. Your order for ${shopDtls.shopName} has been placed successfully. Order No. is ${orderListDetails.order_id}")
                         }
 
                     }
@@ -506,7 +520,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
                         if(shopDtls.isUploaded && AppUtils.isOnline(mContext)){
                             syncStock(stockListDetails)
                         }else{
-                            msgShow("${AppUtils.hiFirstNameText()}. Your stock for ${shopDtls.shopName} has been placed successfully.Stock No. is ${stockListDetails.stock_id}")
+                            msgShow("${AppUtils.hiFirstNameText()}. Your stock for ${shopDtls.shopName} has been placed successfully. Stock No. is ${stockListDetails.stock_id}")
                         }
                     }
                 }
@@ -573,7 +587,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
                     if (orderList.status == NetworkConstant.SUCCESS) {
                         AppDatabase.getDBInstance()!!.stockDetailsListDao().updateIsUploaded(true,stockObj.stock_id!!)
                     }
-                    msgShow("${AppUtils.hiFirstNameText()}. Your stock for ${shopDtls.shopName} has been placed successfully.Stock No. is ${stockObj.stock_id}")
+                    msgShow("${AppUtils.hiFirstNameText()}. Your stock for ${shopDtls.shopName} has been placed successfully. Stock No. is ${stockObj.stock_id}")
 
                 }, { error ->
                     error.printStackTrace()
@@ -640,7 +654,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
                             AppDatabase.getDBInstance()!!.orderDetailsListDao().updateIsUploaded(true, addOrderApiObj.order_id!!)
                         }
                         //(mContext as DashboardActivity).showSnackMessage("Order added successfully")
-                        msgShow("${AppUtils.hiFirstNameText()}. Your order for ${shopDtls.shopName} has been placed successfully.Order No. is ${addOrderApiObj.order_id}")
+                        msgShow("${AppUtils.hiFirstNameText()}. Your order for ${shopDtls.shopName} has been placed successfully. Order No. is ${addOrderApiObj.order_id}")
                     }, { error ->
                         error.printStackTrace()
                         progrwss_wheel.stopSpinning()
@@ -661,7 +675,7 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
                             AppDatabase.getDBInstance()!!.orderDetailsListDao().updateIsUploaded(true, addOrderApiObj.order_id!!)
                         }
                         //(mContext as DashboardActivity).showSnackMessage("Order added successfully")
-                        msgShow("${AppUtils.hiFirstNameText()}. Your order for ${shopDtls.shopName} has been placed successfully.Order No. is ${addOrderApiObj.order_id}")
+                        msgShow("${AppUtils.hiFirstNameText()}. Your order for ${shopDtls.shopName} has been placed successfully. Order No. is ${addOrderApiObj.order_id}")
                     }, { error ->
                         error.printStackTrace()
                         progrwss_wheel.stopSpinning()
@@ -677,22 +691,24 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
             CommonDialogClickListener {
             override fun onLeftClick() {
                 progrwss_wheel.stopSpinning()
+                llPlaceOrder.isEnabled = true
             }
             override fun onRightClick(editableData: String) {
                 Timber.d("Order onRightClick ${AppUtils.getCurrentDateTime()}")
-                if(isOrderProcessing==false){
+
                     Timber.d("Order onRightClick process ${AppUtils.getCurrentDateTime()}")
                     if (!Pref.isShowOrderRemarks && !Pref.isShowOrderSignature)
                         saveOrder()
                     else
                         showRemarksAlert()
-                }
+
             }
         }).show((mContext as DashboardActivity).supportFragmentManager, "")
     }
 
     // start 2.0 OrderProductCartFrag v 4.1.6 stock optmization mantis 0026391 20-06-2023 saheli
     private fun showCheckStockAlert(header: String, title: String) {
+        llPlaceOrder.isEnabled = true
         CommonDialog.getInstance(header, title, getString(R.string.no), getString(R.string.yes), false, object :
             CommonDialogClickListener {
             override fun onLeftClick() {
@@ -760,6 +776,20 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
         simpleDialog.setCancelable(false)
         simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         simpleDialog.setContentView(R.layout.dialog_ok)
+
+        try {
+            simpleDialog.setCancelable(true)
+            simpleDialog.setCanceledOnTouchOutside(false)
+            val dialogName = simpleDialog.findViewById(R.id.tv_dialog_ok_name) as AppCustomTextView
+            val dialogCross = simpleDialog.findViewById(R.id.tv_dialog_ok_cancel) as ImageView
+            dialogName.text = AppUtils.hiFirstNameText()
+            dialogCross.setOnClickListener {
+                simpleDialog.cancel()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
         dialogHeader.text = text
         val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
@@ -769,5 +799,6 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
         simpleDialog.show()
     }
     // end Rev 3.0 v 4.1.6  0026439: Order Edit in cart optimization saheli 26-06-2023
+
 
 }

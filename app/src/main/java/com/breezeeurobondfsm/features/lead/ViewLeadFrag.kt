@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -305,6 +306,8 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
         }
 
         tv_message_ok.setOnClickListener({ view ->
+            tv_message_ok.isEnabled = false
+
             var validating = true
 
             if(tv_date_dialog.text.toString().equals("")){
@@ -332,6 +335,7 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
                 val dialogYes = simpleDialogYesNo.findViewById(R.id.tv_dialog_yes_no_yes) as AppCustomTextView
                 val dialogNo = simpleDialogYesNo.findViewById(R.id.tv_dialog_yes_no_no) as AppCustomTextView
                 dialogYes.setOnClickListener({ view ->
+                    dialogYes.isEnabled=false
                     addActivityReq.activity_date=tv_date_dialog.text.toString()
                     addActivityReq.activity_time=tv_time.text.toString()
                     addActivityReq.activity_details=et_dtls.text.toString()
@@ -342,6 +346,11 @@ class ViewLeadFrag : BaseFragment(), View.OnClickListener{
                     simpleDialogYesNo.cancel()
                     simpleDialog.cancel()
                     submitActivityAPI()
+
+                    Handler().postDelayed(Runnable {
+                        tv_message_ok.isEnabled = true
+                        dialogYes.isEnabled=true
+                    }, 1000)
 
                 })
                 dialogNo.setOnClickListener({ view ->

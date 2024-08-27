@@ -46,8 +46,8 @@
 
                 <ImageView
                     android:id="@+id/logo_new"
-                    android:layout_width="@dimen/_205sdp"
-                    android:layout_height="@dimen/_100sdp"
+                    android:layout_width="@dimen/_185sdp"
+                    android:layout_height="@dimen/_88sdp"
                     android:src="@drawable/breezelogo"
                     android:layout_marginTop="@dimen/_30sdp"
                     android:layout_centerHorizontal="true"

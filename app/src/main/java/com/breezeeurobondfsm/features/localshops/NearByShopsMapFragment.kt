@@ -52,8 +52,7 @@ class NearByShopsMapFragment : BaseFragment(), View.OnClickListener, OnMapReadyC
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater
-                .inflate(R.layout.fragment_nearby_shops_map, container, false)
+        val view = inflater.inflate(R.layout.fragment_nearby_shops_map, container, false)
         mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment;
         mapFragment.getMapAsync(this)
 

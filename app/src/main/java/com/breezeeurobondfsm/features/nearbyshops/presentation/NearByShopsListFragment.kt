@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.breezeeurobondfsm.CustomStatic
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -93,6 +94,7 @@ import org.jetbrains.anko.uiThread
 import timber.log.Timber
 import java.io.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 /**
@@ -109,6 +111,7 @@ import java.util.*
 // 8.0 NearByShopsListFragment AppV 4.0.7 saheli 08-06-2023 0026307 mantis  Play store console report issues
 // 9.0 NearByShopsListFragment AppV 4.0.7 Suman 26-06-2023 0026307 mantis  26437
 // 10.0 fix collection not sync issue sometimes puja 05-04-2024 mantis id 0027352 v4.2.6
+// Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration
 
 class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
@@ -142,6 +145,9 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
     var quesAnsListTemp:ArrayList<QuestionSubmit> = ArrayList()
     private var adapterqaList: AdapterQuestionList? = null
     private lateinit var simpleDialogRoot : Dialog
+
+    private var isType99InTypeMaster:Boolean = false
+
 //    /*Interface to update Shoplist Frag on search event*/
 //    private lateinit var searchListener:SearchListener
 //    public fun setSearchListener(searchListener:SearchListener){
@@ -184,6 +190,18 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
         val view = inflater.inflate(R.layout.fragment_nearby_shops, container, false)
         println("fab_check onCreateView")
         println("time_check onCreateView")
+
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration begin
+        var type99 =  AppDatabase.getDBInstance()?.shopTypeDao()?.getSingleType("99")
+        if(type99 == null){
+            println("tag_type99 no type found")
+            isType99InTypeMaster = false
+        }else{
+            println("tag_type99 type found")
+            isType99InTypeMaster = true
+        }
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration end
+
         initView(view)
 //        if (AppDatabase.getDBInstance()!!.marketingCategoryMasterDao().getAll().isEmpty())
 //            callMarketingCategoryListApi()
@@ -191,7 +209,15 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
             override fun onSearchQueryListener(query: String) {
                 if (query.isBlank()) {
                     //val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().all
-                    val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwn(true)
+                    var allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwn(true)
+
+                    // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration begin
+                    if(isType99InTypeMaster){
+                         allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwn(true)
+                    }else{
+                         allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwnFilterType99(true,"99")
+                    }
+                    // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration end
 
                     getOwnShop(allShopList)
 
@@ -221,8 +247,18 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 }*/
                 else {
 //                    val searchedList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBySearchData(query)
-                    var searchedList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBySearchDataNew(query)
-                    searchedList = searchedList.filter { it.isOwnshop==true }
+
+                    // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration begin
+                    //var searchedList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBySearchDataNew(query)
+                    //searchedList = searchedList.filter { it.isOwnshop==true }
+
+                    var searchedList:ArrayList<AddShopDBModelEntity> = ArrayList()
+                    if(isType99InTypeMaster){
+                         searchedList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBySearchDataNewWithOwnShop(query,true) as ArrayList<AddShopDBModelEntity>
+                    }else{
+                        searchedList = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopBySearchDataNewWithOwnShopType(query,true,"99") as ArrayList<AddShopDBModelEntity>
+                    }
+                    // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration end
 
                     getOwnShop(searchedList)
 
@@ -852,7 +888,16 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
         //val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().all
         println("time_check initAdapterstart")
-        val allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwn(true)
+        var allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwn(true)
+
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration begin
+        if(isType99InTypeMaster){
+             allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwn(true)
+        }else{
+             allShopList = AppDatabase.getDBInstance()!!.addShopEntryDao().getAllOwnFilterType99(true,"99")
+        }
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration end
+
         getOwnShop(allShopList)
 //        ( list as ArrayList).set()
 
@@ -916,6 +961,10 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
 
                         }
                     }).show((mContext as DashboardActivity).supportFragmentManager, "")
+            }
+
+            override fun createITCOrderClick(obj: AddShopDBModelEntity) {
+                (mContext as DashboardActivity).loadFragment(FragType.OrderListFrag, true, obj.shop_id)
             }
 
             override fun onExtraContactClick(shop_idSel: String) {
@@ -1731,6 +1780,8 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 if(Pref.IsActivateNewOrderScreenwithSize){
                     (mContext as DashboardActivity).loadFragment(FragType.NewOrderScrOrderDetailsFragment, true, list.get(position).shop_id)
                 }else{
+                    CustomStatic.IsOrderLoadFromCRM = false
+                    CustomStatic.IsOrderLoadFromShop = true
                     (mContext as DashboardActivity).loadFragment(FragType.ViewAllOrderListFragment, true, list[position])
                 }
 
@@ -2435,6 +2486,17 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
             shopDurationData.multi_contact_name = shopActivity.multi_contact_name
             shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+            try {
+                var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                shopDurationData.shop_lat=shopOb.shopLat.toString()
+                shopDurationData.shop_long=shopOb.shopLong.toString()
+                shopDurationData.shop_addr=shopOb.address.toString()
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
             shopDataList.add(shopDurationData)
         }
         else {
@@ -2541,6 +2603,17 @@ class NearByShopsListFragment : BaseFragment(), View.OnClickListener {
                 // 3.0 NearByShopsListFragment AppV 4.0.6  multiple contact Data added on Api called
                 shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                 shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+                try {
+                    var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                    shopDurationData.shop_lat=shopOb.shopLat.toString()
+                    shopDurationData.shop_long=shopOb.shopLong.toString()
+                    shopDurationData.shop_addr=shopOb.address.toString()
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
 
                 shopDataList.add(shopDurationData)
             }

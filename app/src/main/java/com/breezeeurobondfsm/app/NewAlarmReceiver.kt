@@ -24,13 +24,17 @@ class NewAlarmReceiver : BroadcastReceiver() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onReceive(context: Context, intent: Intent) {
+        println("tag_service_call_check onReceive")
         if (intent.hasExtra("request_code")) {
             if (intent.getIntExtra("request_code", 0) == 123) {
+                println("tag_service_call_check onReceive if")
                 Timber.e("Time(NewAlarmReceiver): " + AppUtils.getCurrentDateTime())
 
                 if (FTStorageUtils.isMyServiceRunning(LocationFuzedService::class.java, context)) {
                     Timber.e("==========Service is running (NewAlarmReceiver)===========")
+                    println("tag_service_call_check onReceive service running")
                 } else {
+                    println("tag_service_call_check onReceive service not running")
                     Timber.e("==========Service is stopped (NewAlarmReceiver)===========")
 
                     if (Pref.user_id != null && Pref.user_id!!.isNotEmpty()) {

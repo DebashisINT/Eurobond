@@ -32,7 +32,7 @@
                 <View
                     android:id="@+id/view"
                     android:layout_width="5dp"
-                    android:layout_height="@dimen/_76sdp"
+                    android:layout_height="@dimen/_56sdp"
                     android:background="@drawable/left_rounded_corner_view_bg"
                     android:layout_marginLeft="1.7dp"
                     android:layout_marginTop="@dimen/_1sdp"

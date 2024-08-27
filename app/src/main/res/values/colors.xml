@@ -7,6 +7,7 @@
     <color name="default_text_color">#1A8BA6</color>
     <color name="default_text_color_light">#49B5CF</color>
     <color name="black">#000000</color>
+    <color name="purple1">#365098</color>
     <color name="leaderback">#acd9ee</color>
     <color name="black_custom_light">#B3000000</color>
     <color name="login_txt_color">#606060</color>
@@ -52,14 +53,20 @@
     <color name="gray">#ff888888</color>
 
     <color name="white_50">#88ffffff</color>
+    <color name="white_70">#BAFFFFFF</color>
     <color name="black_50">#88000000</color>
     <color name="black_51">#A9000000</color>
     <color name="gray_50">#88888888</color>
+    <color name="gray_501">#88D6D6D6</color>
+    <color name="gray_502">#88DAD7D7</color>
     <color name="gray_50_dark">#B3292929</color>
 
     <color name="white_ish">#fffefefe</color>
 
     <color name="smoke_white">#f4f4f4</color>
+
+    <color name="light_white">#9cbee5</color>
+
     <color name="card_custom_back">#FAF8F8</color>
     <color name="card_custom_back1">#d8d8d8</color>
     <color name="card_custom_back2">#EFE8E8</color>
@@ -71,13 +78,16 @@
 
     <color name="yellow">#fdb75b</color>
     <color name="red">#fd5c63</color>
+    <color name="toolbar_lms">#0D308A</color>
+
     <color name="violet">#818aff</color>
     <color name="green">#98c141</color>
+    <color name="green_light">#C1E673</color>
     <color name="green_trans">#3698C141</color>
     <color name="blue">#08a8ce</color>
     <color name="purple">#ca93e6 </color>
     <color name="light_red">#ff9097</color>
-    <color name="deep_green">#48c8b4 </color>
+    <color name="deep_green">#48c8b4</color>
 
     <color name="date_bg_selected_color">#196F84</color>
     <color name="date_bg_unselected_color">#F2F2F2</color>
@@ -94,7 +104,8 @@
     <color name="performance_gray">#e9e9e9</color>
     <color name="schdlr_bck">#dcdeff</color>
     <color name="schdlr_bck1">#d8effe</color>
-
+    <color name="progress_background_color">#e0e0e0</color>
+    <color name="progress_color">#f57c00</color>
     <color name="bill_green">#108e79</color>
     <color name="bill_blue">#013446</color>
     <color name="search_text">#d60c91</color>
@@ -135,6 +146,7 @@
     <color name="menu_black_color_light">#2D3135</color>
     <color name="colorPrimaryDark_darker">#0E4957</color>
     <color name="color_custom_white_1">#00A311</color>
+    <color name="color_custom_green_1">#00730C</color>
     <color name="color_custom_red_1">#f8424e</color>
     <color name="color_custom_red_2">#82F8424E</color>
 
@@ -159,5 +171,8 @@
     <color name="color_card_back">#F3F3F3</color>
     <color name="color_card_back_deep">#EDEDED</color>
     <color name="dividerColor">#023f89</color>
+
+    <color name="menu_back_color">#268EA7</color>
+    <color name="color_option">#DCF4EC</color>
 
 </resources>

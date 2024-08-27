@@ -15,12 +15,12 @@ import com.breezeeurobondfsm.app.AppDatabase
 import com.breezeeurobondfsm.app.Pref
 import com.breezeeurobondfsm.app.domain.OrderDetailsListEntity
 import com.breezeeurobondfsm.app.domain.ShopActivityEntity
+import com.breezeeurobondfsm.app.domain.ShopAudioEntity
 import com.breezeeurobondfsm.app.domain.VisitRevisitWhatsappStatus
 import com.breezeeurobondfsm.app.types.FragType
 import com.breezeeurobondfsm.app.uiaction.IntentActionable
 import com.breezeeurobondfsm.app.utils.AppUtils
 import com.breezeeurobondfsm.app.utils.Toaster
-import com.breezeeurobondfsm.features.damageProduct.ShopDamageProductSubmitFrag
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
 import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.*
 import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.activity_view
@@ -59,6 +59,7 @@ import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.add_multiple_ll
 import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.multiple_tv
 import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.new_multi_view
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Created by Pratishruti on 15-11-2017.
@@ -66,7 +67,7 @@ import java.util.*
 // revision Note
 // 1.0 AverageShopListAdapter mantis 0026066: saheli 09-05-2023 Total Visit Tab design issue fixing
 // 2.0 AverageShopListAdapter mantis 26346: Suman 15-06-2023 Current Stock visibility updation
-class AverageShopListAdapter(context: Context, userLocationDataEntity: List<ShopActivityEntity>,selectedD:String, val listener: AverageShopListClickListener) : RecyclerView.Adapter<AverageShopListAdapter.MyViewHolder>() {
+class AverageShopListAdapter(context: Context, userLocationDataEntity: List<ShopActivityEntity>, selectedD:String, val listener: AverageShopListClickListener) : RecyclerView.Adapter<AverageShopListAdapter.MyViewHolder>() {
     private val layoutInflater: LayoutInflater
     private var context: Context
     private var shopType = ""
@@ -214,7 +215,8 @@ class AverageShopListAdapter(context: Context, userLocationDataEntity: List<Shop
                                 })
                             }
                             else
-                                itemView.sync_icon.setImageResource(R.drawable.ic_dashboard_green_tick_new)
+                                //itemView.sync_icon.setImageResource(R.drawable.ic_dashboard_green_tick_new)
+                                itemView.sync_icon.setImageResource(R.drawable.ic_registered_shop_sync)
                         }
 
                     } else {
@@ -564,7 +566,8 @@ class AverageShopListAdapter(context: Context, userLocationDataEntity: List<Shop
 
 
             try{
-                if(Pref.IsShowWhatsAppIconforVisit && userLocationDataEntity[adapterPosition].date.equals(AppUtils.getCurrentDateForShopActi())){
+                if(Pref.IsShowWhatsAppIconforVisit && userLocationDataEntity[adapterPosition].date.equals(
+                        AppUtils.getCurrentDateForShopActi())){
                     var shopWiseWhatsObj = AppDatabase.getDBInstance()?.visitRevisitWhatsappStatusDao()!!.getByShopIDDate(userLocationDataEntity[adapterPosition].shopid!!,AppUtils.getCurrentDateForShopActi())
                     if(shopWiseWhatsObj == null){
                         var shopVisitObj = AppDatabase.getDBInstance()!!.shopActivityDao().getShopForDay(userLocationDataEntity[adapterPosition].shopid.toString(), AppUtils.getCurrentDateForShopActi()).first()
@@ -630,13 +633,56 @@ class AverageShopListAdapter(context: Context, userLocationDataEntity: List<Shop
                 (context as DashboardActivity).loadFragment(FragType.ShopCallHisFrag, true, userLocationDataEntity[adapterPosition].shopid.toString()!!)
             }
 
-
+            if(Pref.IsUserWiseRecordAudioEnableForVisitRevisit){
+                println("tag_shop_visit $selectedDate")
+                var isPresent = AppDatabase.getDBInstance()?.shopAudioDao()?.getShopExistanceWIthDate(userLocationDataEntity[adapterPosition].shopid.toString(),selectedDate) as ArrayList<ShopAudioEntity>
+                if(isPresent.size!=0){
+                    itemView.iv_inflate_avg_shop_audio.visibility = View.VISIBLE
+                }else{
+                    itemView.iv_inflate_avg_shop_audio.visibility = View.GONE
+                }
+            }else{
+                itemView.iv_inflate_avg_shop_audio.visibility = View.GONE
+            }
         }
     }
 
     open fun updateList(locationDataEntity: List<ShopActivityEntity>) {
-        Collections.reverse(locationDataEntity)
+
+
+
+
+//previous code
+       /* Collections.reverse(locationDataEntity)
         userLocationDataEntity = locationDataEntity
+        notifyDataSetChanged()*/
+
+//new code
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration begin
+        var shopActivity:ArrayList<ShopActivityEntity> = ArrayList()
+        shopActivity = locationDataEntity as ArrayList<ShopActivityEntity>
+        var isType99InTypeMaster:Boolean = false
+        try {
+            if(!isType99InTypeMaster){
+                var rectifyShopListWithType :ArrayList<ShopActivityEntity> = ArrayList()
+                for(i in 0..shopActivity.size-1){
+                    var shopDtls = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopActivity.get(i).shopid)
+                    if (shopDtls!=null){
+                        if(!shopDtls.type.equals("99")){
+                            rectifyShopListWithType.add(shopActivity.get(i))
+                        }
+                    }
+                }
+                shopActivity = rectifyShopListWithType
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        // Revision 11.0 Suman 11-04-2024 mantis id 27362 v4.2.6 shop type 99 consideration end
+
+
+        Collections.reverse(shopActivity)
+        userLocationDataEntity = shopActivity
         notifyDataSetChanged()
     }
 }

@@ -7,6 +7,7 @@ import com.breezeeurobondfsm.features.addshop.model.AddShopResponse
 import com.breezeeurobondfsm.features.addshop.model.LogFileResponse
 import com.breezeeurobondfsm.features.addshop.model.UpdateAddrReq
 import com.breezeeurobondfsm.features.addshop.model.UpdateAddressShop
+import com.breezeeurobondfsm.features.contacts.AutoMailDtls
 import com.breezeeurobondfsm.features.contacts.CallHisDtls
 import com.breezeeurobondfsm.features.contacts.CompanyReqData
 import com.breezeeurobondfsm.features.contacts.ContactMasterRes
@@ -90,6 +91,10 @@ interface EditShopApi {
     @FormUrlEncoded
     @POST("CallLogInformations/CallLogList")
     fun callCallListHisAPI(@Field("user_id") user_id: String): Observable<CallHisDtls>
+
+    @FormUrlEncoded
+    @POST("SendAutoMail/SendAutoMailInfo")
+    fun autoMailDtlsAPI(@Field("user_id") user_id: String): Observable<AutoMailDtls>
 
     /**
      * Companion object to create the GithubApiService

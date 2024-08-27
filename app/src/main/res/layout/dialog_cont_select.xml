@@ -37,10 +37,10 @@
             android:textSize="@dimen/_12sdp" />
 
             <ImageView
-                android:layout_marginEnd="@dimen/_5sdp"
+                android:layout_marginEnd="@dimen/_15sdp"
                 android:id="@+id/iv_dialog_generic_list_close_icon"
-                android:layout_width="@dimen/_18sdp"
-                android:layout_height="@dimen/_18sdp"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
                 android:layout_centerVertical="true"
                 android:src="@drawable/ic_close"
                 android:layout_gravity="center|end"
@@ -65,6 +65,7 @@
             android:textSize="@dimen/_12sdp" />
 
         <LinearLayout
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_30sdp"
             android:orientation="horizontal">

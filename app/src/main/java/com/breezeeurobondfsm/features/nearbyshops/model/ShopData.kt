@@ -120,5 +120,7 @@ class ShopData {
     var crm_stage:String?= null
     var assign_to:String?= null
     var saved_from_status:String?= null
+    var remarks:String?= null
+    var Shop_NextFollowupDate:String?= null
 
 }

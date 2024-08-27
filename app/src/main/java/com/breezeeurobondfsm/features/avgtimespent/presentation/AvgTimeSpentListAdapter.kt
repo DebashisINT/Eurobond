@@ -17,7 +17,9 @@ import com.breezeeurobondfsm.app.types.FragType
 import com.breezeeurobondfsm.app.uiaction.IntentActionable
 import com.breezeeurobondfsm.app.utils.AppUtils
 import com.breezeeurobondfsm.features.dashboard.presentation.DashboardActivity
+import kotlinx.android.synthetic.main.inflate_avg_shop_item.view.activity_view
 import kotlinx.android.synthetic.main.inflate_avgtimespent_items.view.*
+import kotlinx.android.synthetic.main.inflate_registered_shops.view.ll_activity
 import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -213,6 +215,14 @@ class AvgTimeSpentListAdapter(context: Context, list: List<ShopActivityEntity>, 
 
                 itemView.add_order_ll.setOnClickListener{
                     (context as DashboardActivity).loadFragment(FragType.ViewAllOrderListFragment, true, shop!!)
+                }
+
+                if (Pref.willActivityShow) {
+                    itemView.ll_activity.visibility = View.VISIBLE
+                    itemView.activity_view.visibility = View.VISIBLE
+                }else{
+                    itemView.ll_activity.visibility = View.GONE
+                    itemView.activity_view.visibility = View.GONE
                 }
 
                 itemView.ll_activity.setOnClickListener {

@@ -23,6 +23,7 @@ import com.marcinmoskala.kotlinpreferences.PreferenceHolder
 // 15.0 Pref v 4.1.6 Tufan 22/08/2023 mantis 26649 Show distributor scheme with Product
 // 16.0 Pref v 4.1.6 Tufan 07/09/2023 mantis 26785 Multi visit Interval in Minutes Against the Same Shop
 //Begin 16.0 Pref v 4.1.6 Tufan 21/09/2023 mantis 26812 AND 26813  FSSAI Lic No and GSTINPANMandatoryforSHOPTYPE4 In add shop page edit
+//Rev 17.0 Pref v 4.2.8 Suman 25/06/2024 mantis 27575
 
 object Pref : PreferenceHolder() {
     var text: String? by bindToPreferenceFieldNullable()
@@ -52,6 +53,7 @@ object Pref : PreferenceHolder() {
     var temp_login_date: String? by bindToPreferenceFieldNullable()
     var isLocationActivitySynced: Boolean by bindToPreferenceField(true, "isLocationActivitySynced")
     var prevShopActivityTimeStamp: Long by bindToPreferenceField(0, "prevTimeStamp")
+    var prevContactSyncTimeStamp: Long by bindToPreferenceField(0, "prevContactSyncTimeStamp")
     var prevLocationActivityTimeStamp: Long by bindToPreferenceField(0, "prevLocTimeStamp")
     var shouldCallHisSync: Long by bindToPreferenceField(0, "shouldCallHisSync")
     var prevIdealLocationActivityTimeStamp: Long by bindToPreferenceField(
@@ -400,7 +402,9 @@ object Pref : PreferenceHolder() {
         false,
         "IsFaceDetectionWithCaptcha"
     )
-    var IsScreenRecorderEnable: Boolean by bindToPreferenceField(false, "IsScreenRecorderEnable")
+    //code start Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
+    // var IsScreenRecorderEnable: Boolean by bindToPreferenceField(false, "IsScreenRecorderEnable")
+    //code end Mantis- 27419 by puja screen recorder off 07.05.2024 v4.2.7
 
     //    var IsFromPortal: Boolean by bindToPreferenceField(false, "IsFromPortal")
     var IsFromPortal: Boolean by bindToPreferenceField(
@@ -1016,6 +1020,62 @@ object Pref : PreferenceHolder() {
     var Allow_past_days_for_apply_reimbursement: String by bindToPreferenceField("", "Allow_past_days_for_apply_reimbursement")
     var IsShowLeaderBoard: Boolean by bindToPreferenceField(false, "IsShowLeaderBoard")
 
+    var automail_sending_email: String by bindToPreferenceField("", "automail_sending_email")
+    var automail_sending_pass: String by bindToPreferenceField("", "automail_sending_pass")
+    var recipient_email_ids: String by bindToPreferenceField("", "recipient_email_ids")
+    //mantis id 0027389 Puja 23-04-2024
+    var AdditionalinfoRequiredforContactListing: Boolean by bindToPreferenceField(true, "AdditionalinfoRequiredforContactListing")
+    var AdditionalinfoRequiredforContactAdd: Boolean by bindToPreferenceField(true, "AdditionalinfoRequiredforContactAdd")
+    var ContactAddresswithGeofence: Boolean by bindToPreferenceField(true, "ContactAddresswithGeofence")
+    var IsShowOtherInfoinActivity: Boolean by bindToPreferenceField(true, "IsShowOtherInfoinActivity")
+
+    var user_ShopStatus: Boolean by bindToPreferenceField(false, "user_ShopStatus")
+
+    var ShowUserwisePartyWithGeoFence : Boolean by bindToPreferenceField(false, "ShowUserwisePartyWithGeoFence")
+    var ShowUserwisePartyWithCreateOrder : Boolean by bindToPreferenceField(false, "ShowUserwisePartyWithCreateOrder")
+    //begin mantis id 0027432 loc_k & firebase_k functionality Puja 08-05-2024 v4.2.7
+    var loc_k : String by bindToPreferenceField("", "loc_k")
+    var firebase_k : String by bindToPreferenceField("", "firebase_k")
+    //end mantis id 0027432 loc_k & firebase_k functionality Puja 08-05-2024 v4.2.7
+    var IsRouteUpdateForShopUser : Boolean by bindToPreferenceField(true, "IsRouteUpdateForShopUser")
+    var isCallLogHintPermissionGranted: Boolean by bindToPreferenceField(false, "isCallLogHintPermissionGranted")
+
+    var IsShowCRMOpportunity: Boolean by bindToPreferenceField(false, "IsShowCRMOpportunity")
+    var IsEditEnableforOpportunity: Boolean by bindToPreferenceField(false, " IsEditEnableforOpportunity")
+    var IsDeleteEnableforOpportunity: Boolean by bindToPreferenceField(false, "IsDeleteEnableforOpportunity")
+
+
+    var IsCRMPhonebookSyncEnable: Boolean by bindToPreferenceField(true, "IsCRMPhonebookSyncEnable")
+    var IsCRMSchedulerEnable: Boolean by bindToPreferenceField(true, "IsCRMSchedulerEnable")
+    var IsCRMAddEnable: Boolean by bindToPreferenceField(true, "IsCRMAddEnable")
+    var IsCRMEditEnable: Boolean by bindToPreferenceField(true, "IsCRMEditEnable")
+
+    //Rev 17.0 Pref v 4.2.8 Suman 25/06/2024 mantis 27575
+    var IsUserWiseLMSEnable: Boolean by bindToPreferenceField(false, "IsUserWiseLMSEnable")
+    var IsUserWiseLMSFeatureOnly: Boolean by bindToPreferenceField(false, "IsUserWiseLMSFeatureOnly")
+
+    var IsAlarmServiceRestartCalled: Boolean by bindToPreferenceField(false, "IsAlarmServiceRestartCalled")
+
+    //Suman 27-07-2024 mantis id 27647
+    var IsUserWiseRecordAudioEnableForVisitRevisit: Boolean by bindToPreferenceField(false, "IsUserWiseRecordAudioEnableForVisitRevisit")
+
+    var prevShopAudioSyncTimeStamp: Long by bindToPreferenceField(0, "prevShopAudioSyncTimeStamp")
+
+    var Question_After_No_Of_Content: String by bindToPreferenceField("1", "Question_After_No_Of_Content")
+
+    var videoCompleteCount: String by bindToPreferenceField("0", "videoCompleteCount")
+
+    var like_count: Int by bindToPreferenceField(0, "like_count")
+
+    var share_count: Int by bindToPreferenceField(0, "share_count")
+
+    var comment_count: Int by bindToPreferenceField(0, "comment_count")
+
+    var correct_answer_count: Int by bindToPreferenceField(0, "correct_answer_count")
+
+    var wrong_answer_count: Int by bindToPreferenceField(0, "wrong_answer_count")
+
+    var content_watch_count: Int by bindToPreferenceField(0, "content_watch_count")
 
 }
 

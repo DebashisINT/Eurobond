@@ -226,27 +226,38 @@ class BillingListFragment : BaseFragment(), View.OnClickListener {
 
         val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/breezeeurobondfsmApp/INVOICEDETALIS/"
 
+        var pathNew = ""
+
         val dir = File(path)
         if (!dir.exists()) {
             dir.mkdirs()
         }
         try {
-            PdfWriter.getInstance(document, FileOutputStream(path + fileName + ".pdf"))
+            try {
+                PdfWriter.getInstance(document, FileOutputStream(path + fileName + ".pdf"))
+            }catch (ex:Exception){
+                ex.printStackTrace()
+
+                pathNew = mContext.filesDir.toString() + "/" + fileName+".pdf"
+                //val file = File(mContext.filesDir.toString() + "/" + fileName)
+                PdfWriter.getInstance(document, FileOutputStream(pathNew))
+            }
+
             document.open()
             var font: Font = Font(Font.FontFamily.HELVETICA, 10f, Font.BOLD)
             var fontBoldU: Font = Font(Font.FontFamily.HELVETICA, 12f, Font.UNDERLINE or Font.BOLD)
             var font1: Font = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL)
             val grayFront = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL, BaseColor.GRAY)
             //image add
-            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
-            val bitmap = Bitmap.createScaledBitmap(bm, 50, 50, true);
+            val bm: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.breezelogo)
+            val bitmap = Bitmap.createScaledBitmap(bm, 80, 80, true);
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
             var img: Image? = null
             val byteArray: ByteArray = stream.toByteArray()
             try {
                 img = Image.getInstance(byteArray)
-                img.scaleToFit(90f, 90f)
+                img.scaleToFit(110f, 110f)
                 img.scalePercent(70f)
                 img.alignment = Image.ALIGN_LEFT
             } catch (e: BadElementException) {
@@ -506,6 +517,9 @@ class BillingListFragment : BaseFragment(), View.OnClickListener {
             document.close()
 
             var sendingPath = path + fileName + ".pdf"
+            if(!pathNew.equals("")){
+                sendingPath = pathNew
+            }
             if (!TextUtils.isEmpty(sendingPath)) {
                 try {
                     val shareIntent = Intent(Intent.ACTION_SEND)
@@ -914,6 +928,18 @@ class BillingListFragment : BaseFragment(), View.OnClickListener {
             }catch (ex:Exception){
                 shopDurationData.spent_duration="00:00:10"
             }
+
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+            try {
+                var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                shopDurationData.shop_lat=shopOb.shopLat.toString()
+                shopDurationData.shop_long=shopOb.shopLong.toString()
+                shopDurationData.shop_addr=shopOb.address.toString()
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+            // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
+
             shopDataList.add(shopDurationData)
         } else {
             for (i in list.indices) {
@@ -1007,6 +1033,17 @@ class BillingListFragment : BaseFragment(), View.OnClickListener {
                 // 1.0 BillingFragment AppV 4.0.6  multiple contact Data added on Api called
                 shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                 shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  begin
+                try {
+                    var shopOb = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopDurationData.shop_id)
+                    shopDurationData.shop_lat=shopOb.shopLat.toString()
+                    shopDurationData.shop_long=shopOb.shopLong.toString()
+                    shopDurationData.shop_addr=shopOb.address.toString()
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+                // Suman 06-05-2024 Suman SyncActivity update mantis 27335  end
 
                 shopDataList.add(shopDurationData)
             }

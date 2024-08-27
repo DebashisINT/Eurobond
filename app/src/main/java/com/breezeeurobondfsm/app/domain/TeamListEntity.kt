@@ -10,4 +10,5 @@ data class TeamListEntity (
     @PrimaryKey(autoGenerate = true) var sl_no: Int = 0,
     @ColumnInfo var user_id:String = "",
     @ColumnInfo var user_name:String = "",
+    @ColumnInfo var contact_no:String = "",
     )

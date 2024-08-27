@@ -7,6 +7,12 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import android.content.Context
+import com.breezedsm.app.domain.NewOrderDataDao
+import com.breezedsm.app.domain.NewOrderDataEntity
+import com.breezedsm.app.domain.NewProductListDao
+import com.breezedsm.app.domain.NewProductListEntity
+import com.breezedsm.app.domain.NewRateListDao
+import com.breezedsm.app.domain.NewRateListEntity
 
 import com.breezeeurobondfsm.app.AppConstant.DBNAME
 import com.breezeeurobondfsm.app.domain.*
@@ -42,34 +48,36 @@ import com.breezeeurobondfsm.features.taskManagement.model.TaskManagmentEntity
 // 5.0   AppV 4.0.6  Saheli    01/02/2023  product_list   migration changes
 
 @Database(entities = arrayOf(AddShopDBModelEntity::class, UserLocationDataEntity::class, UserLoginDataEntity::class, ShopActivityEntity::class,
-    StateListEntity::class, CityListEntity::class, MarketingDetailEntity::class, MarketingDetailImageEntity::class, MarketingCategoryMasterEntity::class,
-    TaListDBModelEntity::class, AssignToPPEntity::class, AssignToDDEntity::class, WorkTypeEntity::class, OrderListEntity::class,
-    OrderDetailsListEntity::class, ShopVisitImageModelEntity::class, UpdateStockEntity::class, PerformanceEntity::class,
-    GpsStatusEntity::class, CollectionDetailsEntity::class, InaccurateLocationDataEntity::class, LeaveTypeEntity::class, RouteEntity::class,
-    ProductListEntity::class, OrderProductListEntity::class, StockListEntity::class, RouteShopListEntity::class, SelectedWorkTypeEntity::class,
-    SelectedRouteEntity::class, SelectedRouteShopListEntity::class, OutstandingListEntity::class/*, LocationEntity::class*/,
-    IdleLocEntity::class, BillingEntity::class, StockDetailsListEntity::class, StockProductListEntity::class, BillingProductListEntity::class,
-    MeetingEntity::class, MeetingTypeEntity::class, ProductRateEntity::class, AreaListEntity::class, PjpListEntity::class,
-    ShopTypeEntity::class, ModelEntity::class, PrimaryAppEntity::class, SecondaryAppEntity::class, LeadTypeEntity::class,
-    StageEntity::class, FunnelStageEntity::class, BSListEntity::class, QuotationEntity::class, TypeListEntity::class,
-    MemberEntity::class, MemberShopEntity::class, TeamAreaEntity::class, TimesheetListEntity::class, ClientListEntity::class,
-    ProjectListEntity::class, ActivityListEntity::class, TimesheetProductListEntity::class, ShopVisitAudioEntity::class,
-    TaskEntity::class, BatteryNetStatusEntity::class, ActivityDropDownEntity::class, TypeEntity::class,
-    PriorityListEntity::class, ActivityEntity::class, AddDoctorProductListEntity::class, AddDoctorEntity::class,
-    AddChemistProductListEntity::class, AddChemistEntity::class, DocumentypeEntity::class, DocumentListEntity::class, PaymentModeEntity::class,
-    EntityTypeEntity::class, PartyStatusEntity::class, RetailerEntity::class, DealerEntity::class, BeatEntity::class, AssignToShopEntity::class,
-    VisitRemarksEntity::class, ShopVisitCompetetorModelEntity::class,
-    OrderStatusRemarksModelEntity::class, CurrentStockEntryModelEntity::class, CurrentStockEntryProductModelEntity::class,
-    CcompetetorStockEntryModelEntity::class, CompetetorStockEntryProductModelEntity::class,
-    ShopTypeStockViewStatus::class,
-    NewOrderGenderEntity::class, NewOrderProductEntity::class, NewOrderColorEntity::class, NewOrderSizeEntity::class, NewOrderScrOrderEntity::class, ProspectEntity::class,
-    QuestionEntity::class, QuestionSubmitEntity::class, AddShopSecondaryImgEntity::class, ReturnDetailsEntity::class, ReturnProductListEntity::class, UserWiseLeaveListEntity::class, ShopFeedbackEntity::class, ShopFeedbackTempEntity::class, LeadActivityEntity::class,
-    ShopDtlsTeamEntity::class, CollDtlsTeamEntity::class, BillDtlsTeamEntity::class, OrderDtlsTeamEntity::class,
-    TeamAllShopDBModelEntity::class, DistWiseOrderTblEntity::class, NewGpsStatusEntity::class,ShopExtraContactEntity::class,ProductOnlineRateTempEntity::class, TaskManagmentEntity::class,
+        StateListEntity::class, CityListEntity::class, MarketingDetailEntity::class, MarketingDetailImageEntity::class, MarketingCategoryMasterEntity::class,
+        TaListDBModelEntity::class, AssignToPPEntity::class, AssignToDDEntity::class, WorkTypeEntity::class, OrderListEntity::class,
+        OrderDetailsListEntity::class, ShopVisitImageModelEntity::class, UpdateStockEntity::class, PerformanceEntity::class,
+        GpsStatusEntity::class, CollectionDetailsEntity::class, InaccurateLocationDataEntity::class, LeaveTypeEntity::class, RouteEntity::class,
+        ProductListEntity::class, OrderProductListEntity::class, StockListEntity::class, RouteShopListEntity::class, SelectedWorkTypeEntity::class,
+        SelectedRouteEntity::class, SelectedRouteShopListEntity::class, OutstandingListEntity::class/*, LocationEntity::class*/,
+        IdleLocEntity::class, BillingEntity::class, StockDetailsListEntity::class, StockProductListEntity::class, BillingProductListEntity::class,
+        MeetingEntity::class, MeetingTypeEntity::class, ProductRateEntity::class, AreaListEntity::class, PjpListEntity::class,
+        ShopTypeEntity::class, ModelEntity::class, PrimaryAppEntity::class, SecondaryAppEntity::class, LeadTypeEntity::class,
+        StageEntity::class, FunnelStageEntity::class, BSListEntity::class, QuotationEntity::class, TypeListEntity::class,
+        MemberEntity::class, MemberShopEntity::class, TeamAreaEntity::class, TimesheetListEntity::class, ClientListEntity::class,
+        ProjectListEntity::class, ActivityListEntity::class, TimesheetProductListEntity::class, ShopVisitAudioEntity::class,
+        TaskEntity::class, BatteryNetStatusEntity::class, ActivityDropDownEntity::class, TypeEntity::class,
+        PriorityListEntity::class, ActivityEntity::class, AddDoctorProductListEntity::class, AddDoctorEntity::class,
+        AddChemistProductListEntity::class, AddChemistEntity::class, DocumentypeEntity::class, DocumentListEntity::class, PaymentModeEntity::class,
+        EntityTypeEntity::class, PartyStatusEntity::class, RetailerEntity::class, DealerEntity::class, BeatEntity::class, AssignToShopEntity::class,
+        VisitRemarksEntity::class, ShopVisitCompetetorModelEntity::class,
+        OrderStatusRemarksModelEntity::class, CurrentStockEntryModelEntity::class, CurrentStockEntryProductModelEntity::class,
+        CcompetetorStockEntryModelEntity::class, CompetetorStockEntryProductModelEntity::class,
+        ShopTypeStockViewStatus::class,
+        NewOrderGenderEntity::class, NewOrderProductEntity::class, NewOrderColorEntity::class, NewOrderSizeEntity::class, NewOrderScrOrderEntity::class, ProspectEntity::class,
+        QuestionEntity::class, QuestionSubmitEntity::class, AddShopSecondaryImgEntity::class, ReturnDetailsEntity::class, ReturnProductListEntity::class, UserWiseLeaveListEntity::class, ShopFeedbackEntity::class, ShopFeedbackTempEntity::class, LeadActivityEntity::class,
+        ShopDtlsTeamEntity::class, CollDtlsTeamEntity::class, BillDtlsTeamEntity::class, OrderDtlsTeamEntity::class,
+        TeamAllShopDBModelEntity::class, DistWiseOrderTblEntity::class, NewGpsStatusEntity::class,ShopExtraContactEntity::class,ProductOnlineRateTempEntity::class, TaskManagmentEntity::class,
     VisitRevisitWhatsappStatus::class,CallHisEntity::class,CompanyMasterEntity::class,TypeMasterEntity::class,StatusMasterEntity::class,SourceMasterEntity::class,StageMasterEntity::class,TeamListEntity::class,
     ContactActivityEntity::class,ScheduleTemplateEntity::class,ModeTemplateEntity::class,RuleTemplateEntity::class,SchedulerMasterEntity::class,
-    SchedulerDateTimeEntity::class,SchedulerContactEntity::class),
-    version = 2, exportSchema = false)
+    SchedulerDateTimeEntity::class,SchedulerContactEntity::class,TeamAllListEntity::class,PhoneContactEntity::class,PhoneContact1Entity::class,
+    NewProductListEntity::class, NewRateListEntity::class, NewOrderDataEntity::class,NewOrderProductDataEntity::class,OpportunityStatusEntity::class,OpportunityAddEntity::class,OpportunityProductEntity::class,LmsUserInfoEntity::class,
+    ShopAudioEntity::class,LMSNotiEntity::class),
+        version = 1, exportSchema = false)
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun addShopEntryDao(): AddShopDao
@@ -225,6 +233,20 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun schedulerDateTimeDao(): SchedulerDateTimeDao
     abstract fun schedulerContactDao(): SchedulerContactDao
+    abstract fun teamAllListDao(): TeamAllListDao
+    abstract fun phoneContactDao(): PhoneContactDao
+    abstract fun phoneContact1Dao(): PhoneContact1Dao
+
+    abstract fun newProductListDao(): NewProductListDao
+    abstract fun newRateListDao(): NewRateListDao
+    abstract fun newOrderDataDao(): NewOrderDataDao
+    abstract fun newOrderProductDataDao(): NewOrderProductDataDao
+    abstract fun opportunityStatusDao(): OpportunityStatusDao
+    abstract fun opportunityAddDao(): OpportunityAddDao
+    abstract fun opportunityProductDao(): OpportunityProductDao
+    abstract fun lmsUserInfoDao(): LmsUserInfoDao
+    abstract fun shopAudioDao(): ShopAudioDao
+    abstract fun lmsNotiDao(): LMSNotiDao
 
 
     companion object {
@@ -233,12 +255,12 @@ abstract class AppDatabase : RoomDatabase() {
         fun initAppDatabase(context: Context) {
             if (INSTANCE == null) {
                 INSTANCE = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DBNAME)
-                    // allow queries on the main thread.
-                    // Don't do this on a real app! See PersistenceBasicSample for an example.
-                    .allowMainThreadQueries()
-                    .addMigrations(MIGRATION_1_2)
+                        // allow queries on the main thread.
+                        // Don't do this on a real app! See PersistenceBasicSample for an example.
+                        .allowMainThreadQueries()
+                        .addMigrations( )
 //                        .fallbackToDestructiveMigration()
-                    .build()
+                        .build()
             }
         }
 
@@ -251,19 +273,7 @@ abstract class AppDatabase : RoomDatabase() {
             INSTANCE = null
         }
 
-        val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                //database.execSQL("create TABLE contact_activity (sl_no INTEGER NOT NULL PRIMARY KEY , shop_id TEXT NOT NULL DEFAULT '' , activity_date TEXT NOT NULL DEFAULT '', create_date_time TEXT NOT NULL DEFAULT '', isActivityDone INTEGER NOT NULL DEFAULT 0) ")
-                database.execSQL("create TABLE schedule_template (sl_no INTEGER NOT NULL PRIMARY KEY , template_name TEXT NOT NULL, template_id TEXT NOT NULL,template_desc TEXT NOT NULL) ")
-                database.execSQL("create TABLE mode_template (sl_no INTEGER NOT NULL PRIMARY KEY , mode_template_id INTEGER NOT NULL , mode_template_name TEXT NOT NULL ) ")
-                database.execSQL("create TABLE rule_template (sl_no INTEGER NOT NULL PRIMARY KEY , rule_template_id INTEGER NOT NULL , rule_template_name TEXT NOT NULL ) ")
-
-                database.execSQL("create TABLE crm_scheduler_master (sl_no INTEGER NOT NULL PRIMARY KEY ,scheduler_id TEXT NOT NULL, scheduler_name TEXT NOT NULL DEFAULT '' , select_template TEXT NOT NULL DEFAULT '', template_content TEXT NOT NULL , select_mode_id TEXT NOT NULL , select_mode TEXT NOT NULL , select_rule_id TEXT NOT NULL , select_rule TEXT NOT NULL , repeat_every_month INTEGER NOT NULL , save_date_time TEXT NOT NULL , save_modify_date_time TEXT NOT NULL DEFAULT '' , isUploaded INTEGER NOT NULL DEFAULT 0,isAutoMail INTEGER NOT NULL,sendingFilePath TEXT NOT NULL ) ")
-                database.execSQL("create TABLE crm_scheduler_master_date_time (sl_no INTEGER NOT NULL PRIMARY KEY , scheduler_id TEXT NOT NULL DEFAULT '' , select_hour TEXT NOT NULL DEFAULT '', select_minute TEXT NOT NULL DEFAULT '', select_time TEXT NOT NULL DEFAULT '', select_date TEXT NOT NULL DEFAULT '', select_timestamp TEXT NOT NULL DEFAULT '', isDone INTEGER NOT NULL DEFAULT 0) ")
-                database.execSQL("create TABLE crm_scheduler_master_contacts (sl_no INTEGER NOT NULL PRIMARY KEY , scheduler_id TEXT NOT NULL DEFAULT '' , select_contact_id TEXT NOT NULL DEFAULT '', select_contact TEXT NOT NULL DEFAULT '',select_contact_number TEXT NOT NULL DEFAULT '') ")
-
-            }}
-
     }
+
 
 }
