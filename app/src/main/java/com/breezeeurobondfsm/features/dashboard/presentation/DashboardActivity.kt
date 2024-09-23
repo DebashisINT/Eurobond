@@ -995,8 +995,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation,
         } else {
             Timber.d("Battery optimization in offline mode.")
             try {
-                var soundUriAlarm =
-                    Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.getPackageName() + "/" + R.raw.beethoven)
+                var soundUriAlarm = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.getPackageName() + "/" + R.raw.beethoven)
                 if (soundUriAlarm == null) {
                     soundUriAlarm = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                 }

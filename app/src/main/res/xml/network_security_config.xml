@@ -4,11 +4,9 @@
     <domain-config cleartextTrafficPermitted="true">
 
 
-<!--
        <domain includeSubdomains="true">3.7.30.86</domain>
--->
 
-        <domain includeSubdomains="true">fts.indusnettechnologies.com</domain>
+       <!-- <domain includeSubdomains="true">fts.indusnettechnologies.com</domain>-->
 
 
         <!--<domain includeSubdomains="true">localhost</domain>-->
