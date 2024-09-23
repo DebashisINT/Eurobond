@@ -385,7 +385,13 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                     .setOngoing(true)
                     .build()
                 //startForeground(AppConstant.FOREGROUND_SERVICE, notificationn,ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
-                startForeground(AppConstant.FOREGROUND_SERVICE, notificationn)
+                if(Build.VERSION.SDK_INT == 28){
+                    println(" 28")
+                    startForeground(AppConstant.FOREGROUND_SERVICE, notificationn)
+                }else{
+                    println("tag_start_foreground not 28")
+                    startForeground(AppConstant.FOREGROUND_SERVICE, notificationn,ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+                }
 
 
             }
