@@ -1,10 +1,13 @@
 package com.breezeeurobondfsm.features.NewQuotation
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -58,6 +61,7 @@ import com.breezeeurobondfsm.features.viewAllOrder.presentation.ColorListDialog
 import com.breezeeurobondfsm.features.viewAllOrder.presentation.ProductListNewOrderDialog
 import com.breezeeurobondfsm.widgets.AppCustomEditText
 import com.breezeeurobondfsm.widgets.AppCustomTextView
+import com.google.android.gms.security.ProviderInstaller
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pnikosis.materialishprogress.ProgressWheel
@@ -67,6 +71,14 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import timber.log.Timber
 import java.util.*
+import javax.mail.Authenticator
+import javax.mail.Message
+import javax.mail.MessagingException
+import javax.mail.PasswordAuthentication
+import javax.mail.Session
+import javax.mail.Transport
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMessage
 import kotlin.collections.ArrayList
 
 //Revision History
@@ -851,16 +863,13 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
 
     fun sendSuccessEmail(addQuot: AddQuotRequestData){
         try {
-            progress_wheel.spin()
             //Suman 28-06-2024 mantis id 27584
             var isMailSend = true
             doAsync {
-
-
+                progress_wheel.spin()
                 try {
                     var m = Mail()
                     var toArr = arrayOf("")
-
 
                     Timber.d("automail email : ${Pref.automail_sending_email} pass : ${Pref.automail_sending_pass} rec : ${Pref.recipient_email_ids}")
                     if(!Pref.automail_sending_email.equals("") && !Pref.automail_sending_pass.equals("") && !Pref.recipient_email_ids.equals("")){
@@ -884,9 +893,10 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
                 }
 
                 uiThread {
-                    progress_wheel.stopSpinning()
                     if(isMailSend == false){
-                        val simpleDialog = Dialog(mContext)
+                        retryMail()
+
+                        /*val simpleDialog = Dialog(mContext)
                         simpleDialog.setCancelable(false)
                         simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         simpleDialog.setContentView(R.layout.dialog_message)
@@ -901,8 +911,9 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
                                 showSuccessDialog("Quotation saved successfully.")
                             }, 500)
                         })
-                        simpleDialog.show()
+                        simpleDialog.show()*/
                     }else{
+                        progress_wheel.stopSpinning()
                         showSuccessDialog("Quotation saved successfully.")
                     }
                 }
@@ -912,6 +923,63 @@ class AddQuotFormFragment: BaseFragment(), View.OnClickListener {
             progress_wheel.stopSpinning()
         }
 
+    }
+
+    fun retryMail(){
+        doAsync {
+            try{
+                var emailRecpL = Pref.recipient_email_ids.split(",")
+                var toArr = arrayOf("")
+                toArr = Array<String>(emailRecpL.size){""}
+                for(i in 0..emailRecpL.size-1){
+                    toArr[i]=emailRecpL[i]
+                }
+
+                val props = Properties().apply {
+                    put("mail.smtp.host", "smtp.gmail.com")  // SMTP server host
+                    put("mail.smtp.port", "587")                      // SMTP port
+                    put("mail.smtp.auth", "true")
+                    put("mail.smtp.starttls.enable", "true")          // Enable STARTTLS
+                    put("mail.smtp.ssl.protocols", "TLSv1.2")         // Specify TLS version
+                    put("mail.smtp.ssl.trust", "smtp.gmail.com")  // Trust the server
+                }
+                if (Build.VERSION.SDK_INT < 21) {
+                    try {
+                        ProviderInstaller.installIfNeeded(mContext)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                val session = Session.getInstance(props, object : Authenticator() {
+                    override fun getPasswordAuthentication(): PasswordAuthentication {
+                        return PasswordAuthentication("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
+                    }
+                })
+                try {
+                    val message = MimeMessage(session).apply {
+                        setFrom(InternetAddress("eurobondacp02@gmail.com"))            // Sender's email
+                        //setRecipients(Message.RecipientType.TO, InternetAddress.parse("sumanbacharofc@gmail.com"))  // Recipient's email
+                        setRecipients(Message.RecipientType.TO, InternetAddress.parse(Pref.recipient_email_ids))  // Recipient's email
+                        subject = "Quotation Generated by ${Pref.user_name}."                                      // Email subject
+                        setText("Quotation Generated by  ${Pref.user_name} dated  ${AppUtils.getCurrentDate_DD_MM_YYYY()}.")  // Email body
+                    }
+                    // Send the message
+                    Transport.send(message)
+                    println("Email sent successfully!")
+                } catch (e: MessagingException) {
+                    e.printStackTrace()
+                    progress_wheel.stopSpinning()
+                    println("Failed to send email: ${e.message}")
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
+                progress_wheel.stopSpinning()
+            }
+            uiThread {
+                progress_wheel.stopSpinning()
+                showSuccessDialog("Quotation saved successfully.")
+            }
+        }
     }
 
 
